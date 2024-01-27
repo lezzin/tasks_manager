@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <title>Lista de tarefas</title>
+</head>
+
+<body>
+    <header>
+        <div>
+            <button class="btn-rounded">
+                <span class="material-icons">menu</span>
+            </button>
+
+            <span>Lista de tarefas</span>
+        </div>
+
+        <img src="./images/avatar.png" alt="User avatar" width="40" height="40">
+    </header>
+
+    <aside class="topics">
+        <nav data-topics></nav>
+
+        <span class="divider"></span>
+
+        <form data-add-topic>
+            <div class="form-group">
+                <input type="text" placeholder="Adicionar tópico..." required>
+                <button class="btn-primary">
+                    <span class="material-icons">add</span>
+                    Adicionar
+                </button>
+            </div>
+        </form>
+    </aside>
+
+    <main>
+        <form data-add-task>
+            <div class="form-group">
+                <input type="text" placeholder="Adicionar tarefa..." required>
+                <button class="btn-primary" type="submit"><span class="material-icons">add</span>Adicionar</button>
+            </div>
+        </form>
+
+        <section class="tasks-container">
+            <table class="tasks">
+                <thead>
+                    <tr>
+                        <td colspan="4">
+                            <div class="form-group">
+                                <span class="material-icons">search</span>
+                                <input type="search" placeholder="Pesquisar tarefa..." data-search-tasks>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Codigo</td>
+                        <td>Descrição</td>
+                        <td>Data</td>
+                        <td>Status</td>
+                    </tr>
+                </thead>
+                <tbody data-tasks></tbody>
+            </table>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
