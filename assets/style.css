@@ -1,0 +1,339 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.material-icons {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 1rem !important;
+    /* Preferred icon size */
+    display: inline-block;
+    line-height: 1;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
+
+    /* Support for all WebKit browsers. */
+    -webkit-font-smoothing: antialiased;
+    /* Support for Safari and Chrome. */
+    text-rendering: optimizeLegibility;
+
+    /* Support for Firefox. */
+    -moz-osx-font-smoothing: grayscale;
+
+    /* Support for IE. */
+    font-feature-settings: 'liga';
+}
+
+:root {
+    --bg-primary: hsl(0, 0%, 100%);
+    --bg-primary-100: hsl(0, 0%, 96%);
+    --bg-primary-300: hsl(0, 0%, 80%);
+
+    --font-primary: hsl(206, 6%, 25%);
+    --font-secondary: hsl(0, 0%, 100%);
+
+    --details-color: hsl(110, 50%, 38%);
+    --details-color-50: hsl(110, 50%, 95%);
+    --details-color-500: hsl(110, 50%, 40%);
+
+    --border-color: #ddd;
+}
+
+input,
+button {
+    border: none;
+    outline: none;
+    background: transparent;
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: var(--bg-primary-100);
+}
+
+button.btn-primary {
+    display: flex;
+    gap: 0.5rem;
+    border-radius: 0;
+    padding: .6rem .8rem;
+    white-space: nowrap;
+    background-color: var(--details-color);
+    color: var(--font-secondary);
+    border-radius: 5px;
+    font-weight: 700;
+}
+
+button.btn-rounded {
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    padding: .6rem;
+    border: 1px solid var(--border-color);
+}
+
+body {
+    display: grid;
+    grid-template: "header header" 10vh
+        "topics tasks" minmax(90vh, auto) / 23% 1fr;
+    min-height: 100vh;
+
+    color: var(--font-primary);
+    background-color: var(--bg-primary);
+
+    font-family: Roboto, Arial, sans-serif;
+}
+
+header {
+    grid-area: header;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.35rem;
+
+    border-bottom: 1px solid var(--border-color);
+    font-size: 1.6rem;
+}
+
+header div {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+header .btn-rounded {
+    display: none;
+}
+
+header img {
+    border-radius: 50%;
+}
+
+.topics {
+    grid-area: topics;
+    border-right: 1px solid var(--border-color);
+}
+
+.topics nav {
+    display: grid;
+    margin-top: 0.9rem;
+}
+
+.topics .topic {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all .3s ease-in-out;
+    text-align: left;
+    padding: .9rem 1.35rem;
+}
+
+.topic button:hover  {
+    background-color: transparent;
+}
+
+.topics .topic.active {
+    background-color: var(--details-color-50);
+    border-left: 6px solid var(--details-color);
+    color: var(--details-color);
+}
+
+.divider {
+    display: flex;
+    background-color: var(--border-color);
+    margin: 1rem auto;
+    width: 90%;
+    height: 1px;
+}
+
+[data-add-topic] {
+    margin: 0 auto;
+    width: 90%;
+}
+
+[data-add-topic] .form-group {
+    gap: 0;
+}
+
+[data-add-topic] .form-group button {
+    border-radius: 0 5px 5px 0;
+    align-items: center;
+}
+
+[data-add-topic] input {
+    border: 1px solid var(--border-color);
+    border-radius: 5px 0 0 5px;
+    padding: .4rem .6rem;
+}
+
+[data-add-topic] button:hover {
+    background-color: var(--details-color-500);
+}
+
+main {
+    grid-area: tasks;
+    padding: 1.9rem 1rem 4rem;
+}
+
+.tasks-container {
+    position: relative;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+}
+
+[data-add-task] {
+    margin-bottom: 3rem;
+}
+
+[data-add-task] .form-group {
+    gap: 0;
+}
+
+[data-add-task] .form-group button {
+    border-radius: 0 5px 5px 0;
+    align-items: center;
+}
+
+[data-add-task] input {
+    border: 1px solid var(--border-color);
+    border-radius: 5px 0 0 5px;
+    padding: .8rem 1rem;
+}
+
+.form-group {
+    display: flex;
+    gap: 0.6rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.2rem;
+}
+
+input {
+    width: 100%;
+}
+
+.tasks {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+td[colspan="4"] {
+    position: relative;
+}
+
+td[colspan="4"]::before {
+    position: absolute;
+    content: "";
+    width: 0%;
+    height: 2px;
+    background-color: var(--details-color);
+    bottom: 0;
+    left: 0;
+    transition: all .3s ease;
+}
+
+td[colspan="4"]:focus-within::before {
+    width: 100%;
+}
+
+.tasks thead {
+    font-weight: 500;
+}
+
+.tasks thead tr,
+.tasks tr:not(:last-child) {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tasks th,
+.tasks td:not(.actions) {
+    padding: 0.8rem;
+}
+
+.tasks tr:hover:not(.completed) {
+    background-color: var(--bg-primary-100);
+}
+
+.tasks .empty {
+    text-align: center;
+}
+
+.tasks .completed {
+    background-color: var(--details-color-50);
+}
+
+.tasks .completed .actions [data-action="change-status"] {
+    background-color: var(--details-color);
+    color: var(--font-secondary);
+}
+
+.tasks .actions {
+    display: flex;
+    gap: .25rem;
+    padding: 0.3rem;
+}
+
+.tasks .actions input {
+    width: min-content;
+    accent-color: var(--details-color);
+}
+
+.tasks .actions button {
+    display: grid;
+    place-items: center;
+    background-color: var(--bg-primary-300);
+    border-radius: 3px;
+    padding: 0.6rem;
+}
+
+.loader-container {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: var(--bg-primary);
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .3s ease;
+}
+
+.loader-container.active {
+    opacity: 1;
+}
+
+.loader-container.active .loader {
+    animation: loader 1s infinite linear;
+}
+
+.loader-container .loader {
+    width: 2.5rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    border-left-color: var(--details-color);
+}
+
+@keyframes loader {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

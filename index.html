@@ -5,10 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./assets/style.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="icon" href="./logo.jpg">
 
-    <title>Lista de tarefas</title>
+    <title>Gerenciador de tarefas</title>
 </head>
 
 <body>
@@ -18,10 +19,13 @@
                 <span class="material-icons">menu</span>
             </button>
 
-            <span>Lista de tarefas</span>
+            <div>
+                <img src="./logo.jpg" alt="Page logo" width="40" height="40">
+                <span>Gerenciador de tarefas</span>
+            </div>
         </div>
 
-        <img src="./images/avatar.png" alt="User avatar" width="40" height="40">
+        <img src="./assets/images/avatar.png" alt="User avatar" width="40" height="40">
     </header>
 
     <aside class="topics">
@@ -30,29 +34,32 @@
         <span class="divider"></span>
 
         <form data-add-topic>
+            <label for="task_desc">Adicionar tópico:</label>
             <div class="form-group">
-                <input type="text" placeholder="Adicionar tópico..." required>
-                <button class="btn-primary">
-                    <span class="material-icons">add</span>
-                    Adicionar
-                </button>
+                <input type="text" placeholder="Nome" required>
+                <button class="btn-primary"><span class="material-icons">add</span></button>
             </div>
         </form>
     </aside>
 
     <main>
         <form data-add-task>
+            <label for="task_desc">Adicionar tarefa:</label>
             <div class="form-group">
-                <input type="text" placeholder="Adicionar tarefa..." required>
-                <button class="btn-primary" type="submit"><span class="material-icons">add</span>Adicionar</button>
+                <input type="text" id="task_desc" placeholder="Descrição" required>
+                <button class="btn-primary" type="submit"><span class="material-icons">add</span></button>
             </div>
         </form>
 
         <section class="tasks-container">
+            <div class="loader-container" data-loader>
+                <span class="loader"></span>
+            </div>
+    
             <table class="tasks">
                 <thead>
                     <tr>
-                        <td colspan="4">
+                        <td colspan="5">
                             <div class="form-group">
                                 <span class="material-icons">search</span>
                                 <input type="search" placeholder="Pesquisar tarefa..." data-search-tasks>
@@ -60,10 +67,11 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>Codigo</td>
+                        <td>Código</td>
                         <td>Descrição</td>
                         <td>Data</td>
                         <td>Status</td>
+                        <td>Ação</td>
                     </tr>
                 </thead>
                 <tbody data-tasks></tbody>
@@ -71,7 +79,7 @@
         </section>
     </main>
 
-    <script src="script.js"></script>
+    <script src="./assets/script.js"></script>
 </body>
 
 </html>
