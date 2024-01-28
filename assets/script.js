@@ -1,7 +1,9 @@
-const STORAGE_KEY = "tasks";
+const TASK_STORAGE_KEY = "tasks";
+const THEME_STORAGE_KEY = "theme";
 
 const loader = document.querySelector("[data-loader]");
 const mobileBtn = document.querySelector("[data-header-btn]");
+const themeBtn = document.querySelector("[data-change-theme]");
 
 const topicsContainer = document.querySelector("[data-topics-container]");
 const topicsNav = document.querySelector("[data-topics]");
@@ -11,24 +13,48 @@ const formAddTask = document.querySelector("[data-add-task]");
 const formAddTopic = document.querySelector("[data-add-topic]");
 const formSearchTask = document.querySelector("[data-search-tasks]");
 
-let tasks = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+let tasks = getTaskStorage();
 let selectedTopic = Object.keys(tasks)[0];
 
-function saveStorage() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+function saveTaskStorage() {
+    localStorage.setItem(TASK_STORAGE_KEY, JSON.stringify(tasks));
+}
+
+function getTaskStorage() {
+    return JSON.parse(localStorage.getItem(TASK_STORAGE_KEY)) || {};
+}
+
+function getThemeStorage() {
+    return JSON.parse(localStorage.getItem(THEME_STORAGE_KEY)) || "light";
+}
+
+function saveThemeStorage() {
+    localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(document.body.dataset.theme));
+}
+
+function loadTheme() {
+    let selectedTheme = getThemeStorage();
+    document.body.dataset.theme = selectedTheme;
 }
 
 function getCurrentTime() {
     const now = new Date();
-    const options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+    const options = {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    };
+
     return now.toLocaleDateString('pt-BR', options);
 }
 
 function createTopicsList() {
-    const isEmpty = Object.keys(tasks).length <= 0;
-    const html = isEmpty ? '<p class="topic empty">Nenhum tópico cadastrado</p>' : createTopicButtonsHTML();
+    const isTopicsEmpty = Object.keys(tasks).length <= 0;
+    const template = isTopicsEmpty ? '<p class="topic empty">Nenhum tópico cadastrado</p>' : createTopicButtonsHTML();
 
-    topicsNav.innerHTML = html;
+    topicsNav.innerHTML = template;
     topicsNav.querySelector('.topic').classList.add("active");
 
     addTopicButtonsEventListeners();
@@ -38,7 +64,7 @@ function createTopicButtonsHTML() {
     return Object.keys(tasks).map(topic => `
         <button class="topic">
             <p>${topic}</p>
-            <a role="button" data-topic-name="${topic}" data-action="delete">
+            <a href="javascript:void(0)" role="button" data-topic-name="${topic}" data-action="delete">
                 <span class="material-icons">delete</span>
             </a>
         </button>`).join('');
@@ -56,18 +82,18 @@ function addTopicButtonsEventListeners() {
 }
 
 function createTasksTable(withLoader = true) {
-    const isEmptyTopic = tasks[selectedTopic]?.length <= 0 || !tasks[selectedTopic];
-    const html = isEmptyTopic ? '<tr class="last-row"><td colspan="5" class="message-cell">Nenhuma tarefa cadastrada.</td></tr>' : createTaskRowsHTML();
+    const isTopicEmpty = tasks[selectedTopic]?.length <= 0 || !tasks[selectedTopic];
+    const template = isTopicEmpty ? '<tr class="last-row"><td colspan="5" class="message-cell">Nenhuma tarefa cadastrada.</td></tr>' : createTaskRowsHTML();
 
     if (withLoader) {
         showLoader();
         setTimeout(() => {
-            tasksTable.innerHTML = html;
+            tasksTable.innerHTML = template;
             hideLoader();
             addActionButtonsEventListeners();
         }, 1000);
     } else {
-        tasksTable.innerHTML = html;
+        tasksTable.innerHTML = template;
         hideLoader();
         addActionButtonsEventListeners();
     }
@@ -75,25 +101,26 @@ function createTasksTable(withLoader = true) {
 
 function createTaskRowsHTML() {
     const taskRows = tasks[selectedTopic].map(task => createTaskRow(task));
-    taskRows[taskRows.length - 1] = taskRows[taskRows.length - 1].replace('<tr', '<tr class="last-row"');
+    const lastTaskIndex = taskRows.length - 1;
+    taskRows[lastTaskIndex] = taskRows[lastTaskIndex].replace('<tr', '<tr last-row ');
 
     return taskRows.join('');
 }
 
 function createTaskRow(task) {
-    const status = task?.status ? "Concluída" : "Não concluída";
-    const className = task?.status ? "completed-cell-task" : "";
+    const status = task.status ? "Concluída" : "Não concluída";
+    const statusClass = task.status ? `class="completed-cell-task"` : "";
 
-    return `<tr class="${className}">
-        <td>${task?.id}</td>
-        <td data-desc>${task?.description}</td>
-        <td>${task?.date}</td>
+    return `<tr ${statusClass}>
+        <td>${task.id}</td>
+        <td data-desc>${task.description}</td>
+        <td>${task.date}</td>
         <td>${status}</td>
         <td class="actions-cell">
-            <button data-task-id="${task?.id}" data-action="delete">
+            <button data-task-id="${task.id}" data-action="delete">
                 <span class="material-icons">delete</span>
             </button>
-            <button data-task-id="${task?.id}" data-action="change-status">
+            <button data-task-id="${task.id}" data-action="change-status">
                 <span class="material-icons">done</span>
             </button>
         </td>
@@ -110,6 +137,7 @@ function hideLoader() {
 
 function clearTasks() {
     showLoader();
+
     setTimeout(() => {
         tasksTable.innerHTML = '<tr class="last-row"><td colspan="5" class="message-cell">Selecione um novo tópico.</td></tr>';
         hideLoader();
@@ -118,23 +146,27 @@ function clearTasks() {
 
 function deleteTask(taskId) {
     tasks[selectedTopic] = tasks[selectedTopic].filter(task => task.id !== taskId);
+
     createTasksTable(false);
-    saveStorage();
+    saveTaskStorage();
 }
 
 function deleteTopic(name) {
     delete tasks[name];
+
     createTopicsList();
     clearTasks();
-    saveStorage();
+    saveTaskStorage();
 }
 
 function changeTaskStatus(taskId) {
     const taskIndex = tasks[selectedTopic].findIndex(task => task.id === taskId);
+
     if (taskIndex !== -1) {
         tasks[selectedTopic][taskIndex].status = !tasks[selectedTopic][taskIndex].status;
+
         createTasksTable(false);
-        saveStorage();
+        saveTaskStorage();
     }
 }
 
@@ -162,7 +194,7 @@ topicsNav.addEventListener("click", function ({ target }) {
     if (!topicName) return;
 
     selectedTopic = topicName;
-    
+
     topicsContainer.classList.remove("active");
     document.querySelector(".topic.active").classList.remove("active");
     target.classList.add("active");
@@ -184,11 +216,11 @@ formAddTask.addEventListener("submit", function (e) {
         status: false
     };
 
-    tasks[selectedTopic] = tasks[selectedTopic] || [];
+    tasks[selectedTopic] = tasks[selectedTopic];
     tasks[selectedTopic].push(task);
 
     createTasksTable(false);
-    saveStorage();
+    saveTaskStorage();
     this.reset();
 });
 
@@ -199,6 +231,7 @@ formAddTopic.addEventListener("submit", function (e) {
     tasks[newName] = [];
 
     createTopicsList();
+    saveTaskStorage();
     this.reset();
 });
 
@@ -208,14 +241,21 @@ formSearchTask.addEventListener("input", function ({ target: { value } }) {
     tableTds.forEach(element => {
         const elementValue = String(element.textContent).toLocaleLowerCase();
         const searchedValue = String(value).toLocaleLowerCase();
+
         element.parentElement.style.display = (elementValue.includes(searchedValue)) ? "table-row" : "none";
     });
 });
 
-
-mobileBtn.addEventListener("click", function () {
+mobileBtn.addEventListener("touchstart", function (e) {
+    e.preventDefault();
     topicsContainer.classList.toggle("active");
 });
 
+themeBtn.addEventListener("click", function () {
+    document.body.dataset.theme = (document.body.dataset.theme == "light") ? "dark" : "light";
+    saveThemeStorage();
+});
+
+loadTheme();
 createTopicsList();
 createTasksTable();

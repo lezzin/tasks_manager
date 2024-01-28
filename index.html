@@ -15,17 +15,22 @@
 <body>
     <header>
         <div>
-            <button class="btn-rounded" data-header-btn>
+            <button type="button" class="btn-rounded" data-header-btn>
                 <span class="material-icons">menu</span>
             </button>
 
             <div class="logo">
-                <img src="./logo.jpg" alt="Page logo" width="40" height="40">
+                <img src="./logo.jpg" alt="Page logo" width="37" height="37">
                 <span>Gerenciador de tarefas</span>
             </div>
         </div>
 
-        <img src="./assets/images/avatar.png" alt="User avatar" width="40" height="40">
+        <div>
+            <button type="button" class="btn-rounded" data-change-theme title="Alterar contraste do site">
+                <span class="material-icons">contrast</span>
+            </button>
+            <img src="./assets/images/avatar.png" alt="User avatar" width="37" height="37">
+        </div>
     </header>
 
     <aside class="topics-container" data-topics-container>
@@ -37,7 +42,9 @@
             <label for="task_desc">Adicionar tópico:</label>
             <div class="input-group">
                 <input type="text" placeholder="Nome" required>
-                <button class="btn-primary"><span class="material-icons">add</span></button>
+                <button type="submit" class="btn-primary" title="Adicionar novo tópico">
+                    <span class="material-icons">add</span>
+                </button>
             </div>
         </form>
     </aside>
@@ -47,7 +54,9 @@
             <label for="task_desc">Adicionar tarefa:</label>
             <div class="input-group">
                 <input type="text" id="task_desc" placeholder="Descrição" required>
-                <button class="btn-primary" type="submit"><span class="material-icons">add</span></button>
+                <button type="submit" class="btn-primary" title="Adicionar nova tarefa">
+                    <span class="material-icons">add</span>
+                </button>
             </div>
         </form>
 

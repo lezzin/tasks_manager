@@ -26,7 +26,7 @@
     font-feature-settings: 'liga';
 }
 
-:root {
+body[data-theme="light"] {
     --bg-primary: hsl(0, 0%, 100%);
     --bg-primary-100: hsl(0, 0%, 96%);
     --bg-primary-300: hsl(0, 0%, 80%);
@@ -43,16 +43,39 @@
     --border-color: #ddd;
 }
 
+body[data-theme="dark"] {
+    --bg-primary: hsl(0, 0%, 8%);
+    --bg-primary-100: hsl(0, 0%, 12%);
+    --bg-primary-300: hsl(0, 0%, 28%);
+
+    --font-primary: hsl(0, 0%, 100%);
+    --font-secondary: hsl(0, 0%, 100%);
+
+    --danger-color: hsl(0, 65%, 30%);
+
+    --details-color: hsl(110, 60%, 35%);
+    --details-color-50: hsl(110, 35%, 10%);
+    --details-color-500: hsl(110, 50%, 15%);
+
+    --border-color: #333;
+}
+
 input,
 button {
+    background: transparent;
     border: none;
     outline: none;
-    background: transparent;
     font: inherit;
+    color: inherit;
 }
 
 button {
     cursor: pointer;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
 }
 
 button:hover {
@@ -156,7 +179,9 @@ header {
     padding: 1.35rem;
 
     border-bottom: 1px solid var(--border-color);
-    font-size: 1.6rem;
+    font-size: 1.3rem;
+
+    box-shadow: 0 0 .25rem rgb(0 0 0 / 0.15);
 }
 
 header div {
@@ -165,7 +190,7 @@ header div {
     gap: 0.6rem;
 }
 
-header .btn-rounded {
+header [data-header-btn] {
     display: none;
 }
 
@@ -288,7 +313,7 @@ table tr {
     border-bottom: 1px solid var(--border-color);
 }
 
-table tr.last-row {
+table tr[last-row] {
     border-bottom: none;
 }
 
