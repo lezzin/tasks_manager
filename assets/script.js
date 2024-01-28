@@ -15,7 +15,7 @@ const formAddTopic = document.querySelector("[data-add-topic]");
 const formSearchTask = document.querySelector("[data-search-tasks]");
 
 let tasks = getTaskStorage();
-let selectedTopic = Object.keys(tasks)[0];
+let selectedTopic;
 
 function saveTaskStorage() {
     localStorage.setItem(TASK_STORAGE_KEY, JSON.stringify(tasks));
@@ -56,16 +56,14 @@ function createTopicsList() {
     const template = isTopicsEmpty ? '<p class="topic empty">Nenhum tópico cadastrado</p>' : createTopicButtonsHTML();
 
     deleteTopicsBtn.style.display = isTopicsEmpty ? "none" : "flex";
-
     topicsNav.innerHTML = template;
-    topicsNav.querySelector('.topic').classList.add("active");
 
     addTopicButtonsEventListeners();
 }
 
 function createTopicButtonsHTML() {
     return Object.keys(tasks).map(topic => `
-        <button class="topic">
+        <button class="topic ${selectedTopic == topic ? "active" : ""}">
             <p>${topic}</p>
             <a href="javascript:void(0)" role="button" data-topic-name="${topic}" data-action="delete">
                 <span class="material-icons">delete</span>
@@ -88,20 +86,22 @@ function createTasksTable(withLoader = true) {
     const isTopicEmpty = tasks[selectedTopic]?.length <= 0 || !tasks[selectedTopic];
     const template = isTopicEmpty ? '<tr class="last-row"><td colspan="5" class="message-cell">Nenhuma tarefa cadastrada.</td></tr>' : createTaskRowsHTML();
 
-    deleteTasksBtn.style.display = isTopicEmpty ? "none" : "flex";
-
     if (withLoader) {
         showLoader();
+
         setTimeout(() => {
             tasksTable.innerHTML = template;
-            hideLoader();
+            deleteTasksBtn.style.display = isTopicEmpty ? "none" : "flex";
+
             addActionButtonsEventListeners();
+            hideLoader();
         }, 1000);
-    } else {
-        tasksTable.innerHTML = template;
-        hideLoader();
-        addActionButtonsEventListeners();
+
+        return;
     }
+
+    tasksTable.innerHTML = template;
+    addActionButtonsEventListeners();
 }
 
 function createTaskRowsHTML() {
@@ -122,10 +122,10 @@ function createTaskRow(task) {
         <td>${task.date}</td>
         <td>${status}</td>
         <td class="actions-cell">
-            <button data-task-id="${task.id}" data-action="delete">
+            <button data-task-id="${task.id}" data-action="delete" title="Deletar tarefa">
                 <span class="material-icons">delete</span>
             </button>
-            <button data-task-id="${task.id}" data-action="change-status">
+            <button data-task-id="${task.id}" data-action="change-status" title="Alterar status da tarefa">
                 <span class="material-icons">done</span>
             </button>
         </td>
@@ -145,6 +145,7 @@ function clearTasks() {
 
     setTimeout(() => {
         tasksTable.innerHTML = '<tr class="last-row"><td colspan="5" class="message-cell">Selecione um novo tópico.</td></tr>';
+        deleteTasksBtn.style.display = "none";
         hideLoader();
     }, 1000);
 }
@@ -160,8 +161,8 @@ function deleteTopic(name) {
     delete tasks[name];
 
     createTopicsList();
-    clearTasks();
     saveTaskStorage();
+    clearTasks();
 }
 
 function changeTaskStatus(taskId) {
@@ -185,8 +186,8 @@ function deleteAllTopics() {
     tasks = {};
 
     createTopicsList();
-    clearTasks();
     saveTaskStorage();
+    clearTasks();
 }
 
 function addActionButtonsEventListeners() {
@@ -215,11 +216,25 @@ topicsNav.addEventListener("click", function ({ target }) {
     selectedTopic = topicName;
 
     document.body.classList.remove("topics-container-active");
-
-    document.querySelector(".topic.active").classList.remove("active");
+    if (document.querySelector(".topic.active")) {
+        document.querySelector(".topic.active").classList.remove("active");
+    }
     target.classList.add("active");
 
     createTasksTable();
+});
+
+formAddTopic.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const newName = this.querySelector("input").value;
+    if (tasks[newName]) return;
+
+    tasks[newName] = [];
+
+    createTopicsList();
+    saveTaskStorage();
+    this.reset();
 });
 
 formAddTask.addEventListener("submit", function (e) {
@@ -240,17 +255,6 @@ formAddTask.addEventListener("submit", function (e) {
     tasks[selectedTopic].push(task);
 
     createTasksTable(false);
-    saveTaskStorage();
-    this.reset();
-});
-
-formAddTopic.addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const newName = this.querySelector("input").value;
-    tasks[newName] = [];
-
-    createTopicsList();
     saveTaskStorage();
     this.reset();
 });

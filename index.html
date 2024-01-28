@@ -39,16 +39,18 @@
         <span class="divider"></span>
 
         <form data-add-topic>
-            <label for="task_desc">Adicionar tópico:</label>
+            <label for="topic_name">Adicionar tópico:</label>
             <div class="input-group">
-                <input type="text" placeholder="Nome" required>
+                <input type="text" placeholder="Nome" id="topic_name" required autocomplete="off">
                 <button type="submit" class="btn-primary" title="Adicionar novo tópico">
                     <span class="material-icons">add</span>
                 </button>
             </div>
         </form>
 
-        <button type="button" class="btn-danger" data-delete-topics>
+        <span class="divider"></span>
+
+        <button type="button" class="btn-danger" data-delete-topics title="Deletar todos os tópicos">
             <span class="material-icons">delete</span>
             Deletar tudo
         </button>
@@ -58,7 +60,7 @@
         <form data-add-task>
             <label for="task_desc">Adicionar tarefa:</label>
             <div class="input-group">
-                <input type="text" id="task_desc" placeholder="Descrição" required>
+                <input type="text" id="task_desc" placeholder="Descrição" required autocomplete="off">
                 <button type="submit" class="btn-primary" title="Adicionar nova tarefa">
                     <span class="material-icons">add</span>
                 </button>
@@ -76,7 +78,7 @@
                         <th colspan="5" class="table-form-cell">
                             <div class="input-group form-cell">
                                 <span class="material-icons">search</span>
-                                <input type="search" placeholder="Pesquisar tarefa..." data-search-tasks>
+                                <input type="search" placeholder="Pesquisar tarefa..." data-search-tasks autocomplete="off">
                             </div>
                         </th>
                     </tr>
@@ -92,7 +94,7 @@
             </table>
         </section>
 
-        <button type="button" class="btn-danger" data-delete-tasks>
+        <button type="button" class="btn-danger" data-delete-tasks title="Deletar todas as tarefas">
             <span class="material-icons">delete</span>
             Deletar tudo
         </button>
