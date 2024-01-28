@@ -79,19 +79,29 @@ a {
 }
 
 button:hover {
-    background-color: var(--bg-primary-100);
+    filter: brightness(80%);
 }
 
-.btn-primary {
+.btn-primary,
+.btn-danger {
     display: flex;
     gap: 0.5rem;
     border-radius: 0;
-    padding: .6rem .8rem;
     white-space: nowrap;
-    background-color: var(--details-color);
-    color: var(--font-secondary);
     border-radius: 5px;
     font-weight: 700;
+}
+
+.btn-primary {
+    color: var(--font-secondary);
+    background-color: var(--details-color);
+    padding: .6rem .8rem;
+}
+
+.btn-danger {
+    border: 1px solid var(--danger-color);
+    color: var(--danger-color);
+    padding: .4rem .6rem;
 }
 
 .btn-rounded {
@@ -132,10 +142,6 @@ form[data-add-topic] {
     padding: .6rem;
 }
 
-.input-group button:hover {
-    background-color: var(--details-color-500);
-}
-
 .input-group input {
     padding: .5rem .8rem;
     max-width: 300px;
@@ -172,6 +178,10 @@ body {
 
 header {
     grid-area: header;
+    position: sticky;
+    z-index: 99;
+    top: 0;
+    background-color: var(--bg-primary);
 
     display: flex;
     justify-content: space-between;
@@ -214,18 +224,22 @@ header [data-header-btn] {
     }
 
     .topics-container {
-        position: absolute;
+        position: fixed;
         top: 0;
         width: 90vw;
-        min-height: 90vh;
+        height: 90vh;
         margin-top: 10vh;
-        background-color: var(--bg-primary);
+        overflow-y: auto;
         transform: translateX(-100%);
         transition: transform .3s ease-in-out;
-        z-index: 99;
+        z-index: 98;
     }
 
-    .topics-container.active {
+    body.topics-container-active {
+        overflow: hidden;
+    }
+
+    body.topics-container-active .topics-container {
         transform: translateX(0%);
     }
 
@@ -241,6 +255,8 @@ header img {
 .topics-container {
     grid-area: topics;
     border-right: 1px solid var(--border-color);
+    background-color: var(--bg-primary);
+    padding-bottom: 3rem;
 }
 
 .topics-container nav {
@@ -255,10 +271,6 @@ header img {
     transition: all .3s ease-in-out;
     text-align: left;
     padding: .9rem 1.35rem;
-}
-
-.topic button:hover {
-    background-color: transparent;
 }
 
 .topic.empty {
@@ -284,6 +296,11 @@ header img {
     height: 1px;
 }
 
+[data-delete-topics] {
+    margin: .8rem auto 0;
+    width: 90%;
+}
+
 main {
     grid-area: tasks;
     padding: 1.9rem 1rem 4rem;
@@ -295,6 +312,7 @@ main {
     border-radius: 5px;
 
     display: flex;
+    flex-direction: column;
     overflow-y: auto;
     max-width: 100%;
 }
@@ -391,6 +409,11 @@ table .actions-cell button {
     pointer-events: none;
     opacity: 0;
     transition: opacity .3s ease;
+}
+
+[data-delete-tasks] {
+    margin-top: .8rem;
+    width: min-content;
 }
 
 .loader-container.active {

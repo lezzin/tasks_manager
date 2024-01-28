@@ -4,8 +4,9 @@ const THEME_STORAGE_KEY = "theme";
 const loader = document.querySelector("[data-loader]");
 const mobileBtn = document.querySelector("[data-header-btn]");
 const themeBtn = document.querySelector("[data-change-theme]");
+const deleteTopicsBtn = document.querySelector("[data-delete-topics]");
+const deleteTasksBtn = document.querySelector("[data-delete-tasks]");
 
-const topicsContainer = document.querySelector("[data-topics-container]");
 const topicsNav = document.querySelector("[data-topics]");
 const tasksTable = document.querySelector("[data-tasks]");
 
@@ -54,6 +55,8 @@ function createTopicsList() {
     const isTopicsEmpty = Object.keys(tasks).length <= 0;
     const template = isTopicsEmpty ? '<p class="topic empty">Nenhum tópico cadastrado</p>' : createTopicButtonsHTML();
 
+    deleteTopicsBtn.style.display = isTopicsEmpty ? "none" : "flex";
+
     topicsNav.innerHTML = template;
     topicsNav.querySelector('.topic').classList.add("active");
 
@@ -84,6 +87,8 @@ function addTopicButtonsEventListeners() {
 function createTasksTable(withLoader = true) {
     const isTopicEmpty = tasks[selectedTopic]?.length <= 0 || !tasks[selectedTopic];
     const template = isTopicEmpty ? '<tr class="last-row"><td colspan="5" class="message-cell">Nenhuma tarefa cadastrada.</td></tr>' : createTaskRowsHTML();
+
+    deleteTasksBtn.style.display = isTopicEmpty ? "none" : "flex";
 
     if (withLoader) {
         showLoader();
@@ -170,6 +175,20 @@ function changeTaskStatus(taskId) {
     }
 }
 
+function deleteAllTasks() {
+    tasks[selectedTopic] = [];
+    createTasksTable();
+    saveTaskStorage();
+}
+
+function deleteAllTopics() {
+    tasks = {};
+
+    createTopicsList();
+    clearTasks();
+    saveTaskStorage();
+}
+
 function addActionButtonsEventListeners() {
     const deleteButtons = tasksTable.querySelectorAll("[data-action='delete']");
     const changeStatusButtons = tasksTable.querySelectorAll("[data-action='change-status']");
@@ -195,7 +214,8 @@ topicsNav.addEventListener("click", function ({ target }) {
 
     selectedTopic = topicName;
 
-    topicsContainer.classList.remove("active");
+    document.body.classList.remove("topics-container-active");
+
     document.querySelector(".topic.active").classList.remove("active");
     target.classList.add("active");
 
@@ -248,7 +268,15 @@ formSearchTask.addEventListener("input", function ({ target: { value } }) {
 
 mobileBtn.addEventListener("touchstart", function (e) {
     e.preventDefault();
-    topicsContainer.classList.toggle("active");
+    document.body.classList.toggle("topics-container-active");
+});
+
+deleteTasksBtn.addEventListener("click", function () {
+    deleteAllTasks();
+});
+
+deleteTopicsBtn.addEventListener("click", function () {
+    deleteAllTopics();
 });
 
 themeBtn.addEventListener("click", function () {
