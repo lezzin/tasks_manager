@@ -15,11 +15,11 @@
 <body>
     <header>
         <div>
-            <button class="btn-rounded">
+            <button class="btn-rounded" data-header-btn>
                 <span class="material-icons">menu</span>
             </button>
 
-            <div>
+            <div class="logo">
                 <img src="./logo.jpg" alt="Page logo" width="40" height="40">
                 <span>Gerenciador de tarefas</span>
             </div>
@@ -28,14 +28,14 @@
         <img src="./assets/images/avatar.png" alt="User avatar" width="40" height="40">
     </header>
 
-    <aside class="topics">
+    <aside class="topics-container" data-topics-container>
         <nav data-topics></nav>
 
         <span class="divider"></span>
 
         <form data-add-topic>
             <label for="task_desc">Adicionar tópico:</label>
-            <div class="form-group">
+            <div class="input-group">
                 <input type="text" placeholder="Nome" required>
                 <button class="btn-primary"><span class="material-icons">add</span></button>
             </div>
@@ -45,7 +45,7 @@
     <main>
         <form data-add-task>
             <label for="task_desc">Adicionar tarefa:</label>
-            <div class="form-group">
+            <div class="input-group">
                 <input type="text" id="task_desc" placeholder="Descrição" required>
                 <button class="btn-primary" type="submit"><span class="material-icons">add</span></button>
             </div>
@@ -55,23 +55,23 @@
             <div class="loader-container" data-loader>
                 <span class="loader"></span>
             </div>
-    
-            <table class="tasks">
+
+            <table>
                 <thead>
-                    <tr>
-                        <td colspan="5">
-                            <div class="form-group">
+                    <tr class="table-form-row">
+                        <th colspan="5" class="table-form-cell">
+                            <div class="input-group form-cell">
                                 <span class="material-icons">search</span>
                                 <input type="search" placeholder="Pesquisar tarefa..." data-search-tasks>
                             </div>
-                        </td>
+                        </th>
                     </tr>
                     <tr>
-                        <td>Código</td>
-                        <td>Descrição</td>
-                        <td>Data</td>
-                        <td>Status</td>
-                        <td>Ação</td>
+                        <th>Código</th>
+                        <th>Descrição</th>
+                        <th>Data</th>
+                        <th>Status</th>
+                        <th>Ação</th>
                     </tr>
                 </thead>
                 <tbody data-tasks></tbody>

@@ -1,7 +1,12 @@
 const STORAGE_KEY = "tasks";
+
 const loader = document.querySelector("[data-loader]");
+const mobileBtn = document.querySelector("[data-header-btn]");
+
+const topicsContainer = document.querySelector("[data-topics-container]");
 const topicsNav = document.querySelector("[data-topics]");
 const tasksTable = document.querySelector("[data-tasks]");
+
 const formAddTask = document.querySelector("[data-add-task]");
 const formAddTopic = document.querySelector("[data-add-topic]");
 const formSearchTask = document.querySelector("[data-search-tasks]");
@@ -21,7 +26,7 @@ function getCurrentTime() {
 
 function createTopicsList() {
     const isEmpty = Object.keys(tasks).length <= 0;
-    const html = isEmpty ? '<p class="topic">Nenhum tópico cadastrado</p>' : createTopicButtonsHTML();
+    const html = isEmpty ? '<p class="topic empty">Nenhum tópico cadastrado</p>' : createTopicButtonsHTML();
 
     topicsNav.innerHTML = html;
     topicsNav.querySelector('.topic').classList.add("active");
@@ -41,6 +46,7 @@ function createTopicButtonsHTML() {
 
 function addTopicButtonsEventListeners() {
     const deleteTopicButtons = topicsNav.querySelectorAll("[data-action='delete']");
+
     deleteTopicButtons.forEach(button => {
         button.addEventListener("click", function () {
             const topicName = this.dataset.topicName;
@@ -50,8 +56,8 @@ function addTopicButtonsEventListeners() {
 }
 
 function createTasksTable(withLoader = true) {
-    const isEmptyTopic = tasks[selectedTopic]?.length <= 0;
-    const html = isEmptyTopic ? '<tr><td colspan="5" class="empty">Nenhuma tarefa cadastrada.</td></tr>' : createTaskRowsHTML();
+    const isEmptyTopic = tasks[selectedTopic]?.length <= 0 || !tasks[selectedTopic];
+    const html = isEmptyTopic ? '<tr class="last-row"><td colspan="5" class="message-cell">Nenhuma tarefa cadastrada.</td></tr>' : createTaskRowsHTML();
 
     if (withLoader) {
         showLoader();
@@ -68,19 +74,22 @@ function createTasksTable(withLoader = true) {
 }
 
 function createTaskRowsHTML() {
-    return tasks[selectedTopic].map(task => createTaskRow(task)).join('');
+    const taskRows = tasks[selectedTopic].map(task => createTaskRow(task));
+    taskRows[taskRows.length - 1] = taskRows[taskRows.length - 1].replace('<tr', '<tr class="last-row"');
+
+    return taskRows.join('');
 }
 
 function createTaskRow(task) {
     const status = task?.status ? "Concluída" : "Não concluída";
-    const className = task?.status ? "completed" : "";
+    const className = task?.status ? "completed-cell-task" : "";
 
     return `<tr class="${className}">
         <td>${task?.id}</td>
         <td data-desc>${task?.description}</td>
         <td>${task?.date}</td>
         <td>${status}</td>
-        <td class="actions">
+        <td class="actions-cell">
             <button data-task-id="${task?.id}" data-action="delete">
                 <span class="material-icons">delete</span>
             </button>
@@ -102,7 +111,7 @@ function hideLoader() {
 function clearTasks() {
     showLoader();
     setTimeout(() => {
-        tasksTable.innerHTML = "";
+        tasksTable.innerHTML = '<tr class="last-row"><td colspan="5" class="message-cell">Selecione um novo tópico.</td></tr>';
         hideLoader();
     }, 1000);
 }
@@ -153,7 +162,8 @@ topicsNav.addEventListener("click", function ({ target }) {
     if (!topicName) return;
 
     selectedTopic = topicName;
-
+    
+    topicsContainer.classList.remove("active");
     document.querySelector(".topic.active").classList.remove("active");
     target.classList.add("active");
 
@@ -162,6 +172,8 @@ topicsNav.addEventListener("click", function ({ target }) {
 
 formAddTask.addEventListener("submit", function (e) {
     e.preventDefault();
+
+    if (!tasks[selectedTopic]) return;
 
     const newId = parseInt(tasks[selectedTopic]?.[tasks[selectedTopic].length - 1]?.id ?? 0) + 1;
     const newDescription = this.querySelector("input").value;
@@ -198,6 +210,11 @@ formSearchTask.addEventListener("input", function ({ target: { value } }) {
         const searchedValue = String(value).toLocaleLowerCase();
         element.parentElement.style.display = (elementValue.includes(searchedValue)) ? "table-row" : "none";
     });
+});
+
+
+mobileBtn.addEventListener("click", function () {
+    topicsContainer.classList.toggle("active");
 });
 
 createTopicsList();
