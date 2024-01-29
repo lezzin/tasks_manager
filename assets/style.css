@@ -433,6 +433,11 @@ table .actions-cell button {
     padding: 0.6rem;
 }
 
+[data-delete-tasks] {
+    margin-top: .3rem;
+    width: min-content;
+}
+
 .loader-container {
     position: absolute;
     inset: 0;
@@ -443,11 +448,6 @@ table .actions-cell button {
     pointer-events: none;
     opacity: 0;
     transition: opacity .3s ease;
-}
-
-[data-delete-tasks] {
-    margin-top: .8rem;
-    width: min-content;
 }
 
 .loader-container.active {

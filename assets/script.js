@@ -9,6 +9,7 @@ const deleteTasksBtn = document.querySelector("[data-delete-tasks]");
 
 const topicsNav = document.querySelector("[data-topics]");
 const tasksTable = document.querySelector("[data-tasks]");
+const tasksProgress = document.querySelector("[data-tasks-progress]");
 
 const formAddTask = document.querySelector("[data-add-task]");
 const formAddTopic = document.querySelector("[data-add-topic]");
@@ -92,7 +93,6 @@ function createTasksTable(withLoader = true) {
         setTimeout(() => {
             tasksTable.innerHTML = template;
             deleteTasksBtn.style.display = isTopicEmpty ? "none" : "flex";
-
             addActionButtonsEventListeners();
             hideLoader();
         }, 1000);
@@ -101,6 +101,7 @@ function createTasksTable(withLoader = true) {
     }
 
     tasksTable.innerHTML = template;
+    deleteTasksBtn.style.display = isTopicEmpty ? "none" : "flex";
     addActionButtonsEventListeners();
 }
 
