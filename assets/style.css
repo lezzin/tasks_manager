@@ -35,27 +35,26 @@ body[data-theme="light"] {
     --font-secondary: hsl(0, 0%, 100%);
 
     --danger-color: hsl(0, 90%, 60%);
+    --danger-color-50: hsl(0, 90%, 95%);
 
     --details-color: hsl(110, 50%, 38%);
     --details-color-50: hsl(110, 50%, 95%);
-    --details-color-500: hsl(110, 50%, 30%);
 
     --border-color: #ddd;
 }
 
 body[data-theme="dark"] {
     --bg-primary: hsl(0, 0%, 8%);
-    --bg-primary-100: hsl(0, 0%, 12%);
-    --bg-primary-300: hsl(0, 0%, 28%);
+    --bg-primary-100: hsl(0, 0%, 16%);
+    --bg-primary-300: hsl(0, 0%, 24%);
 
-    --font-primary: hsl(0, 0%, 100%);
-    --font-secondary: hsl(0, 0%, 100%);
+    --font-primary: hsl(0, 0%, 90%);
 
-    --danger-color: hsl(0, 65%, 30%);
+    --danger-color: hsl(0, 65%, 40%);
+    --danger-color-50: hsl(0, 30%, 12%);
 
-    --details-color: hsl(110, 60%, 35%);
-    --details-color-50: hsl(110, 35%, 10%);
-    --details-color-500: hsl(110, 50%, 15%);
+    --details-color: hsl(110, 60%, 32%);
+    --details-color-50: hsl(110, 30%, 12%);
 
     --border-color: #333;
 }
@@ -95,15 +94,15 @@ a {
 }
 
 .btn-primary {
-    color: var(--font-secondary);
+    color: var(--font-secondary, --font-primary);
     background-color: var(--details-color);
     padding: .6rem .8rem;
 }
 
 .btn-danger {
-    border: 1px solid var(--danger-color);
+    background-color: var(--danger-color-50);
     color: var(--danger-color);
-    padding: .4rem .6rem;
+    padding: .5rem .6rem;
 }
 
 .btn-rounded {
@@ -222,7 +221,7 @@ header .navigation {
     width: 100%;
 }
 
-header .navigation h2{
+header .navigation h2 {
     font-size: 1.3rem;
     font-weight: 400;
 }
@@ -312,7 +311,7 @@ header .navigation h2{
     background: var(--danger-color);
     border-radius: 5px;
     padding: 0.8rem 1.3rem;
-    color: var(--font-secondary);
+    color: var(--font-secondary, --font-primary);
     margin: 0 .8rem;
 }
 
@@ -394,7 +393,7 @@ table tr[last-row] {
     border-bottom: none;
 }
 
-table tr:hover:not(.completed-cell-task, .table-form-row) {
+table tr:hover:not(.table-form-row, .table-header) {
     background-color: var(--bg-primary-100);
 }
 
@@ -411,13 +410,9 @@ table .message-cell {
     text-align: center;
 }
 
-table .completed-cell-task {
-    background-color: var(--details-color-50);
-}
-
 table .completed-cell-task .actions-cell [data-action="change-status"] {
     background-color: var(--details-color);
-    color: var(--font-secondary);
+    color: var(--font-secondary, --font-primary);
 }
 
 .table-form-cell {
