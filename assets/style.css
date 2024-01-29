@@ -213,7 +213,7 @@ header .logo-container [data-header-btn] {
 }
 
 header .logo-container img {
-    border-radius: 50%;
+    border-radius: 3px;
 }
 
 header .navigation {
