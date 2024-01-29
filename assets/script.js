@@ -294,9 +294,21 @@ themeBtn.addEventListener("click", function () {
     saveThemeStorage();
 });
 
-mobileBtn.addEventListener("click", function () {
-    document.body.classList.toggle("topics-container-active");
-});
+if (window.matchMedia("(max-width: 768px)").matches) {
+    mobileBtn.addEventListener("click", function (event) {
+        event.stopPropagation();
+        document.body.classList.toggle("topics-container-active");
+    });
+
+    document.addEventListener('click', function (event) {
+        const aside = document.querySelector('.topics-container');
+        const isClickInsideAside = aside.contains(event.target);
+
+        if (!isClickInsideAside) {
+            document.body.classList.remove("topics-container-active");
+        }
+    });
+}
 
 loadTheme();
 createTopicsList();
