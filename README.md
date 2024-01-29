@@ -1,4 +1,4 @@
-![gerenciador_tarefas](https://github.com/lezzin/tasks_manager/assets/103830032/262b1285-0e07-4f2d-9e5d-cc91058c84fc)
+![Foto do projeto](https://github.com/lezzin/tasks_manager/assets/103830032/262b1285-0e07-4f2d-9e5d-cc91058c84fc)
 
 # Gerenciador de tarefas
 
