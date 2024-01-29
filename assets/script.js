@@ -9,7 +9,7 @@ const deleteTasksBtn = document.querySelector("[data-delete-tasks]");
 
 const topicsNav = document.querySelector("[data-topics]");
 const tasksTable = document.querySelector("[data-tasks]");
-const tasksProgress = document.querySelector("[data-tasks-progress]");
+const topicNameDisplay = document.querySelector("[data-topic-display]");
 
 const formAddTask = document.querySelector("[data-add-task]");
 const formAddTopic = document.querySelector("[data-add-topic]");
@@ -161,6 +161,10 @@ function deleteTask(taskId) {
 function deleteTopic(name) {
     delete tasks[name];
 
+    if (topicNameDisplay.innerHTML == name) {
+        topicNameDisplay.innerHTML = "";
+    }
+
     createTopicsList();
     saveTaskStorage();
     clearTasks();
@@ -184,6 +188,7 @@ function deleteAllTasks() {
 }
 
 function deleteAllTopics() {
+    topicNameDisplay.innerHTML = "";
     tasks = {};
 
     createTopicsList();
@@ -215,6 +220,7 @@ topicsNav.addEventListener("click", function ({ target }) {
     if (!topicName) return;
 
     selectedTopic = topicName;
+    topicNameDisplay.innerHTML = topicName;
 
     document.body.classList.remove("topics-container-active");
     if (document.querySelector(".topic.active")) {
@@ -271,11 +277,6 @@ formSearchTask.addEventListener("input", function ({ target: { value } }) {
     });
 });
 
-mobileBtn.addEventListener("touchstart", function (e) {
-    e.preventDefault();
-    document.body.classList.toggle("topics-container-active");
-});
-
 deleteTasksBtn.addEventListener("click", function () {
     if (confirm("Realmente deseja deletar todas as tarefas relacionadas a esse tópico? Essa ação não poderá ser desfeita.")) {
         deleteAllTasks();
@@ -291,6 +292,10 @@ deleteTopicsBtn.addEventListener("click", function () {
 themeBtn.addEventListener("click", function () {
     document.body.dataset.theme = (document.body.dataset.theme == "light") ? "dark" : "light";
     saveThemeStorage();
+});
+
+mobileBtn.addEventListener("click", function () {
+    document.body.classList.toggle("topics-container-active");
 });
 
 loadTheme();
