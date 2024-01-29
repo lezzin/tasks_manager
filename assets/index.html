@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="./assets/style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="icon" href="./logo.jpg">
+
+    <title>Gerenciador de tarefas</title>
+</head>
+
+<body>
+    <header>
+        <div class="logo-container">
+            <button type="button" class="btn-rounded" data-header-btn>
+                <span class="material-icons">menu</span>
+            </button>
+
+            <div class="logo">
+                <img src="./logo.jpg" alt="Page logo" width="37" height="37">
+                <span>Gerenciador de tarefas</span>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <h2 data-topic-display></h2>
+
+            <div>
+                <button type="button" class="btn-rounded" data-change-theme title="Alterar contraste do site">
+                    <span class="material-icons">contrast</span>
+                </button>
+
+                <img src="./assets/images/avatar.png" alt="User avatar" width="37" height="37">
+            </div>
+        </div>
+    </header>
+
+    <aside class="topics-container" data-topics-container>
+        <nav data-topics></nav>
+
+        <span class="divider"></span>
+
+        <form data-add-topic>
+            <div class="input-group">
+                <input type="text" placeholder="Adicionar tópico..." id="topic_name" required autocomplete="off">
+                <button type="submit" class="btn-primary" title="Adicionar novo tópico">
+                    <span class="material-icons">add</span>
+                </button>
+            </div>
+        </form>
+
+        <span class="divider"></span>
+
+        <button type="button" class="btn-danger" data-delete-topics title="Deletar todos os tópicos">
+            <span class="material-icons">delete</span>
+            Deletar tópicos
+        </button>
+    </aside>
+
+    <main>
+        <form data-add-task>
+            <div class="input-group input-group-rounded">
+                <input type="text" id="task_desc" placeholder="Adicionar tarefa..." required autocomplete="off">
+                <button type="submit" class="btn-primary" title="Adicionar nova tarefa">
+                    <span class="material-icons">add</span>
+                </button>
+            </div>
+        </form>
+
+        <section class="tasks-container">
+            <div class="loader-container" data-loader>
+                <span class="loader"></span>
+            </div>
+
+            <table>
+                <thead>
+                    <tr class="table-form-row">
+                        <th colspan="5" class="table-form-cell">
+                            <div class="input-group form-cell">
+                                <span class="material-icons">search</span>
+                                <input type="search" placeholder="Pesquisar tarefa..." data-search-tasks
+                                    autocomplete="off">
+                            </div>
+                        </th>
+                    </tr>
+                    <tr class="table-header">
+                        <th>Código</th>
+                        <th>Descrição</th>
+                        <th>Data</th>
+                        <th>Status</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody data-tasks></tbody>
+            </table>
+        </section>
+
+        <button type="button" class="btn-danger" data-delete-tasks title="Deletar todas as tarefas">
+            <span class="material-icons">delete</span>
+            Deletar tarefas
+        </button>
+    </main>
+
+    <script src="./assets/script.js"></script>
+</body>
+
+</html>
