@@ -276,11 +276,15 @@ mobileBtn.addEventListener("touchstart", function (e) {
 });
 
 deleteTasksBtn.addEventListener("click", function () {
-    deleteAllTasks();
+    if (confirm("Realmente deseja deletar todas as tarefas relacionadas a esse tópico? Essa ação não poderá ser desfeita.")) {
+        deleteAllTasks();
+    }
 });
 
 deleteTopicsBtn.addEventListener("click", function () {
-    deleteAllTopics();
+    if (confirm("Realmente deseja deletar todos os tópicos? Essa ação não poderá ser desfeita.")) {
+        deleteAllTopics();
+    }
 });
 
 themeBtn.addEventListener("click", function () {
