@@ -2,7 +2,7 @@
 
 # Gerenciador de tarefas
 
-Um aplicativo de gerenciamento de tarefas com design inspiradio nos aplicativos do Google.
+Um aplicativo de gerenciamento de tarefas com design inspirado no Google.
 
 ## Recursos
 
