@@ -10,32 +10,25 @@ const deleteTasksBtn = document.querySelector("[data-delete-tasks]");
 const topicsNav = document.querySelector("[data-topics]");
 const tasksTable = document.querySelector("[data-tasks]");
 const topicNameDisplay = document.querySelector("[data-topic-display]");
+const taskMessage = document.querySelector("[data-task-message]");
 
 const formAddTask = document.querySelector("[data-add-task]");
 const formAddTopic = document.querySelector("[data-add-topic]");
 const formSearchTask = document.querySelector("[data-search-tasks]");
 
-let tasks = getTaskStorage();
+let tasks = getStorage(TASK_STORAGE_KEY, {});
 let selectedTopic;
 
-function saveTaskStorage() {
-    localStorage.setItem(TASK_STORAGE_KEY, JSON.stringify(tasks));
+function saveStorage(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
 }
 
-function getTaskStorage() {
-    return JSON.parse(localStorage.getItem(TASK_STORAGE_KEY)) || {};
-}
-
-function getThemeStorage() {
-    return JSON.parse(localStorage.getItem(THEME_STORAGE_KEY)) || "light";
-}
-
-function saveThemeStorage() {
-    localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(document.body.dataset.theme));
+function getStorage(key, returnEmpty) {
+    return JSON.parse(localStorage.getItem(key)) || returnEmpty;
 }
 
 function loadTheme() {
-    let selectedTheme = getThemeStorage();
+    let selectedTheme = getStorage(THEME_STORAGE_KEY, "light");
     document.body.dataset.theme = selectedTheme;
 }
 
@@ -66,7 +59,7 @@ function createTopicButtonsHTML() {
     return Object.keys(tasks).map(topic => `
         <button class="topic ${selectedTopic == topic ? "active" : ""}">
             <p>${topic}</p>
-            <a href="javascript:void(0)" role="button" data-topic-name="${topic}" data-action="delete">
+            <a href="javascript:void(0)" role="button" data-topic-name="${topic}" data-action="delete" title="Deletar tópico" class="btn-rounded">
                 <span class="material-icons">delete</span>
             </a>
         </button>`).join('');
@@ -87,10 +80,14 @@ function createTasksTable(withLoader = true) {
     const isTopicEmpty = tasks[selectedTopic]?.length <= 0 || !tasks[selectedTopic];
     const template = isTopicEmpty ? '<tr class="last-row"><td colspan="5" class="message-cell">Nenhuma tarefa cadastrada.</td></tr>' : createTaskRowsHTML();
 
+    const completedTasksLength = Array.from(tasks[selectedTopic]).filter(task => task.status == true).length;
+    const allTasksLength = Array.from(tasks[selectedTopic]).length;
+
     if (withLoader) {
         showLoader();
 
         setTimeout(() => {
+            taskMessage.innerText = !isTopicEmpty ? `${completedTasksLength}/${allTasksLength} concluidas` : "";
             tasksTable.innerHTML = template;
             deleteTasksBtn.style.display = isTopicEmpty ? "none" : "flex";
             addActionButtonsEventListeners();
@@ -101,6 +98,7 @@ function createTasksTable(withLoader = true) {
     }
 
     tasksTable.innerHTML = template;
+    taskMessage.innerText = !isTopicEmpty ? `${completedTasksLength}/${allTasksLength} concluidas` : "";
     deleteTasksBtn.style.display = isTopicEmpty ? "none" : "flex";
     addActionButtonsEventListeners();
 }
@@ -145,6 +143,7 @@ function clearTasks() {
     showLoader();
 
     setTimeout(() => {
+        taskMessage.innerText = "";
         tasksTable.innerHTML = '<tr class="last-row"><td colspan="5" class="message-cell">Selecione um novo tópico.</td></tr>';
         deleteTasksBtn.style.display = "none";
         hideLoader();
@@ -155,7 +154,7 @@ function deleteTask(taskId) {
     tasks[selectedTopic] = tasks[selectedTopic].filter(task => task.id !== taskId);
 
     createTasksTable(false);
-    saveTaskStorage();
+    saveStorage(TASK_STORAGE_KEY, tasks);
 }
 
 function deleteTopic(name) {
@@ -166,8 +165,11 @@ function deleteTopic(name) {
     }
 
     createTopicsList();
-    saveTaskStorage();
-    clearTasks();
+    saveStorage(TASK_STORAGE_KEY, tasks);
+
+    if (selectedTopic == name) {
+        clearTasks();
+    }
 }
 
 function changeTaskStatus(taskId) {
@@ -177,22 +179,25 @@ function changeTaskStatus(taskId) {
         tasks[selectedTopic][taskIndex].status = !tasks[selectedTopic][taskIndex].status;
 
         createTasksTable(false);
-        saveTaskStorage();
+        saveStorage(TASK_STORAGE_KEY, tasks);
     }
 }
 
 function deleteAllTasks() {
     tasks[selectedTopic] = [];
+    taskMessage.innerText = "";
+
     createTasksTable();
-    saveTaskStorage();
+    saveStorage(TASK_STORAGE_KEY, tasks);
 }
 
 function deleteAllTopics() {
+    taskMessage.innerText = "";
     topicNameDisplay.innerHTML = "";
     tasks = {};
 
     createTopicsList();
-    saveTaskStorage();
+    saveStorage(TASK_STORAGE_KEY, tasks);
     clearTasks();
 }
 
@@ -240,7 +245,7 @@ formAddTopic.addEventListener("submit", function (e) {
     tasks[newName] = [];
 
     createTopicsList();
-    saveTaskStorage();
+    saveStorage(TASK_STORAGE_KEY, tasks);
     this.reset();
 });
 
@@ -262,7 +267,7 @@ formAddTask.addEventListener("submit", function (e) {
     tasks[selectedTopic].push(task);
 
     createTasksTable(false);
-    saveTaskStorage();
+    saveStorage(TASK_STORAGE_KEY, tasks);
     this.reset();
 });
 
@@ -291,7 +296,7 @@ deleteTopicsBtn.addEventListener("click", function () {
 
 themeBtn.addEventListener("click", function () {
     document.body.dataset.theme = (document.body.dataset.theme == "light") ? "dark" : "light";
-    saveThemeStorage();
+    saveStorage(THEME_STORAGE_KEY, document.body.dataset.theme);
 });
 
 if (window.matchMedia("(max-width: 768px)").matches) {
