@@ -12,7 +12,7 @@
     <title>Gerenciador de tarefas</title>
 </head>
 
-<body>
+<body data-theme="light">
     <header>
         <div class="logo-container">
             <button type="button" class="btn-rounded" data-header-btn>
@@ -75,37 +75,17 @@
                 <span class="loader"></span>
             </div>
 
-            <table>
-                <thead>
-                    <tr class="table-form-row">
-                        <th colspan="5" class="table-form-cell">
-                            <div class="input-group form-cell">
-                                <span class="material-icons">search</span>
-                                <input type="search" placeholder="Pesquisar tarefa..." data-search-tasks
-                                    autocomplete="off">
-                            </div>
-                        </th>
-                    </tr>
-                    <tr class="table-header">
-                        <th>Código</th>
-                        <th>Descrição</th>
-                        <th>Data</th>
-                        <th>Status</th>
-                        <th>Ação</th>
-                    </tr>
-                </thead>
-                <tbody data-tasks></tbody>
-            </table>
+            <div class="tasks-container-body" data-tasks></div>
+            
+            <div class="tasks-container-footer">
+                <button type="button" class="btn-danger" data-delete-tasks title="Deletar todas as tarefas">
+                    <span class="material-icons">delete</span>
+                    Deletar tarefas
+                </button>
+    
+                <span data-task-message></span>
+            </div>
         </section>
-
-        <div class="tasks-container-footer">
-            <button type="button" class="btn-danger" data-delete-tasks title="Deletar todas as tarefas">
-                <span class="material-icons">delete</span>
-                Deletar tarefas
-            </button>
-
-            <span data-task-message></span>
-        </div>
 
     </main>
 

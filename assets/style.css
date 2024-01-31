@@ -28,14 +28,13 @@
 
 body[data-theme="light"] {
     --bg-primary: hsl(0, 0%, 100%);
-    --bg-primary-dark: hsl(0, 0%, 96%);
-    --bg-primary-light: hsl(0, 0%, 80%);
+    --bg-primary-light: hsl(0, 0%, 96%);
+    --bg-primary-dark: hsl(0, 0%, 80%);
 
     --font-primary: hsl(206, 6%, 25%);
     --font-secondary: hsl(0, 0%, 100%);
 
     --danger-color: hsl(0, 90%, 60%);
-    --danger-color-dark: hsl(0, 90%, 95%);
 
     --details-color: hsl(110, 50%, 38%);
     --details-color-dark: hsl(110, 50%, 82%);
@@ -46,13 +45,12 @@ body[data-theme="light"] {
 
 body[data-theme="dark"] {
     --bg-primary: hsl(0, 0%, 8%);
-    --bg-primary-dark: hsl(0, 0%, 16%);
-    --bg-primary-light: hsl(0, 0%, 24%);
+    --bg-primary-light: hsl(0, 0%, 16%);
+    --bg-primary-dark: hsl(0, 0%, 12%);
 
     --font-primary: hsl(0, 0%, 90%);
 
     --danger-color: hsl(0, 60%, 50%);
-    --danger-color-dark: hsl(0, 50%, 14%);
 
     --details-color: hsl(110, 50%, 35%);
     --details-color-dark: hsl(110, 30%, 12%);
@@ -92,7 +90,6 @@ a {
     border-radius: 0;
     white-space: nowrap;
     border-radius: 5px;
-    font-weight: 700;
 }
 
 .btn-primary {
@@ -102,9 +99,8 @@ a {
 }
 
 .btn-danger {
-    background-color: var(--danger-color-dark);
     color: var(--danger-color);
-    padding: .5rem .6rem;
+    padding: 0;
 }
 
 .btn-rounded {
@@ -313,12 +309,16 @@ header .navigation h2 {
     padding: .4rem;
 }
 
+.topic a:hover {
+    background-color: var(--bg-primary-dark);
+}
+
 .topic.active a:hover {
     background-color: var(--details-color-dark);
 }
 
 .topics-container .topic:hover:not(.empty) {
-    background-color: var(--bg-primary-dark);
+    background-color: var(--bg-primary-light);
 }
 
 .topic.empty {
@@ -362,12 +362,12 @@ main {
 
 [data-add-task] {
     width: 100%;
+    margin-bottom: 2rem;
 }
 
 [data-add-task] .input-group {
     display: flex;
     justify-content: center;
-    margin-bottom: 2rem;
 }
 
 form[data-add-task] .input-group>* {
@@ -380,99 +380,71 @@ form[data-add-task] .input-group:focus-within>* {
 }
 
 .tasks-container {
+    display: grid;
+    place-items: center;
     position: relative;
-    border: 1px solid var(--border-color);
-    border-radius: 5px;
-
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    max-width: 100%;
-}
-
-table {
-    border-collapse: collapse;
-    text-align: left;
+    margin: 0 auto;
+    max-width: 660px;
     width: 100%;
 }
 
-table thead :last-child {
-    font-weight: 500;
+.tasks-container-body {
+    display: grid;
+    place-items: center;
+    width: inherit;
+    gap: .6rem;
 }
 
-table tr {
-    border-bottom: 1px solid var(--border-color);
+.tasks-container-body .task {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: .8rem 1rem;
+    width: inherit;
 }
 
-table tr[last-row] {
-    border-bottom: none;
+.task .btn-rounded {
+    padding: 0.5rem;
 }
 
-table tr:hover:not(.table-form-row, .table-header) {
-    background-color: var(--bg-primary-dark);
+.task.completed {
+    opacity: .8;
 }
 
-table td {
-    white-space: nowrap;
+.task.completed .left .task-date,
+.task.completed .left .task-desc {
+    text-decoration: line-through;
 }
 
-table th:not(.table-form-cell),
-table td:not(.actions-cell) {
-    padding: 0.8rem;
+.task .left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
-table .message-cell {
-    text-align: center;
-}
-
-table .completed-cell-task .actions-cell [data-action="change-status"] {
+.task.completed .left button.btn-rounded {
     background-color: var(--details-color);
     color: var(--font-secondary, --font-primary);
 }
 
-.table-form-cell {
-    position: relative;
+.task .left .task-desc {
+    font-size: 1.2rem;
+    font-weight: 500;
 }
 
-.table-form-cell::before {
-    position: absolute;
-    content: "";
-    width: 0%;
-    height: 2px;
-    background-color: var(--details-color);
-    bottom: 0;
-    left: 0;
-    transition: all .3s ease;
-}
-
-.table-form-cell:focus-within::before {
-    width: 100%;
-}
-
-table .actions-cell {
-    display: flex;
-    gap: .25rem;
-    padding: 0.3rem;
-}
-
-table .actions-cell input {
-    accent-color: var(--details-color);
-    width: min-content;
-}
-
-table .actions-cell button {
-    display: grid;
-    place-items: center;
-    background-color: var(--bg-primary-light);
-    border-radius: 3px;
-    padding: 0.6rem;
+.task .left .task-date {
+    margin-top: 0.25rem;
+    font-size: .9rem;
 }
 
 .tasks-container-footer {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-top: .3rem;
+    margin-top: 1rem;
+    width: inherit;
 }
 
 .tasks-container-footer button[data-delete-tasks] {

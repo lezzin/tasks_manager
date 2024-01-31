@@ -8,13 +8,12 @@ const deleteTopicsBtn = document.querySelector("[data-delete-topics]");
 const deleteTasksBtn = document.querySelector("[data-delete-tasks]");
 
 const topicsNav = document.querySelector("[data-topics]");
-const tasksTable = document.querySelector("[data-tasks]");
+const tasksContainer = document.querySelector("[data-tasks]");
 const topicNameDisplay = document.querySelector("[data-topic-display]");
 const taskMessage = document.querySelector("[data-task-message]");
 
 const formAddTask = document.querySelector("[data-add-task]");
 const formAddTopic = document.querySelector("[data-add-topic]");
-const formSearchTask = document.querySelector("[data-search-tasks]");
 
 let tasks = getStorage(TASK_STORAGE_KEY, {});
 let selectedTopic;
@@ -78,17 +77,19 @@ function addTopicButtonsEventListeners() {
 
 function createTasksTable(withLoader = true) {
     const isTopicEmpty = tasks[selectedTopic]?.length <= 0 || !tasks[selectedTopic];
-    const template = isTopicEmpty ? '<tr class="last-row"><td colspan="5" class="message-cell">Nenhuma tarefa cadastrada.</td></tr>' : createTaskRowsHTML();
+    const template = isTopicEmpty ? '<p>Nenhuma tarefa cadastrada.</p>' : createTaskRowsHTML();
 
-    const completedTasksLength = Array.from(tasks[selectedTopic]).filter(task => task.status == true).length;
-    const allTasksLength = Array.from(tasks[selectedTopic]).length;
+    if (selectedTopic) {
+        const completedTasksLength = Array.from(tasks[selectedTopic]).filter(task => task.status == true).length;
+        const allTasksLength = Array.from(tasks[selectedTopic]).length;
+        taskMessage.innerText = !isTopicEmpty ? `${completedTasksLength}/${allTasksLength} concluidas` : "";
+    }
 
     if (withLoader) {
         showLoader();
 
         setTimeout(() => {
-            taskMessage.innerText = !isTopicEmpty ? `${completedTasksLength}/${allTasksLength} concluidas` : "";
-            tasksTable.innerHTML = template;
+            tasksContainer.innerHTML = template;
             deleteTasksBtn.style.display = isTopicEmpty ? "none" : "flex";
             addActionButtonsEventListeners();
             hideLoader();
@@ -97,38 +98,39 @@ function createTasksTable(withLoader = true) {
         return;
     }
 
-    tasksTable.innerHTML = template;
-    taskMessage.innerText = !isTopicEmpty ? `${completedTasksLength}/${allTasksLength} concluidas` : "";
+    tasksContainer.innerHTML = template;
     deleteTasksBtn.style.display = isTopicEmpty ? "none" : "flex";
     addActionButtonsEventListeners();
 }
 
 function createTaskRowsHTML() {
-    const taskRows = tasks[selectedTopic].map(task => createTaskRow(task));
-    const lastTaskIndex = taskRows.length - 1;
-    taskRows[lastTaskIndex] = taskRows[lastTaskIndex].replace('<tr', '<tr last-row ');
+    let html = "";
+    tasks[selectedTopic].forEach(task => html += createTaskRow(task));
 
-    return taskRows.join('');
+    return html;
 }
 
 function createTaskRow(task) {
-    const status = task.status ? "Concluída" : "Não concluída";
-    const statusClass = task.status ? `class="completed-cell-task"` : "";
+    const className = task.status ? `class="task completed"` : `class="task"`;
 
-    return `<tr ${statusClass}>
-        <td>${task.id}</td>
-        <td data-desc>${task.description}</td>
-        <td>${task.date}</td>
-        <td>${status}</td>
-        <td class="actions-cell">
-            <button data-task-id="${task.id}" data-action="delete" title="Deletar tarefa">
-                <span class="material-icons">delete</span>
-            </button>
-            <button data-task-id="${task.id}" data-action="change-status" title="Alterar status da tarefa">
-                <span class="material-icons">done</span>
-            </button>
-        </td>
-    </tr>`;
+    return `<div ${className}>
+                <div class="left">
+                    <button class="btn-rounded" data-task-id="${task.id}" data-action="change-status" title="Alterar status da tarefa">
+                        <span class="material-icons">done</span>
+                    </button>
+
+                    <div>
+                        <p class="task-desc" data-desc>${task.description}</p>
+                        <p class="task-date text-muted">${task.date}</p>
+                    </div>
+                </div>
+
+                <div class="right">
+                    <button data-task-id="${task.id}" data-action="delete" title="Deletar tarefa" class="btn-danger">
+                        <span class="material-icons">delete</span>
+                    </button>
+                </div>
+            </div>`;
 }
 
 function showLoader() {
@@ -144,7 +146,7 @@ function clearTasks() {
 
     setTimeout(() => {
         taskMessage.innerText = "";
-        tasksTable.innerHTML = '<tr class="last-row"><td colspan="5" class="message-cell">Selecione um novo tópico.</td></tr>';
+        tasksContainer.innerHTML = '<p>Selecione um novo tópico.</p>';
         deleteTasksBtn.style.display = "none";
         hideLoader();
     }, 1000);
@@ -202,8 +204,8 @@ function deleteAllTopics() {
 }
 
 function addActionButtonsEventListeners() {
-    const deleteButtons = tasksTable.querySelectorAll("[data-action='delete']");
-    const changeStatusButtons = tasksTable.querySelectorAll("[data-action='change-status']");
+    const deleteButtons = tasksContainer.querySelectorAll("[data-action='delete']");
+    const changeStatusButtons = tasksContainer.querySelectorAll("[data-action='change-status']");
 
     deleteButtons.forEach(button => {
         button.addEventListener("click", function () {
@@ -269,17 +271,6 @@ formAddTask.addEventListener("submit", function (e) {
     createTasksTable(false);
     saveStorage(TASK_STORAGE_KEY, tasks);
     this.reset();
-});
-
-formSearchTask.addEventListener("input", function ({ target: { value } }) {
-    const tableTds = tasksTable.querySelectorAll("td[data-desc]");
-
-    tableTds.forEach(element => {
-        const elementValue = String(element.textContent).toLocaleLowerCase();
-        const searchedValue = String(value).toLocaleLowerCase();
-
-        element.parentElement.style.display = (elementValue.includes(searchedValue)) ? "table-row" : "none";
-    });
 });
 
 deleteTasksBtn.addEventListener("click", function () {
