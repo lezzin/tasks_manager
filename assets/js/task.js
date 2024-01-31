@@ -28,15 +28,6 @@ const formAddTopic = document.querySelector("[data-add-topic]");
 
 let selectedTopic;
 
-function logout() {
-    auth.signOut().then(function () {
-        localStorage.removeItem("user_data");
-        window.location.href = "../index.html";
-    }).catch(function (error) {
-        console.error("Erro ao desautenticar usuário:", error);
-    });
-}
-
 function getCurrentTime() {
     const now = new Date();
     const options = {
@@ -81,39 +72,19 @@ function addActionButtonsEventListeners() {
     const deleteButtons = tasksContainer.querySelectorAll("[data-action='delete']");
     const changeStatusButtons = tasksContainer.querySelectorAll("[data-action='change-status']");
 
-    if (window.matchMedia("(max-width: 768px)").matches) {
-        deleteButtons.forEach(button => {
-            button.addEventListener("touchstart", function (e) {
-                e.preventDefault();
-
-                const taskId = parseInt(this.dataset.taskId);
-                deleteTask(taskId);
-            });
+    deleteButtons.forEach(button => {
+        button.addEventListener("click", function () {
+            const taskId = parseInt(this.dataset.taskId);
+            deleteTask(taskId);
         });
+    });
 
-        changeStatusButtons.forEach(button => {
-            button.addEventListener("touchstart", function (e) {
-                e.preventDefault();
-
-                const taskId = parseInt(this.dataset.taskId);
-                changeTaskStatus(taskId);
-            });
+    changeStatusButtons.forEach(button => {
+        button.addEventListener("click", function () {
+            const taskId = parseInt(this.dataset.taskId);
+            changeTaskStatus(taskId);
         });
-    } else {
-        deleteButtons.forEach(button => {
-            button.addEventListener("click", function () {
-                const taskId = parseInt(this.dataset.taskId);
-                deleteTask(taskId);
-            });
-        });
-
-        changeStatusButtons.forEach(button => {
-            button.addEventListener("click", function () {
-                const taskId = parseInt(this.dataset.taskId);
-                changeTaskStatus(taskId);
-            });
-        });
-    }
+    });
 }
 
 function createTopicsList(topics) {
@@ -140,20 +111,10 @@ function addTopicButtonsEventListeners() {
     const deleteTopicButtons = topicsNav.querySelectorAll("[data-action='delete']");
 
     deleteTopicButtons.forEach(button => {
-        if (window.matchMedia("(max-width: 768px)").matches) {
-
-            button.addEventListener("touchstart", function (e) {
-                e.preventDefault();
-                
-                const topicName = this.dataset.topicName;
-                deleteTopic(topicName);
-            });
-        } else {
-            button.addEventListener("click", function () {
-                const topicName = this.dataset.topicName;
-                deleteTopic(topicName);
-            });
-        }
+        button.addEventListener("click", function () {
+            const topicName = this.dataset.topicName;
+            deleteTopic(topicName);
+        });
     });
 }
 
@@ -320,6 +281,22 @@ function fetchTasks(topic) {
         });
 }
 
+topicsNav.addEventListener("click", function ({ target }) {
+    const topicName = target.querySelector('p')?.innerHTML;
+    if (!topicName) return;
+
+    selectedTopic = topicName;
+    topicNameDisplay.innerHTML = topicName;
+
+    document.body.classList.remove("topics-container-active");
+    if (document.querySelector(".topic.active")) {
+        document.querySelector(".topic.active").classList.remove("active");
+    }
+    target.classList.add("active");
+
+    fetchTasks(selectedTopic);
+});
+
 formAddTopic.addEventListener("submit", function (e) {
     e.preventDefault();
 
@@ -362,6 +339,18 @@ formAddTask.addEventListener("submit", function (e) {
         });
 });
 
+deleteTasksButton.addEventListener("click", function () {
+    if (confirm("Realmente deseja deletar todas as tarefas relacionadas a esse tópico? Essa ação não poderá ser desfeita.")) {
+        deleteAllTasks();
+    }
+});
+
+deleteTopicsButton.addEventListener("click", function () {
+    if (confirm("Realmente deseja deletar todos os tópicos? Essa ação não poderá ser desfeita.")) {
+        deleteAllTopics();
+    }
+});
+
 if (window.matchMedia("(max-width: 768px)").matches) {
     mobileButton.addEventListener("click", function (event) {
         event.stopPropagation();
@@ -376,77 +365,16 @@ if (window.matchMedia("(max-width: 768px)").matches) {
             document.body.classList.remove("topics-container-active");
         }
     });
-
-    topicsNav.addEventListener("touchstart", function (e) {
-        e.preventDefault();
-
-        const topicName = e.target.querySelector('p')?.innerHTML;
-        if (!topicName) return;
-
-        selectedTopic = topicName;
-        topicNameDisplay.innerHTML = topicName;
-
-        document.body.classList.remove("topics-container-active");
-        if (document.querySelector(".topic.active")) {
-            document.querySelector(".topic.active").classList.remove("active");
-        }
-        target.classList.add("active");
-
-        fetchTasks(selectedTopic);
-    });
-
-    deleteTasksButton.addEventListener("touchstart", function (e) {
-        e.preventDefault();
-
-        if (confirm("Realmente deseja deletar todas as tarefas relacionadas a esse tópico? Essa ação não poderá ser desfeita.")) {
-            deleteAllTasks();
-        }
-    });
-
-    deleteTopicsButton.addEventListener("touchstart", function (e) {
-        e.preventDefault();
-
-        if (confirm("Realmente deseja deletar todos os tópicos? Essa ação não poderá ser desfeita.")) {
-            deleteAllTopics();
-        }
-    });
-
-    logoutButton.addEventListener('touchstart', function (e) {
-        e.preventDefault();
-        logout();
-    });
-} else {
-    topicsNav.addEventListener("click", function ({ target }) {
-        const topicName = target.querySelector('p')?.innerHTML;
-        if (!topicName) return;
-
-        selectedTopic = topicName;
-        topicNameDisplay.innerHTML = topicName;
-
-        document.body.classList.remove("topics-container-active");
-        if (document.querySelector(".topic.active")) {
-            document.querySelector(".topic.active").classList.remove("active");
-        }
-        target.classList.add("active");
-
-        fetchTasks(selectedTopic);
-    });
-
-    deleteTasksButton.addEventListener("click", function () {
-        if (confirm("Realmente deseja deletar todas as tarefas relacionadas a esse tópico? Essa ação não poderá ser desfeita.")) {
-            deleteAllTasks();
-        }
-    });
-
-    deleteTopicsButton.addEventListener("click", function () {
-        if (confirm("Realmente deseja deletar todos os tópicos? Essa ação não poderá ser desfeita.")) {
-            deleteAllTopics();
-        }
-    });
-
-    logoutButton.addEventListener('click', logout);
 }
 
+logoutButton.addEventListener('click', function () {
+    auth.signOut().then(function () {
+        localStorage.removeItem("user_data");
+        window.location.href = "../index.html";
+    }).catch(function (error) {
+        console.error("Erro ao desautenticar usuário:", error);
+    });
+});
 
 document.querySelector("[data-user-info]").innerText = user.email;
 fetchTopics();
