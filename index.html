@@ -5,14 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="./assets/style.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="./assets/css/login.css">
     <link rel="icon" href="./logo.jpg">
 
     <title>Gerenciador de tarefas</title>
 </head>
 
-<body data-theme="light">
+<body data-theme="light" data-form="login">
     <header>
         <div class="logo-container">
             <button type="button" class="btn-rounded" data-header-btn>
@@ -32,64 +32,44 @@
                 <button type="button" class="btn-rounded" data-change-theme title="Alterar contraste do site">
                     <span class="material-icons">contrast</span>
                 </button>
-
-                <img src="./assets/images/avatar.png" alt="User avatar" width="37" height="37">
             </div>
         </div>
     </header>
 
-    <aside class="topics-container" data-topics-container>
-        <nav data-topics></nav>
-
-        <span class="divider"></span>
-
-        <form data-add-topic>
-            <div class="input-group">
-                <input type="text" placeholder="Adicionar tópico..." id="topic_name" required autocomplete="off">
-                <button type="submit" class="btn-primary" title="Adicionar novo tópico">
-                    <span class="material-icons">add</span>
-                </button>
-            </div>
-        </form>
-
-        <span class="divider"></span>
-
-        <button type="button" class="btn-danger" data-delete-topics title="Deletar todos os tópicos">
-            <span class="material-icons">delete</span>
-            Deletar tópicos
-        </button>
-    </aside>
-
     <main>
-        <form data-add-task>
-            <div class="input-group input-group-rounded">
-                <input type="text" id="task_desc" placeholder="Adicionar tarefa..." required autocomplete="off">
-                <button type="submit" class="btn-primary" title="Adicionar nova tarefa">
-                    <span class="material-icons">add</span>
-                </button>
-            </div>
+        <form id="login-form">
+            <img src="./logo.jpg" alt="Page logo" width="128" height="128">
+
+            <p class="text-muted">Entrar no Gerenciador de Tarefas</p>
+
+            <p class="form-alert hidden" data-message></p>
+
+            <input type="email" data-email placeholder="Email">
+            <input type="password" data-password placeholder="Senha">
+
+            <button type="submit" class="btn-primary" data-btn>Entrar</button>
+            <button type="button" class="btn-tertiary" data-toggle-btn data-toggle-form="register">Registra-se</button>
         </form>
 
-        <section class="tasks-container">
-            <div class="loader-container" data-loader>
-                <span class="loader"></span>
-            </div>
+        <form id="register-form">
+            <img src="./logo.jpg" alt="Page logo" width="128" height="128">
 
-            <div class="tasks-container-body" data-tasks></div>
-            
-            <div class="tasks-container-footer">
-                <button type="button" class="btn-danger" data-delete-tasks title="Deletar todas as tarefas">
-                    <span class="material-icons">delete</span>
-                    Deletar tarefas
-                </button>
-    
-                <span data-task-message></span>
-            </div>
-        </section>
+            <p class="text-muted">Registra-se no Gerenciador de Tarefas</p>
 
+            <p class="form-alert hidden" data-message></p>
+
+            <input type="email" data-email placeholder="Email">
+            <input type="password" data-password placeholder="Senha">
+
+            <button type="submit" class="btn-primary" data-btn>Registra-se</button>
+            <button type="button" class="btn-tertiary" data-toggle-btn data-toggle-form="login">Entrar</button>
+        </form>
     </main>
 
-    <script src="./assets/script.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-auth-compat.js"></script>
+    <script src="./assets/js/base.js"></script>
+    <script src="./assets/js/login.js"></script>
 </body>
 
 </html>

@@ -1,0 +1,82 @@
+@import url(./base.css);
+
+body {
+    display: grid;
+    grid-template: "header" 10vh
+        "main" minmax(90vh, auto) / auto;
+    min-height: 100vh;
+
+    color: var(--font-primary);
+    background-color: var(--bg-primary);
+
+    font-family: Roboto, Arial, sans-serif;
+
+    position: relative;
+}
+
+main {
+    grid-area: "main";
+    display: grid;
+    place-items: center;
+}
+
+form {
+    display: grid;
+    gap: .3rem;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 400px;
+
+    position: absolute;
+    transition: all .3s ease;
+}
+
+body[data-form="register"] #login-form,
+body[data-form="login"] #register-form {
+    pointer-events: none;
+    transform: scale(0.9);
+    opacity: 0;
+}
+
+body[data-form="register"] #register-form,
+body[data-form="login"] #login-form {
+    transform: scale(1);
+    opacity: 1;
+}
+
+form .form-alert {
+    border: 1px solid var(--border-color);
+    background-color: var(--danger-color);
+    color: var(--font-secondary, --font-primary);
+    padding: .6rem;
+    text-align: center;
+    border-radius: 3px;
+}
+
+form .form-alert.hidden {
+    display: none;
+}
+
+form .text-muted {
+    text-align: center;
+    margin-block: 1rem;
+}
+
+form img {
+    margin-inline: auto;
+    border-radius: 3px;
+}
+
+form input {
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    padding: .6rem;
+}
+
+form button:first-of-type {
+    margin-top: 1rem;
+}
+
+form button:last-of-type {
+    margin-top: .6rem;
+}
