@@ -158,13 +158,3 @@ header .navigation {
     justify-content: space-between;
     width: 100%;
 }
-
-@media (max-width: 768px) {
-    header {
-        padding: 1rem;
-    }
-
-    main {
-        padding: 1rem;
-    }
-}

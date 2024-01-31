@@ -82,11 +82,20 @@ header .logo-container {
 
     header {
         height: 10vh;
+        padding: 1rem;
+    }
+
+    main {
+        padding: 1rem;
     }
     
     header .logo-container {
         min-width: auto;
         border-left: none;
+    }
+
+    header .navigation p {
+        display: none;
     }
 
     .logo-container button[data-header-btn] {

@@ -80,3 +80,13 @@ form button:first-of-type {
 form button:last-of-type {
     margin-top: .6rem;
 }
+
+@media (max-width: 768px) {
+    header {
+        padding: 1rem;
+    }
+
+    main {
+        padding: 1rem;
+    }
+}
