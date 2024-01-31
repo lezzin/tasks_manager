@@ -4,9 +4,13 @@ auth.onAuthStateChanged(function (user) {
     }
 });
 
-const TASK_STORAGE_KEY = "tasks";
+const db = firebase.firestore();
+const TASKS_COLLECTION = "tasks";
 
-const loader = document.querySelector("[data-loader]");
+const user = JSON.parse(localStorage.getItem("user_data"));
+const userUid = user.uid;
+
+
 const mobileButton = document.querySelector("[data-header-btn]");
 const logoutButton = document.querySelector('[data-logout]');
 const deleteTopicsButton = document.querySelector("[data-delete-topics]");
@@ -16,11 +20,12 @@ const topicsNav = document.querySelector("[data-topics]");
 const tasksContainer = document.querySelector("[data-tasks]");
 const topicNameDisplay = document.querySelector("[data-topic-display]");
 const taskMessage = document.querySelector("[data-task-message]");
+const tasksLoader = document.querySelector("[data-tasks-loader]");
+const topicsLoader = document.querySelector("[data-topics-loader]");
 
 const formAddTask = document.querySelector("[data-add-task]");
 const formAddTopic = document.querySelector("[data-add-topic]");
 
-let tasks = getStorage(TASK_STORAGE_KEY, {});
 let selectedTopic;
 
 function getCurrentTime() {
@@ -36,163 +41,31 @@ function getCurrentTime() {
     return now.toLocaleDateString('pt-BR', options);
 }
 
-function createTopicsList() {
-    const isTopicsEmpty = Object.keys(tasks).length <= 0;
-    const template = isTopicsEmpty ? '<p class="topic empty">Nenhum tópico cadastrado</p>' : createTopicButtonsHTML();
-
-    deleteTopicsButton.style.display = isTopicsEmpty ? "none" : "flex";
-    topicsNav.innerHTML = template;
-
-    addTopicButtonsEventListeners();
+function showTasksLoader() {
+    tasksLoader.classList.add("active");
 }
 
-function createTopicButtonsHTML() {
-    return Object.keys(tasks).map(topic => `
-        <button class="topic ${selectedTopic == topic ? "active" : ""}">
-            <p>${topic}</p>
-            <a href="javascript:void(0)" role="button" data-topic-name="${topic}" data-action="delete" title="Deletar tópico" class="btn-rounded">
-                <span class="material-icons">delete</span>
-            </a>
-        </button>`).join('');
+function hideTasksLoader() {
+    tasksLoader.classList.remove("active");
 }
 
-function addTopicButtonsEventListeners() {
-    const deleteTopicButtons = topicsNav.querySelectorAll("[data-action='delete']");
-
-    deleteTopicButtons.forEach(button => {
-        button.addEventListener("click", function () {
-            const topicName = this.dataset.topicName;
-            deleteTopic(topicName);
-        });
-    });
+function showTopicsLoader() {
+    topicsLoader.classList.add("active");
 }
 
-function createTasksTable(withLoader = true) {
-    const isTopicEmpty = tasks[selectedTopic]?.length <= 0 || !tasks[selectedTopic];
-    const template = isTopicEmpty ? '<p>Nenhuma tarefa cadastrada.</p>' : createTaskRowsHTML();
-
-    if (selectedTopic) {
-        const completedTasksLength = Array.from(tasks[selectedTopic]).filter(task => task.status == true).length;
-        const allTasksLength = Array.from(tasks[selectedTopic]).length;
-        taskMessage.innerText = !isTopicEmpty ? `${completedTasksLength}/${allTasksLength} concluidas` : "";
-    }
-
-    if (withLoader) {
-        showLoader();
-
-        setTimeout(() => {
-            tasksContainer.innerHTML = template;
-            deleteTasksButton.style.display = isTopicEmpty ? "none" : "flex";
-            addActionButtonsEventListeners();
-            hideLoader();
-        }, 1000);
-
-        return;
-    }
-
-    tasksContainer.innerHTML = template;
-    deleteTasksButton.style.display = isTopicEmpty ? "none" : "flex";
-    addActionButtonsEventListeners();
-}
-
-function createTaskRowsHTML() {
-    let html = "";
-    tasks[selectedTopic].forEach(task => html += createTaskRow(task));
-
-    return html;
-}
-
-function createTaskRow(task) {
-    const className = task.status ? `class="task completed"` : `class="task"`;
-
-    return `<div ${className}>
-                <div class="left">
-                    <button class="btn-rounded" data-task-id="${task.id}" data-action="change-status" title="Alterar status da tarefa">
-                        <span class="material-icons">done</span>
-                    </button>
-
-                    <div>
-                        <p class="task-desc" data-desc>${task.description}</p>
-                        <p class="task-date text-muted">${task.date}</p>
-                    </div>
-                </div>
-
-                <div class="right">
-                    <button data-task-id="${task.id}" data-action="delete" title="Deletar tarefa" class="btn-danger">
-                        <span class="material-icons">delete</span>
-                    </button>
-                </div>
-            </div>`;
-}
-
-function showLoader() {
-    loader.classList.add("active");
-}
-
-function hideLoader() {
-    loader.classList.remove("active");
+function hideTopicsLoader() {
+    topicsLoader.classList.remove("active");
 }
 
 function clearTasks() {
-    showLoader();
+    showTasksLoader();
 
     setTimeout(() => {
         taskMessage.innerText = "";
         tasksContainer.innerHTML = '<p>Selecione um novo tópico.</p>';
         deleteTasksButton.style.display = "none";
-        hideLoader();
+        hideTasksLoader();
     }, 1000);
-}
-
-function deleteTask(taskId) {
-    tasks[selectedTopic] = tasks[selectedTopic].filter(task => task.id !== taskId);
-
-    createTasksTable(false);
-    saveStorage(TASK_STORAGE_KEY, tasks);
-}
-
-function deleteTopic(name) {
-    delete tasks[name];
-
-    if (topicNameDisplay.innerHTML == name) {
-        topicNameDisplay.innerHTML = "";
-    }
-
-    createTopicsList();
-    saveStorage(TASK_STORAGE_KEY, tasks);
-
-    if (selectedTopic == name) {
-        clearTasks();
-    }
-}
-
-function changeTaskStatus(taskId) {
-    const taskIndex = tasks[selectedTopic].findIndex(task => task.id === taskId);
-
-    if (taskIndex !== -1) {
-        tasks[selectedTopic][taskIndex].status = !tasks[selectedTopic][taskIndex].status;
-
-        createTasksTable(false);
-        saveStorage(TASK_STORAGE_KEY, tasks);
-    }
-}
-
-function deleteAllTasks() {
-    tasks[selectedTopic] = [];
-    taskMessage.innerText = "";
-
-    createTasksTable();
-    saveStorage(TASK_STORAGE_KEY, tasks);
-}
-
-function deleteAllTopics() {
-    taskMessage.innerText = "";
-    topicNameDisplay.innerHTML = "";
-    tasks = {};
-
-    createTopicsList();
-    saveStorage(TASK_STORAGE_KEY, tasks);
-    clearTasks();
 }
 
 function addActionButtonsEventListeners() {
@@ -214,6 +87,200 @@ function addActionButtonsEventListeners() {
     });
 }
 
+function createTopicsList(topics) {
+    const isTopicsEmpty = !topics || topics.length === 0;
+    const template = isTopicsEmpty ? '<p class="topic empty">Nenhum tópico cadastrado</p>' : createTopicButtonsHTML(topics);
+
+    deleteTopicsButton.style.display = isTopicsEmpty ? "none" : "flex";
+    topicsNav.innerHTML = template;
+
+    addTopicButtonsEventListeners();
+}
+
+function createTopicButtonsHTML(topics) {
+    return topics.map(topic => `
+          <button class="topic ${selectedTopic == topic ? "active" : ""}">
+              <p>${topic}</p>
+              <a href="javascript:void(0)" role="button" data-topic-name="${topic}" data-action="delete" title="Deletar tópico" class="btn-rounded">
+                  <span class="material-icons">delete</span>
+              </a>
+          </button>`).join('');
+}
+
+function addTopicButtonsEventListeners() {
+    const deleteTopicButtons = topicsNav.querySelectorAll("[data-action='delete']");
+
+    deleteTopicButtons.forEach(button => {
+        button.addEventListener("click", function () {
+            const topicName = this.dataset.topicName;
+            deleteTopic(topicName);
+        });
+    });
+}
+
+function createTasksTable(tasks) {
+    const isTopicEmpty = !tasks || tasks.length === 0;
+    const template = isTopicEmpty ? '<p>Nenhuma tarefa cadastrada.</p>' : createTaskRowsHTML(tasks);
+
+    if (selectedTopic) {
+        const completedTasksLength = tasks.filter(task => task.status == true).length;
+        const allTasksLength = tasks.length;
+        taskMessage.innerText = !isTopicEmpty ? `${completedTasksLength}/${allTasksLength} concluídas` : "";
+    }
+
+    tasksContainer.innerHTML = template;
+    deleteTasksButton.style.display = isTopicEmpty ? "none" : "flex";
+    addActionButtonsEventListeners();
+}
+
+function createTaskRowsHTML(tasks) {
+    return tasks.map(task => createTaskRow(task)).join('');
+}
+
+function createTaskRow(task) {
+    const className = task.status ? `class="task completed"` : `class="task"`;
+
+    return `<div ${className}>
+                  <div class="left">
+                      <button class="btn-rounded" data-task-id="${task.id}" data-action="change-status" title="Alterar status da tarefa">
+                          <span class="material-icons">done</span>
+                      </button>
+  
+                      <div>
+                          <p class="task-desc" data-desc>${task.description}</p>
+                          <p class="task-date text-muted">${task.date}</p>
+                      </div>
+                  </div>
+  
+                  <div class="right">
+                      <button data-task-id="${task.id}" data-action="delete" title="Deletar tarefa" class="btn-danger">
+                          <span class="material-icons">delete</span>
+                      </button>
+                  </div>
+              </div>`;
+}
+
+function deleteTask(taskId) {
+    const taskRef = db.collection(TASKS_COLLECTION).doc(userUid + "_" + selectedTopic);
+
+    taskRef.get().then(doc => {
+        if (doc.exists) {
+            const tasks = doc.data().tasks;
+            const updatedTasks = tasks.filter(task => task.id !== taskId);
+
+            taskRef.update({
+                tasks: updatedTasks
+            }).then(() => {
+                fetchTasks(selectedTopic);
+            }).catch(error => {
+                console.error("Erro ao deletar tarefa:", error);
+            });
+        }
+    }).catch(error => {
+        console.error("Erro ao obter tarefas:", error);
+    });
+}
+
+function deleteTopic(name) {
+    db.collection(TASKS_COLLECTION).doc(userUid + "_" + name).delete().then(() => {
+        if (topicNameDisplay.innerHTML == name) {
+            topicNameDisplay.innerHTML = "";
+        }
+
+        fetchTopics();
+        if (selectedTopic == name) clearTasks();
+    }).catch(error => {
+        console.error("Erro ao deletar tópico:", error);
+    });
+}
+
+function changeTaskStatus(taskId) {
+    const taskRef = db.collection(TASKS_COLLECTION).doc(userUid + "_" + selectedTopic);
+
+    taskRef.get().then(doc => {
+        if (doc.exists) {
+            const tasks = doc.data().tasks;
+            const updatedTasks = tasks.map(task => {
+                if (task.id === taskId) {
+                    task.status = !task.status;
+                }
+
+                return task;
+            });
+
+            taskRef.update({
+                tasks: updatedTasks
+            }).then(() => {
+                fetchTasks(selectedTopic);
+            }).catch(error => {
+                console.error("Erro ao alterar status da tarefa:", error);
+            });
+        }
+    }).catch(error => {
+        console.error("Erro ao obter tarefas:", error);
+    });
+}
+
+function deleteAllTasks() {
+    db.collection(TASKS_COLLECTION).doc(userUid + "_" + selectedTopic).update({
+        tasks: []
+    }).then(() => {
+        fetchTasks(selectedTopic);
+    }).catch(error => {
+        console.error("Erro ao deletar todas as tarefas:", error);
+    });
+}
+
+function deleteAllTopics() {
+    db.collection(TASKS_COLLECTION).get().then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+            doc.ref.delete();
+        });
+
+        fetchTopics();
+        clearTasks();
+    }).catch(error => {
+        console.error("Erro ao deletar todos os tópicos:", error);
+    });
+}
+
+function fetchTopics() {
+    showTopicsLoader();
+
+    db.collection(TASKS_COLLECTION)
+        .where(firebase.firestore.FieldPath.documentId(), ">=", userUid)
+        .where(firebase.firestore.FieldPath.documentId(), "<", userUid + "\uf8ff")
+        .get()
+        .then(querySnapshot => {
+            const topics = querySnapshot.docs.map(doc => doc.id.split("_")[1]);
+
+            createTopicsList(topics);
+            hideTopicsLoader();
+        })
+        .catch(error => {
+            console.error("Erro ao obter tópicos:", error);
+        });
+}
+
+function fetchTasks(topic) {
+    showTasksLoader();
+
+    db.collection(TASKS_COLLECTION).doc(userUid + "_" + topic).get()
+        .then(doc => {
+            if (doc.exists) {
+                const tasks = doc.data().tasks;
+                createTasksTable(tasks);
+            } else {
+                createTasksTable([]);
+            }
+
+            hideTasksLoader();
+        })
+        .catch(error => {
+            console.error("Erro ao obter tarefas:", error);
+        });
+}
+
 topicsNav.addEventListener("click", function ({ target }) {
     const topicName = target.querySelector('p')?.innerHTML;
     if (!topicName) return;
@@ -227,28 +294,31 @@ topicsNav.addEventListener("click", function ({ target }) {
     }
     target.classList.add("active");
 
-    createTasksTable();
+    fetchTasks(selectedTopic);
 });
 
 formAddTopic.addEventListener("submit", function (e) {
     e.preventDefault();
 
     const newName = this.querySelector("input").value;
-    if (tasks[newName]) return;
+    if (!newName) return;
 
-    tasks[newName] = [];
-
-    createTopicsList();
-    saveStorage(TASK_STORAGE_KEY, tasks);
-    this.reset();
+    db.collection(TASKS_COLLECTION).doc(userUid + "_" + newName).set({ tasks: [] })
+        .then(() => {
+            fetchTopics();
+            this.reset();
+        })
+        .catch(error => {
+            console.error("Erro ao adicionar novo tópico:", error);
+        });
 });
 
 formAddTask.addEventListener("submit", function (e) {
     e.preventDefault();
 
-    if (!tasks[selectedTopic]) return;
+    if (!selectedTopic) return;
 
-    const newId = parseInt(tasks[selectedTopic]?.[tasks[selectedTopic].length - 1]?.id ?? 0) + 1;
+    const newId = Date.now();
     const newDescription = this.querySelector("input").value;
     const task = {
         id: newId,
@@ -257,12 +327,16 @@ formAddTask.addEventListener("submit", function (e) {
         status: false
     };
 
-    tasks[selectedTopic] = tasks[selectedTopic];
-    tasks[selectedTopic].push(task);
-
-    createTasksTable(false);
-    saveStorage(TASK_STORAGE_KEY, tasks);
-    this.reset();
+    db.collection(TASKS_COLLECTION).doc(userUid + "_" + selectedTopic).update({
+        tasks: firebase.firestore.FieldValue.arrayUnion(task)
+    })
+        .then(() => {
+            fetchTasks(selectedTopic);
+            this.reset();
+        })
+        .catch(error => {
+            console.error("Erro ao adicionar nova tarefa:", error);
+        });
 });
 
 deleteTasksButton.addEventListener("click", function () {
@@ -295,11 +369,12 @@ if (window.matchMedia("(max-width: 768px)").matches) {
 
 logoutButton.addEventListener('click', function () {
     auth.signOut().then(function () {
+        localStorage.removeItem("user_data");
         window.location.href = "../index.html";
     }).catch(function (error) {
         console.error("Erro ao desautenticar usuário:", error);
     });
 });
 
-createTopicsList();
-createTasksTable();
+document.querySelector("[data-user-info]").innerText = user.email;
+fetchTopics();

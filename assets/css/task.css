@@ -81,10 +81,9 @@ header .logo-container {
     }
 
     header {
-        padding: 1rem;
         height: 10vh;
     }
-
+    
     header .logo-container {
         min-width: auto;
         border-left: none;
@@ -118,10 +117,6 @@ header .logo-container {
     body.topics-container-active .topics-container {
         transform: translateX(0%);
     }
-
-    main {
-        padding: 1rem;
-    }
 }
 
 .topics-container {
@@ -131,9 +126,19 @@ header .logo-container {
     padding-bottom: 3rem;
 }
 
+.topics-content {
+    position: relative;
+}
+
+.topics-content [data-topics-loader] .loader {
+    width: 1.6rem;
+}
+
 .topics-container nav {
     display: grid;
+    align-items: flex-start;
     margin-top: 0.9rem;
+    min-height: 2.4rem;
 }
 
 .topics-container .topic {
@@ -171,7 +176,7 @@ header .logo-container {
     justify-content: center;
     background: var(--danger-color);
     border-radius: 5px;
-    padding: 0.8rem 1.3rem;
+    padding: 0.55rem 1.3rem;
     color: var(--font-secondary, --font-primary);
     margin: 0 .8rem;
 }
@@ -243,7 +248,7 @@ form[data-add-task] .input-group:focus-within>* {
 
 .tasks-container-body .task {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     border: 1px solid var(--border-color);
     border-radius: 5px;
@@ -289,7 +294,7 @@ form[data-add-task] .input-group:focus-within>* {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-top: 1rem;
+    margin-top: .5rem;
     width: inherit;
 }
 
@@ -317,16 +322,13 @@ form[data-add-task] .input-group:focus-within>* {
     opacity: 1;
 }
 
-.loader-container.active .loader {
-    animation: loader 1s infinite linear;
-}
-
 .loader-container .loader {
     width: 2.5rem;
     aspect-ratio: 1;
     border-radius: 50%;
     border: 3px solid transparent;
     border-left-color: var(--details-color);
+    animation: loader 1s infinite linear;
 }
 
 @keyframes loader {

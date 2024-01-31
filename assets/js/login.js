@@ -12,9 +12,11 @@ function login() {
     btnSend.innerText = "Carregando...";
     formMessage.classList.add("hidden");
     formMessage.innerText = "";
+    localStorage.removeItem("user_data");
 
     auth.signInWithEmailAndPassword(emailInput.value, passwordInput.value)
         .then(response => {
+            localStorage.setItem("user_data", JSON.stringify(response.user));
             window.location.href = "pages/task.html";
         })
         .catch(error => {
@@ -39,19 +41,16 @@ function register() {
 
     auth.createUserWithEmailAndPassword(emailInput.value, passwordInput.value)
         .then((userCredential) => {
-            var user = userCredential.user;
-
             formMessage.classList.remove("hidden");
             formMessage.innerText = "Usuário cadastrado com sucesso";
 
             btnSend.innerText = "Registra-se";
         })
         .catch((error) => {
-            var errorCode = error.code;
             var errorMessage = error.message;
 
             formMessage.classList.remove("hidden");
-            formMessage.innerText = "Erro ao cadastrar usuário" + errorCode + errorMessage;
+            formMessage.innerText = errorMessage;
 
             btnSend.innerText = "Registra-se";
         });

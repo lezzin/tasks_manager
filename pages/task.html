@@ -29,6 +29,8 @@
             <h2 data-topic-display></h2>
 
             <div>
+                <p data-user-info></p>
+                
                 <button type="button" class="btn-rounded" data-change-theme title="Alterar contraste do site">
                     <span class="material-icons">contrast</span>
                 </button>
@@ -41,7 +43,13 @@
     </header>
 
     <aside class="topics-container" data-topics-container>
-        <nav data-topics></nav>
+        <div class="topics-content">
+            <div class="loader-container" data-topics-loader>
+                <span class="loader"></span>
+            </div>
+    
+            <nav data-topics></nav>
+        </div>
 
         <span class="divider"></span>
 
@@ -73,11 +81,11 @@
         </form>
 
         <section class="tasks-container">
-            <div class="loader-container" data-loader>
+            <div class="loader-container" data-tasks-loader>
                 <span class="loader"></span>
             </div>
 
-            <div class="tasks-container-body" data-tasks></div>
+            <div class="tasks-container-body" data-tasks><p>Selecione um novo tópico.</p></div>
             
             <div class="tasks-container-footer">
                 <button type="button" class="btn-danger" data-delete-tasks title="Deletar todas as tarefas">
@@ -92,6 +100,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore-compat.js"></script>
     <script src="../assets/js/base.js"></script>
     <script src="../assets/js/task.js"></script>
 </body>

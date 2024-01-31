@@ -9,8 +9,11 @@ const firebaseConfig = {
     messagingSenderId: "887940154878",
     appId: "1:887940154878:web:59749d1beab50568fb2caf"
 };
+
 firebase.initializeApp(firebaseConfig);
+
 const auth = firebase.auth();
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
 
 function saveStorage(key, value) {
     localStorage.setItem(key, JSON.stringify(value));
