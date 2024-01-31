@@ -24,7 +24,7 @@ form {
     display: grid;
     gap: .3rem;
     border-radius: 5px;
-    width: 100%;
+    width: calc(100% - 1rem);
     max-width: 400px;
 
     position: absolute;
@@ -83,10 +83,6 @@ form button:last-of-type {
 
 @media (max-width: 768px) {
     header {
-        padding: 1rem;
-    }
-
-    main {
         padding: 1rem;
     }
 }
