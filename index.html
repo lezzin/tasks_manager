@@ -38,31 +38,54 @@
 
     <main>
         <form id="login-form">
-            <img src="./logo.jpg" alt="Page logo" width="128" height="128">
-
-            <p class="text-muted">Entrar no Gerenciador de Tarefas</p>
+            <div>
+                <h2 class="form-title">Fazer login</h2>
+                <p class="text-muted">Gerenciador de Tarefas</p>
+            </div>
 
             <p class="form-alert hidden" data-message></p>
 
-            <input type="email" data-email placeholder="Email">
-            <input type="password" data-password placeholder="Senha">
+            <div class="input-container">
+                <input type="email" data-email id="login-email">
+                <label for="login-email">Email</label>
+            </div>
 
-            <button type="submit" class="btn-primary" data-btn>Entrar</button>
-            <button type="button" class="btn-tertiary" data-toggle-btn data-toggle-form="register">Registra-se</button>
+            <div class="input-container">
+                <input type="password" data-password id="login-password">
+                <label for="login-password">Senha</label>
+            </div>
+
+            <button data-recover-password-btn type="button">Esqueci minha senha</button>
+
+            <div class="btn-container">
+                <button type="submit" class="btn-primary" data-btn>Entrar</button>
+                <button type="button" class="btn-secondary" data-toggle-btn
+                    data-toggle-form="register">Registra-se</button>
+            </div>
         </form>
 
         <form id="register-form">
-            <img src="./logo.jpg" alt="Page logo" width="128" height="128">
-
-            <p class="text-muted">Registra-se no Gerenciador de Tarefas</p>
-
+            <div>
+                <h2 class="form-title">Registrar-se</h2>
+                <p class="text-muted">Gerenciador de Tarefas</p>
+            </div>
+            
             <p class="form-alert hidden" data-message></p>
 
-            <input type="email" data-email placeholder="Email">
-            <input type="password" data-password placeholder="Senha">
+            <div class="input-container">
+                <input type="email" data-email id="register-password">
+                <label for="register-email">Email</label>
+            </div>
 
-            <button type="submit" class="btn-primary" data-btn>Registra-se</button>
-            <button type="button" class="btn-tertiary" data-toggle-btn data-toggle-form="login">Entrar</button>
+            <div class="input-container">
+                <input type="password" data-password id="register-password">
+                <label for="register-password">Senha</label>
+            </div>
+
+            <div class="btn-container">
+                <button type="submit" class="btn-primary" data-btn>Registra-se</button>
+                <button type="button" class="btn-secondary" data-toggle-btn data-toggle-form="login">Entrar</button>
+            </div>
         </form>
     </main>
 

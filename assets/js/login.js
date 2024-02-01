@@ -1,4 +1,11 @@
+auth.onAuthStateChanged(function (user) {
+    if (user) {
+        window.location.href = "pages/task.html";
+    }
+});
+
 const loginForm = document.querySelector("#login-form");
+const recoverPasswordBtn = document.querySelector("[data-recover-password-btn]");
 const registerForm = document.querySelector("#register-form");
 
 const toggleFormsBtns = document.querySelectorAll("[data-toggle-btn]");
@@ -40,17 +47,20 @@ function register() {
     formMessage.innerText = "";
 
     auth.createUserWithEmailAndPassword(emailInput.value, passwordInput.value)
-        .then((userCredential) => {
+        .then(() => {
             formMessage.classList.remove("hidden");
             formMessage.innerText = "Usuário cadastrado com sucesso";
 
             btnSend.innerText = "Registra-se";
         })
         .catch((error) => {
-            var errorMessage = error.message;
-
-            formMessage.classList.remove("hidden");
-            formMessage.innerText = errorMessage;
+            if (error.code == "auth/email-already-exists") {
+                formMessage.classList.remove("hidden");
+                formMessage.innerText = "O e-mail fornecido já está em uso por outro usuário";
+            } else if (error.code == "auth/invalid-password") {
+                formMessage.classList.remove("hidden");
+                formMessage.innerText = "A senha deve conter ao menos 6 caracteres";
+            }
 
             btnSend.innerText = "Registra-se";
         });
@@ -71,4 +81,25 @@ toggleFormsBtns.forEach(element => {
         const formToToggle = this.dataset.toggleForm;
         document.body.dataset.form = formToToggle;
     });
+});
+
+recoverPasswordBtn.addEventListener("click", function (e) {
+    const emailInput = loginForm.querySelector("[data-email]");
+    const formMessage = loginForm.querySelector("[data-message]");
+
+    formMessage.classList.add("hidden");
+    formMessage.innerText = "";
+
+    if (!emailInput.value) {
+        formMessage.classList.remove("hidden");
+        formMessage.innerText = "O campo email deve ser preenchido";
+        return;
+    }
+
+    auth.sendPasswordResetEmail(emailInput.value).then(() => {
+        formMessage.classList.remove("hidden");
+        formMessage.innerText = "Email de redefinição de senha enviado";
+    }).catch(error => {
+        console.error(error);
+    })
 });

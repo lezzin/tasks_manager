@@ -82,6 +82,7 @@ a {
 }
 
 .btn-primary,
+.btn-secondary,
 .btn-tertiary,
 .btn-danger {
     display: flex;
@@ -99,15 +100,22 @@ a {
     padding: .6rem .8rem;
 }
 
+.btn-secondary {
+    color: var(--details-color);
+    border: 1px solid var(--details-color);
+    padding: .5rem .8rem;
+}
+
+.btn-tertiary {
+    color: var(--details-color);
+}
+
 .btn-danger {
     color: var(--danger-color);
     font-size: .9rem;
     padding: 0;
 }
 
-.btn-tertiary {
-    color: var(--details-color);
-}
 
 .btn-rounded {
     display: grid;

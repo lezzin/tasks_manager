@@ -20,21 +20,10 @@ main {
     place-items: center;
 }
 
-form {
-    display: grid;
-    gap: .3rem;
-    border-radius: 5px;
-    width: calc(100% - 1rem);
-    max-width: 400px;
-
-    position: absolute;
-    transition: all .3s ease;
-}
-
 body[data-form="register"] #login-form,
 body[data-form="login"] #register-form {
     pointer-events: none;
-    transform: scale(0.9);
+    transform: scale(.98);
     opacity: 0;
 }
 
@@ -42,6 +31,19 @@ body[data-form="register"] #register-form,
 body[data-form="login"] #login-form {
     transform: scale(1);
     opacity: 1;
+}
+
+form {
+    display: grid;
+    gap: .6rem;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    padding: 2rem 1rem;
+    width: calc(100% - 1rem);
+    max-width: 400px;
+
+    position: absolute;
+    transition: all .3s ease;
 }
 
 form .form-alert {
@@ -57,14 +59,24 @@ form .form-alert.hidden {
     display: none;
 }
 
-form .text-muted {
+form .form-title {
     text-align: center;
-    margin-block: 1rem;
+    font-weight: 400;
+    white-space: nowrap;
+    margin-bottom: 0.3rem;
 }
 
-form img {
-    margin-inline: auto;
-    border-radius: 3px;
+form .text-muted {
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: .8rem;
+}
+
+form [data-recover-password-btn] {
+    white-space: nowrap;
+    width: min-content;
+    color: var(--details-color);
+    font-size: .8rem;
 }
 
 form input {
@@ -73,16 +85,50 @@ form input {
     padding: .6rem;
 }
 
-form button:first-of-type {
+form [data-btn] {
     margin-top: 1rem;
 }
 
 form button:last-of-type {
-    margin-top: .6rem;
+    margin-top: .2rem;
 }
 
 @media (max-width: 768px) {
     header {
         padding: 1rem;
     }
+}
+
+.input-container {
+    position: relative;
+    display: grid;
+    width: 100%;
+}
+
+.input-container label {
+    position: absolute;
+    top: 50%;
+    left: .65rem;
+    transform: translateY(-50%);
+    transition: all .3s ease;
+    pointer-events: none;
+    opacity: .8;
+}
+
+.input-container input:focus+label {
+    top: 0;
+    opacity: 1;
+    background-color: var(--bg-primary);
+    font-size: .8rem;
+    padding-inline: .3rem;
+    color: var(--details-color);
+}
+
+.input-container input:focus {
+    border-color: var(--details-color);
+}
+
+.btn-container {
+    display: grid;
+    gap: 0.2rem;
 }
