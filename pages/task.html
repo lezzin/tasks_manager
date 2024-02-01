@@ -4,10 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Leandro Adrian da Silva">
+    <meta name="description" content="Lista de tarefas com a api do firebase">
 
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/task.css">
-    <link rel="icon" href="../logo.jpg">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="../assets/css/task.css" type="text/css">
+    <link rel="icon" href="../logo.jpg" type="image/jpg">
 
     <title>Gerenciador de tarefas</title>
 </head>
@@ -20,7 +22,7 @@
             </button>
 
             <div class="logo">
-                <img src="../logo.jpg" alt="Page logo" width="37" height="37">
+                <img src="../logo.jpg" alt="Page logo" width="37" height="37" type="image/jpg">
                 <span>Gerenciador de tarefas</span>
             </div>
         </div>
@@ -30,11 +32,11 @@
 
             <div>
                 <p data-user-info></p>
-                
+
                 <button type="button" class="btn-rounded" data-change-theme title="Alterar contraste do site">
                     <span class="material-icons">contrast</span>
                 </button>
-                
+
                 <button type="button" class="btn-rounded" data-logout title="Sair da conta">
                     <span class="material-icons">logout</span>
                 </button>
@@ -47,7 +49,7 @@
             <div class="loader-container" data-topics-loader>
                 <span class="loader"></span>
             </div>
-    
+
             <nav data-topics></nav>
         </div>
 
@@ -85,24 +87,26 @@
                 <span class="loader"></span>
             </div>
 
-            <div class="tasks-container-body" data-tasks><p>Selecione um novo tópico.</p></div>
-            
+            <div class="tasks-container-body" data-tasks>
+                <p>Selecione um novo tópico.</p>
+            </div>
+
             <div class="tasks-container-footer">
                 <button type="button" class="btn-danger" data-delete-tasks title="Deletar todas as tarefas">
                     <span class="material-icons">delete</span>
                     Deletar tarefas
                 </button>
-    
+
                 <span data-task-message></span>
             </div>
         </section>
     </main>
 
-    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore-compat.js"></script>
-    <script src="../assets/js/base.js"></script>
-    <script src="../assets/js/task.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-app-compat.js" type="text/javascript"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-auth-compat.js" type="text/javascript"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore-compat.js" type="text/javascript"></script>
+    <script src="../assets/js/base.js" type="text/javascript"></script>
+    <script src="../assets/js/task.js" type="text/javascript"></script>
 </body>
 
 </html>

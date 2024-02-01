@@ -2,12 +2,12 @@ const THEME_STORAGE_KEY = "theme";
 const themeBtn = document.querySelector("[data-change-theme]");
 
 const firebaseConfig = {
-    apiKey: "AIzaSyB2eTy5G36or5O5GOWKGGtA4d-eDSy50VU",
-    authDomain: "tasks-manager-3c26f.firebaseapp.com",
-    projectId: "tasks-manager-3c26f",
-    storageBucket: "tasks-manager-3c26f.appspot.com",
-    messagingSenderId: "887940154878",
-    appId: "1:887940154878:web:59749d1beab50568fb2caf"
+    apiKey: "AIzaSyAm4vCa8oV78kmW-n4dkgSjm1ElDlWwBHE",
+    authDomain: "task-manager-477c8.firebaseapp.com",
+    projectId: "task-manager-477c8",
+    storageBucket: "task-manager-477c8.appspot.com",
+    messagingSenderId: "217541158610",
+    appId: "1:217541158610:web:3874e0289705079c71ef0b"
 };
 firebase.initializeApp(firebaseConfig);
 

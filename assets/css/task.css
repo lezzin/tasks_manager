@@ -88,7 +88,7 @@ header .logo-container {
     main {
         padding: 1rem;
     }
-    
+
     header .logo-container {
         min-width: auto;
         border-left: none;
@@ -160,7 +160,8 @@ header .logo-container {
     border-radius: 0 50px 50px 0;
 }
 
-.topics-container .topic:hover {
+.topics-container .topic:hover,
+.topics-container .topic:focus {
     filter: none;
 }
 
@@ -169,15 +170,18 @@ header .logo-container {
     padding: .4rem;
 }
 
-.topic a:hover {
+.topic a:hover,
+.topic a:focus {
     background-color: var(--bg-primary-dark);
 }
 
-.topic.active a:hover {
+.topic.active a:hover,
+.topic.active a:focus {
     background-color: var(--details-color-dark);
 }
 
-.topics-container .topic:hover:not(.empty) {
+.topics-container .topic:hover:not(.empty),
+.topics-container .topic:focus:not(.empty) {
     background-color: var(--bg-primary-light);
 }
 
@@ -257,11 +261,11 @@ form[data-add-task] .input-group:focus-within>* {
 
 .tasks-container-body .task {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     border: 1px solid var(--border-color);
     border-radius: 5px;
-    padding: .8rem 1rem;
+    padding: .5rem 1rem;
     width: inherit;
 }
 

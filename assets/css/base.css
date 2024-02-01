@@ -6,24 +6,9 @@
     box-sizing: border-box;
 }
 
-.material-icons {
-    font-family: 'Material Icons';
-    font-weight: normal;
-    font-style: normal;
+.material-icons,
+.material-icons-outlined {
     font-size: 1rem !important;
-    /* Preferred icon size */
-    display: inline-block;
-    line-height: 1;
-    text-transform: none;
-    letter-spacing: normal;
-    word-wrap: normal;
-    white-space: nowrap;
-    direction: ltr;
-
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-    -moz-osx-font-smoothing: grayscale;
-    font-feature-settings: 'liga';
 }
 
 body[data-theme="light"] {
@@ -63,17 +48,22 @@ input,
 button {
     background: transparent;
     border: none;
-    outline: none;
     font: inherit;
     color: inherit;
+    outline: none;
+}
+
+body[data-theme="dark"] ::-ms-reveal {
+    filter: invert(100%);
 }
 
 button {
     cursor: pointer;
 }
 
-button:hover {
-    filter: brightness(90%);
+button:hover,
+button:focus {
+    filter: brightness(80%);
 }
 
 a {
@@ -101,8 +91,8 @@ a {
 }
 
 .btn-secondary {
-    color: var(--details-color);
     border: 1px solid var(--details-color);
+    color: var(--details-color);
     padding: .5rem .8rem;
 }
 
@@ -116,7 +106,6 @@ a {
     padding: 0;
 }
 
-
 .btn-rounded {
     display: grid;
     place-items: center;
@@ -125,7 +114,8 @@ a {
     border: 1px solid var(--border-color);
 }
 
-.btn-rounded:hover {
+.btn-rounded:hover,
+.btn-rounded:focus {
     background: var(--bg-primary-light);
 }
 
