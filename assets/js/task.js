@@ -10,7 +10,7 @@ const TASKS_COLLECTION = "tasks";
 const user = JSON.parse(localStorage.getItem("user_data"));
 const userUid = user.uid;
 
-const filterButtons = document.querySelectorAll(".filter-options .btn-select");
+const filterButtons = document.querySelectorAll(".filter-options-container .btn-select");
 const filterStatusButtons = document.querySelectorAll("[data-filter-status]");
 const mobileButton = document.querySelector("[data-header-btn]");
 const logoutButton = document.querySelector('[data-logout]');
@@ -286,6 +286,18 @@ topicsNav.addEventListener("click", function ({ target }) {
     const topicName = target.querySelector('p')?.innerHTML;
     if (!topicName) return;
 
+    filterButtons.forEach(function (button) {
+        button.removeAttribute("disabled");
+
+        const filterDropdown = button.nextElementSibling;
+        const firstFilterElement = filterDropdown.firstElementChild;
+
+        filterDropdown.querySelector("button.active").classList.remove("active");
+        firstFilterElement.classList.add("active");
+        firstFilterElement.click();
+    })
+
+
     selectedTopic = topicName;
     topicNameDisplay.innerHTML = topicName;
 
@@ -379,14 +391,14 @@ logoutButton.addEventListener('click', function () {
 
 filterButtons.forEach(function (button) {
     button.addEventListener("click", function () {
-        this.querySelector(".btn-select-options").classList.toggle("active");
+        button.nextElementSibling.classList.toggle("active");
     })
 
     document.addEventListener('click', function (event) {
         const isClickInsideButton = button.contains(event.target);
 
         if (!isClickInsideButton) {
-            button.querySelector(".btn-select-options").classList.remove("active");
+            button.nextElementSibling.classList.remove("active");
         }
     });
 })
@@ -395,10 +407,30 @@ filterStatusButtons.forEach(function (button) {
     button.addEventListener('click', function () {
         const statusFilter = button.dataset.filterStatus;
 
+        button.parentElement.querySelector("button.active").classList.remove("active");
+        button.classList.add("active");
+
         if (tasksContainer.children[0]?.classList.contains("task")) {
-            Array.from(tasksContainer.children).forEach(function (topic) {
-                topic.style.display = topic.classList.contains(statusFilter) ? "flex" : "none";
+            Array.from(tasksContainer.children).forEach(function (task) {
+                task.style.display = task.classList.contains(statusFilter) ? "flex" : "none";
             })
+
+            const hiddenElementsLength = tasksContainer.querySelectorAll(`[style="display: none;"]`).length;
+            const childrenElementsLength = tasksContainer.children.length;
+
+            if (hiddenElementsLength >= childrenElementsLength) {
+                tasksContainer.innerHTML += "<p data-filter-message>Nenhuma tarefa encontrada para esse filtro.</p>";
+                taskMessage.style.display = "none";
+                deleteTasksButton.style.display = "none";
+            } else {
+                taskMessage.style.display = "";
+                deleteTasksButton.style.display = "flex";
+
+                const filterMessageElement = tasksContainer.lastElementChild;
+                if (filterMessageElement && filterMessageElement.getAttribute("data-filter-message")) {
+                    filterMessageElement.remove();
+                }
+            }
         }
     });
 })

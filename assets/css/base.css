@@ -61,8 +61,7 @@ button {
     cursor: pointer;
 }
 
-button:hover,
-button:focus {
+button:hover {
     filter: brightness(80%);
 }
 
@@ -91,8 +90,7 @@ a {
     padding: .4rem .8rem;
 }
 
-.btn-select:hover,
-.btn-select:focus {
+.btn-select:hover {
     filter: none;
     background-color: var(--bg-primary-light);
 }
@@ -127,8 +125,7 @@ a {
     border: 1px solid var(--border-color);
 }
 
-.btn-rounded:hover,
-.btn-rounded:focus {
+.btn-rounded:hover {
     background: var(--bg-primary-light);
 }
 

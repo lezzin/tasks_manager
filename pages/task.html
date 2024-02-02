@@ -82,17 +82,19 @@
             </div>
         </form>
 
-        <div class="filter-options">
-            <button type="button" class="btn-select">
-                Status
-                <span class="material-icons">expand_more</span>
+        <div class="filter-options-container">
+            <div class="filter-option">
+                <button type="button" class="btn-select" disabled>
+                    Status
+                    <span class="material-icons">expand_more</span>
+                </button>
 
-                <div class="btn-select-options">
-                    <p role="button" data-filter-status="task">Todas</p>
-                    <p role="button" data-filter-status="completed">Concluido</p>
-                    <p role="button" data-filter-status="incompleted">Não concluido</p>
+                <div class="filter-option-dropdown">
+                    <button type="button" data-filter-status="task" class="active">Todas</button>
+                    <button type="button" data-filter-status="completed">Concluido</button>
+                    <button type="button" data-filter-status="incompleted">Não concluido</button>
                 </div>
-            </button>
+            </div>
         </div>
 
         <section class="tasks-container">

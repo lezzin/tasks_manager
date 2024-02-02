@@ -160,8 +160,7 @@ header .logo-container {
     border-radius: 0 50px 50px 0;
 }
 
-.topics-container .topic:hover,
-.topics-container .topic:focus {
+.topics-container .topic:hover {
     filter: none;
 }
 
@@ -170,18 +169,15 @@ header .logo-container {
     padding: .4rem;
 }
 
-.topic a:hover,
-.topic a:focus {
+.topic a:hover {
     background-color: var(--bg-primary-dark);
 }
 
-.topic.active a:hover,
-.topic.active a:focus {
+.topic.active a:hover {
     background-color: var(--details-color-dark);
 }
 
-.topics-container .topic:hover:not(.empty),
-.topics-container .topic:focus:not(.empty) {
+.topics-container .topic:hover:not(.empty) {
     background-color: var(--bg-primary-light);
 }
 
@@ -243,7 +239,7 @@ form[data-add-task] .input-group:focus-within>* {
     box-shadow: 0 0 1rem rgb(0 0 0 / 0.15);
 }
 
-.filter-options {
+.filter-options-container {
     display: flex;
     justify-content: flex-start;
     align-items: center;
@@ -255,35 +251,53 @@ form[data-add-task] .input-group:focus-within>* {
     margin-bottom: 1rem;
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 0.3rem;
-}
-
-.filter-options .btn-select {
     position: relative;
 }
 
-.btn-select .btn-select-options {
+.filter-option .btn-select:disabled {
+    opacity: .8;
+    pointer-events: none;
+    background-color: var(--border-color);
+}
+
+.filter-option .filter-option-dropdown {
     position: absolute;
     top: calc(100% + .3rem);
     left: 0;
+    z-index: 1;
+    overflow: hidden;
     background-color: var(--bg-primary);
     border: 1px solid var(--border-color);
     border-radius: 5px;
-    display: none;
+    display: grid;
     padding: .3rem 0;
     pointer-events: none;
-    z-index: 1;
+    transform: translateY(-10%);
+    opacity: 0;
+    transition: all .3s ease-in;
 }
 
-.btn-select-options.active {
-    display: grid;
+.filter-option-dropdown.active {
+    transform: translateY(0);
     pointer-events: all;
+    opacity: 1;
 }
 
-.btn-select-options p {
+.filter-option-dropdown button {
+    cursor: pointer;
     padding: .4rem 1rem;
 }
 
-.btn-select-options p:hover {
+.filter-option-dropdown button.active {
+    background-color: var(--details-color-light);
+    color: var(--details-color);
+}
+
+.filter-option-dropdown button:hover {
+    filter: none;
+}
+
+.filter-option-dropdown button:not(.active):hover {
     background-color: var(--bg-primary-light);
 }
 
