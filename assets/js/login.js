@@ -11,18 +11,18 @@ const recoverPasswordBtn = document.querySelector("[data-recover-password-btn]")
 const registerForm = document.querySelector("#register-form");
 const toggleFormsBtns = document.querySelectorAll("[data-toggle-btn]");
 
-const setFormLoadingState = (btnSend, message) => {
+function setFormLoadingState(btnSend, message) {
     btnSend.innerHTML = `<span class="material-icons rotate">rotate_right</span> Carregando...`;
     message.classList.add("hidden");
     message.innerText = "";
 };
 
-const handleLoginResponse = (response) => {
+function handleLoginResponse(response) {
     localStorage.setItem("user_data", JSON.stringify(response.user));
     window.location.href = "pages/task.html";
 };
 
-const handleLoginError = (error, btnSend, formMessage) => {
+function handleLoginError(error, btnSend, formMessage) {
     if (error.code === "auth/invalid-credential") {
         formMessage.classList.remove("hidden");
         formMessage.innerText = "Usuário não encontrado";
@@ -30,13 +30,13 @@ const handleLoginError = (error, btnSend, formMessage) => {
     btnSend.innerHTML = "Login";
 };
 
-const handleRegistrationSuccess = (formMessage, btnSend) => {
+function handleRegistrationSuccess(formMessage, btnSend) {
     formMessage.classList.remove("hidden");
     formMessage.innerText = "Usuário cadastrado com sucesso";
     btnSend.innerHTML = "Registrar-se";
 };
 
-const handleRegistrationError = (error, formMessage, btnSend) => {
+function handleRegistrationError(error, formMessage, btnSend) {
     if (error.code === "auth/email-already-exists") {
         formMessage.classList.remove("hidden");
         formMessage.innerText = "O e-mail fornecido já está em uso por outro usuário";
@@ -47,7 +47,7 @@ const handleRegistrationError = (error, formMessage, btnSend) => {
     btnSend.innerHTML = "Registrar-se";
 };
 
-const login = () => {
+function login() {
     const emailInput = loginForm.querySelector("[data-email]");
     const passwordInput = loginForm.querySelector("[data-password]");
     const btnSend = loginForm.querySelector("[data-btn]");
@@ -61,7 +61,7 @@ const login = () => {
         .catch(error => handleLoginError(error, btnSend, formMessage));
 };
 
-const register = () => {
+function register() {
     const emailInput = registerForm.querySelector("[data-email]");
     const passwordInput = registerForm.querySelector("[data-password]");
     const btnSend = registerForm.querySelector("[data-btn]");
@@ -74,12 +74,12 @@ const register = () => {
         .catch(error => handleRegistrationError(error, formMessage, btnSend));
 };
 
-loginForm.addEventListener("submit", function (e) {
+loginForm.addEventListener("submit", e => {
     e.preventDefault();
     login();
 });
 
-registerForm.addEventListener("submit", function (e) {
+registerForm.addEventListener("submit", e => {
     e.preventDefault();
     register();
 });
@@ -91,12 +91,12 @@ toggleFormsBtns.forEach(element => {
     });
 });
 
-recoverPasswordBtn.addEventListener("click", function (e) {
+recoverPasswordBtn.addEventListener("click", () => {
     const emailInput = loginForm.querySelector("[data-email]");
     const formMessage = loginForm.querySelector("[data-message]");
     const btnSend = loginForm.querySelector("[data-btn]");
 
-    setFormLoadingState( btnSend, formMessage);
+    setFormLoadingState(btnSend, formMessage);
 
     if (!emailInput.value) {
         formMessage.classList.remove("hidden");

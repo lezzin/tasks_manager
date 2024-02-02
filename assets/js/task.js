@@ -10,8 +10,10 @@ const TASKS_COLLECTION = "tasks";
 const user = JSON.parse(localStorage.getItem("user_data"));
 const userUid = user.uid;
 
-const filterButtons = document.querySelectorAll(".filter-options-container .btn-select");
+const filterButtons = document.querySelectorAll("[data-filter-btn]");
+const filterBySeachInput = document.querySelector("[data-filter-search]");
 const filterStatusButtons = document.querySelectorAll("[data-filter-status]");
+
 const mobileButton = document.querySelector("[data-header-btn]");
 const logoutButton = document.querySelector('[data-logout]');
 const deleteTopicsButton = document.querySelector("[data-delete-topics]");
@@ -31,6 +33,7 @@ let selectedTopic;
 
 function getCurrentTime() {
     const now = new Date();
+
     const options = {
         day: '2-digit',
         month: '2-digit',
@@ -58,7 +61,7 @@ function hideTopicsLoader() {
     topicsLoader.classList.remove("active");
 }
 
-function clearTasks() {
+function clearTasksContainer() {
     showTasksLoader();
 
     setTimeout(() => {
@@ -67,6 +70,27 @@ function clearTasks() {
         deleteTasksButton.style.display = "none";
         hideTasksLoader();
     }, 1000);
+}
+
+function disableTasksFilters() {
+    filterButtons.forEach(function (button) {
+        button.disabled = true;
+    });
+
+    filterBySeachInput.disabled = true;
+}
+
+function resetTasksFilters() {
+    filterButtons.forEach(function (button) {
+        button.disabled = false;
+
+        const filterDropdown = button.nextElementSibling;
+        const firstFilterElement = filterDropdown.firstElementChild;
+
+        filterDropdown.querySelector("button.active")?.classList.remove("active");
+        firstFilterElement.classList.add("active");
+        firstFilterElement.click();
+    })
 }
 
 function addActionButtonsEventListeners() {
@@ -149,7 +173,7 @@ function createTaskRow(task) {
   
                       <div>
                           <p class="task-desc" data-desc>${task.description}</p>
-                          <p class="task-date text-muted">${task.date}</p>
+                          <p class="task-date text-muted" data-date>${task.date}</p>
                       </div>
                   </div>
   
@@ -182,19 +206,6 @@ function deleteTask(taskId) {
     });
 }
 
-function deleteTopic(name) {
-    db.collection(TASKS_COLLECTION).doc(userUid + "_" + name).delete().then(() => {
-        if (topicNameDisplay.innerHTML == name) {
-            topicNameDisplay.innerHTML = "";
-        }
-
-        fetchTopics();
-        if (selectedTopic == name) clearTasks();
-    }).catch(error => {
-        console.error("Erro ao deletar tópico:", error);
-    });
-}
-
 function changeTaskStatus(taskId) {
     const taskRef = db.collection(TASKS_COLLECTION).doc(userUid + "_" + selectedTopic);
 
@@ -222,7 +233,22 @@ function changeTaskStatus(taskId) {
     });
 }
 
+function deleteTopic(name) {
+    db.collection(TASKS_COLLECTION).doc(userUid + "_" + name).delete().then(() => {
+        if (topicNameDisplay.innerHTML == name) {
+            topicNameDisplay.innerHTML = "";
+        }
+
+        fetchTopics();
+        if (selectedTopic == name) clearTasksContainer();
+    }).catch(error => {
+        console.error("Erro ao deletar tópico:", error);
+    });
+}
+
 function deleteAllTasks() {
+    if (!confirm("Realmente deseja deletar todas as tarefas relacionadas a esse tópico? Essa ação não poderá ser desfeita.")) return;
+
     db.collection(TASKS_COLLECTION).doc(userUid + "_" + selectedTopic).update({
         tasks: []
     }).then(() => {
@@ -233,13 +259,17 @@ function deleteAllTasks() {
 }
 
 function deleteAllTopics() {
+    if (!confirm("Realmente deseja deletar todos os tópicos? Essa ação não poderá ser desfeita.")) return;
+
     db.collection(TASKS_COLLECTION).get().then(querySnapshot => {
         querySnapshot.forEach(doc => {
             doc.ref.delete();
         });
 
+        topicNameDisplay.innerHTML = "";
+        disableTasksFilters();
+        clearTasksContainer();
         fetchTopics();
-        clearTasks();
     }).catch(error => {
         console.error("Erro ao deletar todos os tópicos:", error);
     });
@@ -275,6 +305,7 @@ function fetchTasks(topic) {
                 createTasksTable([]);
             }
 
+            resetTasksFilters();
             hideTasksLoader();
         })
         .catch(error => {
@@ -282,21 +313,87 @@ function fetchTasks(topic) {
         });
 }
 
-topicsNav.addEventListener("click", function ({ target }) {
-    const topicName = target.querySelector('p')?.innerHTML;
-    if (!topicName) return;
+function handleLogout() {
+    auth.signOut().then(function () {
+        localStorage.removeItem("user_data");
+        window.location.href = "../index.html";
+    }).catch(function (error) {
+        console.error("Erro ao desautenticar usuário:", error);
+    });
+}
 
-    filterButtons.forEach(function (button) {
-        button.removeAttribute("disabled");
+function handleFilterButtonClick(button) {
+    const dropdown = button.nextElementSibling;
 
-        const filterDropdown = button.nextElementSibling;
-        const firstFilterElement = filterDropdown.firstElementChild;
-
-        filterDropdown.querySelector("button.active").classList.remove("active");
-        firstFilterElement.classList.add("active");
-        firstFilterElement.click();
+    button.addEventListener("click", function () {
+        dropdown.classList.toggle("active");
     })
 
+    document.addEventListener('click', function ({ target }) {
+        const isClickInsideDropdown = dropdown.contains(target);
+        const isClickInsideButton = button.contains(target);
+
+        if (!isClickInsideDropdown && !isClickInsideButton) {
+            dropdown.classList.remove("active");
+        }
+    });
+}
+
+function handleFilterTasksByStatus(button) {
+    button.addEventListener('click', function () {
+        const statusFilter = button.dataset.filterStatus;
+        const firstChildIsTask = tasksContainer.children[0]?.classList.contains("task");
+        const tasksElements = Array.from(tasksContainer.children);
+        const dropdown = button.parentElement;
+
+        dropdown.querySelector("button.active").classList.remove("active");
+        button.classList.add("active");
+
+        if (firstChildIsTask) {
+            tasksElements.forEach(function (task) {
+                task.style.display = task.classList.contains(statusFilter) ? "flex" : "none";
+            })
+
+            const hiddenElementsLength = tasksContainer.querySelectorAll(`[style="display: none;"]`).length;
+            const childrenElementsLength = tasksContainer.children.length;
+
+            if (hiddenElementsLength >= childrenElementsLength) {
+                tasksContainer.innerHTML += "<p data-filter-message>Nenhuma tarefa encontrada para esse filtro.</p>";
+                taskMessage.style.display = "none";
+                deleteTasksButton.style.display = "none";
+            } else {
+                taskMessage.style.display = "";
+                deleteTasksButton.style.display = "flex";
+
+                const filterMessageElement = tasksContainer.lastElementChild;
+                if (filterMessageElement && filterMessageElement.getAttribute("data-filter-message")) {
+                    filterMessageElement.remove();
+                }
+            }
+        }
+    });
+}
+
+function handleFilterByDescription(search) {
+    const searchValue = String(search).toLocaleLowerCase();
+    const tasksContainerElements = Array.from(tasksContainer.children);
+
+    tasksContainerElements.forEach(element => {
+        const elementValue = String(element.querySelector("[data-desc]").textContent).toLowerCase();
+
+        if (!searchValue) {
+            element.style.display = "flex";
+        } else {
+            element.style.display = elementValue.includes(searchValue) ? "flex" : "none";
+        }
+    })
+}
+
+function handleTopicsNavigation(element) {
+    const topicName = element.querySelector('p')?.innerHTML;
+    if (!topicName) return;
+
+    filterBySeachInput.disabled = true;
 
     selectedTopic = topicName;
     topicNameDisplay.innerHTML = topicName;
@@ -305,13 +402,14 @@ topicsNav.addEventListener("click", function ({ target }) {
     if (document.querySelector(".topic.active")) {
         document.querySelector(".topic.active").classList.remove("active");
     }
-    target.classList.add("active");
+    element.classList.add("active");
 
+    resetTasksFilters();
     fetchTasks(selectedTopic);
-});
+}
 
-formAddTopic.addEventListener("submit", function (e) {
-    e.preventDefault();
+formAddTopic.addEventListener("submit", function (event) {
+    event.preventDefault();
 
     const newName = this.querySelector("input").value;
     if (!newName) return;
@@ -326,8 +424,8 @@ formAddTopic.addEventListener("submit", function (e) {
         });
 });
 
-formAddTask.addEventListener("submit", function (e) {
-    e.preventDefault();
+formAddTask.addEventListener("submit", function (event) {
+    event.preventDefault();
 
     if (!selectedTopic) return;
 
@@ -352,17 +450,17 @@ formAddTask.addEventListener("submit", function (e) {
         });
 });
 
-deleteTasksButton.addEventListener("click", function () {
-    if (confirm("Realmente deseja deletar todas as tarefas relacionadas a esse tópico? Essa ação não poderá ser desfeita.")) {
-        deleteAllTasks();
-    }
-});
+topicsNav.addEventListener("click", ({ target }) => handleTopicsNavigation(target));
 
-deleteTopicsButton.addEventListener("click", function () {
-    if (confirm("Realmente deseja deletar todos os tópicos? Essa ação não poderá ser desfeita.")) {
-        deleteAllTopics();
-    }
-});
+deleteTasksButton.addEventListener("click", deleteAllTasks);
+deleteTopicsButton.addEventListener("click", deleteAllTopics);
+
+logoutButton.addEventListener('click', handleLogout);
+
+filterButtons.forEach(button => handleFilterButtonClick(button));
+filterStatusButtons.forEach(button => handleFilterTasksByStatus(button));
+
+filterBySeachInput.addEventListener("input", ({ target: { value } }) => handleFilterByDescription(value));
 
 if (window.matchMedia("(max-width: 768px)").matches) {
     mobileButton.addEventListener("click", function (event) {
@@ -379,61 +477,6 @@ if (window.matchMedia("(max-width: 768px)").matches) {
         }
     });
 }
-
-logoutButton.addEventListener('click', function () {
-    auth.signOut().then(function () {
-        localStorage.removeItem("user_data");
-        window.location.href = "../index.html";
-    }).catch(function (error) {
-        console.error("Erro ao desautenticar usuário:", error);
-    });
-});
-
-filterButtons.forEach(function (button) {
-    button.addEventListener("click", function () {
-        button.nextElementSibling.classList.toggle("active");
-    })
-
-    document.addEventListener('click', function (event) {
-        const isClickInsideButton = button.contains(event.target);
-
-        if (!isClickInsideButton) {
-            button.nextElementSibling.classList.remove("active");
-        }
-    });
-})
-
-filterStatusButtons.forEach(function (button) {
-    button.addEventListener('click', function () {
-        const statusFilter = button.dataset.filterStatus;
-
-        button.parentElement.querySelector("button.active").classList.remove("active");
-        button.classList.add("active");
-
-        if (tasksContainer.children[0]?.classList.contains("task")) {
-            Array.from(tasksContainer.children).forEach(function (task) {
-                task.style.display = task.classList.contains(statusFilter) ? "flex" : "none";
-            })
-
-            const hiddenElementsLength = tasksContainer.querySelectorAll(`[style="display: none;"]`).length;
-            const childrenElementsLength = tasksContainer.children.length;
-
-            if (hiddenElementsLength >= childrenElementsLength) {
-                tasksContainer.innerHTML += "<p data-filter-message>Nenhuma tarefa encontrada para esse filtro.</p>";
-                taskMessage.style.display = "none";
-                deleteTasksButton.style.display = "none";
-            } else {
-                taskMessage.style.display = "";
-                deleteTasksButton.style.display = "flex";
-
-                const filterMessageElement = tasksContainer.lastElementChild;
-                if (filterMessageElement && filterMessageElement.getAttribute("data-filter-message")) {
-                    filterMessageElement.remove();
-                }
-            }
-        }
-    });
-})
 
 document.querySelector("[data-user-info]").innerText = user.email;
 fetchTopics();
