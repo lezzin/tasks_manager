@@ -243,6 +243,50 @@ form[data-add-task] .input-group:focus-within>* {
     box-shadow: 0 0 1rem rgb(0 0 0 / 0.15);
 }
 
+.filter-options {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    max-width: 660px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.3rem;
+}
+
+.filter-options .btn-select {
+    position: relative;
+}
+
+.btn-select .btn-select-options {
+    position: absolute;
+    top: calc(100% + .3rem);
+    left: 0;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    display: none;
+    padding: .3rem 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.btn-select-options.active {
+    display: grid;
+    pointer-events: all;
+}
+
+.btn-select-options p {
+    padding: .4rem 1rem;
+}
+
+.btn-select-options p:hover {
+    background-color: var(--bg-primary-light);
+}
+
 .tasks-container {
     display: grid;
     place-items: center;

@@ -10,7 +10,8 @@ const TASKS_COLLECTION = "tasks";
 const user = JSON.parse(localStorage.getItem("user_data"));
 const userUid = user.uid;
 
-
+const filterButtons = document.querySelectorAll(".filter-options .btn-select");
+const filterStatusButtons = document.querySelectorAll("[data-filter-status]");
 const mobileButton = document.querySelector("[data-header-btn]");
 const logoutButton = document.querySelector('[data-logout]');
 const deleteTopicsButton = document.querySelector("[data-delete-topics]");
@@ -138,7 +139,7 @@ function createTaskRowsHTML(tasks) {
 }
 
 function createTaskRow(task) {
-    const className = task.status ? `class="task completed"` : `class="task"`;
+    const className = task.status ? `class="task completed"` : `class="task incompleted"`;
 
     return `<div ${className}>
                   <div class="left">
@@ -375,6 +376,32 @@ logoutButton.addEventListener('click', function () {
         console.error("Erro ao desautenticar usuário:", error);
     });
 });
+
+filterButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+        this.querySelector(".btn-select-options").classList.toggle("active");
+    })
+
+    document.addEventListener('click', function (event) {
+        const isClickInsideButton = button.contains(event.target);
+
+        if (!isClickInsideButton) {
+            button.querySelector(".btn-select-options").classList.remove("active");
+        }
+    });
+})
+
+filterStatusButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+        const statusFilter = button.dataset.filterStatus;
+
+        if (tasksContainer.children[0]?.classList.contains("task")) {
+            Array.from(tasksContainer.children).forEach(function (topic) {
+                topic.style.display = topic.classList.contains(statusFilter) ? "flex" : "none";
+            })
+        }
+    });
+})
 
 document.querySelector("[data-user-info]").innerText = user.email;
 fetchTopics();
