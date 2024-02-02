@@ -393,7 +393,7 @@ function handleTopicsNavigation(element) {
     const topicName = element.querySelector('p')?.innerHTML;
     if (!topicName) return;
 
-    filterBySeachInput.disabled = true;
+    filterBySeachInput.disabled = false;
 
     selectedTopic = topicName;
     topicNameDisplay.innerHTML = topicName;
