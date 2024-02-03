@@ -153,6 +153,19 @@ header .logo-container {
     text-align: left;
     padding: .5rem .5rem .5rem 1.35rem;
     border-radius: 0 50px 50px 0;
+    animation: topic-animation .3s ease-in forwards;
+    opacity: 0;
+}
+
+.topic.empty {
+    justify-content: center;
+    background: var(--danger-color);
+    border-radius: 5px;
+    padding: 0.5rem;
+    color: var(--font-secondary, --font-primary);
+    margin: 0 .8rem;
+    animation: none;
+    opacity: 1;
 }
 
 .topics-container .topic:hover {
@@ -176,16 +189,7 @@ header .logo-container {
     background-color: var(--bg-primary-light);
 }
 
-.topic.empty {
-    justify-content: center;
-    background: var(--danger-color);
-    border-radius: 5px;
-    padding: 0.55rem 1.3rem;
-    color: var(--font-secondary, --font-primary);
-    margin: 0 .8rem;
-}
-
-.topics-container .topic.active:not(.empty) {
+.topic.active:not(.empty) {
     background-color: var(--details-color-light);
     border-left: 6px solid var(--details-color);
     color: var(--details-color);
@@ -321,6 +325,11 @@ form[data-add-task] .input-group:focus-within>* {
     gap: .6rem;
 }
 
+.tasks-container-body * {
+    animation: task-animation .3s ease-in forwards;
+    opacity: 0;
+}
+
 .tasks-container-body .task {
     display: flex;
     align-items: center;
@@ -385,12 +394,11 @@ form[data-add-task] .input-group:focus-within>* {
     position: absolute;
     inset: 0;
     z-index: 1;
-    background: var(--bg-primary);
     display: grid;
     place-items: center;
     pointer-events: none;
     opacity: 0;
-    transition: opacity .3s ease;
+    transition: opacity 100ms ease;
 }
 
 .loader-container.active {
@@ -413,5 +421,27 @@ form[data-add-task] .input-group:focus-within>* {
 
     to {
         transform: rotate(360deg);
+    }
+}
+
+@keyframes task-animation {
+    from {
+        opacity: 0;
+    }
+    
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes topic-animation {
+    from {
+        transform: translateX(-.6rem);
+        opacity: 0;
+    }
+    
+    to {
+        transform: translateX(0rem);
+        opacity: 1;
     }
 }

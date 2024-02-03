@@ -4,32 +4,99 @@ auth.onAuthStateChanged(function (user) {
     }
 });
 
+
 const db = firebase.firestore();
 const TASKS_COLLECTION = "tasks";
 
+// Authenticated user data
 const user = JSON.parse(localStorage.getItem("user_data"));
 const userUid = user.uid;
 
 const filterButtons = document.querySelectorAll("[data-filter-btn]");
-const filterBySeachInput = document.querySelector("[data-filter-search]");
+const filterBySearchInput = document.querySelector("[data-filter-search]");
 const filterStatusButtons = document.querySelectorAll("[data-filter-status]");
-
 const mobileButton = document.querySelector("[data-header-btn]");
 const logoutButton = document.querySelector('[data-logout]');
 const deleteTopicsButton = document.querySelector("[data-delete-topics]");
 const deleteTasksButton = document.querySelector("[data-delete-tasks]");
-
 const topicsNav = document.querySelector("[data-topics]");
 const tasksContainer = document.querySelector("[data-tasks]");
 const topicNameDisplay = document.querySelector("[data-topic-display]");
 const taskMessage = document.querySelector("[data-task-message]");
 const tasksLoader = document.querySelector("[data-tasks-loader]");
 const topicsLoader = document.querySelector("[data-topics-loader]");
-
 const formAddTask = document.querySelector("[data-add-task]");
 const formAddTopic = document.querySelector("[data-add-topic]");
 
+// Current topic selected by the user
 let selectedTopic;
+
+// Utility functions
+function createNode(tag, classes, attributes, innerHTML) {
+    const node = document.createElement(tag);
+
+    if (classes) {
+        classes.forEach(className => {
+            node.classList.add(className);
+        })
+    };
+
+    if (attributes) {
+        for (const [key, value] of Object.entries(attributes)) {
+            node.setAttribute(key, value);
+        }
+    }
+
+    if (innerHTML) node.innerHTML = innerHTML;
+
+    return node;
+}
+
+function createTextNode(tag, text, className) {
+    const node = document.createElement(tag);
+    node.innerText = text;
+
+    if (className) node.classList.add(className);
+
+    return node;
+}
+
+function appendNode(parent, child) {
+    parent.appendChild(child);
+}
+
+function appendTextNode(parent, tag, text, className) {
+    const node = createTextNode(tag, text, className);
+    parent.appendChild(node);
+}
+
+function clearElementChildren(element) {
+    while (element.firstChild) {
+        element.removeChild(element.firstChild);
+    }
+}
+
+function addClass(element, className) {
+    element.classList.add(className);
+}
+
+function removeClass(element, className) {
+    element.classList.remove(className);
+}
+
+function toggleClass(element, className) {
+    element.classList.toggle(className);
+}
+
+function removeClassIfExists(element, className) {
+    if (element.classList.contains(className)) {
+        element.classList.remove(className);
+    }
+}
+
+function triggerClick(element) {
+    element.click();
+}
 
 function getCurrentTime() {
     const now = new Date();
@@ -44,6 +111,7 @@ function getCurrentTime() {
 
     return now.toLocaleDateString('pt-BR', options);
 }
+
 
 function showTasksLoader() {
     tasksLoader.classList.add("active");
@@ -61,12 +129,144 @@ function hideTopicsLoader() {
     topicsLoader.classList.remove("active");
 }
 
+function verifyTopicsQuantity(topics) {
+    const isTopicsEmpty = !topics || topics.length === 0;
+
+    deleteTopicsButton.style.display = isTopicsEmpty ? "none" : "flex";
+
+    if (isTopicsEmpty) {
+        appendNode(topicsNav, createNode('p', ['empty', 'topic'], null, 'Nenhum tópico cadastrado'));
+    }
+}
+
+function createTopicButtonHTML(topicName) {
+    const button = createNode('button', ['topic', selectedTopic === topicName ? 'active' : 'inactive']);
+    button.onclick = function () {
+        handleTopicClicked(this);
+    }
+
+    const paragraph = createNode('p', null, null, topicName);
+
+    const deleteButton = createNode('a', ['btn-rounded']);
+    deleteButton.href = "javascript:void(0)";
+    deleteButton.setAttribute("role", "button");
+    deleteButton.dataset.topicName = topicName;
+    deleteButton.title = "Deletar tópico";
+    deleteButton.onclick = function (event) {
+        event.stopPropagation();
+        deleteTopic(this);
+    };
+
+    const icon = createNode('span', ['material-icons'], null, 'delete');
+
+    appendNode(deleteButton, icon);
+    appendNode(button, paragraph);
+    appendNode(button, deleteButton);
+
+    return button;
+}
+
+function appendTopicElement(topicName) {
+    appendNode(topicsNav, createTopicButtonHTML(topicName));
+}
+
+function createTopicsList(topics) {
+    const isTopicsEmpty = !topics || topics.length === 0;
+
+    deleteTopicsButton.style.display = isTopicsEmpty ? "none" : "flex";
+
+    if (!isTopicsEmpty) {
+        topics.forEach(topic => appendTopicElement(topic));
+    }
+}
+
+function deleteTopic(deleteButton) {
+    const topicName = deleteButton.dataset.topicName;
+    const firstChildIsTopic = !topicsNav.children[0]?.classList.contains("empty");
+    const topicsElements = firstChildIsTopic ? topicsNav.children : [];
+
+    db.collection(TASKS_COLLECTION).doc(userUid + "_" + topicName).delete().then(() => {
+        deleteButton.parentElement.remove();
+
+        if (topicNameDisplay.innerHTML == topicName) {
+            topicNameDisplay.innerHTML = "";
+        }
+
+        console.log(selectedTopic);
+        console.log(topicName);
+
+        if (selectedTopic == topicName) {
+            clearTasksContainer();
+        };
+
+        verifyTopicsQuantity(topicsElements);
+    }).catch(error => {
+        console.error("Erro ao deletar tópico:", error);
+    });
+}
+
+function deleteAllTopics() {
+    if (!confirm("Realmente deseja deletar todos os tópicos? Essa ação não poderá ser desfeita.")) return;
+
+    db.collection(TASKS_COLLECTION).get().then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+            doc.ref.delete();
+        });
+
+        clearElementChildren(topicsNav);
+        verifyTopicsQuantity([]);
+        topicNameDisplay.innerHTML = "";
+        selectedTopic = "";
+
+        clearTasksContainer();
+        disableTasksFilters();
+    }).catch(error => {
+        console.error("Erro ao deletar todos os tópicos:", error);
+    });
+}
+
+function fetchTopics() {
+    showTopicsLoader();
+
+    db.collection(TASKS_COLLECTION)
+        .where(firebase.firestore.FieldPath.documentId(), ">=", userUid)
+        .where(firebase.firestore.FieldPath.documentId(), "<", userUid + "\uf8ff")
+        .get()
+        .then(querySnapshot => {
+            const topics = querySnapshot.docs.map(doc => doc.id.split("_")[1]);
+
+            verifyTopicsQuantity(topics);
+            createTopicsList(topics);
+        })
+        .catch(error => {
+            console.error("Erro ao obter tópicos:", error);
+        })
+        .finally(() => {
+            hideTopicsLoader();
+        });
+}
+
+function verifyTasksQuantity(tasks) {
+    const isTasksEmpty = !tasks || tasks.length === 0;
+
+    deleteTasksButton.style.display = isTasksEmpty ? "none" : "flex";
+    taskMessage.style.display = isTasksEmpty ? "none" : "flex";
+
+    if (isTasksEmpty) {
+        appendNode(tasksContainer, createTextNode('p', 'Nenhuma tarefa cadastrada.'));
+        disableTasksFilters();
+    } else {
+        resetTasksFilters();
+    }
+}
+
 function clearTasksContainer() {
     showTasksLoader();
 
     setTimeout(() => {
         taskMessage.innerText = "";
-        tasksContainer.innerHTML = '<p>Selecione um novo tópico.</p>';
+        clearElementChildren(tasksContainer);
+        appendTextNode(tasksContainer, 'p', 'Selecione um novo tópico.');
         deleteTasksButton.style.display = "none";
         hideTasksLoader();
     }, 1000);
@@ -77,7 +277,7 @@ function disableTasksFilters() {
         button.disabled = true;
     });
 
-    filterBySeachInput.disabled = true;
+    filterBySearchInput.disabled = true;
 }
 
 function resetTasksFilters() {
@@ -87,107 +287,101 @@ function resetTasksFilters() {
         const filterDropdown = button.nextElementSibling;
         const firstFilterElement = filterDropdown.firstElementChild;
 
-        filterDropdown.querySelector("button.active")?.classList.remove("active");
-        firstFilterElement.classList.add("active");
-        firstFilterElement.click();
-    })
-
-    filterBySeachInput.disabled = false;
-}
-
-function addActionButtonsEventListeners() {
-    const deleteButtons = tasksContainer.querySelectorAll("[data-action='delete']");
-    const changeStatusButtons = tasksContainer.querySelectorAll("[data-action='change-status']");
-
-    deleteButtons.forEach(button => {
-        button.addEventListener("click", function () {
-            const taskId = parseInt(this.dataset.taskId);
-            deleteTask(taskId);
-        });
+        removeClass(filterDropdown.querySelector("button.active"), "active");
+        addClass(firstFilterElement, "active");
+        triggerClick(firstFilterElement);
     });
 
-    changeStatusButtons.forEach(button => {
-        button.addEventListener("click", function () {
-            const taskId = parseInt(this.dataset.taskId);
-            changeTaskStatus(taskId);
-        });
-    });
+    filterBySearchInput.disabled = false;
 }
 
-function createTopicsList(topics) {
-    const isTopicsEmpty = !topics || topics.length === 0;
-    const template = isTopicsEmpty ? '<p class="topic empty">Nenhum tópico cadastrado</p>' : createTopicButtonsHTML(topics);
+function updateCompletedTasksCounter(tasks) {
+    const completedTasksLength = tasks.filter(task => task.status == true).length;
+    const allTasksLength = tasks.length;
 
-    deleteTopicsButton.style.display = isTopicsEmpty ? "none" : "flex";
-    topicsNav.innerHTML = template;
-
-    addTopicButtonsEventListeners();
+    taskMessage.innerText = `${completedTasksLength}/${allTasksLength} concluídas`;
 }
 
-function createTopicButtonsHTML(topics) {
-    return topics.map(topic => `
-          <button class="topic ${selectedTopic == topic ? "active" : ""}">
-              <p>${topic}</p>
-              <a href="javascript:void(0)" role="button" data-topic-name="${topic}" data-action="delete" title="Deletar tópico" class="btn-rounded">
-                  <span class="material-icons">delete</span>
-              </a>
-          </button>`).join('');
+function createTaskHTML(task) {
+    const classNames = task.status ? ['task', 'completed'] : ['task', 'incompleted'];
+
+    const divLeft = createNode('div', ['left']);
+    const buttonChangeStatus = createNode('button', ['btn-rounded'], null, '<span class="material-icons">done</span>');
+    buttonChangeStatus.dataset.taskId = task.id;
+    buttonChangeStatus.title = 'Alterar status da tarefa';
+    buttonChangeStatus.onclick = function () {
+        changeTaskStatus(this);
+    };
+
+    const div = createNode('div');
+    const pDescription = createNode('p', ['task-desc'], { 'data-desc': task.description }, task.description);
+    const pDate = createNode('p', ['task-date', 'text-muted'], null, task.date);
+
+    appendNode(div, pDescription);
+    appendNode(div, pDate);
+
+    appendNode(divLeft, buttonChangeStatus);
+    appendNode(divLeft, div);
+
+    const divRight = createNode('div', ['right']);
+    const buttonDelete = createNode('button', ['btn-danger']);
+    buttonDelete.dataset.taskId = task.id;
+    buttonDelete.dataset.action = 'delete';
+    buttonDelete.title = 'Deletar tarefa';
+    buttonDelete.onclick = function () {
+        deleteTask(this);
+    };
+
+    const spanDelete = createNode('span', ['material-icons'], null, 'delete');
+
+    appendNode(buttonDelete, spanDelete);
+    appendNode(divRight, buttonDelete);
+
+    const divTask = createNode('div', classNames);
+    appendNode(divTask, divLeft);
+    appendNode(divTask, divRight);
+
+    return divTask;
 }
 
-function addTopicButtonsEventListeners() {
-    const deleteTopicButtons = topicsNav.querySelectorAll("[data-action='delete']");
-
-    deleteTopicButtons.forEach(button => {
-        button.addEventListener("click", function () {
-            const topicName = this.dataset.topicName;
-            deleteTopic(topicName);
-        });
-    });
+function appendTaskElement(task) {
+    appendNode(tasksContainer, createTaskHTML(task));
 }
 
 function createTasksTable(tasks) {
-    const isTopicEmpty = !tasks || tasks.length === 0;
-    const template = isTopicEmpty ? '<p>Nenhuma tarefa cadastrada.</p>' : createTaskRowsHTML(tasks);
+    const isTasksEmpty = !tasks || tasks.length === 0;
 
-    if (selectedTopic) {
-        const completedTasksLength = tasks.filter(task => task.status == true).length;
-        const allTasksLength = tasks.length;
-        taskMessage.innerText = !isTopicEmpty ? `${completedTasksLength}/${allTasksLength} concluídas` : "";
+    if (selectedTopic && !isTasksEmpty) {
+        updateCompletedTasksCounter(tasks);
     }
 
-    tasksContainer.innerHTML = template;
-    deleteTasksButton.style.display = isTopicEmpty ? "none" : "flex";
-    addActionButtonsEventListeners();
+    clearElementChildren(tasksContainer);
+
+    if (isTasksEmpty) {
+        appendNode(tasksContainer, createTextNode('p', 'Nenhuma tarefa cadastrada.'));
+    } else {
+        tasks.forEach(task => appendTaskElement(task));
+    }
 }
 
-function createTaskRowsHTML(tasks) {
-    return tasks.map(task => createTaskRow(task)).join('');
+function verifyTasksQuantity(tasks) {
+    const isTasksEmpty = !tasks || tasks.length === 0;
+
+    deleteTasksButton.style.display = isTasksEmpty ? "none" : "flex";
+    taskMessage.style.display = isTasksEmpty ? "none" : "flex";
+
+    if (isTasksEmpty) {
+        appendNode(tasksContainer, createTextNode('p', 'Nenhuma tarefa cadastrada.'));
+        disableTasksFilters();
+    } else {
+        resetTasksFilters();
+    }
 }
 
-function createTaskRow(task) {
-    const className = task.status ? `class="task completed"` : `class="task incompleted"`;
+function deleteTask(deleteButton) {
+    const taskId = parseInt(deleteButton.dataset.taskId);
+    const task = deleteButton.parentElement.parentElement;
 
-    return `<div ${className}>
-                  <div class="left">
-                      <button class="btn-rounded" data-task-id="${task.id}" data-action="change-status" title="Alterar status da tarefa">
-                          <span class="material-icons">done</span>
-                      </button>
-  
-                      <div>
-                          <p class="task-desc" data-desc>${task.description}</p>
-                          <p class="task-date text-muted" data-date>${task.date}</p>
-                      </div>
-                  </div>
-  
-                  <div class="right">
-                      <button data-task-id="${task.id}" data-action="delete" title="Deletar tarefa" class="btn-danger">
-                          <span class="material-icons">delete</span>
-                      </button>
-                  </div>
-              </div>`;
-}
-
-function deleteTask(taskId) {
     const taskRef = db.collection(TASKS_COLLECTION).doc(userUid + "_" + selectedTopic);
 
     taskRef.get().then(doc => {
@@ -195,12 +389,24 @@ function deleteTask(taskId) {
             const tasks = doc.data().tasks;
             const updatedTasks = tasks.filter(task => task.id !== taskId);
 
+            showTasksLoader();
+
             taskRef.update({
                 tasks: updatedTasks
             }).then(() => {
-                fetchTasks(selectedTopic);
+                task.remove();
+
+                const isTasksEmpty = !updatedTasks || updatedTasks.length === 0;
+
+                if (selectedTopic && !isTasksEmpty) {
+                    updateCompletedTasksCounter(updatedTasks);
+                }
+
+                verifyTasksQuantity(updatedTasks);
             }).catch(error => {
                 console.error("Erro ao deletar tarefa:", error);
+            }).finally(() => {
+                hideTasksLoader();
             });
         }
     }).catch(error => {
@@ -208,7 +414,10 @@ function deleteTask(taskId) {
     });
 }
 
-function changeTaskStatus(taskId) {
+function changeTaskStatus(buttonChangeStatus) {
+    const taskId = parseInt(buttonChangeStatus.dataset.taskId);
+    const taskElement = buttonChangeStatus.parentElement.parentElement;
+
     const taskRef = db.collection(TASKS_COLLECTION).doc(userUid + "_" + selectedTopic);
 
     taskRef.get().then(doc => {
@@ -225,7 +434,8 @@ function changeTaskStatus(taskId) {
             taskRef.update({
                 tasks: updatedTasks
             }).then(() => {
-                fetchTasks(selectedTopic);
+                taskElement.classList.toggle("completed", !taskElement.classList.contains("completed"));
+                updateCompletedTasksCounter(updatedTasks);
             }).catch(error => {
                 console.error("Erro ao alterar status da tarefa:", error);
             });
@@ -235,88 +445,40 @@ function changeTaskStatus(taskId) {
     });
 }
 
-function deleteTopic(name) {
-    db.collection(TASKS_COLLECTION).doc(userUid + "_" + name).delete().then(() => {
-        if (topicNameDisplay.innerHTML == name) {
-            topicNameDisplay.innerHTML = "";
-        }
-
-        fetchTopics();
-        if (selectedTopic == name) clearTasksContainer();
-    }).catch(error => {
-        console.error("Erro ao deletar tópico:", error);
-    });
-}
-
 function deleteAllTasks() {
     if (!confirm("Realmente deseja deletar todas as tarefas relacionadas a esse tópico? Essa ação não poderá ser desfeita.")) return;
 
-    db.collection(TASKS_COLLECTION).doc(userUid + "_" + selectedTopic).update({
-        tasks: []
-    }).then(() => {
-        fetchTasks(selectedTopic);
-        disableTasksFilters();
-    }).catch(error => {
-        console.error("Erro ao deletar todas as tarefas:", error);
-    });
-}
-
-function deleteAllTopics() {
-    if (!confirm("Realmente deseja deletar todos os tópicos? Essa ação não poderá ser desfeita.")) return;
-
-    db.collection(TASKS_COLLECTION).get().then(querySnapshot => {
-        querySnapshot.forEach(doc => {
-            doc.ref.delete();
-        });
-
-        topicNameDisplay.innerHTML = "";
-        disableTasksFilters();
-        clearTasksContainer();
-        fetchTopics();
-    }).catch(error => {
-        console.error("Erro ao deletar todos os tópicos:", error);
-    });
-}
-
-function fetchTopics() {
-    showTopicsLoader();
-
-    db.collection(TASKS_COLLECTION)
-        .where(firebase.firestore.FieldPath.documentId(), ">=", userUid)
-        .where(firebase.firestore.FieldPath.documentId(), "<", userUid + "\uf8ff")
-        .get()
-        .then(querySnapshot => {
-            const topics = querySnapshot.docs.map(doc => doc.id.split("_")[1]);
-
-            createTopicsList(topics);
-            hideTopicsLoader();
-        })
-        .catch(error => {
-            console.error("Erro ao obter tópicos:", error);
+    db.collection(TASKS_COLLECTION).doc(userUid + "_" + selectedTopic)
+        .update({
+            tasks: []
+        }).then(() => {
+            clearElementChildren(tasksContainer);
+            verifyTasksQuantity([]);
+        }).catch(error => {
+            console.error("Erro ao deletar todas as tarefas:", error);
         });
 }
 
 function fetchTasks(topic) {
     showTasksLoader();
 
-    db.collection(TASKS_COLLECTION).doc(userUid + "_" + topic).get()
+    db.collection(TASKS_COLLECTION).doc(userUid + "_" + topic)
+        .get()
         .then(doc => {
             if (doc.exists) {
                 const tasks = doc.data().tasks;
+
+                verifyTasksQuantity(tasks);
                 createTasksTable(tasks);
             } else {
                 createTasksTable([]);
             }
-            
-            resetTasksFilters();
-
-            const firstChildIsTask = tasksContainer.children[0]?.classList.contains("task");
-            if (!firstChildIsTask) disableTasksFilters();
-            
-            hideTasksLoader();
         })
         .catch(error => {
             console.error("Erro ao obter tarefas:", error);
+        })
+        .finally(() => {
+            hideTasksLoader();
         });
 }
 
@@ -329,19 +491,35 @@ function handleLogout() {
     });
 }
 
+function handleTopicClicked(element) {
+    const topicName = element.querySelector('p').innerHTML;
+    if (!topicName) return;
+
+    selectedTopic = topicName;
+    topicNameDisplay.innerHTML = topicName;
+
+    document.body.classList.remove("topics-container-active");
+
+    if (document.querySelector(".topic.active")) {
+        removeClass(document.querySelector(".topic.active"), "active");
+    }
+
+    addClass(element, "active");
+    fetchTasks(selectedTopic);
+}
+
 function handleFilterButtonClick(button) {
     const dropdown = button.nextElementSibling;
 
     button.addEventListener("click", function () {
-        dropdown.classList.toggle("active");
+        toggleClass(dropdown, "active");
     })
 
     document.addEventListener('click', function ({ target }) {
-        const isClickInsideDropdown = dropdown.contains(target);
         const isClickInsideButton = button.contains(target);
 
-        if (!isClickInsideDropdown && !isClickInsideButton) {
-            dropdown.classList.remove("active");
+        if (!isClickInsideButton) {
+            removeClass(dropdown, "active");
         }
     });
 }
@@ -353,30 +531,38 @@ function handleFilterTasksByStatus(button) {
         const tasksElements = Array.from(tasksContainer.children);
         const dropdown = button.parentElement;
 
-        dropdown.querySelector("button.active").classList.remove("active");
-        button.classList.add("active");
+        console.log(tasksElements);
+
+        removeClass(dropdown.querySelector("button.active"), "active");
+        addClass(button, "active");
 
         if (firstChildIsTask) {
-            tasksElements.forEach(function (task) {
-                task.style.display = task.classList.contains(statusFilter) ? "flex" : "none";
-            })
+            showTasksLoader();
 
-            const hiddenElementsLength = tasksContainer.querySelectorAll(`[style="display: none;"]`).length;
-            const childrenElementsLength = tasksContainer.children.length;
+            setTimeout(() => {
+                tasksElements.forEach(function (task) {
+                    task.style.display = task.classList.contains(statusFilter) ? "flex" : "none";
+                })
 
-            if (hiddenElementsLength >= childrenElementsLength) {
-                tasksContainer.innerHTML += "<p data-filter-message>Nenhuma tarefa encontrada para esse filtro.</p>";
-                taskMessage.style.display = "none";
-                deleteTasksButton.style.display = "none";
-            } else {
-                taskMessage.style.display = "";
-                deleteTasksButton.style.display = "flex";
+                const hiddenElementsLength = tasksContainer.querySelectorAll(`[style="display: none;"]`).length;
+                const childrenElementsLength = tasksContainer.children.length;
 
-                const filterMessageElement = tasksContainer.lastElementChild;
-                if (filterMessageElement && filterMessageElement.getAttribute("data-filter-message")) {
-                    filterMessageElement.remove();
+                if (hiddenElementsLength >= childrenElementsLength) {
+                    appendTextNode(tasksContainer, 'p', 'Nenhuma tarefa encontrada para esse filtro.', 'filter-message');
+                    taskMessage.style.display = "none";
+                    deleteTasksButton.style.display = "none";
+                } else {
+                    taskMessage.style.display = "";
+                    deleteTasksButton.style.display = "flex";
+
+                    const filterMessageElement = tasksContainer.lastElementChild;
+                    if (filterMessageElement && filterMessageElement.getAttribute("data-filter-message")) {
+                        filterMessageElement.remove();
+                    }
                 }
-            }
+
+                hideTasksLoader();
+            }, 1000);
         }
     });
 }
@@ -396,32 +582,24 @@ function handleFilterByDescription(search) {
     })
 }
 
-function handleTopicsNavigation(element) {
-    const topicName = element.querySelector('p')?.innerHTML;
-    if (!topicName) return;
-
-    selectedTopic = topicName;
-    topicNameDisplay.innerHTML = topicName;
-
-    document.body.classList.remove("topics-container-active");
-    if (document.querySelector(".topic.active")) {
-        document.querySelector(".topic.active").classList.remove("active");
-    }
-    element.classList.add("active");
-
-    resetTasksFilters();
-    fetchTasks(selectedTopic);
-}
-
 formAddTopic.addEventListener("submit", function (event) {
     event.preventDefault();
 
     const newName = this.querySelector("input").value;
     if (!newName) return;
 
-    db.collection(TASKS_COLLECTION).doc(userUid + "_" + newName).set({ tasks: [] })
+    showTopicsLoader();
+    db.collection(TASKS_COLLECTION).doc(userUid + "_" + newName)
+        .set({ tasks: [] })
         .then(() => {
-            fetchTopics();
+            const firstChildIsTopic = !topicsNav.children[0]?.classList.contains("empty");
+            if (!firstChildIsTopic) {
+                clearElementChildren(topicsNav);
+            }
+
+            verifyTopicsQuantity([newName]);
+            appendTopicElement(newName);
+            hideTopicsLoader();
             this.reset();
         })
         .catch(error => {
@@ -443,19 +621,37 @@ formAddTask.addEventListener("submit", function (event) {
         status: false
     };
 
-    db.collection(TASKS_COLLECTION).doc(userUid + "_" + selectedTopic).update({
-        tasks: firebase.firestore.FieldValue.arrayUnion(task)
-    })
+    showTasksLoader();
+    db.collection(TASKS_COLLECTION).doc(userUid + "_" + selectedTopic)
+        .update({
+            tasks: firebase.firestore.FieldValue.arrayUnion(task)
+        })
         .then(() => {
-            fetchTasks(selectedTopic);
+            const firstChildIsTask = tasksContainer.children[0]?.classList.contains("task");
+
+            db.collection(TASKS_COLLECTION).doc(userUid + "_" + selectedTopic)
+                .get()
+                .then(doc => {
+                    const tasks = doc.data().tasks;
+
+                    updateCompletedTasksCounter(tasks);
+                    verifyTasksQuantity(tasks);
+                })
+
+            if (!firstChildIsTask) {
+                clearElementChildren(tasksContainer);
+            }
+
+            appendTaskElement(task);
             this.reset();
         })
         .catch(error => {
             console.error("Erro ao adicionar nova tarefa:", error);
+        })
+        .finally(() => {
+            hideTasksLoader();
         });
 });
-
-topicsNav.addEventListener("click", ({ target }) => handleTopicsNavigation(target));
 
 deleteTasksButton.addEventListener("click", deleteAllTasks);
 deleteTopicsButton.addEventListener("click", deleteAllTopics);
@@ -465,12 +661,12 @@ logoutButton.addEventListener('click', handleLogout);
 filterButtons.forEach(button => handleFilterButtonClick(button));
 filterStatusButtons.forEach(button => handleFilterTasksByStatus(button));
 
-filterBySeachInput.addEventListener("input", ({ target: { value } }) => handleFilterByDescription(value));
+filterBySearchInput.addEventListener("input", ({ target: { value } }) => handleFilterByDescription(value));
 
 if (window.matchMedia("(max-width: 768px)").matches) {
     mobileButton.addEventListener("click", function (event) {
         event.stopPropagation();
-        document.body.classList.toggle("topics-container-active");
+        toggleClass(document.body, "topics-container-active");
     });
 
     document.addEventListener('click', function (event) {
@@ -478,7 +674,7 @@ if (window.matchMedia("(max-width: 768px)").matches) {
         const isClickInsideAside = aside.contains(event.target);
 
         if (!isClickInsideAside) {
-            document.body.classList.remove("topics-container-active");
+            removeClass(document.body, "topics-container-active");
         }
     });
 }
