@@ -91,6 +91,8 @@ function resetTasksFilters() {
         firstFilterElement.classList.add("active");
         firstFilterElement.click();
     })
+
+    filterBySeachInput.disabled = false;
 }
 
 function addActionButtonsEventListeners() {
@@ -253,6 +255,7 @@ function deleteAllTasks() {
         tasks: []
     }).then(() => {
         fetchTasks(selectedTopic);
+        disableTasksFilters();
     }).catch(error => {
         console.error("Erro ao deletar todas as tarefas:", error);
     });
@@ -304,8 +307,12 @@ function fetchTasks(topic) {
             } else {
                 createTasksTable([]);
             }
-
+            
             resetTasksFilters();
+
+            const firstChildIsTask = tasksContainer.children[0]?.classList.contains("task");
+            if (!firstChildIsTask) disableTasksFilters();
+            
             hideTasksLoader();
         })
         .catch(error => {
@@ -392,8 +399,6 @@ function handleFilterByDescription(search) {
 function handleTopicsNavigation(element) {
     const topicName = element.querySelector('p')?.innerHTML;
     if (!topicName) return;
-
-    filterBySeachInput.disabled = false;
 
     selectedTopic = topicName;
     topicNameDisplay.innerHTML = topicName;

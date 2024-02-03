@@ -256,7 +256,8 @@ form[data-add-task] .input-group:focus-within>* {
     gap: 0.3rem;
 }
 
-.filters-container input:disabled ,
+.filters-container input:disabled,
+.filters-container input:disabled+button,
 .filter-option .btn-select:disabled {
     opacity: .5;
     pointer-events: none;
