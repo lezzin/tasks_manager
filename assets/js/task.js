@@ -6,7 +6,7 @@ auth.onAuthStateChanged(function (user) {
 
 
 const db = firebase.firestore();
-const TASKS_COLLECTION = "tasks";
+const TASKS_COLLECTION = "users";
 
 // Authenticated user data
 const user = JSON.parse(localStorage.getItem("user_data"));
@@ -184,25 +184,27 @@ function deleteTopic(deleteButton) {
     const topicName = deleteButton.dataset.topicName;
     const firstChildIsTopic = !topicsNav.children[0]?.classList.contains("empty");
     const topicsElements = firstChildIsTopic ? topicsNav.children : [];
+    
+    db.collection(TASKS_COLLECTION).doc(userUid)
+        .update({
+            [`topics.${topicName}`]: firebase.firestore.FieldValue.delete()
+        })
+        .then(() => {
+            deleteButton.parentElement.remove();
 
-    db.collection(TASKS_COLLECTION).doc(userUid + "_" + topicName).delete().then(() => {
-        deleteButton.parentElement.remove();
+            if (topicNameDisplay.innerHTML == topicName) {
+                topicNameDisplay.innerHTML = "";
+            }
 
-        if (topicNameDisplay.innerHTML == topicName) {
-            topicNameDisplay.innerHTML = "";
-        }
+            if (selectedTopic == topicName) {
+                clearTasksContainer();
+            };
 
-        console.log(selectedTopic);
-        console.log(topicName);
-
-        if (selectedTopic == topicName) {
-            clearTasksContainer();
-        };
-
-        verifyTopicsQuantity(topicsElements);
-    }).catch(error => {
-        console.error("Erro ao deletar tópico:", error);
-    });
+            verifyTopicsQuantity(topicsElements);
+        })
+        .catch(error => {
+            console.error("Erro ao deletar tópico:", error);
+        });
 }
 
 function deleteAllTopics() {
@@ -228,15 +230,18 @@ function deleteAllTopics() {
 function fetchTopics() {
     showTopicsLoader();
 
-    db.collection(TASKS_COLLECTION)
-        .where(firebase.firestore.FieldPath.documentId(), ">=", userUid)
-        .where(firebase.firestore.FieldPath.documentId(), "<", userUid + "\uf8ff")
+    db.collection(TASKS_COLLECTION).doc(userUid)
         .get()
-        .then(querySnapshot => {
-            const topics = querySnapshot.docs.map(doc => doc.id.split("_")[1]);
+        .then(doc => {
+            const userData = doc.data();
 
-            verifyTopicsQuantity(topics);
-            createTopicsList(topics);
+            if (userData && userData.topics) {
+                const topics = Object.keys(userData.topics);
+                verifyTopicsQuantity(topics);
+                createTopicsList(topics);
+            } else {
+                verifyTopicsQuantity([]);
+            }
         })
         .catch(error => {
             console.error("Erro ao obter tópicos:", error);
@@ -244,20 +249,6 @@ function fetchTopics() {
         .finally(() => {
             hideTopicsLoader();
         });
-}
-
-function verifyTasksQuantity(tasks) {
-    const isTasksEmpty = !tasks || tasks.length === 0;
-
-    deleteTasksButton.style.display = isTasksEmpty ? "none" : "flex";
-    taskMessage.style.display = isTasksEmpty ? "none" : "flex";
-
-    if (isTasksEmpty) {
-        appendNode(tasksContainer, createTextNode('p', 'Nenhuma tarefa cadastrada.'));
-        disableTasksFilters();
-    } else {
-        resetTasksFilters();
-    }
 }
 
 function clearTasksContainer() {
@@ -378,28 +369,56 @@ function verifyTasksQuantity(tasks) {
     }
 }
 
+function changeTaskStatus(buttonChangeStatus) {
+    const taskId = parseInt(buttonChangeStatus.dataset.taskId);
+    const taskElement = buttonChangeStatus.parentElement.parentElement;
+
+    db.collection(TASKS_COLLECTION).doc(userUid).get().then(doc => {
+        const userData = doc.data();
+        const selectedTopicData = userData.topics[selectedTopic];
+
+        if (selectedTopicData && selectedTopicData.tasks) {
+            const updatedTasks = selectedTopicData.tasks.map(task => {
+                if (task.id === taskId) {
+                    task.status = !task.status;
+                }
+                return task;
+            });
+
+            db.collection(TASKS_COLLECTION).doc(userUid).update({
+                [`topics.${selectedTopic}.tasks`]: updatedTasks
+            }).then(() => {
+                taskElement.classList.toggle("completed", !taskElement.classList.contains("completed"));
+                updateCompletedTasksCounter(updatedTasks);
+            }).catch(error => {
+                console.error("Erro ao alterar status da tarefa:", error);
+            });
+        }
+    }).catch(error => {
+        console.error("Erro ao obter tarefas:", error);
+    });
+}
+
 function deleteTask(deleteButton) {
     const taskId = parseInt(deleteButton.dataset.taskId);
-    const task = deleteButton.parentElement.parentElement;
-
-    const taskRef = db.collection(TASKS_COLLECTION).doc(userUid + "_" + selectedTopic);
+    const taskRef = db.collection(TASKS_COLLECTION).doc(userUid);
 
     taskRef.get().then(doc => {
-        if (doc.exists) {
-            const tasks = doc.data().tasks;
-            const updatedTasks = tasks.filter(task => task.id !== taskId);
+        const userData = doc.data();
+        const selectedTopicData = userData.topics[selectedTopic];
+
+        if (selectedTopicData && selectedTopicData.tasks) {
+            const updatedTasks = selectedTopicData.tasks.filter(task => task.id !== taskId);
 
             showTasksLoader();
 
             taskRef.update({
-                tasks: updatedTasks
+                [`topics.${selectedTopic}.tasks`]: updatedTasks
             }).then(() => {
-                task.remove();
+                deleteButton.parentElement.parentElement.remove();
 
-                const isTasksEmpty = !updatedTasks || updatedTasks.length === 0;
-
-                if (selectedTopic && !isTasksEmpty) {
-                    updateCompletedTasksCounter(updatedTasks);
+                if (selectedTopic && !updatedTasks.length) {
+                    clearTasksContainer();
                 }
 
                 verifyTasksQuantity(updatedTasks);
@@ -414,60 +433,39 @@ function deleteTask(deleteButton) {
     });
 }
 
-function changeTaskStatus(buttonChangeStatus) {
-    const taskId = parseInt(buttonChangeStatus.dataset.taskId);
-    const taskElement = buttonChangeStatus.parentElement.parentElement;
-
-    const taskRef = db.collection(TASKS_COLLECTION).doc(userUid + "_" + selectedTopic);
-
-    taskRef.get().then(doc => {
-        if (doc.exists) {
-            const tasks = doc.data().tasks;
-            const updatedTasks = tasks.map(task => {
-                if (task.id === taskId) {
-                    task.status = !task.status;
-                }
-
-                return task;
-            });
-
-            taskRef.update({
-                tasks: updatedTasks
-            }).then(() => {
-                taskElement.classList.toggle("completed", !taskElement.classList.contains("completed"));
-                updateCompletedTasksCounter(updatedTasks);
-            }).catch(error => {
-                console.error("Erro ao alterar status da tarefa:", error);
-            });
-        }
-    }).catch(error => {
-        console.error("Erro ao obter tarefas:", error);
-    });
-}
-
 function deleteAllTasks() {
     if (!confirm("Realmente deseja deletar todas as tarefas relacionadas a esse tópico? Essa ação não poderá ser desfeita.")) return;
 
-    db.collection(TASKS_COLLECTION).doc(userUid + "_" + selectedTopic)
-        .update({
-            tasks: []
-        }).then(() => {
-            clearElementChildren(tasksContainer);
-            verifyTasksQuantity([]);
-        }).catch(error => {
-            console.error("Erro ao deletar todas as tarefas:", error);
-        });
+    const topicRef = db.collection(TASKS_COLLECTION).doc(userUid);
+
+    topicRef.get().then(doc => {
+        const userData = doc.data();
+        const selectedTopicData = userData.topics[selectedTopic];
+
+        if (selectedTopicData) {
+            topicRef.update({
+                [`topics.${selectedTopic}.tasks`]: []
+            }).then(() => {
+                clearElementChildren(tasksContainer);
+                verifyTasksQuantity([]);
+            }).catch(error => {
+                console.error("Erro ao deletar todas as tarefas:", error);
+            });
+        }
+    }).catch(error => {
+        console.error("Erro ao obter dados do usuário:", error);
+    });
 }
 
 function fetchTasks(topic) {
     showTasksLoader();
 
-    db.collection(TASKS_COLLECTION).doc(userUid + "_" + topic)
+    db.collection(TASKS_COLLECTION).doc(userUid)
         .get()
         .then(doc => {
-            if (doc.exists) {
-                const tasks = doc.data().tasks;
-
+            const userData = doc.data();
+            if (userData && userData.topics && userData.topics[topic] && userData.topics[topic].tasks) {
+                const tasks = userData.topics[topic].tasks;
                 verifyTasksQuantity(tasks);
                 createTasksTable(tasks);
             } else {
@@ -531,8 +529,6 @@ function handleFilterTasksByStatus(button) {
         const tasksElements = Array.from(tasksContainer.children);
         const dropdown = button.parentElement;
 
-        console.log(tasksElements);
-
         removeClass(dropdown.querySelector("button.active"), "active");
         addClass(button, "active");
 
@@ -589,21 +585,53 @@ formAddTopic.addEventListener("submit", function (event) {
     if (!newName) return;
 
     showTopicsLoader();
-    db.collection(TASKS_COLLECTION).doc(userUid + "_" + newName)
-        .set({ tasks: [] })
-        .then(() => {
-            const firstChildIsTopic = !topicsNav.children[0]?.classList.contains("empty");
-            if (!firstChildIsTopic) {
-                clearElementChildren(topicsNav);
+
+    const topicRef = db.collection(TASKS_COLLECTION).doc(userUid);
+
+    topicRef
+        .get()
+        .then(doc => {
+            const userData = doc.data();
+            
+            if (userData && userData.topics && userData.topics[newName]) {
+                hideTopicsLoader();
+                return;
             }
 
-            verifyTopicsQuantity([newName]);
-            appendTopicElement(newName);
-            hideTopicsLoader();
-            this.reset();
+            topicRef
+                .set({}, { merge: true })
+                .then(() => {
+                    topicRef
+                        .update({
+                            [`topics.${newName}`]: {
+                                tasks: []
+                            }
+                        })
+                        .then(() => {
+                            const firstChildIsTopic = !topicsNav.children[0]?.classList.contains("empty");
+                            if (!firstChildIsTopic) {
+                                clearElementChildren(topicsNav);
+                            }
+
+                            verifyTopicsQuantity([newName]);
+                            appendTopicElement(newName);
+                            hideTopicsLoader();
+                            this.reset();
+                        })
+                        .catch(error => {
+                            console.error("Erro ao adicionar novo tópico:", error);
+                        })
+                        .finally(() => {
+                            hideTopicsLoader();
+                        });
+                })
+                .catch(error => {
+                    console.error("Erro ao garantir que o documento do usuário exista:", error);
+                });
         })
         .catch(error => {
-            console.error("Erro ao adicionar novo tópico:", error);
+            console.error("Erro ao obter dados do usuário:", error);
+            hideTopicsLoader();
         });
 });
 
@@ -622,35 +650,41 @@ formAddTask.addEventListener("submit", function (event) {
     };
 
     showTasksLoader();
-    db.collection(TASKS_COLLECTION).doc(userUid + "_" + selectedTopic)
-        .update({
-            tasks: firebase.firestore.FieldValue.arrayUnion(task)
-        })
-        .then(() => {
-            const firstChildIsTask = tasksContainer.children[0]?.classList.contains("task");
 
-            db.collection(TASKS_COLLECTION).doc(userUid + "_" + selectedTopic)
-                .get()
-                .then(doc => {
-                    const tasks = doc.data().tasks;
+    const taskRef = db.collection(TASKS_COLLECTION).doc(userUid);
 
-                    updateCompletedTasksCounter(tasks);
-                    verifyTasksQuantity(tasks);
-                })
+    taskRef.get().then(doc => {
+        const userData = doc.data();
+        const selectedTopicData = userData.topics[selectedTopic];
 
-            if (!firstChildIsTask) {
-                clearElementChildren(tasksContainer);
-            }
+        if (selectedTopicData) {
+            const updatedTasks = selectedTopicData.tasks || [];
+            updatedTasks.push(task);
 
-            appendTaskElement(task);
-            this.reset();
-        })
-        .catch(error => {
-            console.error("Erro ao adicionar nova tarefa:", error);
-        })
-        .finally(() => {
-            hideTasksLoader();
-        });
+            taskRef.update({
+                [`topics.${selectedTopic}.tasks`]: updatedTasks
+            }).then(() => {
+                updateCompletedTasksCounter(updatedTasks);
+                verifyTasksQuantity(updatedTasks);
+
+                const firstChildIsTask = tasksContainer.children[0]?.classList.contains("task");
+
+                if (!firstChildIsTask) {
+                    clearElementChildren(tasksContainer);
+                }
+
+                appendTaskElement(task);
+                this.reset();
+            }).catch(error => {
+                console.error("Erro ao adicionar nova tarefa:", error);
+            }).finally(() => {
+                hideTasksLoader();
+            });
+        }
+    }).catch(error => {
+        console.error("Erro ao obter dados do usuário:", error);
+        hideTasksLoader();
+    });
 });
 
 deleteTasksButton.addEventListener("click", deleteAllTasks);
