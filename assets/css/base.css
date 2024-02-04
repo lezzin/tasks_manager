@@ -68,11 +68,6 @@ button:focus {
     filter: brightness(80%);
 }
 
-input,
-button {
-    transition: background-color .3s ease;
-}
-
 input:disabled,
 input:disabled~button,
 .btn-select:disabled {

@@ -236,8 +236,10 @@ body[data-theme="dark"] .topic.empty {
 }
 
 [data-add-task] #task_desc,
-[data-add-task] .btn-primary {
+[data-add-task] .btn-primary,
+[data-add-task] button[data-voice-btn] {
     border: none;
+    transition: all .3s ease;
 }
 
 [data-add-task] button[data-voice-btn] {
@@ -245,7 +247,6 @@ body[data-theme="dark"] .topic.empty {
     place-items: center;
     color: var(--details-color);
     padding: 0 .8rem 0 .3rem;
-    border: none;
 }
 
 [data-add-task] button span {
@@ -271,6 +272,12 @@ body[data-theme="dark"] .topic.empty {
 
 .filter-option {
     position: relative;
+}
+
+.filter-option [data-filter-btn],
+.filters-container #filter-search-input,
+.filters-container .filter-search-input+.btn {
+    transition: all .3s ease;
 }
 
 .filters-container .filter-buttons {
