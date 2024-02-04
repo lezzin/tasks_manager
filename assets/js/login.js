@@ -1,1 +1,123 @@
-auth.onAuthStateChanged((e=>{e&&handleAuthenticatedUser(e)}));const inputContainers=document.querySelectorAll(".input-container"),loginForm=document.querySelector("#login-form"),recoverPasswordBtn=document.querySelector("[data-recover-password-btn]"),registerForm=document.querySelector("#register-form"),toggleFormsBtns=document.querySelectorAll("[data-toggle-btn]");function setFormLoadingState(e,t){e.innerHTML='<span class="material-icons rotate">rotate_right</span> Carregando...',t.classList.add("hidden"),t.innerText=""}function handleAuthenticatedUser(e){localStorage.setItem("user_data",JSON.stringify(e)),window.location.href="pages/task.html"}function handleLoginResponse(e,t,r){localStorage.setItem("user_data",JSON.stringify(e.user)),window.location.href="pages/task.html"}function handleLoginError(e,t,r){"auth/invalid-credential"===e.code&&(r.classList.remove("hidden"),r.innerText="Usuário não encontrado"),t.innerHTML="Login"}function handleRegistrationSuccess(e,t){t.innerHTML="Registrar-se"}function handleRegistrationError(e,t,r){console.log(e),"auth/email-already-in-use"===e.code?(t.classList.remove("hidden"),t.innerText="O e-mail fornecido já está em uso"):"auth/invalid-password"===e.code&&(t.classList.remove("hidden"),t.innerText="A senha deve conter pelo menos 6 caracteres"),r.innerHTML="Registrar-se"}function login(){const e=loginForm.querySelector("[data-email]"),t=loginForm.querySelector("[data-password]"),r=loginForm.querySelector("[data-btn]"),n=loginForm.querySelector("[data-message]");setFormLoadingState(r,n),localStorage.removeItem("user_data"),auth.signInWithEmailAndPassword(e.value,t.value).then((e=>handleLoginResponse(e,r,n))).catch((e=>handleLoginError(e,r,n)))}function register(){const e=registerForm.querySelector("[data-email]"),t=registerForm.querySelector("[data-password]"),r=registerForm.querySelector("[data-btn]"),n=registerForm.querySelector("[data-message]");setFormLoadingState(r,n),auth.createUserWithEmailAndPassword(e.value,t.value).then((()=>handleRegistrationSuccess(n,r))).catch((e=>handleRegistrationError(e,n,r)))}loginForm.addEventListener("submit",(e=>{e.preventDefault(),login()})),registerForm.addEventListener("submit",(e=>{e.preventDefault(),register()})),toggleFormsBtns.forEach((e=>{e.addEventListener("click",(function(){const e=this.dataset.toggleForm;document.body.dataset.form=e}))})),recoverPasswordBtn.addEventListener("click",(()=>{const e=loginForm.querySelector("[data-email]"),t=loginForm.querySelector("[data-message]"),r=loginForm.querySelector("[data-btn]");if(setFormLoadingState(r,t),!e.value)return t.classList.remove("hidden"),t.innerText="O campo email deve ser preenchido",void(r.innerHTML="Login");auth.sendPasswordResetEmail(e.value).then((()=>{t.classList.remove("hidden"),t.innerText="Email de redefinição de senha enviado",r.innerHTML="Login"})).catch((e=>{console.error(e),r.innerHTML="Login"}))})),inputContainers.forEach((e=>{const t=e.querySelector("input"),r=e.querySelector("label");t.addEventListener("focus",(function(){r.classList.add("animate","animate-color")})),t.addEventListener("blur",(function(){this.value||r.classList.remove("animate"),r.classList.remove("animate-color")}))}));
+auth.onAuthStateChanged((user => {
+    user && handleAuthenticatedUser(user);
+}));
+
+const inputContainers = document.querySelectorAll(".input-container");
+const loginForm = document.querySelector("#login-form");
+const recoverPasswordBtn = document.querySelector("[data-recover-password-btn]");
+const registerForm = document.querySelector("#register-form");
+const toggleFormsBtns = document.querySelectorAll("[data-toggle-btn]");
+
+function setFormLoadingState(button, messageContainer) {
+    button.innerHTML = '<span class="material-icons rotate">rotate_right</span> Carregando...';
+    messageContainer.classList.add("hidden");
+    messageContainer.innerText = "";
+}
+
+function handleAuthenticatedUser(user) {
+    localStorage.setItem("user_data", JSON.stringify(user));
+    window.location.href = "pages/task.html";
+}
+
+function handleLoginResponse(response, loginButton, messageContainer) {
+    localStorage.setItem("user_data", JSON.stringify(response.user));
+    window.location.href = "pages/task.html";
+}
+
+function handleLoginError(error, loginButton, messageContainer) {
+    if ("auth/invalid-credential" === error.code) {
+        messageContainer.classList.remove("hidden");
+        messageContainer.innerText = "Usuário não encontrado";
+    }
+    loginButton.innerHTML = "Login";
+}
+
+function handleRegistrationSuccess(successMessageContainer, registerButton) {
+    registerButton.innerHTML = "Registrar-se";
+}
+
+function handleRegistrationError(error, errorMessageContainer, registerButton) {
+    console.log(error);
+    if ("auth/email-already-in-use" === error.code) {
+        errorMessageContainer.classList.remove("hidden");
+        errorMessageContainer.innerText = "O e-mail fornecido já está em uso";
+    } else if ("auth/invalid-password" === error.code) {
+        errorMessageContainer.classList.remove("hidden");
+        errorMessageContainer.innerText = "A senha deve conter pelo menos 6 caracteres";
+    }
+    registerButton.innerHTML = "Registrar-se";
+}
+
+function loginUser() {
+    const emailInput = loginForm.querySelector("[data-email]");
+    const passwordInput = loginForm.querySelector("[data-password]");
+    const loginButton = loginForm.querySelector("[data-btn]");
+    const messageContainer = loginForm.querySelector("[data-message]");
+    setFormLoadingState(loginButton, messageContainer);
+    localStorage.removeItem("user_data");
+    auth.signInWithEmailAndPassword(emailInput.value, passwordInput.value)
+        .then(response => handleLoginResponse(response, loginButton, messageContainer))
+        .catch(error => handleLoginError(error, loginButton, messageContainer));
+}
+
+function registerUser() {
+    const emailInput = registerForm.querySelector("[data-email]");
+    const passwordInput = registerForm.querySelector("[data-password]");
+    const registerButton = registerForm.querySelector("[data-btn]");
+    const errorMessageContainer = registerForm.querySelector("[data-message]");
+    setFormLoadingState(registerButton, errorMessageContainer);
+    auth.createUserWithEmailAndPassword(emailInput.value, passwordInput.value)
+        .then(() => handleRegistrationSuccess(errorMessageContainer, registerButton))
+        .catch(error => handleRegistrationError(error, errorMessageContainer, registerButton));
+}
+
+loginForm.addEventListener("submit", (event => {
+    event.preventDefault();
+    loginUser();
+}));
+
+registerForm.addEventListener("submit", (event => {
+    event.preventDefault();
+    registerUser();
+}));
+
+toggleFormsBtns.forEach(button => {
+    button.addEventListener("click", function () {
+        const formType = this.dataset.toggleForm;
+        document.body.dataset.form = formType;
+    });
+});
+
+recoverPasswordBtn.addEventListener("click", () => {
+    const emailInput = loginForm.querySelector("[data-email]");
+    const messageContainer = loginForm.querySelector("[data-message]");
+    const recoverButton = loginForm.querySelector("[data-btn]");
+    if (setFormLoadingState(recoverButton, messageContainer), !emailInput.value) {
+        messageContainer.classList.remove("hidden");
+        messageContainer.innerText = "O campo email deve ser preenchido";
+        recoverButton.innerHTML = "Login";
+    } else {
+        auth.sendPasswordResetEmail(emailInput.value)
+            .then(() => {
+                messageContainer.classList.remove("hidden");
+                messageContainer.innerText = "Email de redefinição de senha enviado";
+                recoverButton.innerHTML = "Login";
+            })
+            .catch(error => {
+                console.error(error);
+                recoverButton.innerHTML = "Login";
+            });
+    }
+});
+
+inputContainers.forEach(container => {
+    const inputField = container.querySelector("input");
+    const label = container.querySelector("label");
+    inputField.addEventListener("focus", () => {
+        label.classList.add("animate", "animate-color");
+    });
+    inputField.addEventListener("blur", function () {
+        this.value || label.classList.remove("animate");
+        label.classList.remove("animate-color");
+    });
+});

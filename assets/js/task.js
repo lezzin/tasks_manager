@@ -1,1 +1,641 @@
-auth.onAuthStateChanged((function(e){e||(window.location.href="../index.html")}));const db=firebase.firestore(),TASKS_COLLECTION="users",user=JSON.parse(localStorage.getItem("user_data")),userUid=user.uid,filterButtons=document.querySelectorAll("[data-filter-btn]"),filterBySearchInput=document.querySelector("[data-filter-search]"),filterStatusButtons=document.querySelectorAll("[data-filter-status]"),mobileButton=document.querySelector("[data-header-btn]"),logoutButton=document.querySelector("[data-logout]"),deleteTopicsButton=document.querySelector("[data-delete-topics]"),deleteTasksButton=document.querySelector("[data-delete-tasks]"),topicsNav=document.querySelector("[data-topics]"),tasksContainer=document.querySelector("[data-tasks]"),topicNameDisplay=document.querySelector("[data-topic-display]"),taskMessage=document.querySelector("[data-task-message]"),tasksLoader=document.querySelector("[data-tasks-loader]"),topicsLoader=document.querySelector("[data-topics-loader]"),formAddTask=document.querySelector("[data-add-task]"),formAddTopic=document.querySelector("[data-add-topic]");let selectedTopic;function createNode(e,t,o,a){const s=document.createElement(e);if(t&&t.forEach((e=>{s.classList.add(e)})),o)for(const[e,t]of Object.entries(o))s.setAttribute(e,t);return a&&(s.innerHTML=a),s}function createTextNode(e,t,o){const a=document.createElement(e);return a.innerText=t,o&&a.classList.add(o),a}function appendNode(e,t){e.appendChild(t)}function appendTextNode(e,t,o,a){const s=createTextNode(t,o,a);e.appendChild(s)}function clearElementChildren(e){for(;e.firstChild;)e.removeChild(e.firstChild)}function addClass(e,t){e.classList.add(t)}function removeClass(e,t){e.classList.remove(t)}function toggleClass(e,t){e.classList.toggle(t)}function removeClassIfExists(e,t){e.classList.contains(t)&&e.classList.remove(t)}function triggerClick(e){e.click()}function getCurrentTime(){return(new Date).toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"})}function showTasksLoader(){tasksLoader.classList.add("active")}function hideTasksLoader(){tasksLoader.classList.remove("active")}function showTopicsLoader(){topicsLoader.classList.add("active")}function hideTopicsLoader(){topicsLoader.classList.remove("active")}function verifyTopicsQuantity(e){const t=!e||0===e.length;deleteTopicsButton.style.display=t?"none":"flex",t&&appendNode(topicsNav,createNode("p",["empty","topic"],null,"Nenhum tópico cadastrado"))}function createTopicButtonHTML(e){const t=createNode("button",["topic",selectedTopic===e?"active":"inactive"]);t.onclick=function(){handleTopicClicked(this)};const o=createNode("p",null,null,e),a=createNode("a",["btn-rounded"]);a.href="javascript:void(0)",a.setAttribute("role","button"),a.dataset.topicName=e,a.title="Deletar tópico",a.onclick=function(e){e.stopPropagation(),deleteTopic(this)};return appendNode(a,createNode("span",["material-icons"],null,"delete")),appendNode(t,o),appendNode(t,a),t}function appendTopicElement(e){appendNode(topicsNav,createTopicButtonHTML(e))}function createTopicsList(e){const t=!e||0===e.length;deleteTopicsButton.style.display=t?"none":"flex",t||e.forEach((e=>appendTopicElement(e)))}function deleteTopic(e){const t=e.dataset.topicName,o=!topicsNav.children[0]?.classList.contains("empty")?topicsNav.children:[];db.collection(TASKS_COLLECTION).doc(userUid).update({[`topics.${t}`]:firebase.firestore.FieldValue.delete()}).then((()=>{e.parentElement.remove(),topicNameDisplay.innerHTML==t&&(topicNameDisplay.innerHTML=""),selectedTopic==t&&clearTasksContainer(),verifyTopicsQuantity(o)})).catch((e=>{console.error("Erro ao deletar tópico:",e)}))}function deleteAllTopics(){confirm("Realmente deseja deletar todos os tópicos? Essa ação não poderá ser desfeita.")&&db.collection(TASKS_COLLECTION).get().then((e=>{e.forEach((e=>{e.ref.delete()})),clearElementChildren(topicsNav),verifyTopicsQuantity([]),topicNameDisplay.innerHTML="",selectedTopic="",clearTasksContainer(),disableTasksFilters(),formAddTask.querySelector("input").disabled=!0})).catch((e=>{console.error("Erro ao deletar todos os tópicos:",e)}))}function fetchTopics(){showTopicsLoader(),db.collection(TASKS_COLLECTION).doc(userUid).get().then((e=>{const t=e.data();if(t&&t.topics){const e=Object.keys(t.topics);verifyTopicsQuantity(e),createTopicsList(e)}else verifyTopicsQuantity([])})).catch((e=>{console.error("Erro ao obter tópicos:",e)})).finally((()=>{hideTopicsLoader()}))}function clearTasksContainer(){showTasksLoader(),setTimeout((()=>{taskMessage.innerText="",clearElementChildren(tasksContainer),appendTextNode(tasksContainer,"p","Selecione um novo tópico."),deleteTasksButton.style.display="none",hideTasksLoader()}),1e3)}function disableTasksFilters(){filterButtons.forEach((function(e){e.disabled=!0})),filterBySearchInput.disabled=!0}function resetTasksFilters(){filterButtons.forEach((function(e){e.disabled=!1;const t=e.nextElementSibling,o=t.firstElementChild;removeClass(t.querySelector("button.active"),"active"),addClass(o,"active"),triggerClick(o)})),filterBySearchInput.disabled=!1}function updateCompletedTasksCounter(e){const t=e.filter((e=>1==e.status)).length,o=e.length;taskMessage.innerText=`${t}/${o} concluídas`}function createTaskHTML(e){const t=e.status?["task","completed"]:["task","incompleted"],o=createNode("div",["left"]),a=createNode("button",["btn-rounded"],null,'<span class="material-icons">done</span>');a.dataset.taskId=e.id,a.title="Marcar como "+(e.status?"não concluído":"concluído"),a.onclick=function(){changeTaskStatus(this)};const s=createNode("div"),n=createNode("p",["task-desc"],{"data-desc":e.description},e.description),c=createNode("p",["task-date","text-muted"],null,e.date);appendNode(s,n),appendNode(s,c),appendNode(o,a),appendNode(o,s);const i=createNode("div",["right"]),r=createNode("button",["btn-danger"]);r.dataset.taskId=e.id,r.dataset.action="delete",r.title="Deletar tarefa",r.onclick=function(){deleteTask(this)};appendNode(r,createNode("span",["material-icons"],null,"delete")),appendNode(i,r);const d=createNode("div",t);return appendNode(d,o),appendNode(d,i),d}function appendTaskElement(e){appendNode(tasksContainer,createTaskHTML(e))}function createTasksTable(e){const t=!e||0===e.length;selectedTopic&&!t&&updateCompletedTasksCounter(e),clearElementChildren(tasksContainer),t?appendNode(tasksContainer,createTextNode("p","Nenhuma tarefa cadastrada.")):e.forEach((e=>appendTaskElement(e)))}function verifyTasksQuantity(e){const t=!e||0===e.length;deleteTasksButton.style.display=t?"none":"flex",taskMessage.style.display=t?"none":"flex",t?(appendNode(tasksContainer,createTextNode("p","Nenhuma tarefa cadastrada.")),disableTasksFilters()):resetTasksFilters()}function changeTaskStatus(e){const t=parseInt(e.dataset.taskId),o=e.parentElement.parentElement;db.collection(TASKS_COLLECTION).doc(userUid).get().then((a=>{const s=a.data().topics[selectedTopic];if(s&&s.tasks){const a=s.tasks.map((o=>(o.id===t&&(o.status=!o.status,e.title="Marcar como "+(o.status?"não concluído":"concluído")),o)));db.collection(TASKS_COLLECTION).doc(userUid).update({[`topics.${selectedTopic}.tasks`]:a}).then((()=>{o.classList.toggle("completed",!o.classList.contains("completed")),updateCompletedTasksCounter(a)})).catch((e=>{console.error("Erro ao alterar status da tarefa:",e)}))}})).catch((e=>{console.error("Erro ao obter tarefas:",e)}))}function deleteTask(e){const t=parseInt(e.dataset.taskId),o=db.collection(TASKS_COLLECTION).doc(userUid);o.get().then((a=>{const s=a.data().topics[selectedTopic];if(s&&s.tasks){const a=s.tasks.filter((e=>e.id!==t));showTasksLoader(),o.update({[`topics.${selectedTopic}.tasks`]:a}).then((()=>{e.parentElement.parentElement.remove(),verifyTasksQuantity(a)})).catch((e=>{console.error("Erro ao deletar tarefa:",e)})).finally((()=>{hideTasksLoader()}))}})).catch((e=>{console.error("Erro ao obter tarefas:",e)}))}function deleteAllTasks(){if(!confirm("Realmente deseja deletar todas as tarefas relacionadas a esse tópico? Essa ação não poderá ser desfeita."))return;const e=db.collection(TASKS_COLLECTION).doc(userUid);e.get().then((t=>{t.data().topics[selectedTopic]&&e.update({[`topics.${selectedTopic}.tasks`]:[]}).then((()=>{clearElementChildren(tasksContainer),verifyTasksQuantity([])})).catch((e=>{console.error("Erro ao deletar todas as tarefas:",e)}))})).catch((e=>{console.error("Erro ao obter dados do usuário:",e)}))}function fetchTasks(e){showTasksLoader(),db.collection(TASKS_COLLECTION).doc(userUid).get().then((t=>{const o=t.data();if(o&&o.topics&&o.topics[e]&&o.topics[e].tasks){const t=o.topics[e].tasks;verifyTasksQuantity(t),createTasksTable(t)}else createTasksTable([])})).catch((e=>{console.error("Erro ao obter tarefas:",e)})).finally((()=>{hideTasksLoader()}))}function handleLogout(){auth.signOut().then((function(){localStorage.removeItem("user_data"),window.location.href="../index.html"})).catch((function(e){console.error("Erro ao desautenticar usuário:",e)}))}function handleTopicClicked(e){const t=e.querySelector("p").innerHTML;t&&(selectedTopic=t,topicNameDisplay.innerHTML=t,document.body.classList.remove("topics-container-active"),formAddTask.querySelector("input").disabled=!1,document.querySelector(".topic.active")&&removeClass(document.querySelector(".topic.active"),"active"),addClass(e,"active"),fetchTasks(selectedTopic))}function handleFilterButtonClick(e){const t=e.nextElementSibling;e.addEventListener("click",(function(){toggleClass(t,"active")})),document.addEventListener("click",(function({target:o}){e.contains(o)||removeClass(t,"active")}))}function handleFilterTasksByStatus(e){e.addEventListener("click",(function(){const t=e.dataset.filterStatus,o=tasksContainer.children[0]?.classList.contains("task"),a=Array.from(tasksContainer.children);removeClass(e.parentElement.querySelector("button.active"),"active"),addClass(e,"active"),o&&(showTasksLoader(),setTimeout((()=>{a.forEach((function(e){e.style.display=e.classList.contains(t)?"flex":"none"}));if(tasksContainer.querySelectorAll('[style="display: none;"]').length>=tasksContainer.children.length)appendTextNode(tasksContainer,"p","Nenhuma tarefa encontrada para esse filtro.","filter-message"),taskMessage.style.display="none",deleteTasksButton.style.display="none";else{taskMessage.style.display="",deleteTasksButton.style.display="flex";const e=tasksContainer.lastElementChild;e&&e.getAttribute("data-filter-message")&&e.remove()}hideTasksLoader()}),1e3))}))}function handleFilterByDescription(e){const t=String(e).toLocaleLowerCase();Array.from(tasksContainer.children).forEach((e=>{const o=String(e.querySelector("[data-desc]").textContent).toLowerCase();e.style.display=t?o.includes(t)?"flex":"none":"flex"}))}formAddTopic.addEventListener("submit",(function(e){e.preventDefault();const t=this.querySelector("input").value;if(!t)return;showTopicsLoader();const o=db.collection(TASKS_COLLECTION).doc(userUid);o.get().then((e=>{const a=e.data();a&&a.topics&&a.topics[t]?hideTopicsLoader():o.set({},{merge:!0}).then((()=>{o.update({[`topics.${t}`]:{tasks:[]}}).then((()=>{!topicsNav.children[0]?.classList.contains("empty")||clearElementChildren(topicsNav),verifyTopicsQuantity([t]),appendTopicElement(t),hideTopicsLoader(),this.reset()})).catch((e=>{console.error("Erro ao adicionar novo tópico:",e)})).finally((()=>{hideTopicsLoader()}))})).catch((e=>{console.error("Erro ao garantir que o documento do usuário exista:",e)}))})).catch((e=>{console.error("Erro ao obter dados do usuário:",e),hideTopicsLoader()}))})),formAddTask.addEventListener("submit",(function(e){if(e.preventDefault(),!selectedTopic)return;const t={id:Date.now(),description:this.querySelector("input").value,date:getCurrentTime(),status:!1};showTasksLoader();const o=db.collection(TASKS_COLLECTION).doc(userUid);o.get().then((e=>{const a=e.data().topics[selectedTopic];if(a){const e=a.tasks||[];e.push(t),o.update({[`topics.${selectedTopic}.tasks`]:e}).then((()=>{updateCompletedTasksCounter(e),verifyTasksQuantity(e);const o=tasksContainer.children[0]?.classList.contains("task");o||clearElementChildren(tasksContainer),appendTaskElement(t),this.reset()})).catch((e=>{console.error("Erro ao adicionar nova tarefa:",e)})).finally((()=>{hideTasksLoader()}))}})).catch((e=>{console.error("Erro ao obter dados do usuário:",e),hideTasksLoader()}))})),deleteTasksButton.addEventListener("click",deleteAllTasks),deleteTopicsButton.addEventListener("click",deleteAllTopics),logoutButton.addEventListener("click",handleLogout),filterButtons.forEach((e=>handleFilterButtonClick(e))),filterStatusButtons.forEach((e=>handleFilterTasksByStatus(e))),filterBySearchInput.addEventListener("input",(({target:{value:e}})=>handleFilterByDescription(e))),window.matchMedia("(max-width: 768px)").matches&&(mobileButton.addEventListener("click",(function(e){e.stopPropagation(),toggleClass(document.body,"topics-container-active")})),document.addEventListener("click",(function(e){document.querySelector(".topics-container").contains(e.target)||removeClass(document.body,"topics-container-active")}))),document.querySelector("[data-user-info]").innerText=user.email,fetchTopics();
+auth.onAuthStateChanged(function (user) {
+    if (!user) {
+        window.location.href = "../index.html";
+    }
+});
+
+const db = firebase.firestore();
+const TASKS_COLLECTION = "users";
+const user = JSON.parse(localStorage.getItem("user_data"));
+const userUid = user.uid;
+
+const voiceButton = document.querySelector("[data-voice-btn]");
+const filterButtons = document.querySelectorAll("[data-filter-btn]");
+const filterBySearchInput = document.querySelector("[data-filter-search]");
+const filterStatusButtons = document.querySelectorAll("[data-filter-status]");
+const mobileButton = document.querySelector("[data-header-btn]");
+const logoutButton = document.querySelector("[data-logout]");
+const deleteTopicsButton = document.querySelector("[data-delete-topics]");
+const deleteTasksButton = document.querySelector("[data-delete-tasks]");
+const topicsNav = document.querySelector("[data-topics]");
+const tasksContainer = document.querySelector("[data-tasks]");
+const topicNameDisplay = document.querySelector("[data-topic-display]");
+const taskMessage = document.querySelector("[data-task-message]");
+const tasksLoader = document.querySelector("[data-tasks-loader]");
+const topicsLoader = document.querySelector("[data-topics-loader]");
+const formAddTask = document.querySelector("[data-add-task]");
+const formAddTopic = document.querySelector("[data-add-topic]");
+
+let selectedTopic;
+let isRecording = false;
+let recognition;
+
+function toggleSpeechRecognition() {
+    if (!isRecording) {
+        startSpeechRecognition();
+    } else {
+        stopSpeechRecognition();
+    }
+}
+
+function startSpeechRecognition() {
+    const span = document.querySelector('#mic_icon');
+
+    recognition = new webkitSpeechRecognition() || new SpeechRecognition();
+    recognition.lang = 'pt-BR';
+
+    recognition.onresult = function (event) {
+        const result = event.results[0][0].transcript;
+        document.querySelector('#task_desc').value += result;
+    };
+
+    recognition.onend = function () {
+        span.textContent = 'mic';
+        isRecording = false;
+    };
+
+    recognition.start();
+    span.textContent = 'mic_none';
+    isRecording = true;
+}
+
+function stopSpeechRecognition() {
+    const span = document.querySelector('#mic_icon');
+
+    if (recognition) {
+        recognition.stop();
+        span.textContent = 'mic';
+        isRecording = false;
+    }
+}
+
+function createNode(element, classes, attributes, innerHTML) {
+    const node = document.createElement(element);
+    if (classes && classes.forEach((classItem) => {
+        node.classList.add(classItem);
+    }));
+    if (attributes) {
+        for (const [key, value] of Object.entries(attributes)) {
+            node.setAttribute(key, value);
+        }
+    }
+    if (innerHTML) {
+        node.innerHTML = innerHTML;
+    }
+    return node;
+}
+
+function createTextNode(element, text, className) {
+    const node = document.createElement(element);
+    node.innerText = text;
+    if (className) {
+        node.classList.add(className);
+    }
+    return node;
+}
+
+function appendNode(parent, child) {
+    parent.appendChild(child);
+}
+
+function appendTextNode(parent, element, attributes, text) {
+    const node = createTextNode(element, text, attributes);
+    parent.appendChild(node);
+}
+
+function clearElementChildren(element) {
+    while (element.firstChild) {
+        element.removeChild(element.firstChild);
+    }
+}
+
+function addClass(element, className) {
+    element.classList.add(className);
+}
+
+function removeClass(element, className) {
+    element.classList.remove(className);
+}
+
+function toggleClass(element, className) {
+    element.classList.toggle(className);
+}
+
+function removeClassIfExists(element, className) {
+    if (element.classList.contains(className)) {
+        element.classList.remove(className);
+    }
+}
+
+function triggerClick(element) {
+    element.click();
+}
+
+function getCurrentTime() {
+    return new Date().toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+function showTasksLoader() {
+    tasksLoader.classList.add("active");
+}
+
+function hideTasksLoader() {
+    tasksLoader.classList.remove("active");
+}
+
+function showTopicsLoader() {
+    topicsLoader.classList.add("active");
+}
+
+function hideTopicsLoader() {
+    topicsLoader.classList.remove("active");
+}
+
+function verifyTopicsQuantity(topics) {
+    const isEmpty = !topics || topics.length === 0;
+    deleteTopicsButton.style.display = isEmpty ? "none" : "flex";
+
+    if (isEmpty) {
+        appendNode(topicsNav, createNode("p", ["empty", "topic"], null, "Nenhum tópico cadastrado"));
+    }
+}
+
+function createTopicButtonHTML(topic) {
+    const button = createNode("button", ["topic", selectedTopic === topic ? "active" : "inactive"]);
+    button.onclick = function () {
+        handleTopicClicked(this);
+    };
+
+    const paragraph = createNode("p", null, null, topic);
+    const deleteButton = createNode("a", ["btn-rounded"]);
+
+    deleteButton.href = "javascript:void(0)";
+    deleteButton.setAttribute("role", "button");
+    deleteButton.dataset.topicName = topic;
+    deleteButton.title = "Deletar tópico";
+    deleteButton.onclick = function (e) {
+        e.stopPropagation();
+        deleteTopic(this);
+    };
+
+    appendNode(deleteButton, createNode("span", ["material-icons"], null, "delete"));
+    appendNode(button, paragraph);
+    appendNode(button, deleteButton);
+
+    return button;
+}
+
+function appendTopicElement(topic) {
+    appendNode(topicsNav, createTopicButtonHTML(topic));
+}
+
+function createTopicsList(topics) {
+    const isEmpty = !topics || topics.length === 0;
+    deleteTopicsButton.style.display = isEmpty ? "none" : "flex";
+    if (!isEmpty) {
+        topics.forEach(topic => appendTopicElement(topic));
+    }
+}
+
+function deleteTopic(button) {
+    const topicName = button.dataset.topicName;
+    const topicsChildren = !topicsNav.children[0]?.classList.contains("empty") ? topicsNav.children : [];
+    db.collection(TASKS_COLLECTION).doc(userUid).update({
+        [`topics.${topicName}`]: firebase.firestore.FieldValue.delete()
+    }).then(() => {
+        button.parentElement.remove();
+        if (topicNameDisplay.innerHTML === topicName) {
+            topicNameDisplay.innerHTML = "";
+        }
+        if (selectedTopic == topicName) {
+            clearTasksContainer();
+        }
+        verifyTopicsQuantity(topicsChildren);
+    }).catch((error) => {
+        console.error("Erro ao deletar tópico:", error);
+    });
+}
+
+function deleteAllTopics() {
+    if (!confirm("Realmente deseja deletar todos os tópicos? Essa ação não poderá ser desfeita.")) return;
+    db.collection(TASKS_COLLECTION).get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            doc.ref.delete();
+        });
+
+        topicNameDisplay.innerHTML = "";
+        selectedTopic = "";
+        clearElementChildren(topicsNav);
+        verifyTopicsQuantity([]);
+        clearTasksContainer();
+        disableTasksFilters();
+
+        formAddTask.querySelector("input").disabled = true;
+    }).catch((error) => {
+        console.error("Erro ao deletar todos os tópicos:", error);
+    });
+}
+
+function fetchTopics() {
+    showTopicsLoader();
+    db.collection(TASKS_COLLECTION).doc(userUid).get().then((doc) => {
+        const data = doc.data();
+        if (data && data.topics) {
+            const topics = Object.keys(data.topics);
+            verifyTopicsQuantity(topics);
+            createTopicsList(topics);
+        } else {
+            verifyTopicsQuantity([]);
+        }
+    }).catch((error) => {
+        console.error("Erro ao obter tópicos:", error);
+    }).finally(() => {
+        hideTopicsLoader();
+    });
+}
+
+function clearTasksContainer() {
+    showTasksLoader();
+
+    setTimeout(() => {
+        taskMessage.innerText = "";
+        deleteTasksButton.style.display = "none";
+
+        clearElementChildren(tasksContainer);
+        appendTextNode(tasksContainer, "p", null, "Selecione um novo tópico.");
+        hideTasksLoader();
+    }, 1000);
+}
+
+function disableTasksFilters() {
+    filterButtons.forEach((button) => {
+        button.disabled = true;
+    });
+    filterBySearchInput.disabled = true;
+}
+
+function resetTasksFilters() {
+    filterButtons.forEach((button) => {
+        button.disabled = false;
+        const nextElement = button.nextElementSibling;
+        const firstChild = nextElement.firstElementChild;
+        removeClass(nextElement.querySelector("button.active"), "active");
+        addClass(firstChild, "active");
+        triggerClick(firstChild);
+    });
+    filterBySearchInput.disabled = false;
+}
+
+function updateCompletedTasksCounter(tasks) {
+    const completedTasks = tasks.filter((task) => task.status === 1).length;
+    const totalTasks = tasks.length;
+    taskMessage.innerText = `${completedTasks}/${totalTasks} concluídas`;
+}
+
+function createTaskHTML(task) {
+    const classes = task.status ? ["task", "completed"] : ["task", "incompleted"];
+    const leftDiv = createNode("div", ["left"]);
+    const doneButton = createNode("button", ["btn-rounded"], null, '<span class="material-icons">done</span>');
+    doneButton.dataset.taskId = task.id;
+    doneButton.title = `Marcar como ${task.status ? "não concluído" : "concluído"}`;
+    doneButton.onclick = function () {
+        changeTaskStatus(this);
+    };
+    const taskDiv = createNode("div");
+    const descriptionParagraph = createNode("p", ["task-desc"], { "data-desc": task.description }, task.description);
+    const dateParagraph = createNode("p", ["task-date", "text-muted"], null, task.date);
+    appendNode(taskDiv, descriptionParagraph);
+    appendNode(taskDiv, dateParagraph);
+    appendNode(leftDiv, doneButton);
+    appendNode(leftDiv, taskDiv);
+    const rightDiv = createNode("div", ["right"]);
+    const deleteButton = createNode("button", ["btn-danger"]);
+    deleteButton.dataset.taskId = task.id;
+    deleteButton.dataset.action = "delete";
+    deleteButton.title = "Deletar tarefa";
+    deleteButton.onclick = function () {
+        deleteTask(this);
+    };
+    appendNode(deleteButton, createNode("span", ["material-icons"], null, "delete"));
+    appendNode(rightDiv, deleteButton);
+    const taskElement = createNode("div", classes);
+    appendNode(taskElement, leftDiv);
+    appendNode(taskElement, rightDiv);
+    return taskElement;
+}
+
+function appendTaskElement(task) {
+    appendNode(tasksContainer, createTaskHTML(task));
+}
+
+function createTasksTable(tasks) {
+    const isEmpty = !tasks || tasks.length === 0;
+    selectedTopic && !isEmpty && updateCompletedTasksCounter(tasks);
+    clearElementChildren(tasksContainer);
+    if (isEmpty) {
+        appendNode(tasksContainer, createTextNode("p", "Nenhuma tarefa cadastrada."));
+    } else {
+        tasks.forEach((task) => {
+            appendTaskElement(task);
+        });
+    }
+}
+
+function verifyTasksQuantity(tasks) {
+    const isEmpty = !tasks || tasks.length === 0;
+    deleteTasksButton.style.display = isEmpty ? "none" : "flex";
+    taskMessage.style.display = isEmpty ? "none" : "flex";
+    if (isEmpty) {
+        appendNode(tasksContainer, createTextNode("p", "Nenhuma tarefa cadastrada."));
+        disableTasksFilters();
+    } else {
+        resetTasksFilters();
+    }
+}
+
+function changeTaskStatus(button) {
+    const taskId = parseInt(button.dataset.taskId);
+    const taskDiv = button.parentElement.parentElement;
+    db.collection(TASKS_COLLECTION).doc(userUid).get().then((doc) => {
+        const selectedTopicData = doc.data().topics[selectedTopic];
+        if (selectedTopicData && selectedTopicData.tasks) {
+            const updatedTasks = selectedTopicData.tasks.map((task) => {
+                if (task.id === taskId) {
+                    task.status = !task.status;
+                    button.title = `Marcar como ${task.status ? "não concluído" : "concluído"}`;
+                }
+                return task;
+            });
+            db.collection(TASKS_COLLECTION).doc(userUid).update({
+                [`topics.${selectedTopic}.tasks`]: updatedTasks
+            }).then(() => {
+                taskDiv.classList.toggle("completed", !taskDiv.classList.contains("completed"));
+                updateCompletedTasksCounter(updatedTasks);
+            }).catch((error) => {
+                console.error("Erro ao alterar status da tarefa:", error);
+            });
+        }
+    }).catch((error) => {
+        console.error("Erro ao obter tarefas:", error);
+    });
+}
+
+function deleteTask(button) {
+    const taskId = parseInt(button.dataset.taskId);
+    const userDoc = db.collection(TASKS_COLLECTION).doc(userUid);
+    userDoc.get().then((doc) => {
+        const selectedTopicData = doc.data().topics[selectedTopic];
+        if (selectedTopicData && selectedTopicData.tasks) {
+            const updatedTasks = selectedTopicData.tasks.filter((task) => task.id !== taskId);
+            showTasksLoader();
+            userDoc.update({
+                [`topics.${selectedTopic}.tasks`]: updatedTasks
+            }).then(() => {
+                button.parentElement.parentElement.remove();
+                verifyTasksQuantity(updatedTasks);
+            }).catch((error) => {
+                console.error("Erro ao deletar tarefa:", error);
+            }).finally(() => {
+                hideTasksLoader();
+            });
+        }
+    }).catch((error) => {
+        console.error("Erro ao obter tarefas:", error);
+    });
+}
+
+function deleteAllTasks() {
+    if (!confirm("Realmente deseja deletar todas as tarefas relacionadas a esse tópico? Essa ação não poderá ser desfeita.")) return;
+    const userDoc = db.collection(TASKS_COLLECTION).doc(userUid);
+    userDoc.get().then((doc) => {
+        const selectedTopicData = doc.data().topics[selectedTopic];
+        if (selectedTopicData) {
+            userDoc.update({
+                [`topics.${selectedTopic}.tasks`]: []
+            }).then(() => {
+                clearElementChildren(tasksContainer);
+                verifyTasksQuantity([]);
+            }).catch((error) => {
+                console.error("Erro ao deletar todas as tarefas:", error);
+            });
+        }
+    }).catch((error) => {
+        console.error("Erro ao obter dados do usuário:", error);
+    });
+}
+
+function fetchTasks(topic) {
+    showTasksLoader();
+    db.collection(TASKS_COLLECTION).doc(userUid).get().then((doc) => {
+        const userData = doc.data();
+        if (userData && userData.topics && userData.topics[topic] && userData.topics[topic].tasks) {
+            const tasks = userData.topics[topic].tasks;
+            verifyTasksQuantity(tasks);
+            createTasksTable(tasks);
+        } else {
+            createTasksTable([]);
+        }
+    }).catch((error) => {
+        console.error("Erro ao obter tarefas:", error);
+    }).finally(() => {
+        hideTasksLoader();
+    });
+}
+
+function handleLogout() {
+    auth.signOut().then(() => {
+        localStorage.removeItem("user_data");
+        window.location.href = "../index.html";
+    }).catch((error) => {
+        console.error("Erro ao desautenticar usuário:", error);
+    });
+}
+
+function handleTopicClicked(button) {
+    const topicName = button.querySelector("p").innerHTML;
+    if (topicName) {
+        selectedTopic = topicName;
+        topicNameDisplay.innerHTML = topicName;
+        document.body.classList.remove("topics-container-active");
+        formAddTask.querySelector("input").disabled = false;
+
+        if (document.querySelector(".topic.active")) {
+            removeClass(document.querySelector(".topic.active"), "active");
+        }
+        addClass(button, "active");
+        fetchTasks(selectedTopic);
+    }
+}
+
+function handleFilterButtonClick(button) {
+    const dropdown = button.nextElementSibling;
+    button.addEventListener("click", () => {
+        toggleClass(dropdown, "active");
+    });
+    document.addEventListener("click", ({ target }) => {
+        if (!button.contains(target)) {
+            removeClass(dropdown, "active");
+        }
+    });
+}
+
+function handleFilterTasksByStatus(button) {
+    button.addEventListener("click", () => {
+        const filterStatus = button.dataset.filterStatus;
+        const hasDisplayedTasks = tasksContainer.children[0]?.classList.contains("task");
+        const allTasks = Array.from(tasksContainer.children);
+        removeClass(button.parentElement.querySelector("button.active"), "active");
+        addClass(button, "active");
+        if (hasDisplayedTasks) {
+            showTasksLoader();
+            setTimeout(() => {
+                allTasks.forEach((task) => {
+                    task.style.display = task.classList.contains(filterStatus) ? "flex" : "none";
+                });
+                if (tasksContainer.querySelectorAll('[style="display: none;"]').length >= tasksContainer.children.length) {
+                    appendTextNode(tasksContainer, "p", ["filter-message"], "Nenhuma tarefa encontrada para esse filtro.");
+                    taskMessage.style.display = "none";
+                    deleteTasksButton.style.display = "none";
+                } else {
+                    taskMessage.style.display = "";
+                    deleteTasksButton.style.display = "flex";
+                    const lastTaskElement = tasksContainer.lastElementChild;
+                    if (lastTaskElement && lastTaskElement.getAttribute("data-filter-message")) {
+                        lastTaskElement.remove();
+                    }
+                }
+                hideTasksLoader();
+            }, 1000);
+        }
+    });
+}
+
+function handleFilterByDescription(value) {
+    const searchString = String(value).toLocaleLowerCase();
+    Array.from(tasksContainer.children).forEach((task) => {
+        const description = String(task.querySelector("[data-desc]").textContent).toLowerCase();
+        task.style.display = searchString ? (description.includes(searchString) ? "flex" : "none") : "flex";
+    });
+}
+
+formAddTopic.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const topicName = formAddTopic.querySelector("input").value;
+    if (!topicName) return;
+
+    showTopicsLoader();
+
+    const userDoc = db.collection(TASKS_COLLECTION).doc(userUid);
+    userDoc.get().then((doc) => {
+        const userData = doc.data();
+
+        if (userData && userData.topics && userData.topics[topicName]) {
+            hideTopicsLoader();
+        } else {
+            userDoc.set({}, { merge: true }).then(() => {
+                userDoc.update({
+                    [`topics.${topicName}`]: { tasks: [] }
+                }).then(() => {
+                    if (topicsNav.children[0]?.classList.contains("empty")) {
+                        clearElementChildren(topicsNav);
+                    }
+
+                    verifyTopicsQuantity([topicName]);
+                    appendTopicElement(topicName);
+                    hideTopicsLoader();
+                    formAddTopic.reset();
+                }).catch((error) => {
+                    console.error("Erro ao adicionar novo tópico:", error);
+                }).finally(() => {
+                    hideTopicsLoader();
+                });
+            }).catch((error) => {
+                console.error("Erro ao garantir que o documento do usuário exista:", error);
+            });
+        }
+    }).catch((error) => {
+        console.error("Erro ao obter dados do usuário:", error);
+        hideTopicsLoader();
+    });
+});
+
+formAddTask.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (!selectedTopic) return;
+    const newTask = {
+        id: Date.now(),
+        description: formAddTask.querySelector("input").value,
+        date: getCurrentTime(),
+        status: false
+    };
+    showTasksLoader();
+    const userDoc = db.collection(TASKS_COLLECTION).doc(userUid);
+    userDoc.get().then((doc) => {
+        const selectedTopicData = doc.data().topics[selectedTopic];
+        if (selectedTopicData) {
+            const tasks = selectedTopicData.tasks || [];
+            tasks.push(newTask);
+            userDoc.update({
+                [`topics.${selectedTopic}.tasks`]: tasks
+            }).then(() => {
+                updateCompletedTasksCounter(tasks);
+                verifyTasksQuantity(tasks);
+                const hasDisplayedTasks = tasksContainer.children[0]?.classList.contains("task");
+                if (!hasDisplayedTasks) {
+                    clearElementChildren(tasksContainer);
+                }
+                appendTaskElement(newTask);
+                formAddTask.reset();
+            }).catch((error) => {
+                console.error("Erro ao adicionar nova tarefa:", error);
+            }).finally(() => {
+                hideTasksLoader();
+            });
+        }
+    }).catch((error) => {
+        console.error("Erro ao obter dados do usuário:", error);
+        hideTasksLoader();
+    });
+});
+
+deleteTasksButton.addEventListener("click", deleteAllTasks);
+deleteTopicsButton.addEventListener("click", deleteAllTopics);
+logoutButton.addEventListener("click", handleLogout);
+
+filterButtons.forEach((button) => {
+    handleFilterButtonClick(button);
+});
+
+filterStatusButtons.forEach((button) => {
+    handleFilterTasksByStatus(button);
+});
+
+filterBySearchInput.addEventListener("input", ({ target: { value } }) => {
+    handleFilterByDescription(value);
+});
+
+voiceButton.addEventListener("click", toggleSpeechRecognition);
+
+if (window.matchMedia("(max-width: 768px)").matches) {
+    mobileButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        toggleClass(document.body, "topics-container-active");
+    });
+
+    document.addEventListener("click", (event) => {
+        if (!document.querySelector(".topics-container").contains(event.target)) {
+            removeClass(document.body, "topics-container-active");
+        }
+    });
+}
+
+document.querySelector("[data-user-info]").innerText = user.email;
+
+fetchTopics();

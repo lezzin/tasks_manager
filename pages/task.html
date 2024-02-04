@@ -59,6 +59,7 @@
         <form data-add-topic>
             <div class="input-group">
                 <input type="text" placeholder="Adicionar tópico..." id="topic_name" required autocomplete="off">
+
                 <button type="submit" class="btn-primary" title="Adicionar novo tópico">
                     <span class="material-icons">add</span>
                 </button>
@@ -76,7 +77,13 @@
     <main>
         <form data-add-task>
             <div class="input-group input-group-rounded">
-                <input type="text" id="task_desc" placeholder="Adicionar tarefa..." required autocomplete="off" disabled>
+                <input type="text" id="task_desc" placeholder="Adicionar tarefa..." required autocomplete="off"
+                    disabled>
+
+                <button type="button" title="Gravar áudio" data-voice-btn>
+                    <span class="material-icons" id="mic_icon">mic</span>
+                </button>
+
                 <button type="submit" class="btn-primary" title="Adicionar nova tarefa">
                     <span class="material-icons">add</span>
                 </button>
