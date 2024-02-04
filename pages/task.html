@@ -6,10 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Leandro Adrian da Silva">
     <meta name="description" content="Lista de tarefas com a api do firebase">
+    <meta name="theme-color" content="#02a267">
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="../assets/css/task.css" type="text/css">
-    <link rel="icon" href="../logo.jpg" type="image/jpg">
+    <link rel="icon" href="../logo.webp" type="image/webp">
 
     <title>Gerenciador de tarefas</title>
 </head>
@@ -22,7 +23,7 @@
             </button>
 
             <div class="logo">
-                <img src="../logo.jpg" alt="Page logo" width="37" height="37" type="image/jpg">
+                <img src="../logo.webp" alt="Page logo" width="37" height="37" type="image/webp">
                 <span>Gerenciador de tarefas</span>
             </div>
         </div>
@@ -75,7 +76,7 @@
     <main>
         <form data-add-task>
             <div class="input-group input-group-rounded">
-                <input type="text" id="task_desc" placeholder="Adicionar tarefa..." required autocomplete="off">
+                <input type="text" id="task_desc" placeholder="Adicionar tarefa..." required autocomplete="off" disabled>
                 <button type="submit" class="btn-primary" title="Adicionar nova tarefa">
                     <span class="material-icons">add</span>
                 </button>
@@ -92,8 +93,8 @@
 
                     <div class="filter-option-dropdown">
                         <button type="button" data-filter-status="task" class="active">Todas</button>
-                        <button type="button" data-filter-status="completed">Concluido</button>
-                        <button type="button" data-filter-status="incompleted">Não concluido</button>
+                        <button type="button" data-filter-status="completed">Concluído</button>
+                        <button type="button" data-filter-status="incompleted">Não concluído</button>
                     </div>
                 </div>
             </div>
