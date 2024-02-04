@@ -6,8 +6,11 @@ Um aplicativo de gerenciamento de tarefas com design inspirado no Google.
 
 ## Recursos
 
-- Gerenciamento de topicos
-- Gerenciamento de tarefas
+- Login e registro de usuários
+- Adição e exclusão de topicos
+- Adição, filtragem, exclusão e alteração de status de tarefas
+- Adição de tarefas por voz e texto
+- Mudanças de tema dark/light
 
 ## Guia de instalação
 
