@@ -71,7 +71,7 @@ button:focus {
 input:disabled,
 input:disabled~button,
 .btn-select:disabled {
-    color: var(--font-secondary) !important;
+    color: var(--border-color) !important;
     opacity: .6;
     pointer-events: none;
     background-color: var(--disabled-color);
