@@ -57,6 +57,7 @@ a {
 }
 
 .btn,
+.btn-default,
 .btn-select,
 .btn-primary,
 .btn-secondary,
@@ -78,6 +79,11 @@ a {
 .btn:hover,
 .btn:focus {
     filter: none;
+}
+
+.btn-default {
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
 }
 
 .btn-select {
