@@ -44,11 +44,11 @@ button:focus {
 
 input:disabled,
 input:disabled~button,
-.btn-select:disabled {
-    color: inherit !important;
+.btn-select:disabled,
+button:disabled {
     opacity: .6;
+    filter: saturate(15%);
     pointer-events: none;
-    background-color: var(--disabled-color);
 }
 
 a {

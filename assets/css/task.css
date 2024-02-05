@@ -1,5 +1,27 @@
 @import url(./base.css);
 
+@keyframes loader {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes topic-animation {
+    from {
+        transform: translateX(-.6rem);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0rem);
+        opacity: 1;
+    }
+}
+
 body {
     grid-template: "header header" 10vh "topics tasks" minmax(90vh, auto) / 23% 1fr;
 }
@@ -270,6 +292,10 @@ body[data-theme="dark"] .topic.empty {
     padding-bottom: 0.3rem;
 }
 
+.filters-container button[data-download-tasks] {
+    padding: 0.6rem;
+}
+
 .filter-option {
     position: relative;
 }
@@ -344,9 +370,8 @@ body[data-theme="dark"] .topic.empty {
     gap: .6rem;
 }
 
-.tasks-container-body * {
-    animation: task-animation .3s ease-in forwards;
-    opacity: 0;
+.tasks-container-body.pdf_save {
+    padding: 1rem;
 }
 
 .tasks-container-body .task {
@@ -396,7 +421,7 @@ body[data-theme="dark"] .topic.empty {
 .tasks-container-footer {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     margin-top: .5rem;
     width: inherit;
 }
@@ -431,36 +456,4 @@ body[data-theme="dark"] .topic.empty {
     border: 3px solid transparent;
     border-left-color: var(--details-color);
     animation: loader 1s infinite linear;
-}
-
-@keyframes loader {
-    from {
-        transform: rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-@keyframes task-animation {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes topic-animation {
-    from {
-        transform: translateX(-.6rem);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateX(0rem);
-        opacity: 1;
-    }
 }

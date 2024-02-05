@@ -11,6 +11,7 @@ const userUid = user.uid;
 
 const voiceButton = document.querySelector("[data-voice-btn]");
 const filterButtons = document.querySelectorAll("[data-filter-btn]");
+const downloadTasksButton = document.querySelector("[data-download-tasks]");
 const filterBySearchInput = document.querySelector("[data-filter-search]");
 const filterStatusButtons = document.querySelectorAll("[data-filter-status]");
 const mobileButton = document.querySelector("[data-header-btn]");
@@ -248,6 +249,7 @@ function clearTasksContainer() {
     setTimeout(() => {
         taskMessage.innerText = "";
         deleteTasksButton.style.display = "none";
+        downloadTasksButton.disabled = true;
 
         clearElementChildren(tasksContainer);
         appendTextNode(tasksContainer, "p", null, "Selecione um novo tópico.");
@@ -334,6 +336,8 @@ function verifyTasksQuantity(tasks) {
     const isEmpty = !tasks || tasks.length === 0;
     deleteTasksButton.style.display = isEmpty ? "none" : "flex";
     taskMessage.style.display = isEmpty ? "none" : "flex";
+    downloadTasksButton.disabled = isEmpty;
+
     if (isEmpty) {
         appendNode(tasksContainer, createTextNode("p", "Nenhuma tarefa cadastrada."));
         disableTasksFilters();
@@ -485,9 +489,11 @@ function handleFilterTasksByStatus(button) {
                     appendTextNode(tasksContainer, "p", ["filter-message"], "Nenhuma tarefa encontrada para esse filtro.");
                     taskMessage.style.display = "none";
                     deleteTasksButton.style.display = "none";
+                    downloadTasksButton.disabled = true;
                 } else {
                     taskMessage.style.display = "";
                     deleteTasksButton.style.display = "flex";
+                    downloadTasksButton.disabled = false;
                     const lastTaskElement = tasksContainer.lastElementChild;
                     if (lastTaskElement && lastTaskElement.getAttribute("data-filter-message")) {
                         lastTaskElement.remove();
@@ -505,6 +511,11 @@ function handleFilterByDescription(value) {
         const description = String(task.querySelector("[data-desc]").textContent).toLowerCase();
         task.style.display = searchString ? (description.includes(searchString) ? "flex" : "none") : "flex";
     });
+}
+
+function handleDownloadTasks() {
+    const filename = `tarefas_${String(selectedTopic).toLowerCase()}_${getCurrentTime()}`;
+    html2pdf().from(tasksContainer).save(filename);
 }
 
 formAddTopic.addEventListener("submit", (event) => {
@@ -588,6 +599,7 @@ formAddTask.addEventListener("submit", (event) => {
     });
 });
 
+downloadTasksButton.addEventListener("click", handleDownloadTasks);
 deleteTasksButton.addEventListener("click", deleteAllTasks);
 deleteTopicsButton.addEventListener("click", deleteAllTopics);
 logoutButton.addEventListener("click", handleLogout);
