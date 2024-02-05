@@ -11,6 +11,7 @@ Um aplicativo de gerenciamento de tarefas com design inspirado no Google.
 - Adição, filtragem, exclusão e alteração de status de tarefas
 - Adição de tarefas por voz e texto
 - Mudanças de tema dark/light
+- Mudança na paleta de cores do site
 
 ## Guia de instalação
 
