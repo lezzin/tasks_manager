@@ -1,1 +1,146 @@
-@import url(./base.css);body {grid-template: "header" 10vh "main" minmax(90vh, auto) / auto;position: relative;}main {grid-area: "main";display: grid;place-items: center;}body[data-form="register"] #login-form, body[data-form="login"] #register-form {pointer-events: none;transform: scale(.98);opacity: 0;}body[data-form="register"] #register-form, body[data-form="login"] #login-form {transform: scale(1);opacity: 1;}form {display: grid;gap: .6rem;border-radius: 5px;border: 1px solid var(--border-color);padding: 2rem 1rem;width: calc(100% - 1rem);max-width: 400px;position: absolute;transition: all .3s ease;}form .form-alert {border: 1px solid var(--border-color);background-color: var(--bg-primary-light);color: var(--font-primary);padding: .5rem;text-align: center;border-radius: 3px;margin-bottom: 1rem;}form .form-alert.hidden {display: none;}form .form-title {text-align: center;font-weight: 400;white-space: nowrap;margin-bottom: 0.3rem;}form .text-muted {margin-bottom: 1.5rem;text-align: center;font-size: .8rem;}form [data-recover-password-btn] {white-space: nowrap;width: min-content;color: var(--details-color);font-size: .8rem;}form [data-btn] {margin-top: 1rem;}form button:last-of-type {margin-top: .2rem;}@media (max-width: 768px) {header {padding: 1rem;}}.input-container {position: relative;display: grid;width: 100%;}.input-container input {border: 1px solid var(--border-color);border-radius: 3px;padding: .6rem;}.input-container label {position: absolute;top: 50%;left: .65rem;transform: translateY(-50%);transition: all .3s ease;pointer-events: none;opacity: .8;}.input-container label.animate {top: 0;opacity: 1;background-color: var(--bg-primary);font-size: .8rem;padding-inline: .3rem;}.input-container label.animate-color {color: var(--details-color);}.input-container input:focus {border-color: var(--details-color);}.btn-container {display: grid;gap: 0.2rem;}.rotate {animation: loader 1s infinite linear;}@keyframes loader {from {transform: rotate(0deg);}to {transform: rotate(360deg);}}
+@import url(./base.css);
+
+body {
+    grid-template: "header" 10vh "main" minmax(90vh, auto) / auto;
+    position: relative;
+}
+
+header .navigation {
+    justify-content: flex-end;
+}
+
+main {
+    grid-area: "main";
+    display: grid;
+    place-items: center;
+}
+
+body[data-form="register"] #login-form,
+body[data-form="login"] #register-form {
+    pointer-events: none;
+    transform: scale(.98);
+    opacity: 0;
+}
+
+body[data-form="register"] #register-form,
+body[data-form="login"] #login-form {
+    transform: scale(1);
+    opacity: 1;
+}
+
+form {
+    display: grid;
+    gap: .6rem;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    padding: 2rem 1rem;
+    width: calc(100% - 1rem);
+    max-width: 400px;
+    position: absolute;
+    transition: all .3s ease;
+}
+
+form .form-alert {
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-primary-light);
+    color: var(--font-primary);
+    padding: .5rem;
+    text-align: center;
+    border-radius: 3px;
+    margin-bottom: 1rem;
+}
+
+form .form-alert.hidden {
+    display: none;
+}
+
+form .form-title {
+    text-align: center;
+    font-weight: 400;
+    white-space: nowrap;
+    margin-bottom: 0.3rem;
+}
+
+form .text-muted {
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: .8rem;
+}
+
+form [data-recover-password-btn] {
+    white-space: nowrap;
+    width: min-content;
+    color: var(--details-color);
+    font-size: .8rem;
+}
+
+form [data-btn] {
+    margin-top: 1rem;
+}
+
+form button:last-of-type {
+    margin-top: .2rem;
+}
+
+@media (max-width: 768px) {
+    header {
+        padding: 1rem;
+    }
+}
+
+.input-container {
+    position: relative;
+    display: grid;
+    width: 100%;
+}
+
+.input-container input {
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    padding: .6rem;
+}
+
+.input-container label {
+    position: absolute;
+    top: 50%;
+    left: .65rem;
+    transform: translateY(-50%);
+    transition: all .3s ease;
+    pointer-events: none;
+    opacity: .8;
+}
+
+.input-container label.animate {
+    top: 0;
+    opacity: 1;
+    background-color: var(--bg-primary);
+    font-size: .8rem;
+    padding-inline: .3rem;
+}
+
+.input-container label.animate-color {
+    color: var(--details-color);
+}
+
+.input-container input:focus {
+    border-color: var(--details-color);
+}
+
+.btn-container {
+    display: grid;
+    gap: 0.2rem;
+}
+
+.rotate {
+    animation: loader 1s infinite linear;
+}
+
+@keyframes loader {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

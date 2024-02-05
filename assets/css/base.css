@@ -1,3 +1,5 @@
+@import url(./variables.css);
+
 * {
     margin: 0;
     padding: 0;
@@ -8,34 +10,6 @@
 .material-icons-outlined {
     font-size: 1rem !important;
     font-display: swap;
-}
-
-body[data-theme="light"] {
-    --bg-primary: hsl(0, 0%, 100%);
-    --bg-primary-light: hsl(0, 0%, 96%);
-    --bg-primary-dark: hsl(0, 0%, 80%);
-    --font-primary: hsl(206, 6%, 25%);
-    --font-secondary: hsl(0, 0%, 100%);
-    --danger-color: hsl(0, 100%, 46%);
-    --details-color: hsl(158, 98%, 32%);
-    --details-color-dark: hsl(158, 50%, 82%);
-    --details-color-light: hsl(158, 50%, 95%);
-    --border-color: #ddd;
-    --disabled-color: hsl(0, 0%, 93%);
-}
-
-body[data-theme="dark"] {
-    --bg-primary: hsl(0, 0%, 8%);
-    --bg-primary-light: hsl(0, 0%, 16%);
-    --bg-primary-dark: hsl(0, 0%, 12%);
-    --font-primary: hsl(0, 0%, 90%);
-    --font-secondary: hsl(0, 0%, 15%);
-    --danger-color: hsl(0, 93%, 61%);
-    --details-color: hsl(158, 41%, 56%);
-    --details-color-dark: hsl(158, 30%, 22%);
-    --details-color-light: hsl(158, 30%, 12%);
-    --border-color: hsl(0, 0%, 20%);
-    --disabled-color: hsl(0, 0%, 15%);
 }
 
 body {
@@ -186,4 +160,48 @@ header .navigation {
     padding-left: 1rem;
     justify-content: space-between;
     width: 100%;
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown .dropdown-content {
+    position: absolute;
+    top: calc(100% + .25rem);
+    display: grid;
+    gap: 0.3rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    padding: .6rem;
+    border-radius: 5px;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-1rem);
+    transition: all .3s ease;
+}
+
+.dropdown-content.active {
+    pointer-events: all;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.dropdown .dropdown-content .color-palette {
+    border-radius: 3px;
+    padding: 0.25rem .6rem;
+    aspect-ratio: 1;
+    height: 1.3rem;
+}
+
+.color-palette.green {
+    background-color: var(--green-color);
+}
+
+.color-palette.blue {
+    background-color: var(--blue-color);
+}
+
+.color-palette.yellow {
+    background-color: var(--yellow-color);
 }

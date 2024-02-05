@@ -109,24 +109,6 @@ function clearElementChildren(element) {
     }
 }
 
-function addClass(element, className) {
-    element.classList.add(className);
-}
-
-function removeClass(element, className) {
-    element.classList.remove(className);
-}
-
-function toggleClass(element, className) {
-    element.classList.toggle(className);
-}
-
-function removeClassIfExists(element, className) {
-    if (element.classList.contains(className)) {
-        element.classList.remove(className);
-    }
-}
-
 function triggerClick(element) {
     element.click();
 }
@@ -293,8 +275,9 @@ function resetTasksFilters() {
 }
 
 function updateCompletedTasksCounter(tasks) {
-    const completedTasks = tasks.filter((task) => task.status === 1).length;
+    const completedTasks = tasks.filter((task) => task.status === true).length;
     const totalTasks = tasks.length;
+
     taskMessage.innerText = `${completedTasks}/${totalTasks} concluídas`;
 }
 
@@ -489,10 +472,10 @@ function handleFilterTasksByStatus(button) {
     button.addEventListener("click", () => {
         const filterStatus = button.dataset.filterStatus;
         const hasDisplayedTasks = tasksContainer.children[0]?.classList.contains("task");
-        const allTasks = Array.from(tasksContainer.children);
         removeClass(button.parentElement.querySelector("button.active"), "active");
         addClass(button, "active");
         if (hasDisplayedTasks) {
+            const allTasks = Array.from(tasksContainer.children);
             showTasksLoader();
             setTimeout(() => {
                 allTasks.forEach((task) => {
@@ -637,5 +620,4 @@ if (window.matchMedia("(max-width: 768px)").matches) {
 }
 
 document.querySelector("[data-user-info]").innerText = user.email;
-
 fetchTopics();
