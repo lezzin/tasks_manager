@@ -1,7 +1,13 @@
-:root {
+body[data-theme="light"] {
     --green-color: #02a267;
     --blue-color: #0057FF;
     --yellow-color: #FBB500;
+}
+
+body[data-theme="dark"] {
+    --green-color: #61bd9b;
+    --blue-color: #5c92ff;
+    --yellow-color: #FFD25E;
 }
 
 body[data-theme="light"][data-palette="green"] {
@@ -35,7 +41,7 @@ body[data-theme="light"][data-palette="yellow"] {
 }
 
 body[data-theme="dark"][data-palette="yellow"] {
-    --details-color: #FFD25E;
+    --details-color: hsl(43, 100%, 68%);
     --details-color-dark: hsl(43, 30%, 22%);
     --details-color-light: hsl(43, 30%, 12%);
 }

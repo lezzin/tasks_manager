@@ -1,15 +1,5 @@
 @import url(./base.css);
 
-@keyframes loader {
-    from {
-        transform: rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
-}
-
 @keyframes topic-animation {
     from {
         transform: translateX(-.6rem);
@@ -38,10 +28,6 @@ header .navigation h2 {
 
 header .logo-container {
     border-right: 1px solid var(--border-color);
-}
-
-.logo-container span {
-    font-size: 1.3rem;
 }
 
 @media (max-width: 768px) {

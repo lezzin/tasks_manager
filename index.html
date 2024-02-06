@@ -10,9 +10,9 @@
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="./assets/css/login.css" type="text/css">
-    <link rel="icon" href="./logo.webp" type="image/webp">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 
-    <title>Gerenciador de tarefas</title>
+    <title>TaskFlow | Gerenciador de tarefas</title>
 </head>
 
 <body data-theme="light" data-form="login">
@@ -23,8 +23,8 @@
             </button>
 
             <div class="logo">
-                <img src="./logo.webp" alt="Page logo" width="37" height="37" type="image/webp">
-                <span>Gerenciador de tarefas</span>
+                <img src="./logo.png" alt="Page logo" width="37" height="37" type="image/png">
+                <span>TaskFlow</span>
             </div>
         </div>
 
@@ -56,7 +56,7 @@
         <form id="login-form">
             <div>
                 <h2 class="form-title">Fazer login</h2>
-                <p class="text-muted">Gerenciador de Tarefas</p>
+                <p class="text-muted">TaskFlow</p>
             </div>
 
             <p class="form-alert hidden" data-message></p>
@@ -66,17 +66,19 @@
                 <label for="login-email">Email</label>
             </div>
 
-            <div class="input-container">
-                <input type="password" data-password id="login-password" required>
-                <label for="login-password">Senha</label>
+            <div>
+                <div class="input-container">
+                    <input type="password" data-password id="login-password" required>
+                    <label for="login-password">Senha</label>
+                </div>
+    
+                <button data-recover-password-btn type="button" title="Criar nova senha">Esqueci minha senha</button>
             </div>
-
-            <button data-recover-password-btn type="button">Esqueci minha senha</button>
 
             <div class="btn-container">
                 <button type="submit" class="btn-primary" data-btn>Login</button>
 
-                <button type="button" class="btn-secondary" data-toggle-btn
+                <button type="button" class="btn-tertiary" data-toggle-btn
                     data-toggle-form="register">Registrar-se</button>
             </div>
         </form>
@@ -101,7 +103,7 @@
 
             <div class="btn-container">
                 <button type="submit" class="btn-primary" data-btn>Registrar-se</button>
-                <button type="button" class="btn-secondary" data-toggle-btn data-toggle-form="login">Login</button>
+                <button type="button" class="btn-tertiary" data-toggle-btn data-toggle-form="login">Login</button>
             </div>
         </form>
     </main>
