@@ -57,6 +57,7 @@ function handleToggleDropdown(button) {
 
     button.addEventListener("click", () => {
         toggleClass(dropdown, "active");
+        dropdown.firstElementChild.focus();
     });
 
     document.addEventListener("click", ({ target }) => {

@@ -9,6 +9,10 @@ const TASKS_COLLECTION = "users";
 const user = JSON.parse(localStorage.getItem("user_data"));
 const userUid = user.uid;
 
+const modal = document.querySelector("[data-modal]");
+const modalForm = modal.querySelector("form");
+const closeModalButton = document.querySelector("[data-close-modal]");
+
 const voiceButton = document.querySelector("[data-voice-btn]");
 const filterButtons = document.querySelectorAll("[data-filter-btn]");
 const downloadTasksButton = document.querySelector("[data-download-tasks]");
@@ -68,6 +72,33 @@ function stopSpeechRecognition() {
         span.textContent = 'mic';
         isRecording = false;
     }
+}
+
+function openModal(elementType, data) {
+    modal.classList.add("active");
+    modalForm.dataset.element = elementType;
+
+    const h2 = modal.querySelector("h2");
+    const input = modal.querySelector("input");
+    const button = modal.querySelector("button");
+
+    if (elementType == "task") {
+        h2.innerHTML = "Editar tarefa";
+        input.value = data.description;
+
+        button.dataset.taskId = data.id;
+        button.dataset.key = "description";
+    } else if (elementType == "topic") {
+        h2.innerHTML = "Editar tópico";
+        input.value = data;
+        button.dataset.topicName = data;
+    }
+
+    input.focus();
+}
+
+function closeModal() {
+    modal.classList.remove("active");
 }
 
 function createNode(element, classes, attributes, innerHTML) {
@@ -150,14 +181,26 @@ function verifyTopicsQuantity(topics) {
 }
 
 function createTopicButtonHTML(topic) {
-    const button = createNode("button", ["topic", selectedTopic === topic ? "active" : "inactive"]);
-    button.onclick = function () {
+    const topicButton = createNode("button", ["topic", selectedTopic === topic ? "active" : "inactive"]);
+    topicButton.dataset.name = topic;
+    topicButton.onclick = function () {
         handleTopicClicked(this);
     };
 
     const paragraph = createNode("p", null, null, topic);
-    const deleteButton = createNode("a", ["btn-rounded"]);
 
+    const divRight = createNode("div", ["topic-actions"]);
+
+    const editButton = createNode("a", ["btn-rounded"]);
+    editButton.href = "javascript:void(0)";
+    editButton.setAttribute("role", "button");
+    editButton.title = "Editar tópico";
+    editButton.onclick = function (e) {
+        e.stopPropagation();
+        openModal("topic", topicButton.dataset.name);
+    };
+
+    const deleteButton = createNode("a", ["btn-rounded"]);
     deleteButton.href = "javascript:void(0)";
     deleteButton.setAttribute("role", "button");
     deleteButton.dataset.topicName = topic;
@@ -168,10 +211,15 @@ function createTopicButtonHTML(topic) {
     };
 
     appendNode(deleteButton, createNode("span", ["material-icons"], null, "delete"));
-    appendNode(button, paragraph);
-    appendNode(button, deleteButton);
+    appendNode(editButton, createNode("span", ["material-icons"], null, "edit"));
 
-    return button;
+    appendNode(divRight, editButton);
+    appendNode(divRight, deleteButton);
+
+    appendNode(topicButton, paragraph);
+    appendNode(topicButton, divRight);
+
+    return topicButton;
 }
 
 function appendTopicElement(topic) {
@@ -186,19 +234,59 @@ function createTopicsList(topics) {
     }
 }
 
+function updateTopic(button) {
+    const currentTopicName = button.dataset.topicName;
+    const topicElement = topicsNav.querySelector(`[data-name="${currentTopicName}"]`);
+
+    db.collection(TASKS_COLLECTION).doc(userUid).get().then((doc) => {
+        const userData = doc.data();
+
+        if (userData && userData.topics && userData.topics[currentTopicName]) {
+            const newTopicName = modalForm.querySelector("input").value;
+            const selectedTopicData = userData.topics[currentTopicName];
+
+            if (userData.topics[newTopicName]) return;
+
+            db.collection(TASKS_COLLECTION).doc(userUid).update({
+                [`topics.${newTopicName}`]: selectedTopicData,
+                [`topics.${currentTopicName}`]: firebase.firestore.FieldValue.delete()
+            }).then(() => {
+                topicElement.dataset.name = newTopicName;
+                topicElement.querySelectorAll(".btn-rounded")[1].dataset.topicName = newTopicName;
+                topicElement.querySelector("p").textContent = newTopicName;
+                
+                if (selectedTopic == currentTopicName) {
+                    selectedTopic = newTopicName;
+                    topicNameDisplay.textContent = newTopicName;
+                };
+
+                closeModal();
+            }).catch((error) => {
+                console.error("Erro ao alterar tópico:", error);
+            });
+        }
+    }).catch((error) => {
+        console.error("Erro ao obter tópicos:", error);
+    });
+}
+
 function deleteTopic(button) {
     const topicName = button.dataset.topicName;
     const topicsChildren = !topicsNav.children[0]?.classList.contains("empty") ? topicsNav.children : [];
+
     db.collection(TASKS_COLLECTION).doc(userUid).update({
         [`topics.${topicName}`]: firebase.firestore.FieldValue.delete()
     }).then(() => {
-        button.parentElement.remove();
+        button.parentElement.parentElement.remove();
+
         if (topicNameDisplay.innerHTML === topicName) {
             topicNameDisplay.innerHTML = "";
         }
+
         if (selectedTopic == topicName) {
             clearTasksContainer();
         }
+
         verifyTopicsQuantity(topicsChildren);
     }).catch((error) => {
         console.error("Erro ao deletar tópico:", error);
@@ -288,9 +376,10 @@ function createTaskHTML(task) {
     const leftDiv = createNode("div", ["left"]);
     const doneButton = createNode("button", ["btn-rounded"], null, '<span class="material-icons">done</span>');
     doneButton.dataset.taskId = task.id;
+    doneButton.dataset.key = "status";
     doneButton.title = `Marcar como ${task.status ? "não concluído" : "concluído"}`;
     doneButton.onclick = function () {
-        changeTaskStatus(this);
+        updateTask(this);
     };
     const taskDiv = createNode("div");
     const descriptionParagraph = createNode("p", ["task-desc"], { "data-desc": task.description }, task.description);
@@ -300,16 +389,26 @@ function createTaskHTML(task) {
     appendNode(leftDiv, doneButton);
     appendNode(leftDiv, taskDiv);
     const rightDiv = createNode("div", ["right"]);
+    const editButton = createNode("button", ["btn-danger"]);
+    editButton.dataset.taskId = task.id;
+    editButton.title = "Editar tarefa";
+    editButton.onclick = function (e) {
+        e.stopPropagation();
+        openModal("task", task);
+    };
     const deleteButton = createNode("button", ["btn-danger"]);
     deleteButton.dataset.taskId = task.id;
-    deleteButton.dataset.action = "delete";
     deleteButton.title = "Deletar tarefa";
     deleteButton.onclick = function () {
         deleteTask(this);
     };
+
+    appendNode(editButton, createNode("span", ["material-icons"], null, "edit"));
     appendNode(deleteButton, createNode("span", ["material-icons"], null, "delete"));
+    appendNode(rightDiv, editButton);
     appendNode(rightDiv, deleteButton);
     const taskElement = createNode("div", classes);
+    taskElement.dataset.id = task.id;
     appendNode(taskElement, leftDiv);
     appendNode(taskElement, rightDiv);
     return taskElement;
@@ -346,24 +445,38 @@ function verifyTasksQuantity(tasks) {
     }
 }
 
-function changeTaskStatus(button) {
+function updateTask(button) {
     const taskId = parseInt(button.dataset.taskId);
-    const taskDiv = button.parentElement.parentElement;
+    const taskDiv = tasksContainer.querySelector(`[data-id="${taskId}"]`);
+    const valueToChange = button.dataset.key;
+
     db.collection(TASKS_COLLECTION).doc(userUid).get().then((doc) => {
         const selectedTopicData = doc.data().topics[selectedTopic];
+
         if (selectedTopicData && selectedTopicData.tasks) {
             const updatedTasks = selectedTopicData.tasks.map((task) => {
                 if (task.id === taskId) {
-                    task.status = !task.status;
-                    button.title = `Marcar como ${task.status ? "não concluído" : "concluído"}`;
+                    if (valueToChange == "status") {
+                        task.status = !task.status;
+                        taskDiv.querySelector(`[data-key="status"]`).title = `Marcar como ${task.status ? "não concluído" : "concluído"}`;
+                    } else if (valueToChange == "description") {
+                        const description = modalForm.querySelector("input").value;
+                        task.description = description;
+                    }
                 }
                 return task;
             });
             db.collection(TASKS_COLLECTION).doc(userUid).update({
                 [`topics.${selectedTopic}.tasks`]: updatedTasks
             }).then(() => {
-                taskDiv.classList.toggle("completed", !taskDiv.classList.contains("completed"));
-                updateCompletedTasksCounter(updatedTasks);
+                if (valueToChange == "status") {
+                    taskDiv.classList.toggle("completed", !taskDiv.classList.contains("completed"));
+                    updateCompletedTasksCounter(updatedTasks);
+                } else if (valueToChange == "description") {
+                    const description = modalForm.querySelector("input").value;
+                    taskDiv.querySelector("p").textContent = description;
+                    closeModal();
+                }
             }).catch((error) => {
                 console.error("Erro ao alterar status da tarefa:", error);
             });
@@ -603,6 +716,7 @@ downloadTasksButton.addEventListener("click", handleDownloadTasks);
 deleteTasksButton.addEventListener("click", deleteAllTasks);
 deleteTopicsButton.addEventListener("click", deleteAllTopics);
 logoutButton.addEventListener("click", handleLogout);
+closeModalButton.addEventListener("click", closeModal);
 
 filterButtons.forEach((button) => {
     handleFilterButtonClick(button);
@@ -614,6 +728,17 @@ filterStatusButtons.forEach((button) => {
 
 filterBySearchInput.addEventListener("input", ({ target: { value } }) => {
     handleFilterByDescription(value);
+});
+
+modalForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const button = this.querySelector("button");
+
+    if (this.dataset.element == "task") {
+        updateTask(button);
+    } else if (this.dataset.element == "topic") {
+        updateTopic(button);
+    }
 });
 
 voiceButton.addEventListener("click", toggleSpeechRecognition);
@@ -630,6 +755,12 @@ if (window.matchMedia("(max-width: 768px)").matches) {
         }
     });
 }
+
+document.addEventListener("click", (event) => {
+    if (!modal.firstElementChild.contains(event.target)) {
+        removeClass(modal, "active");
+    }
+});
 
 document.querySelector("[data-user-info]").innerText = user.email;
 fetchTopics();
