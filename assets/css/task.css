@@ -213,7 +213,8 @@ body[data-theme="dark"] .topic.empty {
     padding: .6rem;
 }
 
-.input-group input {
+.input-group input,
+.input-group textarea {
     padding: .5rem .8rem;
     max-width: 600px;
     width: 100%;
@@ -366,14 +367,56 @@ body[data-theme="dark"] .topic.empty {
     padding: 1rem;
 }
 
-.tasks-container-body .task {
+.task {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    width: inherit;
+}
+
+.task.expanded .task_content {
+    border-bottom: none;
+    border-radius: 5px 5px 0 0;
+}
+
+.task.expanded .task_content .btn-danger:first-of-type {
+    transform: rotate(180deg);
+}
+
+.task.expanded .task_expand {
+    border-radius: 0 0 5px 5px;
+    display: grid;
+}
+
+.task .task_content,
+.task .task_expand {
+    border: 1px solid var(--border-color);
+    padding: .5rem 1rem;
+}
+
+.task .task_content {
+    border-radius: 5px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border: 1px solid var(--border-color);
+}
+
+.task .task_content .btn-danger:first-of-type {
+    transition: all .3s ease;
+}
+
+.task .task_expand {
     border-radius: 5px;
-    padding: .5rem 1rem;
-    width: inherit;
+    display: none;
+    gap: 0.6rem;
+}
+
+.task .task_expand form {
+    margin-bottom: .4rem;
+}
+
+.task .task_expand input {
+    max-width: unset;
 }
 
 .task .btn-rounded {
@@ -409,6 +452,37 @@ body[data-theme="dark"] .topic.empty {
 .task .left .task-date {
     margin-top: 0.25rem;
     font-size: .9rem;
+}
+
+.task .note-form {
+    display: flex;
+    gap: .6rem;
+    align-items: center;
+}
+
+.task .note-form select {
+    padding: .4rem .8rem;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+}
+
+.task .note-form select option {
+    color: var(--font-secondary);
+}
+
+.task .notes_content {
+    display: grid;
+    gap: 0.6rem;
+}
+
+.task .note {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.task .note a {
+    text-decoration: underline;
 }
 
 .tasks-container-footer {
@@ -451,7 +525,6 @@ body[data-theme="dark"] .topic.empty {
     animation: loader 1s infinite linear;
 }
 
-
 .modal {
     position: absolute;
     background-color: rgb(0 0 0 / 0.6);
@@ -482,6 +555,10 @@ body[data-theme="dark"] .topic.empty {
     transition: all .3s ease;
     border: 1px solid var(--border-color);
     background-color: var(--bg-primary);
+}
+
+.modal form textarea {
+    resize: none;
 }
 
 .modal form .form-header {

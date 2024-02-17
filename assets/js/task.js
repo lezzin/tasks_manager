@@ -79,22 +79,24 @@ function openModal(elementType, data) {
     modalForm.dataset.element = elementType;
 
     const h2 = modal.querySelector("h2");
-    const input = modal.querySelector("input");
+    const textarea = modal.querySelector("textarea");
     const button = modal.querySelector("button");
 
     if (elementType == "task") {
         h2.innerHTML = "Editar tarefa";
-        input.value = data.description;
+        textarea.value = data.description;
+        textarea.rows = 4;
 
         button.dataset.taskId = data.id;
         button.dataset.key = "description";
     } else if (elementType == "topic") {
         h2.innerHTML = "Editar tópico";
-        input.value = data;
+        textarea.value = data;
+        textarea.rows = 1;
         button.dataset.topicName = data;
     }
 
-    input.focus();
+    textarea.focus();
 }
 
 function closeModal() {
@@ -242,7 +244,7 @@ function updateTopic(button) {
         const userData = doc.data();
 
         if (userData && userData.topics && userData.topics[currentTopicName]) {
-            const newTopicName = modalForm.querySelector("input").value;
+            const newTopicName = modalForm.querySelector("textarea").value;
             const selectedTopicData = userData.topics[currentTopicName];
 
             if (userData.topics[newTopicName]) return;
@@ -254,7 +256,7 @@ function updateTopic(button) {
                 topicElement.dataset.name = newTopicName;
                 topicElement.querySelectorAll(".btn-rounded")[1].dataset.topicName = newTopicName;
                 topicElement.querySelector("p").textContent = newTopicName;
-                
+
                 if (selectedTopic == currentTopicName) {
                     selectedTopic = newTopicName;
                     topicNameDisplay.textContent = newTopicName;
@@ -388,7 +390,14 @@ function createTaskHTML(task) {
     appendNode(taskDiv, dateParagraph);
     appendNode(leftDiv, doneButton);
     appendNode(leftDiv, taskDiv);
+
     const rightDiv = createNode("div", ["right"]);
+    const expandButton = createNode("button", ["btn-danger"]);
+    expandButton.dataset.taskId = task.id;
+    expandButton.title = "Expandir mais";
+    expandButton.onclick = function () {
+        showTaskNotes(this);
+    };
     const editButton = createNode("button", ["btn-danger"]);
     editButton.dataset.taskId = task.id;
     editButton.title = "Editar tarefa";
@@ -403,15 +412,149 @@ function createTaskHTML(task) {
         deleteTask(this);
     };
 
+    appendNode(expandButton, createNode("span", ["material-icons"], null, "expand_more"));
     appendNode(editButton, createNode("span", ["material-icons"], null, "edit"));
     appendNode(deleteButton, createNode("span", ["material-icons"], null, "delete"));
+    appendNode(rightDiv, expandButton);
     appendNode(rightDiv, editButton);
     appendNode(rightDiv, deleteButton);
+
     const taskElement = createNode("div", classes);
     taskElement.dataset.id = task.id;
-    appendNode(taskElement, leftDiv);
-    appendNode(taskElement, rightDiv);
+
+    const taskContent = createNode("div", ["task_content"]);
+    appendNode(taskContent, leftDiv);
+    appendNode(taskContent, rightDiv);
+    appendNode(taskElement, taskContent);
+
+    const noteForm = createNode("form", ["note-form"]);
+    const inputGroup = createNode("div", ["input-group"]);
+    const input = document.createElement("input");
+    input.placeholder = "Adicionar nota...";
+    input.required = true;
+    input.autocomplete = "off";
+    const addNoteButton = createNode("button", ["btn-primary"]);
+    addNoteButton.dataset.taskId = task.id;
+    addNoteButton.title = "Adicionar nova nota";
+    appendNode(addNoteButton, createNode("span", ["material-icons"], null, "add"));
+
+    const select = document.createElement("select");
+    appendNode(select, createNode("option", null, { value: "texto" }, "Texto"));
+    appendNode(select, createNode("option", null, { value: "link" }, "Link"));
+    select.required = true;
+
+    appendNode(inputGroup, input);
+    appendNode(inputGroup, addNoteButton);
+    appendNode(noteForm, select);
+    appendNode(noteForm, inputGroup);
+
+    const taskExpand = createNode("div", ["task_expand"]);
+    appendNode(taskExpand, noteForm);
+
+    const notesContent = createNode("div", ["notes_content"]);
+    if (task.notes.length > 0) {
+        task.notes.forEach(note => appendNoteElement(notesContent, task, note));
+    }
+
+    appendNode(taskExpand, notesContent);
+    appendNode(taskElement, taskExpand);
+
+    noteForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const newNote = {
+            id: Date.now(),
+            description: input.value,
+            date: getCurrentTime(),
+            type: select.value,
+        };
+
+        const userDoc = db.collection(TASKS_COLLECTION).doc(userUid);
+        userDoc.get().then((doc) => {
+            const selectedTopicData = doc.data().topics[selectedTopic];
+
+            if (selectedTopicData) {
+                const tasks = selectedTopicData.tasks || [];
+                const taskIndex = tasks.findIndex(taskData => taskData.id == task.id);
+
+                if (taskIndex !== -1) {
+                    tasks[taskIndex].notes.push(newNote);
+                    userDoc.update({
+                        [`topics.${selectedTopic}.tasks`]: tasks
+                    }).then(() => {
+                        appendNoteElement(notesContent, task, newNote);
+                        noteForm.reset();
+                    }).catch((error) => {
+                        console.error("Error adding new note:", error);
+                    });
+                } else {
+                    console.error("Task not found.");
+                }
+            }
+        }).catch((error) => {
+            console.error("Error fetching user data:", error);
+        });
+    });
+
     return taskElement;
+}
+
+function showTaskNotes(button) {
+    button.parentElement.parentElement.parentElement.classList.toggle("expanded");
+}
+
+function appendNoteElement(parent, task, note) {
+    appendNode(parent, createNoteHTML(task, note));
+}
+
+function createNoteHTML(task, note) {
+    const div = createNode("div", ["note"]);
+
+    const deleteButton = createNode("button", ["btn-danger"]);
+    deleteButton.dataset.noteId = note.id;
+    deleteButton.dataset.taskId = task.id;
+    deleteButton.title = "Deletar nota";
+    deleteButton.onclick = function () {
+        deleteNote(this);
+    };
+
+    if (note.type == "link") {
+        appendNode(div, createNode("a", null, { href: note.description, target: "_blank" }, note.description));
+    } else {
+        appendNode(div, createNode("p", null, null, note.description));
+    }
+
+    appendNode(deleteButton, createNode("span", ["material-icons"], null, "delete"));
+    appendNode(div, deleteButton);
+
+    return div;
+}
+
+function deleteNote(button) {
+    const noteId = parseInt(button.dataset.noteId);
+    const taskId = parseInt(button.dataset.taskId);
+
+    const userDoc = db.collection(TASKS_COLLECTION).doc(userUid);
+    userDoc.get().then((doc) => {
+        const selectedTopicData = doc.data().topics[selectedTopic];
+
+        if (selectedTopicData && selectedTopicData.tasks) {
+            const tasks = selectedTopicData.tasks || [];
+            const taskIndex = tasks.findIndex(taskData => taskData.id == taskId);
+            const updatedNotes = selectedTopicData.tasks[taskIndex].notes.filter((note) => note.id !== noteId);
+            tasks[taskIndex].notes = updatedNotes;
+
+            userDoc.update({
+                [`topics.${selectedTopic}.tasks`]: tasks
+            }).then(() => {
+                button.parentElement.remove();
+            }).catch((error) => {
+                console.error("Erro ao deletar tarefa:", error);
+            });
+        }
+    }).catch((error) => {
+        console.error("Erro ao obter tarefas:", error);
+    });
 }
 
 function appendTaskElement(task) {
@@ -460,7 +603,7 @@ function updateTask(button) {
                         task.status = !task.status;
                         taskDiv.querySelector(`[data-key="status"]`).title = `Marcar como ${task.status ? "não concluído" : "concluído"}`;
                     } else if (valueToChange == "description") {
-                        const description = modalForm.querySelector("input").value;
+                        const description = modalForm.querySelector("textarea").value;
                         task.description = description;
                     }
                 }
@@ -473,7 +616,7 @@ function updateTask(button) {
                     taskDiv.classList.toggle("completed", !taskDiv.classList.contains("completed"));
                     updateCompletedTasksCounter(updatedTasks);
                 } else if (valueToChange == "description") {
-                    const description = modalForm.querySelector("input").value;
+                    const description = modalForm.querySelector("textarea").value;
                     taskDiv.querySelector("p").textContent = description;
                     closeModal();
                 }
@@ -680,7 +823,8 @@ formAddTask.addEventListener("submit", (event) => {
         id: Date.now(),
         description: formAddTask.querySelector("input").value,
         date: getCurrentTime(),
-        status: false
+        status: false,
+        notes: []
     };
     showTasksLoader();
     const userDoc = db.collection(TASKS_COLLECTION).doc(userUid);

@@ -30,6 +30,8 @@ body {
     background-color: var(--bg-primary);
 }
 
+textarea,
+select,
 input,
 button {
     background: transparent;
