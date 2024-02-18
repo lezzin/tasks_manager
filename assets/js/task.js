@@ -392,10 +392,12 @@ function createTaskHTML(task) {
     appendNode(leftDiv, taskDiv);
 
     const rightDiv = createNode("div", ["right"]);
-    const expandButton = createNode("button", ["btn-danger"]);
-    expandButton.dataset.taskId = task.id;
-    expandButton.title = "Expandir mais";
-    expandButton.onclick = function () {
+
+    const notesQuantity = createNode("p", null, null, task.notes.length);
+    const expandContent = createNode("button", ["expand-content"]);
+    const expandIcon = createNode("span", ["material-icons"], null, "expand_more");
+    expandContent.title = "Expandir mais";
+    expandContent.onclick = function () {
         showTaskNotes(this);
     };
     const editButton = createNode("button", ["btn-danger"]);
@@ -412,10 +414,11 @@ function createTaskHTML(task) {
         deleteTask(this);
     };
 
-    appendNode(expandButton, createNode("span", ["material-icons"], null, "expand_more"));
     appendNode(editButton, createNode("span", ["material-icons"], null, "edit"));
     appendNode(deleteButton, createNode("span", ["material-icons"], null, "delete"));
-    appendNode(rightDiv, expandButton);
+    appendNode(expandContent, expandIcon);
+    appendNode(expandContent, notesQuantity);
+    appendNode(rightDiv, expandContent);
     appendNode(rightDiv, editButton);
     appendNode(rightDiv, deleteButton);
 
@@ -483,6 +486,7 @@ function createTaskHTML(task) {
                         [`topics.${selectedTopic}.tasks`]: tasks
                     }).then(() => {
                         appendNoteElement(notesContent, task, newNote);
+                        notesQuantity.innerHTML = tasks[taskIndex].notes.length;
                         noteForm.reset();
                     }).catch((error) => {
                         console.error("Error adding new note:", error);
@@ -499,8 +503,8 @@ function createTaskHTML(task) {
     return taskElement;
 }
 
-function showTaskNotes(button) {
-    button.parentElement.parentElement.parentElement.classList.toggle("expanded");
+function showTaskNotes(element) {
+    element.parentElement.parentElement.parentElement.classList.toggle("expanded");
 }
 
 function appendNoteElement(parent, task, note) {
@@ -533,6 +537,7 @@ function createNoteHTML(task, note) {
 function deleteNote(button) {
     const noteId = parseInt(button.dataset.noteId);
     const taskId = parseInt(button.dataset.taskId);
+    const notesQuantity = document.querySelector(`.task[data-id="${taskId}"] .expand-content p`);
 
     const userDoc = db.collection(TASKS_COLLECTION).doc(userUid);
     userDoc.get().then((doc) => {
@@ -547,6 +552,7 @@ function deleteNote(button) {
             userDoc.update({
                 [`topics.${selectedTopic}.tasks`]: tasks
             }).then(() => {
+                notesQuantity.innerHTML = tasks[taskIndex].notes.length > 0 ? tasks[taskIndex].notes.length : "";
                 button.parentElement.remove();
             }).catch((error) => {
                 console.error("Erro ao deletar tarefa:", error);
