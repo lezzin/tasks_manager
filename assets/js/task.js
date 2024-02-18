@@ -393,7 +393,7 @@ function createTaskHTML(task) {
 
     const rightDiv = createNode("div", ["right"]);
 
-    const notesQuantity = createNode("p", null, null, task.notes.length);
+    const notesQuantity = createNode("p", null, null, String(task.notes.length));
     const expandContent = createNode("button", ["expand-content"]);
     const expandIcon = createNode("span", ["material-icons"], null, "expand_more");
     expandContent.title = "Expandir mais";
@@ -418,9 +418,9 @@ function createTaskHTML(task) {
     appendNode(deleteButton, createNode("span", ["material-icons"], null, "delete"));
     appendNode(expandContent, expandIcon);
     appendNode(expandContent, notesQuantity);
-    appendNode(rightDiv, expandContent);
     appendNode(rightDiv, editButton);
     appendNode(rightDiv, deleteButton);
+    appendNode(rightDiv, expandContent);
 
     const taskElement = createNode("div", classes);
     taskElement.dataset.id = task.id;
@@ -457,6 +457,7 @@ function createTaskHTML(task) {
     const notesContent = createNode("div", ["notes_content"]);
     if (task.notes.length > 0) {
         task.notes.forEach(note => appendNoteElement(notesContent, task, note));
+        notesContent.classList.add("with_notes");
     }
 
     appendNode(taskExpand, notesContent);
@@ -486,7 +487,12 @@ function createTaskHTML(task) {
                         [`topics.${selectedTopic}.tasks`]: tasks
                     }).then(() => {
                         appendNoteElement(notesContent, task, newNote);
-                        notesQuantity.innerHTML = tasks[taskIndex].notes.length;
+                        notesQuantity.innerHTML = String(tasks[taskIndex].notes.length);
+
+                        if (!notesContent.classList.contains("with_notes")) {
+                            notesContent.classList.add("with_notes");
+                        }
+
                         noteForm.reset();
                     }).catch((error) => {
                         console.error("Error adding new note:", error);
@@ -552,7 +558,11 @@ function deleteNote(button) {
             userDoc.update({
                 [`topics.${selectedTopic}.tasks`]: tasks
             }).then(() => {
-                notesQuantity.innerHTML = tasks[taskIndex].notes.length > 0 ? tasks[taskIndex].notes.length : "";
+                notesQuantity.innerHTML = String(tasks[taskIndex].notes.length);
+                if (tasks[taskIndex].notes.length <= 0) {
+                    const notesContent = document.querySelector(`.task[data-id="${taskId}"] .notes_content`);
+                    notesContent.classList.remove("with_notes");
+                }
                 button.parentElement.remove();
             }).catch((error) => {
                 console.error("Erro ao deletar tarefa:", error);

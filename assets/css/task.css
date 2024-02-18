@@ -368,8 +368,7 @@ body[data-theme="dark"] .topic.empty {
 }
 
 .task {
-    display: flex;
-    flex-direction: column;
+    position: relative;
     width: inherit;
 }
 
@@ -383,21 +382,18 @@ body[data-theme="dark"] .topic.empty {
 }
 
 .task.expanded .task_expand {
-    border-radius: 0 0 5px 5px;
     display: grid;
 }
 
-.task .task_content,
-.task .task_expand {
+.task .task_content {
     border: 1px solid var(--border-color);
     padding: .6rem 1rem;
-}
-
-.task .task_content {
     border-radius: 5px;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
+    gap: 1rem;
+    z-index: 1;
 }
 
 .task .btn-rounded {
@@ -416,6 +412,14 @@ body[data-theme="dark"] .topic.empty {
 .task .left,
 .task .right {
     display: flex;
+}
+
+.task .right {
+    align-items: center;
+    gap: .6rem;
+}
+
+.task .left {
     align-items: flex-start;
     gap: 1rem;
 }
@@ -428,31 +432,23 @@ body[data-theme="dark"] .topic.empty {
     border-radius: 15px;
     padding: 0.2rem 0.6rem;
     font-size: .8rem;
-}
-
-.task .task_expand {
-    border-radius: 5px;
-    display: none;
-    padding-bottom: 1rem;
-    gap: 0.6rem;
+    min-width: 3rem;
 }
 
 .task .expand-content span {
     transition: all .3s ease;
 }
 
-.task .notes_content .note:first-of-type {
-    padding-top: .4rem;
-    margin-top: 0.8rem;
-    border-top: 1px solid var(--border-color);
-}
-
-.task .task_expand input {
-    max-width: unset;
+.task .task_expand {
+    display: none;
+    gap: 0.6rem;
+    border: 1px solid var(--border-color);
+    padding: .6rem 1rem;
+    border-radius: 0 0 5px 5px;
 }
 
 .task .left button.btn-rounded {
-    margin-top: 0.3rem;
+    margin-top: 0.4rem;
 }
 
 .task.completed .left button.btn-rounded {
@@ -476,6 +472,10 @@ body[data-theme="dark"] .topic.empty {
     gap: .6rem;
 }
 
+.task .note-form input {
+    max-width: unset;
+}
+
 .task .note-form select {
     padding: .4rem .8rem;
     border-radius: 5px;
@@ -487,14 +487,24 @@ body[data-theme="dark"] .topic.empty {
 }
 
 .task .notes_content {
-    display: grid;
+    display: none;
     gap: 0.6rem;
+}
+
+.task .notes_content.with_notes {
+    display: grid;
 }
 
 .task .note {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+}
+
+.task .note:first-of-type {
+    padding-top: .4rem;
+    margin-top: 0.8rem;
+    border-top: 1px solid var(--border-color);
 }
 
 .task .note a {
