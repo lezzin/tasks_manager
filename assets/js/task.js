@@ -327,7 +327,7 @@ function fetchTopics() {
             verifyTopicsQuantity([]);
         }
     }).catch((error) => {
-        console.error("Erro ao obter tópicos:", error);
+        console.error(error);
     }).finally(() => {
         hideTopicsLoader();
     });
@@ -510,7 +510,12 @@ function createTaskHTML(task) {
 }
 
 function showTaskNotes(element) {
-    element.parentElement.parentElement.parentElement.classList.toggle("expanded");
+    const task = element.parentElement.parentElement.parentElement;
+    task.classList.add("selected");
+    task.classList.toggle("expanded");
+    
+    document.querySelector(".task.expanded:not(.selected)")?.classList.remove("expanded");
+    task.classList.remove("selected");
 }
 
 function appendNoteElement(parent, task, note) {

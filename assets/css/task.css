@@ -368,7 +368,8 @@ body[data-theme="dark"] .topic.empty {
 }
 
 .task {
-    position: relative;
+    display: flex;
+    flex-direction: column;
     width: inherit;
 }
 
@@ -393,7 +394,6 @@ body[data-theme="dark"] .topic.empty {
     align-items: flex-start;
     justify-content: space-between;
     gap: 1rem;
-    z-index: 1;
 }
 
 .task .btn-rounded {
@@ -432,7 +432,6 @@ body[data-theme="dark"] .topic.empty {
     border-radius: 15px;
     padding: 0.2rem 0.6rem;
     font-size: .8rem;
-    min-width: 3rem;
 }
 
 .task .expand-content span {
@@ -482,7 +481,7 @@ body[data-theme="dark"] .topic.empty {
     border: 1px solid var(--border-color);
 }
 
-.task .note-form select option {
+body[data-theme="dark"]  .task .note-form select option  {
     color: var(--font-secondary);
 }
 
