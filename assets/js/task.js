@@ -513,7 +513,7 @@ function showTaskNotes(element) {
     const task = element.parentElement.parentElement.parentElement;
     task.classList.add("selected");
     task.classList.toggle("expanded");
-    
+
     document.querySelector(".task.expanded:not(.selected)")?.classList.remove("expanded");
     task.classList.remove("selected");
 }
@@ -622,6 +622,10 @@ function updateTask(button) {
                 if (task.id === taskId) {
                     if (valueToChange == "status") {
                         task.status = !task.status;
+                        
+                        taskDiv.classList.toggle("completed", task.status);
+                        taskDiv.classList.toggle("incompleted", !task.status);
+
                         taskDiv.querySelector(`[data-key="status"]`).title = `Marcar como ${task.status ? "não concluído" : "concluído"}`;
                     } else if (valueToChange == "description") {
                         const description = modalForm.querySelector("textarea").value;
@@ -634,7 +638,6 @@ function updateTask(button) {
                 [`topics.${selectedTopic}.tasks`]: updatedTasks
             }).then(() => {
                 if (valueToChange == "status") {
-                    taskDiv.classList.toggle("completed", !taskDiv.classList.contains("completed"));
                     updateCompletedTasksCounter(updatedTasks);
                 } else if (valueToChange == "description") {
                     const description = modalForm.querySelector("textarea").value;
@@ -750,36 +753,34 @@ function handleFilterButtonClick(button) {
 }
 
 function handleFilterTasksByStatus(button) {
-    button.addEventListener("click", () => {
-        const filterStatus = button.dataset.filterStatus;
-        const hasDisplayedTasks = tasksContainer.children[0]?.classList.contains("task");
-        removeClass(button.parentElement.querySelector("button.active"), "active");
-        addClass(button, "active");
-        if (hasDisplayedTasks) {
-            const allTasks = Array.from(tasksContainer.children);
-            showTasksLoader();
-            setTimeout(() => {
-                allTasks.forEach((task) => {
-                    task.style.display = task.classList.contains(filterStatus) ? "flex" : "none";
-                });
-                if (tasksContainer.querySelectorAll('[style="display: none;"]').length >= tasksContainer.children.length) {
-                    appendTextNode(tasksContainer, "p", ["filter-message"], "Nenhuma tarefa encontrada para esse filtro.");
-                    taskMessage.style.display = "none";
-                    deleteTasksButton.style.display = "none";
-                    downloadTasksButton.disabled = true;
-                } else {
-                    taskMessage.style.display = "";
-                    deleteTasksButton.style.display = "flex";
-                    downloadTasksButton.disabled = false;
-                    const lastTaskElement = tasksContainer.lastElementChild;
-                    if (lastTaskElement && lastTaskElement.getAttribute("data-filter-message")) {
-                        lastTaskElement.remove();
-                    }
+    const filterStatus = button.dataset.filterStatus;
+    const hasDisplayedTasks = tasksContainer.children[0]?.classList.contains("task");
+    removeClass(button.parentElement.querySelector("button.active"), "active");
+    addClass(button, "active");
+    if (hasDisplayedTasks) {
+        const allTasks = Array.from(tasksContainer.children);
+        showTasksLoader();
+        setTimeout(() => {
+            allTasks.forEach((task) => {
+                task.style.display = task.classList.contains(filterStatus) ? "flex" : "none";
+            });
+            if (tasksContainer.querySelectorAll('[style="display: none;"]').length >= tasksContainer.children.length) {
+                appendTextNode(tasksContainer, "p", ["filter-message"], "Nenhuma tarefa encontrada para esse filtro.");
+                taskMessage.style.display = "none";
+                deleteTasksButton.style.display = "none";
+                downloadTasksButton.disabled = true;
+            } else {
+                taskMessage.style.display = "";
+                deleteTasksButton.style.display = "flex";
+                downloadTasksButton.disabled = false;
+                const lastTaskElement = tasksContainer.lastElementChild;
+                if (lastTaskElement && lastTaskElement.getAttribute("data-filter-message")) {
+                    lastTaskElement.remove();
                 }
-                hideTasksLoader();
-            }, 1000);
-        }
-    });
+            }
+            hideTasksLoader();
+        }, 1000);
+    }
 }
 
 function handleFilterByDescription(value) {
@@ -888,7 +889,7 @@ filterButtons.forEach((button) => {
 });
 
 filterStatusButtons.forEach((button) => {
-    handleFilterTasksByStatus(button);
+    button.addEventListener("click", () => handleFilterTasksByStatus(button));
 });
 
 filterBySearchInput.addEventListener("input", ({ target: { value } }) => {

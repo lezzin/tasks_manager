@@ -12,6 +12,18 @@
     }
 }
 
+@keyframes task-note-animation {
+    from {
+        opacity: 0;
+        transform: translateY(-1rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 body {
     grid-template: "header header" 10vh "topics tasks" minmax(90vh, auto) / 23% 1fr;
 }
@@ -371,6 +383,7 @@ body[data-theme="dark"] .topic.empty {
     display: flex;
     flex-direction: column;
     width: inherit;
+    animation: fade .3s ease-in forwards;
 }
 
 .task.expanded .task_content {
@@ -384,6 +397,7 @@ body[data-theme="dark"] .topic.empty {
 
 .task.expanded .task_expand {
     display: grid;
+    animation: task-note-animation .3s ease forwards;
 }
 
 .task .task_content {
@@ -481,7 +495,7 @@ body[data-theme="dark"] .topic.empty {
     border: 1px solid var(--border-color);
 }
 
-body[data-theme="dark"]  .task .note-form select option  {
+body[data-theme="dark"] .task .note-form select option {
     color: var(--font-secondary);
 }
 
