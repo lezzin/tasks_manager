@@ -511,11 +511,14 @@ function createTaskHTML(task) {
 
 function showTaskNotes(element) {
     const task = element.parentElement.parentElement.parentElement;
-    task.classList.add("selected");
     task.classList.toggle("expanded");
 
-    document.querySelector(".task.expanded:not(.selected)")?.classList.remove("expanded");
-    task.classList.remove("selected");
+    const expandedTasks = document.querySelectorAll(".task.expanded");
+    expandedTasks.forEach((expandedTask) => {
+        if (expandedTask !== task) {
+            expandedTask.classList.remove("expanded");
+        }
+    });
 }
 
 function appendNoteElement(parent, task, note) {
@@ -622,7 +625,7 @@ function updateTask(button) {
                 if (task.id === taskId) {
                     if (valueToChange == "status") {
                         task.status = !task.status;
-                        
+
                         taskDiv.classList.toggle("completed", task.status);
                         taskDiv.classList.toggle("incompleted", !task.status);
 
