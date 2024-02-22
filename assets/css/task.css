@@ -368,7 +368,7 @@ body[data-theme="dark"] .topic.empty {
 }
 
 .task {
-    display: grid;
+    display: flex;
     flex-direction: column;
     width: inherit;
     animation: fade .3s ease-in forwards;
@@ -392,6 +392,20 @@ body[data-theme="dark"] .topic.empty {
     align-items: flex-start;
     justify-content: space-between;
     gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .task_content  {
+        flex-direction: column;
+    }
+
+    .task_content .right  {
+        margin-left: auto;
+    }
+
+    .task_content .right .material-icons {
+        font-size: 1.6rem !important;
+    }
 }
 
 .task .btn-rounded {
@@ -443,7 +457,7 @@ body[data-theme="dark"] .topic.empty {
     border: 1px solid var(--border-color);
     border-radius: 0 0 5px 5px;
     overflow: hidden;
-    transition: all 0.3s ease-out;
+    transition: all 0.3s linear;
     opacity: 0;
     padding: 0 1rem;
     pointer-events: none;
