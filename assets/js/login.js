@@ -27,7 +27,7 @@ function handleLoginResponse(response, loginButton, messageContainer) {
 function handleLoginError(error, loginButton, messageContainer) {
     if ("auth/invalid-credential" === error.code) {
         messageContainer.classList.remove("hidden");
-        messageContainer.innerText = "Usuário não encontrado";
+        messageContainer.innerText = "Email ou senha incorreto(a)";
     }
     loginButton.innerHTML = "Login";
 }
