@@ -11,12 +11,13 @@ const firebaseConfig = {
     projectId: "task-manager-477c8",
     storageBucket: "task-manager-477c8.appspot.com",
     messagingSenderId: "217541158610",
-    appId: "1:217541158610:web:3874e0289705079c71ef0b"
+    appId: "1:217541158610:web:3874e0289705079c71ef0b",
+    measurementId: "G-JSKE2D4G4V"
 };
 
-const app = firebase.initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+const analytics = firebase.analytics();
 
 function addClass(element, className) {
     element.classList.add(className);
