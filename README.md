@@ -15,7 +15,7 @@ Um aplicativo de gerenciamento de tarefas com design inspirado no Google.
 
 ## Guia de instalação
 
-Para usar o aplicativo de barbearia:
+Para usar o aplicativo:
 
 Localmente:<br>
 
