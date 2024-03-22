@@ -432,6 +432,8 @@ const Home = {
             return;
         }
 
+        document.title = "TaskFlow | Suas tarefas";
+
         this.db.collection("tasks").doc(this.user.uid)
             .onSnapshot((doc) => {
                 const userData = doc.data();

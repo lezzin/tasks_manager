@@ -16,6 +16,9 @@ const Login = {
                 });
         },
     },
+    created() {
+        document.title = "TaskFlow | Acessar sua conta";
+   },
     watch: {
         "$root.user": function (user) {
             if (user) this.$router.push("/");
