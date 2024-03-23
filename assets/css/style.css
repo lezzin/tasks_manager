@@ -21,7 +21,7 @@
     --danger-color: hsl(0, 93%, 61%);
     --disabled-color: hsl(0, 0%, 15%);
     --aside-width: 25%;
-    --padding: 2rem;
+    --padding: 1.5rem;
     --radius: 5px;
 }
 
@@ -33,6 +33,19 @@
     font: inherit;
 }
 
+::-webkit-scrollbar-track {
+    background: var(--bg-primary-light);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--details-color);
+    border-radius: 100px;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
 img {
     max-width: 100%;
     height: auto;
@@ -41,9 +54,6 @@ img {
     display: flex;
     margin: 0 auto;
 
-    &.bordered {
-        border: 1px solid var(--border-color);
-    }
 
     &.small-screen {
         display: none;
@@ -169,7 +179,7 @@ form {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    width: 100%;
+    width: 96%;
     max-width: var(--form-width, 100%);
     margin: 0 auto;
 
@@ -278,7 +288,7 @@ form {
         display: flex;
         justify-content: space-between;
         position: sticky;
-        z-index: 999;
+        z-index: 900;
         top: 0;
     }
 
@@ -343,6 +353,7 @@ form {
 .home-wrapper {
     display: grid;
     grid-template-columns: var(--aside-width) 1fr;
+    position: relative;
     height: 90vh;
 
     @media(max-width: 768px) {
@@ -353,9 +364,16 @@ form {
     .topic-container {
         border-right: 1px solid var(--border-color);
         padding-top: 2rem;
+        overflow-y: auto;
 
         @media(max-width: 768px) {
-            margin-bottom: 3rem;
+            position: absolute;
+            overflow-y: unset;
+            background-color: var(--bg-primary);
+            top: 0;
+            left: 0;
+            right: 0;
+            padding-bottom: 2rem;
         }
 
         .divider {
@@ -471,7 +489,12 @@ form {
     display: grid;
     place-items: center;
     padding: 2rem;
-    height: 90vh;
+    min-height: 90vh;
+
+    @media(max-width: 768px) {
+        height: auto;
+        padding: 5rem 0;
+    }
 
     form {
         background-color: var(--bg-primary-dark);
@@ -484,7 +507,11 @@ form {
     display: grid;
     place-items: center;
     padding: 2rem;
-    height: 90vh;
+    min-height: 90vh;
+
+    .text {
+        margin-top: 1rem;
+    }
 }
 
 .toast {
@@ -494,7 +521,7 @@ form {
     padding: .8rem 1.6rem;
     border-radius: .3rem;
     box-shadow: 0 .5rem 1rem rgb(0 0 0 / .15);
-    z-index: 1000;
+    z-index: 999;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -529,6 +556,7 @@ form {
     inset: 0;
     display: grid;
     place-items: center;
+    z-index: 999;
 
     .modal-dialog {
         background-color: var(--bg-primary);
@@ -557,6 +585,7 @@ form {
     display: grid;
     place-items: center;
     inset: 0;
+    z-index: 999;
 
     .loader-spinner {
         border: 5px solid var(--bg-primary-light);

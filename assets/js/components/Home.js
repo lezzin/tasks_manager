@@ -40,11 +40,23 @@ const Home = {
     },
     methods: {
         loadTopic(id) {
-            const topicsArray = Object.values(this.topics);
-            const topic = topicsArray.find(topic => topic.id === id);
-            if (topic) {
-                this.selectedTopic = topic;
-                this.$root.selectedTopicName = topic.name;
+            this.selectedTopic = this.$root.selectedTopicName = null;
+
+            if (this.topics) {
+                const topicsArray = Object.values(this.topics);
+                const topic = topicsArray.find(topic => topic.id == id);
+
+                if (topic) {
+                    this.selectedTopic = topic;
+                    this.$root.selectedTopicName = topic.name;
+                } else {
+                    this.$root.toast = {
+                        type: "error",
+                        text: "Esse tópico não existe"
+                    }
+                }
+            } else {
+                this.$router.push("/");
             }
         },
         addTopic() {
@@ -471,7 +483,11 @@ const Home = {
             this.topicEditingError = '';
         },
         "$route.params.id": function (id) {
-            this.loadTopic(id);
+            if (id) {
+                this.loadTopic(id);
+            } else {
+                this.selectedTopic = this.$root.selectedTopicName = null;
+            }
         },
         "$root.isMenuTopicsActive": function (data) {
             this.isMenuTopicsActive = data;
