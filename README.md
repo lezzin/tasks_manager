@@ -6,12 +6,13 @@ Um aplicativo de gerenciamento de tarefas com design inspirado no Google.
 
 ## Recursos
 
-- Login e registro de usuários
-- Adição e exclusão de topicos
-- Adição, filtragem, exclusão e alteração de status de tarefas
-- Adição de tarefas por voz e texto
-- Mudanças de tema dark/light
-- Mudança na paleta de cores do site
+- Autenticação de usuários via Conta Google
+- Persistência de dados através do Firebase Firestore
+- Atualização de dados em tempo real
+- Gerenciamento de tópicos (adição, edição e exclusão)
+- Gerenciamento de tarefas (adição, edição e exclusão)
+- Adição de tarefas por voz e texto (API nativa do Javascript)
+- Sistema de feedback utilizando Toast (mensagem de texto no canto inferior direito)
 
 ## Guia de instalação
 
