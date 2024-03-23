@@ -60,6 +60,7 @@ const Home = {
             }
 
             this.selectedTopic = topic;
+            this.selectedTopic.tasks_length = this.selectedTopic?.tasks.length;
             this.defaultTasks = topic.tasks;
             this.$root.selectedTopicName = topic.name;
         },
@@ -478,6 +479,10 @@ const Home = {
                 const userData = doc.data();
 
                 if (userData && userData.topics && Object.keys(userData.topics).length > 0) {
+                    Object.keys(userData.topics).forEach(topicName => {
+                        const topic = userData.topics[topicName];
+                        topic.tasks_length = topic.tasks.length;
+                    });
                     this.topics = userData.topics;
                     if (this.$route.params.id) {
                         this.loadTopic(this.$route.params.id);

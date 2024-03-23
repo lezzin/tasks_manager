@@ -28,7 +28,7 @@
                 <button class="btn primary btn-mobile" v-if="isMobile && user" @click="toggleTopicsMenu"><i class="fa-solid fa-bars"></i></button>
 
                 <router-link to="/" title="Acessar página incial" class="logo">
-                    <img src="./assets/img/logo.png" alt="Uma pessoa utilizando um computador" width="36" height="36">
+                    <img src="./assets/img/logo.png" alt="Uma pessoa utilizando um computador" width="37" height="37">
                     <h1 class="title">TaskFlow</h1>
                 </router-link>
             </div>
@@ -36,7 +36,7 @@
                 <h2 class="subtitle" v-if="selectedTopicName && !isMobile">{{ selectedTopicName }}</h2>
 
                 <div class="right-content" v-if="user">
-                    <img class="profile-image" :src="user.photoURL" alt="Foto de perfil do usuário" width="36" height="36" :title="`Logado como: ${user.email}`">
+                    <img class="profile-image" :src="user.photoURL" alt="Foto de perfil do usuário" width="37" height="37" :title="`Logado como: ${user.email}`">
                     <button class="btn danger rounded" @click="logoutUser" title="Sair da minha conta">
                         <i class="fa-solid fa-right-from-bracket"></i>
                     </button>
@@ -61,7 +61,7 @@
     <template id="login-page">
         <div class="form-wrapper">
             <form style="--form-width: 450px" @submit.prevent="loginGoogle">
-                <img src="./assets/img/login_lg.png" alt="Uma pessoa escrevendo em um caderno" class="large-screen" width="800" height="800">
+                <img src="./assets/img/login_lg.png" alt="Uma pessoa escrevendo em um caderno" class="large-screen" width="1200" height="800">
                 <img src="./assets/img/login_sm.png" alt="Uma pessoa escrevendo em um caderno" class="small-screen" width="640" height="640">
                 <button class="btn block btn-icon primary"><i class="fa-brands fa-google"></i> Entrar com o Google</button>
             </form>
@@ -72,20 +72,20 @@
             <div class="topic-container" v-if="!isMobile || isMenuTopicsActive">
                 <form @submit.prevent="addTopic">
                     <div class="form-group">
-                        <label class="text" for="add-topic">Adicionar novo tópico</label>
                         <div :class="['input-group', formTopicError ? 'input-error' : '']">
-                            <input type="text" placeholder="Estudo, lazer..." id="add-topic" v-model="newTopic" autocomplete="off">
+                            <input type="text" placeholder="Adicionar tópico" id="add-topic" v-model="newTopic" autocomplete="off">
                             <button class="btn primary btn-input"><i class="fa-solid fa-plus"></i></button>
                         </div>
                         <p class="text text-error" v-if="formTopicError">{{ formTopicError }}</p>
                     </div>
                 </form>
 
-                <span class="divider" v-if="topics"></span>
-
                 <div class="topic-nav" v-if="topics">
                     <router-link :to="'/topic/' + topic.id" class="btn btn-topic" role="button" v-for="topic in topics">
-                        <p class="text">{{ topic.name }}</p>
+                        <div class="topic-data">
+                            <p class="text">{{ topic.name }}</p>
+                            <p class="text small muted">{{ `${topic.tasks_length} ${topic.tasks_length == 1 ? 'tarefa' : 'tarefas'}` }} </p>
+                        </div>
                         <div class="topic-actions">
                             <button class="btn rounded" title="Editar tópico" @click.prevent="openEditTopic(topic.name)">
                                 <i class="fa-solid fa-pen"></i>
@@ -108,7 +108,7 @@
                             <div class="form-group">
                                 <div :class="['input-group', 'input-group-rounded', 'input-group-lg', formTaskError ? 'input-error' : '']">
                                     <input type="text" id="add-task" placeholder="Adicionar tarefa..." v-model="newTask" autocomplete="off">
-                                    <button type="button" class="btn btn-input secondary" title="Adicionar descrição da tarefa através de áudio" @click="toggleSpeechRecognition">
+                                    <button type="button" class="btn btn-input white" title="Adicionar descrição da tarefa através de áudio" @click="toggleSpeechRecognition">
                                         <i class="fa-solid" :class="{'fa-microphone': !isListening, 'fa-stop': isListening}"></i>
                                     </button>
                                     <button type="submit" class="btn btn-input primary" title="Adicionar tarefa">
@@ -145,7 +145,7 @@
                     <div class="task-nav" v-if="defaultTasks && defaultTasks.length > 0">
                         <div :class="`task ${task.status ? 'completed' : ''}`" v-for="task in selectedTopic.tasks">
                             <div class="right-content">
-                                <button :class="`btn bordered rounded ${task.status ? 'primary' : 'secondary'}`" :title="`Marcar tarefa como ${task.status ? 'não concluída' : 'concluída'}`" @click="changeTaskStatus(task.id)">
+                                <button :class="`btn bordered rounded ${task.status ? 'primary' : 'white'}`" :title="`Marcar tarefa como ${task.status ? 'não concluída' : 'concluída'}`" @click="changeTaskStatus(task.id)">
                                     <i class="fa-solid fa-check"></i>
                                 </button>
                                 <div class="task-information">
@@ -154,10 +154,10 @@
                                 </div>
                             </div>
                             <div class="task-action">
-                                <button class="btn secondary bordered rounded" title="Editar tarefa" @click="openEditTask(task.id, task.name)">
+                                <button class="btn rounded" title="Editar tarefa" @click="openEditTask(task.id, task.name)">
                                     <span class="fa-solid fa-pen"></span>
                                 </button>
-                                <button class="btn secondary bordered rounded" title="Excluir tarefa" @click="deleteTask(selectedTopic.name, task.id)">
+                                <button class="btn rounded" title="Excluir tarefa" @click="deleteTask(selectedTopic.name, task.id)">
                                     <span class="fa-solid fa-trash"></span>
                                 </button>
                             </div>
@@ -165,7 +165,7 @@
                         <p class="text center" v-if="selectedTopic.tasks.length < 1">Nenhuma tarefa para esse filtro</p>
                     </div>
                     <div v-else>
-                        <img src="./assets/img/task_empty_lg.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="large-screen" width="1200" height="525">
+                        <img src="./assets/img/task_empty_lg.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="large-screen" width="1200" height="640">
                         <img src="./assets/img/task_empty_sm.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="small-screen" width="640" height="640">
                     </div>
                 </div>
