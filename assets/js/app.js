@@ -58,6 +58,7 @@ const app = new Vue({
     methods: {
         toggleTopicsMenu() {
             this.isMenuTopicsActive = !this.isMenuTopicsActive;
+            document.body.classList.toggle("menu-active", this.isMenuTopicsActive);
         },
         closeToast() {
             this.toast = null;
@@ -65,7 +66,7 @@ const app = new Vue({
         logoutUser() {
             auth.signOut();
             this.$router.push("/login");
-            this.user = null;
+            this.user = this.selectedTopicName = null;
         }
     },
     created() {

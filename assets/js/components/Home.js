@@ -36,28 +36,32 @@ const Home = {
             taskNewDescription: '',
             taskEditingError: '',
             editingTask: false,
+
+            defaultTasks: [],
+            searchTask: '',
+            filterTask: 'all',
         }
     },
     methods: {
         loadTopic(id) {
             this.selectedTopic = this.$root.selectedTopicName = null;
 
-            if (this.topics) {
-                const topicsArray = Object.values(this.topics);
-                const topic = topicsArray.find(topic => topic.id == id);
-
-                if (topic) {
-                    this.selectedTopic = topic;
-                    this.$root.selectedTopicName = topic.name;
-                } else {
-                    this.$root.toast = {
-                        type: "error",
-                        text: "Esse tópico não existe"
-                    }
-                }
-            } else {
-                this.$router.push("/");
+            if (!this.topics) {
+                if (this.$router.history.current.fullPath != "/") this.$router.push("/");
+                return;
             }
+
+            const topicsArray = Object.values(this.topics);
+            const topic = topicsArray.find(topic => topic.id == id);
+
+            if (!topic) {
+                if (this.$router.history.current.fullPath != "/") this.$router.push("/");
+                return;
+            }
+
+            this.selectedTopic = topic;
+            this.defaultTasks = topic.tasks;
+            this.$root.selectedTopicName = topic.name;
         },
         addTopic() {
             this.formTopicError = '';
@@ -188,6 +192,7 @@ const Home = {
                                 text: "Tópico excluído com sucesso"
                             };
                             this.selectedTopic = this.$root.selectedTopicName = null;
+                            if (this.$router.history.current.fullPath != "/") this.$router.push("/");
                         })
                         .catch((error) => {
                             this.$root.toast = {
@@ -350,6 +355,7 @@ const Home = {
                         }
 
                         this.closeEditingTask();
+                        this.searchTaskByName();
                     }).catch((error) => {
                         this.$root.toast = {
                             type: "error",
@@ -383,6 +389,7 @@ const Home = {
                             type: "success",
                             text: "Status alterado com sucesso"
                         }
+                        this.searchTaskByStatus();
                     }).catch((error) => {
                         this.$root.toast = {
                             type: "errccr",
@@ -437,6 +444,26 @@ const Home = {
                     }
                 });
         },
+        searchTaskByName() {
+            this.filterTask = "all";
+            const searchTerm = this.searchTask.trim().toLowerCase();
+            if (searchTerm) {
+                this.selectedTopic.tasks = this.defaultTasks.filter(task => task.name.toLowerCase().includes(searchTerm));
+            } else {
+                this.selectedTopic.tasks = this.defaultTasks;
+            }
+        },
+        searchTaskByStatus() {
+            this.searchTask = "";
+            const selectedFilter = this.filterTask;
+            if (selectedFilter === "all") {
+                this.selectedTopic.tasks = this.defaultTasks;
+            } else {
+                const statusFilter = selectedFilter === "completed";
+                this.selectedTopic.tasks = this.defaultTasks.filter(task => task.status === statusFilter);
+            }
+        },
+
     },
     created() {
         if (!this.user) {
@@ -488,6 +515,9 @@ const Home = {
             } else {
                 this.selectedTopic = this.$root.selectedTopicName = null;
             }
+
+            this.filterTask = "all";
+            this.searchTask = "";
         },
         "$root.isMenuTopicsActive": function (data) {
             this.isMenuTopicsActive = data;

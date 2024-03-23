@@ -19,7 +19,6 @@
     --font-secondary: hsl(0, 0%, 15%);
     --border-color: hsl(0, 0%, 20%);
     --danger-color: hsl(0, 93%, 61%);
-    --disabled-color: hsl(0, 0%, 15%);
     --aside-width: 25%;
     --padding: 1.5rem;
     --radius: 5px;
@@ -76,6 +75,10 @@ body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     background-color: var(--bg-primary);
     color: var(--font-primary);
+}
+
+body.menu-active {
+    overflow-y: hidden;
 }
 
 .title {
@@ -250,7 +253,8 @@ form {
             }
         }
 
-        input {
+        input,
+        select {
             border-top-right-radius: 0;
             border-bottom-right-radius: 0;
             border-top-left-radius: var(--group-radius);
@@ -267,7 +271,8 @@ form {
         }
     }
 
-    input {
+    input,
+    select {
         border-radius: var(--radius);
         font-size: 1.6rem;
         padding: .8rem 1.6rem;
@@ -367,13 +372,15 @@ form {
         overflow-y: auto;
 
         @media(max-width: 768px) {
-            position: absolute;
-            overflow-y: unset;
+            position: fixed;
             background-color: var(--bg-primary);
-            top: 0;
+            min-height: 90vh;
+            top: 10vh;
             left: 0;
             right: 0;
+            bottom: 0;
             padding-bottom: 2rem;
+            z-index: 899;
         }
 
         .divider {
@@ -421,6 +428,10 @@ form {
                     gap: .5rem;
                 }
             }
+
+            ~ button {
+                margin-top: 2rem;
+            }
         }
 
         form {
@@ -438,13 +449,43 @@ form {
             height: 100%;
         }
 
-        form {
-            margin-bottom: 2rem;
+        .form-container {
+            border: 1px solid var(--border-color);
+            margin: var(--padding);
+            border-radius: var(--radius);
+            padding: var(--padding);
+            margin-top: 0;
+
+            >form:first-of-type {
+                max-width: 75%;
+                margin: 0 auto 3rem;
+
+                @media(max-width: 768px) {
+                    max-width: unset;
+                }
+            }
+
+            .form-container-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 5rem;
+
+                @media(max-width: 768px) {
+                    flex-wrap: wrap;
+                    gap: 1rem;
+
+                    form {
+                        width: 100%;
+                    }
+                }
+            }
         }
 
         .task-nav {
             display: grid;
             margin-top: 3rem;
+            padding: 0 var(--padding);
             gap: 0.6rem;
 
             .task {
@@ -452,7 +493,7 @@ form {
                 justify-content: space-between;
                 align-items: center;
                 border: 1px solid var(--border-color);
-                padding: 1.4rem 2rem;
+                padding: 1.4rem var(--padding);
                 border-radius: var(--radius);
                 position: relative;
 

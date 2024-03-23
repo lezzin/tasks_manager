@@ -97,30 +97,52 @@
                     </router-link>
                 </div>
 
-                <span class="divider mb-0"></span>
-                
                 <button class="btn block color-danger" title="Excluir todos os tópicos" v-if="topics" @click="deleteAllTopics">
                     Excluir todos os tópicos
                 </button>
             </div>
             <div class="task-container" :class="{ 'centered': !selectedTopic }">
                 <div v-if="selectedTopic">
-                    <form :style="`--form-width: ${isMobile ? '100%' : '75%'}`" @submit.prevent="addTask">
-                        <div class="form-group">
-                            <div :class="['input-group', 'input-group-rounded', 'input-group-lg', formTaskError ? 'input-error' : '']">
-                                <input type="text" id="add-task" placeholder="Adicionar tarefa..." v-model="newTask" autocomplete="off">
-                                <button type="button" class="btn btn-input secondary" title="Adicionar descrição da tarefa através de áudio" @click="toggleSpeechRecognition">
-                                    <i class="fa-solid" :class="{'fa-microphone': !isListening, 'fa-stop': isListening}"></i>
-                                </button>
-                                <button type="submit" class="btn btn-input primary" title="Adicionar tarefa">
-                                    <i class="fa-regular fa-plus"></i>
-                                </button>
+                    <div class="form-container" v-if="selectedTopic.tasks">
+                        <form @submit.prevent="addTask">
+                            <div class="form-group">
+                                <div :class="['input-group', 'input-group-rounded', 'input-group-lg', formTaskError ? 'input-error' : '']">
+                                    <input type="text" id="add-task" placeholder="Adicionar tarefa..." v-model="newTask" autocomplete="off">
+                                    <button type="button" class="btn btn-input secondary" title="Adicionar descrição da tarefa através de áudio" @click="toggleSpeechRecognition">
+                                        <i class="fa-solid" :class="{'fa-microphone': !isListening, 'fa-stop': isListening}"></i>
+                                    </button>
+                                    <button type="submit" class="btn btn-input primary" title="Adicionar tarefa">
+                                        <i class="fa-regular fa-plus"></i>
+                                    </button>
+                                </div>
+                                <p class="text text-error" v-if="formTaskError">{{ formTaskError }}</p>
                             </div>
-                            <p class="text text-error" v-if="formTaskError">{{ formTaskError }}</p>
-                        </div>
-                    </form>
+                        </form>
 
-                    <div class="task-nav" v-if="selectedTopic.tasks && selectedTopic.tasks.length > 0">
+                        <div class="form-container-row">
+                            <form onsubmit="return false">
+                                <div class="form-group">
+                                    <label for="search-task" class="text">Pesquisar</label>
+                                    <div class="input-group">
+                                        <input type="text" @input="searchTaskByName" id="search-task" placeholder="Descrição da tarefa" v-model="searchTask" autocomplete="off">
+                                        <button type="submit" class="btn btn-input primary"><i class="fa-solid fa-search"></i></button>
+                                    </div>
+                                </div>
+                            </form>
+                            <form onsubmit="return false">
+                                <div class="form-group">
+                                    <label for="filter-task" class="text">Filtrar</label>
+                                    <select  id="filter-task" @change="searchTaskByStatus" v-model="filterTask">
+                                        <option value="all">Todas</option>
+                                        <option value="completed">Concluídas</option>
+                                        <option value="not-completed">Não concluídas</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="task-nav" v-if="defaultTasks && defaultTasks.length > 0">
                         <div :class="`task ${task.status ? 'completed' : ''}`" v-for="task in selectedTopic.tasks">
                             <div class="right-content">
                                 <button :class="`btn bordered rounded ${task.status ? 'primary' : 'secondary'}`" :title="`Marcar tarefa como ${task.status ? 'não concluída' : 'concluída'}`" @click="changeTaskStatus(task.id)">
@@ -140,6 +162,7 @@
                                 </button>
                             </div>
                         </div>
+                        <p class="text center" v-if="selectedTopic.tasks.length < 1">Nenhuma tarefa para esse filtro</p>
                     </div>
                     <div v-else>
                         <img src="./assets/img/task_empty_lg.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="large-screen" width="1200" height="525">
