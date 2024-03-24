@@ -28,6 +28,12 @@
     --radius: 5px;
 }
 
+@media(width <= 768px) {
+    :root {
+        --padding: 1rem;
+    }
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -57,13 +63,12 @@ img {
     display: flex;
     margin: 0 auto;
 
-
     &.small-screen {
         display: none;
     }
 }
 
-@media(max-width: 768px) {
+@media(width <= 768px) {
     img.large-screen {
         display: none;
     }
@@ -134,7 +139,7 @@ body.menu-active {
         margin-bottom: 0.05rem;
         font-size: 1.2rem;
 
-        @media(max-width: 768px) {
+        @media(width <= 768px) {
             font-size: 1.6rem;
         }
     }
@@ -325,7 +330,7 @@ form {
     border-bottom: 1px solid var(--border-color);
     height: 10vh;
 
-    @media(max-width: 768px) {
+    @media(width <= 768px) {
         display: flex;
         justify-content: space-between;
         position: sticky;
@@ -344,7 +349,7 @@ form {
         background-color: var(--bg-primary);
         gap: 1rem;
 
-        @media(max-width: 768px) {
+        @media(width <= 768px) {
             .title {
                 display: none;
             }
@@ -371,7 +376,7 @@ form {
         align-items: center;
         justify-content: space-between;
 
-        @media(max-width: 768px) {
+        @media(width <= 768px) {
             gap: 1rem;
         }
 
@@ -395,7 +400,7 @@ form {
     position: relative;
     height: 90vh;
 
-    @media(max-width: 768px) {
+    @media(width <= 768px) {
         grid-template-columns: auto;
         height: auto;
     }
@@ -406,7 +411,7 @@ form {
         padding: var(--padding);
         overflow-y: auto;
 
-        @media(max-width: 768px) {
+        @media(width <= 768px) {
             position: fixed;
             min-height: 90vh;
             top: 10vh;
@@ -502,7 +507,7 @@ form {
                 max-width: 75%;
                 margin: 0 auto 3rem;
 
-                @media(max-width: 768px) {
+                @media(width <= 768px) {
                     max-width: unset;
                     width: 100%;
                 }
@@ -514,7 +519,7 @@ form {
                 align-items: center;
                 gap: 5rem;
 
-                @media(max-width: 768px) {
+                @media(width <= 768px) {
                     flex-wrap: wrap;
                     gap: 1rem;
 
@@ -586,7 +591,7 @@ form {
     padding: 2rem;
     min-height: 90vh;
 
-    @media(max-width: 768px) {
+    @media(width <= 768px) {
         padding: 3rem 0;
     }
 
@@ -623,7 +628,7 @@ form {
     align-items: flex-start;
     gap: 2rem;
 
-    @media(max-width: 768px) {
+    @media(width <= 768px) {
         bottom: 0;
         right: 0;
         left: 0;

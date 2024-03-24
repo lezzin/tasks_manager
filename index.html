@@ -14,22 +14,22 @@
 <body>
     <div id="app">
         <!-- image preloads -->
-        <img src="./assets/img/not_found_lg.png" alt="Homem segurando uma lupa e frase de página não encontrada" width="0" height="0" style="display: none;" loading="lazy">
-        <img src="./assets/img/not_found_sm.png" alt="Homem segurando uma lupa e frase de página não encontrada" width="0" height="0" style="display: none;" loading="lazy">
-        <img src="./assets/img/topic_unselected_lg.png" alt="Uma pessoa escrevendo em um diário suas tarefas pessoais" width="0" height="0" style="display: none;" loading="lazy">
-        <img src="./assets/img/topic_unselected_sm.png" alt="Uma pessoa escrevendo em um diário suas tarefas pessoais" width="0" height="0" style="display: none;" loading="lazy">
-        <img src="./assets/img/task_empty_lg.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia" width="0" height="0" style="display: none;" loading="lazy">
-        <img src="./assets/img/task_empty_sm.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia" width="0" height="0" style="display: none;" loading="lazy">
-        <img src="./assets/img/login_lg.png" alt="Uma pessoa escrevendo em um caderno" width="0" height="0" style="display: none;" loading="lazy">
-        <img src="./assets/img/login_sm.png" alt="Uma pessoa escrevendo em um caderno" width="0" height="0" style="display: none;" loading="lazy">
+        <img src="./assets/img/not_found_lg.png" alt="Homem segurando uma lupa e frase de página não encontrada" width="0" height="0" style="display: none;">
+        <img src="./assets/img/not_found_sm.png" alt="Homem segurando uma lupa e frase de página não encontrada" width="0" height="0" style="display: none;">
+        <img src="./assets/img/topic_unselected_lg.png" alt="Uma pessoa escrevendo em um diário suas tarefas pessoais" width="0" height="0" style="display: none;">
+        <img src="./assets/img/topic_unselected_sm.png" alt="Uma pessoa escrevendo em um diário suas tarefas pessoais" width="0" height="0" style="display: none;">
+        <img src="./assets/img/task_empty_lg.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia" width="0" height="0" style="display: none;">
+        <img src="./assets/img/task_empty_sm.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia" width="0" height="0" style="display: none;">
+        <img src="./assets/img/login_lg.png" alt="Uma pessoa escrevendo em um caderno" width="0" height="0" style="display: none;">
+        <img src="./assets/img/login_sm.png" alt="Uma pessoa escrevendo em um caderno" width="0" height="0" style="display: none;">
 
         <header class="header-wrapper">
             <div class="logo-container">
                 <button class="btn primary btn-mobile" v-if="isMobile && user" @click="toggleTopicsMenu"><i class="fa-solid fa-bars"></i></button>
 
                 <router-link to="/" title="Acessar página incial" class="logo">
-                    <img src="./assets/img/logo_lg.svg" alt="TaskFlow - logo do website" class="large-screen">
-                    <img src="./assets/img/logo_sm.svg" alt="TaskFlow - logo do website" width="118" height="37" class="small-screen">
+                    <img src="./assets/img/logo_lg.svg" alt="TaskFlow - logo do website" class="large-screen" width="148" height="27" loading="lazy">
+                    <img src="./assets/img/logo_sm.svg" alt="TaskFlow - logo do website" width="118" height="37" class="small-screen" loading="lazy">
                 </router-link>
             </div>
             <div class="information-container">
@@ -61,8 +61,8 @@
     <template id="login-page">
         <div class="form-wrapper">
             <form style="--form-width: 450px" @submit.prevent="loginGoogle">
-                <img src="./assets/img/login_lg.png" alt="Uma pessoa escrevendo em um caderno" class="large-screen" width="1200" height="800">
-                <img src="./assets/img/login_sm.png" alt="Uma pessoa escrevendo em um caderno" class="small-screen" width="640" height="640">
+                <img src="./assets/img/login_lg.png" alt="Uma pessoa escrevendo em um caderno" class="large-screen" width="1200" height="800" loading="lazy">
+                <img src="./assets/img/login_sm.png" alt="Uma pessoa escrevendo em um caderno" class="small-screen" width="640" height="640" loading="lazy">
                 <button class="btn block btn-icon primary"><i class="fa-brands fa-google"></i> Entrar com o Google</button>
             </form>
         </div>
@@ -170,13 +170,13 @@
                         <p class="text center" v-if="selectedTopic.tasks.length < 1">Nenhuma tarefa para esse filtro</p>
                     </div>
                     <div v-else>
-                        <img src="./assets/img/task_empty_lg.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="large-screen" width="1200" height="640">
-                        <img src="./assets/img/task_empty_sm.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="small-screen" width="640" height="640">
+                        <img src="./assets/img/task_empty_lg.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="large-screen" width="1200" height="640" loading="lazy">
+                        <img src="./assets/img/task_empty_sm.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="small-screen" width="640" height="640" loading="lazy">
                     </div>
                 </div>
                 <div v-else>
-                    <img src="./assets/img/topic_unselected_lg.png" alt="Uma pessoa escrevendo em um diário suas tarefas pessoais" class="large-screen" width="1200" height="640">
-                    <img src="./assets/img/topic_unselected_sm.png" alt="Uma pessoa escrevendo em um diário suas tarefas pessoais" class="small-screen" width="640" height="640">
+                    <img src="./assets/img/topic_unselected_lg.png" alt="Uma pessoa escrevendo em um diário suas tarefas pessoais" class="large-screen" width="1200" height="640" loading="lazy">
+                    <img src="./assets/img/topic_unselected_sm.png" alt="Uma pessoa escrevendo em um diário suas tarefas pessoais" class="small-screen" width="640" height="640" loading="lazy">
                 </div>
             </div>
 
@@ -221,8 +221,8 @@
     </template>
     <template id="page-not-found">
         <div class="not-found-wrapper">
-            <img src="./assets/img/not_found_lg.png" alt="Homem segurando uma lupa e frase de página não encontrada" class="large-screen" width="1200" height="640">
-            <img src="./assets/img/not_found_sm.png" alt="Homem segurando uma lupa e frase de página não encontrada" class="small-screen" width="640" height="640">
+            <img src="./assets/img/not_found_lg.png" alt="Homem segurando uma lupa e frase de página não encontrada" class="large-screen" width="1200" height="640" loading="lazy">
+            <img src="./assets/img/not_found_sm.png" alt="Homem segurando uma lupa e frase de página não encontrada" class="small-screen" width="640" height="640" loading="lazy">
 
             <router-link to="/" class="text center">Voltar para o início</router-link>
         </div>
