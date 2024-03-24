@@ -38,7 +38,7 @@ const Home = {
             editingTask: false,
 
             defaultTasks: [],
-            searchTask: '',
+            searckTaskError: '',
             filterTask: 'all',
         }
     },
@@ -69,6 +69,11 @@ const Home = {
 
             if (!this.newTopic) {
                 this.formTopicError = "Preencha o campo"
+                return;
+            }
+
+            if (String(this.newTopic).length <= 3) {
+                this.formTopicError = "Insira pelo menos 4 caracteres!";
                 return;
             }
 
@@ -448,6 +453,7 @@ const Home = {
         searchTaskByName() {
             this.filterTask = "all";
             const searchTerm = this.searchTask.trim().toLowerCase();
+
             if (searchTerm) {
                 this.selectedTopic.tasks = this.defaultTasks.filter(task => task.name.toLowerCase().includes(searchTerm));
             } else {
@@ -464,7 +470,6 @@ const Home = {
                 this.selectedTopic.tasks = this.defaultTasks.filter(task => task.status === statusFilter);
             }
         },
-
     },
     created() {
         if (!this.user) {
