@@ -1,4 +1,4 @@
-![Foto do projeto](https://github.com/lezzin/tasks_manager/assets/103830032/262b1285-0e07-4f2d-9e5d-cc91058c84fc)
+![Foto do projeto](https://github.com/lezzin/tasks_manager/assets/103830032/ce1e67f6-cc45-45a1-b574-42f2c4ada83b)
 
 # Gerenciador de tarefas
 
@@ -13,6 +13,7 @@ Um aplicativo de gerenciamento de tarefas com design inspirado no Google.
 - Gerenciamento de tarefas (adição, edição e exclusão)
 - Adição de tarefas por voz e texto (API nativa do Javascript)
 - Sistema de feedback utilizando Toast (mensagem de texto no canto inferior direito)
+- Imagens de feedback personalizadas para as seguintes situações: nenhum tópico selecionado, lista de tarefas vazia e página não encontrada
 
 ## Guia de instalação
 
@@ -31,7 +32,8 @@ Basta acessar o link: [clique aqui para acessar](https://tasks-manager-woad.verc
 
 * HTML
 * CSS
-* JavaScript
+* JavaScript (Vue.js)
+* Firebase
 
 ## Minhas redes sociais para contato
 
