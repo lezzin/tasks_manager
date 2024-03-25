@@ -28,7 +28,7 @@
     --radius: 5px;
 }
 
-@media(width <= 768px) {
+@media(width <=768px) {
     :root {
         --padding: 1rem;
     }
@@ -68,7 +68,7 @@ img {
     }
 }
 
-@media(width <= 768px) {
+@media(width <=768px) {
     img.large-screen {
         display: none;
     }
@@ -111,6 +111,10 @@ body.menu-active {
         font-size: 1.2rem;
     }
 
+    &.smallest {
+        font-size: 1rem;
+    }
+
     &.text-error {
         color: var(--danger-color);
     }
@@ -139,7 +143,7 @@ body.menu-active {
         margin-bottom: 0.05rem;
         font-size: 1.2rem;
 
-        @media(width <= 768px) {
+        @media(width <=768px) {
             font-size: 1.6rem;
         }
     }
@@ -330,7 +334,7 @@ form {
     border-bottom: 1px solid var(--border-color);
     height: 10vh;
 
-    @media(width <= 768px) {
+    @media(width <=768px) {
         display: flex;
         justify-content: space-between;
         position: sticky;
@@ -349,7 +353,7 @@ form {
         background-color: var(--bg-primary);
         gap: 1rem;
 
-        @media(width <= 768px) {
+        @media(width <=768px) {
             .title {
                 display: none;
             }
@@ -376,7 +380,7 @@ form {
         align-items: center;
         justify-content: space-between;
 
-        @media(width <= 768px) {
+        @media(width <=768px) {
             gap: 1rem;
         }
 
@@ -386,10 +390,23 @@ form {
             gap: 1rem;
             margin-left: auto;
 
-            .profile-image {
-                border-radius: 50%;
-                border: 1px solid var(--border-color);
+            .user-info {
+                display: flex;
+                align-items: center;
+                gap: .5rem;
+
+                @media(width <=768px) {
+                    div {
+                        display: none;
+                    }
+                }
+
+                .user-profile {
+                    border-radius: 50%;
+                    border: 1px solid var(--border-color);
+                }
             }
+
         }
     }
 }
@@ -400,7 +417,7 @@ form {
     position: relative;
     height: 90vh;
 
-    @media(width <= 768px) {
+    @media(width <=768px) {
         grid-template-columns: auto;
         height: auto;
     }
@@ -411,7 +428,7 @@ form {
         padding: var(--padding);
         overflow-y: auto;
 
-        @media(width <= 768px) {
+        @media(width <=768px) {
             position: fixed;
             min-height: 90vh;
             top: 10vh;
@@ -479,7 +496,7 @@ form {
             }
         }
 
-        form  {
+        form {
             width: 100%;
         }
     }
@@ -507,7 +524,7 @@ form {
                 max-width: 75%;
                 margin: 0 auto 3rem;
 
-                @media(width <= 768px) {
+                @media(width <=768px) {
                     max-width: unset;
                     width: 100%;
                 }
@@ -519,7 +536,7 @@ form {
                 align-items: center;
                 gap: 5rem;
 
-                @media(width <= 768px) {
+                @media(width <=768px) {
                     flex-wrap: wrap;
                     gap: 1rem;
 
@@ -591,7 +608,7 @@ form {
     padding: 2rem;
     min-height: 90vh;
 
-    @media(width <= 768px) {
+    @media(width <=768px) {
         padding: 3rem 0;
     }
 
@@ -628,7 +645,7 @@ form {
     align-items: flex-start;
     gap: 2rem;
 
-    @media(width <= 768px) {
+    @media(width <=768px) {
         bottom: 0;
         right: 0;
         left: 0;
