@@ -37,7 +37,13 @@
                 <h2 class="subtitle" v-if="selectedTopicName && !isMobile">{{ selectedTopicName }}</h2>
 
                 <div class="right-content" v-if="user">
-                    <img class="profile-image" :src="user.photoURL" alt="Foto de perfil do usuário" width="37" height="37" :title="`Logado como: ${user.email}`">
+                    <div class="user-info">
+                        <div>
+                            <p class="text small">Olá, {{ user.displayName }}</p>
+                            <p class="text smallest">{{ user.email }}</p>
+                        </div>
+                        <img class="user-profile" :src="user.photoURL" alt="Foto de perfil do usuário" width="37" height="37" :title="`Logado como: ${user.email}`">
+                    </div>
                     <button class="btn danger rounded" @click="logoutUser" title="Sair da minha conta">
                         <i class="fa-solid fa-right-from-bracket"></i>
                     </button>
