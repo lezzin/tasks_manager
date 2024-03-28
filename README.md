@@ -19,15 +19,11 @@ Um aplicativo de gerenciamento de tarefas com design inspirado no Google.
 
 ### Acesso Local:
 
-Para executar o aplicativo localmente, é necessário configurar um servidor local devido ao uso de módulos.
+Para usar o aplicativo localmente, é necessário configurar um servidor local:
 
-Você pode seguir estas etapas:
-
-1. Certifique-se de ter um servidor local instalado, como XAMPP, WAMP ou Node.js com a extensão Live Server.
-2. Baixe o projeto e extraia o conteúdo, se necessário.
-3. Configure o servidor local para apontar para a pasta do projeto.
-4. Inicie o servidor local.
-5. Acesse o aplicativo pelo navegador, navegando até o endereço local fornecido pelo seu servidor.
+1. Utilize um servidor local, como XAMPP ou Live Server (Extensão do VSCode).
+   - Se estiver usando XAMPP, adicione a pasta do projeto, inicie o servidor e acesse o arquivo `index.html` em um navegador da web.
+   - Se estiver usando a extensão Live Server, abra o VSCode e clique em "Go Live" no canto inferior esquerdo da tela.
 
 ### Acesso Online:
 
