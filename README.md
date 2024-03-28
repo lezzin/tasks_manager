@@ -19,10 +19,15 @@ Um aplicativo de gerenciamento de tarefas com design inspirado no Google.
 
 ### Acesso Local:
 
-1. Faça o download do projeto.
-2. Extraia o conteúdo, se necessário.
-3. Navegue até a pasta onde está localizado o arquivo `index.html`.
-4. Clique duas vezes no arquivo `index.html` para abrir o projeto no navegador.
+Para executar o aplicativo localmente, é necessário configurar um servidor local devido ao uso de módulos.
+
+Você pode seguir estas etapas:
+
+1. Certifique-se de ter um servidor local instalado, como XAMPP, WAMP ou Node.js com a extensão Live Server.
+2. Baixe o projeto e extraia o conteúdo, se necessário.
+3. Configure o servidor local para apontar para a pasta do projeto.
+4. Inicie o servidor local.
+5. Acesse o aplicativo pelo navegador, navegando até o endereço local fornecido pelo seu servidor.
 
 ### Acesso Online:
 
