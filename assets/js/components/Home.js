@@ -72,7 +72,7 @@ const Home = {
                 return;
             }
 
-            if (String(this.newTopic.replaceAll(".", "").length <= 3)) {
+            if (String(this.newTopic).replaceAll(".", "").length <= 3) {
                 this.formTopicError = "Insira pelo menos 4 letras!";
                 return;
             }
@@ -93,7 +93,7 @@ const Home = {
                         return docRef.update({
                             [`topics.${this.newTopic}`]: {
                                 id: Date.now().toString(26),
-                                name: this.newTopic.replaceAll(".", ""),
+                                name: String(this.newTopic).replaceAll(".", ""),
                                 tasks: []
                             }
                         });
@@ -135,6 +135,11 @@ const Home = {
                 this.topicEditingError = "Preencha o campo de edição";
                 return;
             }
+            
+            if (String(this.topicNewName).replaceAll(".", "").length <= 3) {
+                this.topicEditingError = "Insira pelo menos 4 letras!";
+                return;
+            }
 
             const tasksRef = this.db.collection("tasks").doc(this.user.uid);
 
@@ -145,7 +150,7 @@ const Home = {
                     if (this.topicNewName === this.topicOldName) {
                         selectedTopicData.name = this.topicNewName;
                         return tasksRef.update({
-                            [`topics.${this.topicOldName}.name`]: this.topicNewName
+                            [`topics.${this.topicOldName}.name`]: String(this.topicNewName).replaceAll(".", "")
                         });
                     } else {
                         if (userData.topics[this.topicNewName]) {
@@ -296,7 +301,7 @@ const Home = {
                         if (topic) {
                             const taskData = {
                                 id: Date.now().toString(36),
-                                name: this.newTask.replaceAll(".", ""),
+                                name: String(this.newTask).replaceAll(".", ""),
                                 status: false,
                                 created_at: currentTime(),
                             };
@@ -347,7 +352,7 @@ const Home = {
                 if (selectedTopicData && selectedTopicData.tasks) {
                     const updatedTasks = selectedTopicData.tasks.map((task) => {
                         if (task.id == this.taskEditingId) {
-                            task.name = this.taskNewDescription.replaceAll(".", "");
+                            task.name = String(this.taskNewDescription).replaceAll(".", "");
                         }
 
                         return task;
