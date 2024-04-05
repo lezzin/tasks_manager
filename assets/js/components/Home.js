@@ -72,8 +72,8 @@ const Home = {
                 return;
             }
 
-            if (String(this.newTopic).length <= 3) {
-                this.formTopicError = "Insira pelo menos 4 caracteres!";
+            if (String(this.newTopic.replaceAll(".", "").length <= 3) {
+                this.formTopicError = "Insira pelo menos 4 letras!";
                 return;
             }
 
@@ -93,7 +93,7 @@ const Home = {
                         return docRef.update({
                             [`topics.${this.newTopic}`]: {
                                 id: Date.now().toString(26),
-                                name: this.newTopic,
+                                name: this.newTopic.replaceAll(".", ""),
                                 tasks: []
                             }
                         });
@@ -296,7 +296,7 @@ const Home = {
                         if (topic) {
                             const taskData = {
                                 id: Date.now().toString(36),
-                                name: this.newTask,
+                                name: this.newTask.replaceAll(".", ""),
                                 status: false,
                                 created_at: currentTime(),
                             };
@@ -347,7 +347,7 @@ const Home = {
                 if (selectedTopicData && selectedTopicData.tasks) {
                     const updatedTasks = selectedTopicData.tasks.map((task) => {
                         if (task.id == this.taskEditingId) {
-                            task.name = this.taskNewDescription;
+                            task.name = this.taskNewDescription.replaceAll(".", "");
                         }
 
                         return task;
