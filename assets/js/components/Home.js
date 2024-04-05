@@ -86,14 +86,16 @@ const Home = {
                     return;
                 }
 
+                const formattedNewTopicName = String(this.newTopic).replaceAll(".", "");
+
                 docRef.set({}, {
                     merge: true
                 })
                     .then(() => {
                         return docRef.update({
-                            [`topics.${this.newTopic}`]: {
+                            [`topics.${formattedNewTopicName}`]: {
                                 id: Date.now().toString(26),
-                                name: String(this.newTopic).replaceAll(".", ""),
+                                name: formattedNewTopicName,
                                 tasks: []
                             }
                         });
@@ -142,6 +144,7 @@ const Home = {
             }
 
             const tasksRef = this.db.collection("tasks").doc(this.user.uid);
+            const formattedNewTopicName = String(this.topicNewName).replaceAll(".", "");
 
             tasksRef.get().then((doc) => {
                 const userData = doc.data();
@@ -150,18 +153,18 @@ const Home = {
                     if (this.topicNewName === this.topicOldName) {
                         selectedTopicData.name = this.topicNewName;
                         return tasksRef.update({
-                            [`topics.${this.topicOldName}.name`]: String(this.topicNewName).replaceAll(".", "")
+                            [`topics.${this.topicOldName}.name`]: formattedNewTopicName
                         });
                     } else {
-                        if (userData.topics[this.topicNewName]) {
+                        if (userData.topics[formattedNewTopicName]) {
                             this.topicEditingError = "Esse tópico já existe";
                             return Promise.reject("Tópico já existe");
                         } else {
                             const updatedTopics = {
                                 ...userData.topics
                             };
-                            updatedTopics[this.topicNewName] = selectedTopicData;
-                            updatedTopics[this.topicNewName].name = this.topicNewName;
+                            updatedTopics[formattedNewTopicName] = selectedTopicData;
+                            updatedTopics[formattedNewTopicName].name = formattedNewTopicName;
                             delete updatedTopics[this.topicOldName];
                             return tasksRef.update({
                                 topics: updatedTopics
@@ -491,7 +494,7 @@ const Home = {
                 if (userData && userData.topics && Object.keys(userData.topics).length > 0) {
                     Object.keys(userData.topics).forEach(topicName => {
                         const topic = userData.topics[topicName];
-                        topic.tasks_length = topic.tasks.length;
+                        topic.tasks_length = topic.tasks?.length ?? 0;
                     });
                     this.topics = userData.topics;
                     if (this.$route.params.id) {
