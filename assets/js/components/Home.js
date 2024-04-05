@@ -72,7 +72,7 @@ const Home = {
                 return;
             }
 
-            if (String(this.newTopic.replaceAll(".", "").length <= 3) {
+            if (String(this.newTopic.replaceAll(".", "").length <= 3)) {
                 this.formTopicError = "Insira pelo menos 4 letras!";
                 return;
             }
