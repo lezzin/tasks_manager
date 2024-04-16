@@ -12,6 +12,7 @@ Um aplicativo de gerenciamento de tarefas com design inspirado no Google.
 - Gerenciamento de tópicos (adição, edição e exclusão)
 - Gerenciamento de tarefas (adição, edição e exclusão)
 - Adição de tarefas por voz e texto (API nativa do JavaScript)
+- Recurso visual para prioridade de tarefas (alta, média e baixa)
 - Sistema de feedback utilizando Toast (mensagem de texto no canto inferior direito)
 - Imagens de feedback personalizadas para as seguintes situações: nenhum tópico selecionado, lista de tarefas vazia e página não encontrada
 
