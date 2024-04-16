@@ -71,9 +71,12 @@ const app = new Vue({
     },
     created() {
         auth.onAuthStateChanged(user => {
-            if (user) {
-                this.user = user;
+            if (!user) {
+                if (this.$router.history.current.fullPath != "/login") this.$router.push("/login");
+                return;
             }
+
+            this.user = user;
         });
 
         this.loading = false;

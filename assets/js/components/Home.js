@@ -8,6 +8,12 @@ function currentTime() {
     });
 }
 
+const TASK_PRIORITIES = {
+    high: 3,
+    medium: 2,
+    small: 1
+}
+
 const Home = {
     template: "#home-page",
     props: ["db", "auth"],
@@ -34,15 +40,37 @@ const Home = {
 
             taskEditingId: null,
             taskNewDescription: '',
-            taskEditingError: '',
+            taskNewDescriptionError: '',
+            taskNewPriority: '',
+            taskNewPriorityError: '',
             editingTask: false,
 
             defaultTasks: [],
+            searchTask: "",
             searckTaskError: '',
             filterTask: 'all',
         }
     },
     methods: {
+        getPriorityClass(priority) {
+            const classes = {
+                [TASK_PRIORITIES.high]: "priority-high",
+                [TASK_PRIORITIES.medium]: "priority-medium",
+                [TASK_PRIORITIES.small]: "priority-small",
+            };
+
+            return classes[priority] ?? '';
+        },
+        sortTasksByPriority() {
+            this.selectedTopic.tasks = this.selectedTopic.tasks.sort((taskA, taskB) => {
+                const priorityA = taskA.priority;
+                const priorityB = taskB.priority;
+
+                if (priorityA == priorityB) return 0;
+                if (priorityA == TASK_PRIORITIES.high || (priorityA == TASK_PRIORITIES.medium && priorityB == TASK_PRIORITIES.small)) return -1;
+                return 1;
+            });
+        },
         loadTopic(id) {
             this.selectedTopic = this.$root.selectedTopicName = null;
 
@@ -60,9 +88,10 @@ const Home = {
             }
 
             this.selectedTopic = topic;
+            this.selectedTopic.tasks = this.defaultTasks = topic.tasks;
             this.selectedTopic.tasks_length = this.selectedTopic?.tasks.length;
-            this.defaultTasks = topic.tasks;
             this.$root.selectedTopicName = topic.name;
+            this.sortTasksByPriority();
         },
         addTopic() {
             this.formTopicError = '';
@@ -137,7 +166,7 @@ const Home = {
                 this.topicEditingError = "Preencha o campo de edição";
                 return;
             }
-            
+
             if (String(this.topicNewName).replaceAll(".", "").length <= 3) {
                 this.topicEditingError = "Insira pelo menos 4 letras!";
                 return;
@@ -290,9 +319,7 @@ const Home = {
                 return;
             }
 
-            const {
-                name
-            } = this.selectedTopic;
+            const { name } = this.selectedTopic;
 
             const docRef = this.db.collection('tasks').doc(this.user.uid);
             docRef.get().then(doc => {
@@ -306,6 +333,7 @@ const Home = {
                                 id: Date.now().toString(36),
                                 name: String(this.newTask).replaceAll(".", ""),
                                 status: false,
+                                priority: TASK_PRIORITIES.small,
                                 created_at: currentTime(),
                             };
                             const updatedTasks = [...topic.tasks, taskData];
@@ -317,6 +345,7 @@ const Home = {
                                     text: "Tarefa adicionada com sucesso"
                                 };
                                 this.newTask = '';
+                                this.sortTasksByPriority();
                             }).catch(error => {
                                 console.error("Error updating tasks:", error);
                                 this.$root.toast = {
@@ -335,20 +364,27 @@ const Home = {
                 };
             });
         },
-        openEditTask(id, description) {
+        openEditTask(id, description, priority) {
             this.taskEditingId = id;
             this.taskNewDescription = description;
+            this.taskNewPriority = priority;
             this.editingTask = true;
         },
         closeEditingTask() {
-            this.taskEditingId = this.taskNewDescription = null;
+            this.taskEditingId = this.taskNewDescription = this.taskNewPriority = null;
             this.editingTask = false;
         },
         editTask() {
             if (!this.taskNewDescription) {
-                this.taskEditingError = "Preencha o campo";
-                return;
+                this.taskNewDescriptionError = "Preencha o campo";
             }
+
+            if (!this.taskNewPriority) {
+                this.taskNewPriorityError = "Preencha o campo";
+            }
+
+            if (!this.taskNewDescription || !this.taskNewPriority) return;
+
             this.db.collection("tasks").doc(this.user.uid).get().then((doc) => {
                 const selectedTopicData = doc.data().topics[this.selectedTopic.name];
 
@@ -356,6 +392,7 @@ const Home = {
                     const updatedTasks = selectedTopicData.tasks.map((task) => {
                         if (task.id == this.taskEditingId) {
                             task.name = String(this.taskNewDescription).replaceAll(".", "");
+                            task.priority = this.taskNewPriority;
                         }
 
                         return task;
@@ -437,6 +474,7 @@ const Home = {
                                 type: "success",
                                 text: "Tarefa excluída com sucesso"
                             };
+                            this.sortTasksByPriority();
                         })
                         .catch((error) => {
                             this.$root.toast = {
@@ -467,6 +505,8 @@ const Home = {
             } else {
                 this.selectedTopic.tasks = this.defaultTasks;
             }
+
+            this.sortTasksByPriority();
         },
         searchTaskByStatus() {
             this.searchTask = "";
@@ -477,45 +517,47 @@ const Home = {
                 const statusFilter = selectedFilter === "completed";
                 this.selectedTopic.tasks = this.defaultTasks.filter(task => task.status === statusFilter);
             }
+
+            this.sortTasksByPriority();
         },
+        loadUserTopics() {
+            this.db.collection("tasks").doc(this.user.uid)
+                .onSnapshot((doc) => {
+                    const userData = doc.data();
+
+                    if (userData && userData.topics && Object.keys(userData.topics).length > 0) {
+                        Object.keys(userData.topics).forEach(topicName => {
+                            const topic = userData.topics[topicName];
+                            topic.tasks_length = topic.tasks?.length ?? 0;
+                        });
+                        this.topics = userData.topics;
+                        if (this.$route.params.id) {
+                            this.loadTopic(this.$route.params.id);
+                        }
+                    } else {
+                        this.topics = null;
+                    }
+                }, (error) => {
+                    this.$root.toast = {
+                        type: "error",
+                        text: "Erro ao obter documento: " + error
+                    };
+                });
+
+            addEventListener('keydown', ({ key }) => {
+                if (key === 'Escape') {
+                    this.closeEditingTopic();
+                    this.closeEditingTask();
+                }
+            });
+        }
     },
     created() {
-        if (!this.user) {
-            this.$router.push("/login");
-            return;
-        }
-
         document.title = "TaskFlow | Suas tarefas";
 
-        this.db.collection("tasks").doc(this.user.uid)
-            .onSnapshot((doc) => {
-                const userData = doc.data();
-
-                if (userData && userData.topics && Object.keys(userData.topics).length > 0) {
-                    Object.keys(userData.topics).forEach(topicName => {
-                        const topic = userData.topics[topicName];
-                        topic.tasks_length = topic.tasks?.length ?? 0;
-                    });
-                    this.topics = userData.topics;
-                    if (this.$route.params.id) {
-                        this.loadTopic(this.$route.params.id);
-                    }
-                } else {
-                    this.topics = null;
-                }
-            }, (error) => {
-                this.$root.toast = {
-                    type: "error",
-                    text: "Erro ao obter documento: " + error
-                };
-            });
-
-        addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') {
-                this.closeEditingTopic();
-                this.closeEditingTask();
-            }
-        });
+        if (this.user) {
+            this.loadUserTopics();
+        }
     },
     watch: {
         "newTopic": function () {
@@ -543,6 +585,14 @@ const Home = {
         "$root.isMobile": function (data) {
             this.isMobile = data;
         },
+        "$root.user": function (user) {
+            if (user) {
+                this.user = user;
+                this.loadUserTopics();
+            } else {
+                this.$router.push("/login");
+            }
+        }
     }
 }
 
