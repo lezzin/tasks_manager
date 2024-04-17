@@ -61,6 +61,15 @@ const Home = {
 
             return classes[priority] ?? '';
         },
+        getPriorityText(priority) {
+            const classes = {
+                [TASK_PRIORITIES.high]: "Alta prioridade",
+                [TASK_PRIORITIES.medium]: "Média prioridade",
+                [TASK_PRIORITIES.small]: "Baixa prioridade",
+            };
+
+            return classes[priority] ?? '';
+        },
         sortTasksByPriority() {
             this.selectedTopic.tasks = this.selectedTopic.tasks.sort((taskA, taskB) => {
                 const priorityA = taskA.priority;
@@ -179,7 +188,7 @@ const Home = {
                 const userData = doc.data();
                 if (userData && userData.topics && userData.topics[this.topicOldName]) {
                     const selectedTopicData = userData.topics[this.topicOldName];
-                    if (this.topicNewName === this.topicOldName) {
+                    if (this.topicNewName == this.topicOldName) {
                         selectedTopicData.name = this.topicNewName;
                         return tasksRef.update({
                             [`topics.${this.topicOldName}.name`]: formattedNewTopicName
@@ -427,7 +436,7 @@ const Home = {
 
                 if (selectedTopicData && selectedTopicData.tasks) {
                     const updatedTasks = selectedTopicData.tasks.map((task) => {
-                        if (task.id === taskId) {
+                        if (task.id == taskId) {
                             task.status = !task.status;
                         }
 
@@ -443,7 +452,7 @@ const Home = {
                         this.searchTaskByStatus();
                     }).catch((error) => {
                         this.$root.toast = {
-                            type: "errccr",
+                            type: "error",
                             text: "Erro ao alterar status da tarefa: " + error,
                         }
                     });
@@ -511,11 +520,12 @@ const Home = {
         searchTaskByStatus() {
             this.searchTask = "";
             const selectedFilter = this.filterTask;
-            if (selectedFilter === "all") {
+
+            if (selectedFilter == "all") {
                 this.selectedTopic.tasks = this.defaultTasks;
             } else {
-                const statusFilter = selectedFilter === "completed";
-                this.selectedTopic.tasks = this.defaultTasks.filter(task => task.status === statusFilter);
+                const statusFilter = selectedFilter == "completed";
+                this.selectedTopic.tasks = this.defaultTasks.filter(task => task.status == statusFilter);
             }
 
             this.sortTasksByPriority();
@@ -545,7 +555,7 @@ const Home = {
                 });
 
             addEventListener('keydown', ({ key }) => {
-                if (key === 'Escape') {
+                if (key == 'Escape') {
                     this.closeEditingTopic();
                     this.closeEditingTask();
                 }

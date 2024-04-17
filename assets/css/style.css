@@ -59,6 +59,23 @@
     width: 6px;
 }
 
+select {
+    appearance: none;
+    background-color: transparent;
+    border: none;
+    padding: 0 1em 0 0;
+    margin: 0;
+    width: 100%;
+    font-family: inherit;
+    font-size: inherit;
+    cursor: inherit;
+    line-height: inherit;
+}
+
+select::-ms-expand {
+    display: none;
+}
+
 img {
     max-width: 100%;
     height: auto;
@@ -115,6 +132,12 @@ body.menu-active {
         font-size: 1.2rem;
     }
 
+    &.text-icon {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
     &.smallest {
         font-size: 1rem;
     }
@@ -136,10 +159,10 @@ body.menu-active {
     font-size: 1.6rem;
     border: none;
     text-decoration: none;
-    transition: filter .3s ease;
+    transition: all .3s ease;
 
     &:hover {
-        filter: brightness(80%);
+        filter: brightness(85%);
     }
 
     &.btn-icon i {
@@ -169,9 +192,13 @@ body.menu-active {
         width: 3.8rem;
     }
 
-    &.primary {
+    &.bg-primary {
         background-color: var(--details-color);
         color: var(--font-secondary);
+    }
+
+    &.primary {
+        color: var(--details-color);
     }
 
     &.secondary {
@@ -183,8 +210,12 @@ body.menu-active {
     }
 
     &.danger {
-        background-color: var(--danger-color);
+        color: var(--danger-color);
+    }
+    
+    &.bg-danger {
         color: var(--font-secondary);
+        background-color: var(--danger-color);
     }
 
     &.outline-danger {
@@ -245,9 +276,15 @@ form {
             --group-radius: 100px;
         }
 
-        &.input-error input {
-            outline-color: var(--danger-color);
-            border-color: var(--danger-color);
+        &.input-error {
+            button {
+                color: var(--danger-color);
+            }
+
+            input {
+                outline-color: var(--danger-color);
+                border-color: var(--danger-color);
+            }
         }
 
         &.input-group-lg {
@@ -279,6 +316,7 @@ form {
             top: 50%;
             transform: translateY(-50%);
             width: 3rem;
+            border: 1px solid transparent;
             aspect-ratio: 1;
 
             &:last-of-type {
@@ -286,20 +324,45 @@ form {
             }
 
             &:hover {
-                border: 1px solid var(--border-color);
+                filter: unset;
+                border-color: var(--border-color);
             }
         }
     }
 
     input,
-    select {
+    .select {
         background-color: var(--bg-primary);
         border: 1px solid var(--border-color);
         border-radius: var(--radius);
         font-size: 1.6rem;
-        padding: .8rem 1.6rem;
         width: 100%;
+    }
 
+    input,
+    select {
+        padding: 1rem 1.5rem;
+    }
+
+    .select {
+        display: grid;
+        grid-template-areas: "select";
+        align-items: center;
+
+        select {
+            grid-area: select;
+        }
+
+        &::after {
+            margin-right: 1.5rem;
+            grid-area: select;
+            content: "";
+            width: 0.8em;
+            justify-self: end;
+            height: 0.5em;
+            background-color: var(--font-primary);
+            clip-path: polygon(100% 0%, 0 0%, 50% 100%);
+        }
     }
 }
 
@@ -445,7 +508,7 @@ form {
                 }
 
                 &:hover {
-                    filter: none;
+                    filter: unset;
 
                     &:not(.router-link-exact-active) {
                         background-color: var(--bg-secondary);
@@ -457,8 +520,13 @@ form {
                     align-items: center;
                     gap: .5rem;
 
+                    .btn {
+                        border: 1px solid transparent;
+                    }
+
                     .btn:hover {
-                        border: 1px solid var(--border-color);
+                        filter: unset;
+                        border-color: var(--border-color);
                     }
                 }
             }
@@ -532,10 +600,18 @@ form {
 
                 &.priority-high {
                     background-color: var(--high-priority);
+
+                    &:not(.completed) .right-content>button {
+                        background-color: var(--medium-priority);
+                    }
                 }
 
                 &.priority-medium {
                     background-color: var(--medium-priority);
+
+                    &:not(.completed) .right-content>button {
+                        background-color: var(--small-priority);
+                    }
                 }
 
                 &.priority-small {
@@ -550,10 +626,6 @@ form {
                     box-shadow: 0 .25rem .5rem rgb(0 0 0 / .15);
                 }
 
-                .btn:hover {
-                    border: 1px solid var(--font-primary);
-                }
-
                 .right-content {
                     display: flex;
                     align-items: center;
@@ -566,6 +638,12 @@ form {
 
                         p.text {
                             font-size: 2rem;
+                        }
+
+                        p.task-information-small {
+                            display: flex;
+                            align-items: center;
+                            gap: 1rem;
                         }
                     }
                 }

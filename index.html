@@ -34,7 +34,7 @@
 
         <header class="header-wrapper">
             <div class="logo-container">
-                <button class="btn primary btn-mobile" v-if="isMobile && user" @click="toggleTopicsMenu"><i
+                <button class="btn bg-primary btn-mobile" v-if="isMobile && user" @click="toggleTopicsMenu"><i
                         class="fa-solid fa-bars"></i></button>
 
                 <router-link to="/" title="Acessar página incial" class="logo">
@@ -56,7 +56,7 @@
                         <img class="user-profile" :src="user.photoURL" alt="Foto de perfil do usuário" width="37"
                             height="37" :title="`Logado como: ${user.email}`">
                     </div>
-                    <button class="btn danger rounded" @click="logoutUser" title="Sair da minha conta">
+                    <button class="btn bg-danger rounded" @click="logoutUser" title="Sair da minha conta">
                         <i class="fa-solid fa-right-from-bracket"></i>
                     </button>
                 </div>
@@ -84,7 +84,7 @@
                     width="1200" height="800" loading="lazy">
                 <img src="./assets/img/login_sm.png" alt="Uma pessoa escrevendo em um caderno" class="small-screen"
                     width="640" height="640" loading="lazy">
-                <button class="btn block btn-icon primary" title="Entrar com o Google"><i
+                <button class="btn block btn-icon bg-primary" title="Entrar com o Google"><i
                         class="fa-brands fa-google"></i> Entrar com o Google</button>
             </form>
         </div>
@@ -169,11 +169,13 @@
                             <form onsubmit="return false">
                                 <div class="form-group">
                                     <label for="filter-task" class="text">Filtrar</label>
-                                    <select id="filter-task" @change="searchTaskByStatus" v-model="filterTask">
+                                    <div class="select">
+                                        <select id="filter-task" @change="searchTaskByStatus" v-model="filterTask">
                                         <option value="all">Todas</option>
-                                        <option value="completed">Concluídas</option>
-                                        <option value="not-completed">Não concluídas</option>
-                                    </select>
+                                            <option value="completed">Concluídas</option>
+                                            <option value="not-completed">Não concluídas</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </form>
                         </div>
@@ -185,22 +187,25 @@
                         <div :class="`task ${task.status ? 'completed' : ''} ${getPriorityClass(task.priority)}`"
                             v-for="task in selectedTopic.tasks">
                             <div class="right-content">
-                                <button :class="`btn bordered rounded ${task.status ? 'primary' : 'white'}`"
+                                <button :class="`btn bordered rounded ${task.status && 'bg-primary'}`"
                                     :title="`Marcar tarefa como ${task.status ? 'não concluída' : 'concluída'}`"
                                     @click="changeTaskStatus(task.id)">
                                     <i class="fa-solid fa-check"></i>
                                 </button>
                                 <div class="task-information">
                                     <p class="text">{{ task.name }}</p>
-                                    <span class="text small">{{ task.created_at }}</span>
+                                    <p class="task-information-small">
+                                        <span class="text text-icon small"><img src="./assets/img/clock.svg" alt="Imagem de um relógio" width="12" height="12"> {{ task.created_at }}</span>
+                                        <span class="text text-icon small"><img src="./assets/img/exclamation-circle.svg" alt="Imagem de alerta" width="12" height="12"> {{ getPriorityText(task.priority) }}</span>
+                                    </p>
                                 </div>
                             </div>
                             <div class="task-action">
-                                <button class="btn rounded" title="Editar tarefa"
+                                <button class="btn rounded primary" title="Editar tarefa"
                                     @click="openEditTask(task.id, task.name, task.priority)">
                                     <span class="fa-solid fa-pen"></span>
                                 </button>
-                                <button class="btn rounded" title="Excluir tarefa"
+                                <button class="btn rounded danger" title="Excluir tarefa"
                                     @click="deleteTask(selectedTopic.name, task.id)">
                                     <span class="fa-solid fa-trash"></span>
                                 </button>
@@ -243,7 +248,7 @@
                             <p class="text text-error" v-if="topicEditingError">{{ topicEditingError }}</p>
                         </div>
 
-                        <button type="submit" class="btn primary block" title="Concluir edição do tópico">Concluir edição</button>
+                        <button type="submit" class="btn bg-primary block" title="Concluir edição do tópico">Concluir edição</button>
                     </form>
                 </div>
             </div>
@@ -266,16 +271,18 @@
 
                         <div class="form-group">
                             <label class="text" for="edit-task-priority">Prioridade</label>
-                            <select id="edit-task-priority" v-model="taskNewPriority"
-                                :class="{ 'input-error' : taskNewPriorityError }">
-                                <option value="1">Baixa</option>
-                                <option value="2">Média</option>
-                                <option value="3">Alta</option>
-                            </select>
+                            <div class="select">
+                                <select id="edit-task-priority" v-model="taskNewPriority"
+                                    :class="{ 'input-error' : taskNewPriorityError }">
+                                    <option value="1">Baixa</option>
+                                    <option value="2">Média</option>
+                                    <option value="3">Alta</option>
+                                </select>
+                            </div>
                             <p class="text text-error" v-if="taskNewPriorityError">{{ taskNewPriorityError }}</p>
                         </div>
 
-                        <button type="submit" class="btn primary block" title="Concluir edição da tarefa">Concluir edição</button>
+                        <button type="submit" class="btn bg-primary block" title="Concluir edição da tarefa">Concluir edição</button>
                     </form>
                 </div>
             </div>
