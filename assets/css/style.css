@@ -10,23 +10,18 @@
 
 :root {
     --details-color-light: hsl(158, 50%, 90%);
-    --details-color-light-2: hsl(158, 50%, 80%);
+    --details-color-light-2: hsl(158, 50%, 95%);
     --details-color: hsl(158, 45%, 40%);
-
     --bg-primary: hsl(0, 0%, 100%);
     --bg-secondary: hsl(0, 0%, 96%);
-
     --font-primary: hsl(0, 0%, 10%);
     --font-secondary: hsl(0, 0%, 100%);
-
     --border-color: hsl(0, 0%, 80%);
     --danger-color: hsl(0, 93%, 61%);
     --danger-color-light: hsl(0, 60%, 95%);
-
     --high-priority: hsl(50, 50%, 88%);
     --medium-priority: hsl(50, 50%, 97%);
     --small-priority: var(--bg-primary);
-
     --aside-width: 25%;
     --padding: 1.5rem;
     --radius: 5px;
@@ -162,7 +157,7 @@ body.menu-active {
     transition: all .3s ease;
 
     &:hover {
-        filter: brightness(85%);
+        filter: brightness(90%);
     }
 
     &.btn-icon i {
@@ -192,12 +187,18 @@ body.menu-active {
         width: 3.8rem;
     }
 
+    &.primary {
+        color: var(--details-color);
+    }
+
     &.bg-primary {
         background-color: var(--details-color);
         color: var(--font-secondary);
     }
 
-    &.primary {
+    &.outline-primary {
+        border: 1px solid var(--details-color);
+        background-color: var(--details-color-light-2);
         color: var(--details-color);
     }
 
@@ -306,7 +307,6 @@ form {
         &.input-group-rounded {
             --group-radius: 100px;
         }
-
 
         &.input-group-lg {
             input {
@@ -470,7 +470,6 @@ form {
                     border: 1px solid var(--border-color);
                 }
             }
-
         }
     }
 }
@@ -491,6 +490,13 @@ form {
         background-color: var(--bg-primary);
         padding: var(--padding);
         overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+
+        .divider {
+            margin: 1rem 0;
+        }
 
         @media(width <=768px) {
             position: fixed;
@@ -509,9 +515,10 @@ form {
         }
 
         .topic-nav {
+            position: relative;
             display: flex;
             flex-direction: column;
-            margin-top: 1rem;
+            margin: 1rem 0;
             gap: 1rem;
 
             .btn-topic {
@@ -565,6 +572,11 @@ form {
 
         form {
             width: 100%;
+        }
+
+        .topic-container-bottom {
+            display: grid;
+            gap: 0.6rem;
         }
     }
 
@@ -677,11 +689,11 @@ form {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 2rem;
         text-align: center;
 
         @media(width <=768px) {
             flex-direction: column;
+            padding-top: var(--padding);
             gap: 1rem;
         }
     }
@@ -736,6 +748,23 @@ form {
                 gap: 1.2rem;
             }
         }
+    }
+}
+
+.calendar-empty-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 1rem;
+    height: 90vh;
+
+    img {
+        max-height: 75vh;
+    }
+
+    .btn {
+        text-align: center;
     }
 }
 
@@ -832,22 +861,4 @@ form {
 .toast .btn i,
 .modal .btn i {
     font-size: 1.8rem;
-}
-
-.loader {
-    position: absolute;
-    background-color: var(--bg-primary);
-    display: grid;
-    place-items: center;
-    inset: 0;
-    z-index: 999;
-
-    .loader-spinner {
-        border: 5px solid var(--bg-primary-light);
-        border-left-color: var(--details-color);
-        width: 6rem;
-        aspect-ratio: 1;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
 }

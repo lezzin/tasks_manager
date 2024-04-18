@@ -10,7 +10,8 @@ const General = {
     data() {
         return {
             user: this.$root.user,
-            allUserTasks: null,
+            allUserTasks: [],
+            loadedTasks: false,
         }
     },
     methods: {
@@ -42,36 +43,41 @@ const General = {
             };
         },
         getAllUserTasks() {
-            this.db.collection("tasks").doc(this.user.uid)
-                .onSnapshot(
-                    (doc) => {
-                        const userData = doc.data();
-                        const userTopicsExists = userData && userData.topics && Object.keys(userData.topics).length > 0;
+            const docRef = this.db.collection("tasks").doc(this.user.uid);
+            docRef
+                .get()
+                .then((doc) => {
+                    const userData = doc.data();
+                    const userTopicsExists = userData && userData.topics && Object.keys(userData.topics).length > 0;
 
-                        if (!userTopicsExists) return;
+                    if (!userTopicsExists) return
 
-                        const tasks = [];
+                    const tasks = [];
 
-                        Object.values(userData.topics).forEach(topic => {
-                            const topicId = topic.id;
+                    Object.values(userData.topics).forEach(topic => {
+                        const topicId = topic.id;
 
-                            if (topic.tasks && topic.tasks.length > 0) {
-                                topic.tasks.forEach(task => {
-                                    const taskObject = this.createTaskObject(topicId, task);
-                                    tasks.push(taskObject);
-                                });
-                            }
-                        });
-
-                        tasks.sort((a, b) => { return new Date(a.created_at) - new Date(b.created_at); });
-                        this.allUserTasks = tasks;
-                    },
-                    (error) => {
-                        this.$root.toast = {
-                            type: "error",
-                            text: "Erro ao obter documento: " + error
-                        };
+                        if (topic.tasks && topic.tasks.length > 0) {
+                            topic.tasks.forEach(task => {
+                                const taskObject = this.createTaskObject(topicId, task);
+                                tasks.push(taskObject);
+                            });
+                        }
                     });
+
+                    tasks.sort((a, b) => {
+                        return new Date(a.created_at) - new Date(b.created_at);
+                    });
+                    this.allUserTasks = tasks;
+                    this.loadedTasks = true;
+                })
+                .catch(error => {
+                    this.$root.toast = {
+                        type: "error",
+                        text: "Erro ao obter documento: " + error
+                    }
+                    this.loadedTasks = true;
+                });
         },
     },
     created() {

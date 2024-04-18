@@ -1,18 +1,8 @@
-function currentTime() {
-    return new Date().toLocaleDateString("pt-BR", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-    });
-}
-
-const TASK_PRIORITIES = {
-    high: 3,
-    medium: 2,
-    small: 1
-}
+import {
+    PAGE_TITLES,
+    TASK_PRIORITIES,
+    currentTime
+} from "../utils.js";
 
 const Home = {
     template: "#home-page",
@@ -20,10 +10,12 @@ const Home = {
     data() {
         return {
             user: this.$root.user,
-            topics: null,
-            selectedTopic: null,
             isMobile: this.$root.isMobile,
             isMenuTopicsActive: this.$root.isMenuTopicsActive,
+
+            topics: null,
+            selectedTopic: null,
+            loadedTopics: false,
 
             newTopic: '',
             formTopicError: '',
@@ -114,43 +106,46 @@ const Home = {
             }
 
             const docRef = this.db.collection("tasks").doc(this.user.uid);
-            docRef.get().then((doc) => {
-                const userData = doc.data();
+            docRef
+                .get()
+                .then((doc) => {
+                    const userData = doc.data();
 
-                if (userData && userData.topics && userData.topics[this.newTopic]) {
-                    this.formTopicError = "Esse tópico já existe";
-                    return;
-                }
+                    if (userData && userData.topics && userData.topics[this.newTopic]) {
+                        this.formTopicError = "Esse tópico já existe";
+                        return;
+                    }
 
-                const formattedNewTopicName = String(this.newTopic).replaceAll(".", "");
+                    const formattedNewTopicName = String(this.newTopic).replaceAll(".", "");
 
-                docRef.set({}, {
-                    merge: true
-                })
-                    .then(() => {
-                        return docRef.update({
-                            [`topics.${formattedNewTopicName}`]: {
-                                id: Date.now().toString(26),
-                                name: formattedNewTopicName,
-                                tasks: [],
-                                created_at: currentTime(),
+                    docRef
+                        .set({}, {
+                            merge: true
+                        })
+                        .then(() => {
+                            return docRef.update({
+                                [`topics.${formattedNewTopicName}`]: {
+                                    id: Date.now().toString(26),
+                                    name: formattedNewTopicName,
+                                    tasks: [],
+                                    created_at: currentTime(),
+                                }
+                            });
+                        })
+                        .then(() => {
+                            this.$root.toast = {
+                                type: "success",
+                                text: "Tópico criado com sucesso"
+                            };
+                            this.newTopic = '';
+                        })
+                        .catch((error) => {
+                            this.$root.toast = {
+                                type: "error",
+                                text: "Erro ao criar tópico: " + error,
                             }
                         });
-                    })
-                    .then(() => {
-                        this.$root.toast = {
-                            type: "success",
-                            text: "Tópico criado com sucesso"
-                        };
-                        this.newTopic = '';
-                    })
-                    .catch((error) => {
-                        this.$root.toast = {
-                            type: "error",
-                            text: "Erro ao criar tópico: " + error,
-                        }
-                    });
-            })
+                })
                 .catch((error) => {
                     this.$root.toast = {
                         type: "error",
@@ -180,54 +175,73 @@ const Home = {
                 return;
             }
 
-            const tasksRef = this.db.collection("tasks").doc(this.user.uid);
+            const docRef = this.db.collection("tasks").doc(this.user.uid);
             const formattedNewTopicName = String(this.topicNewName).replaceAll(".", "");
 
-            tasksRef.get().then((doc) => {
-                const userData = doc.data();
-                if (userData && userData.topics && userData.topics[this.topicOldName]) {
-                    const selectedTopicData = userData.topics[this.topicOldName];
-                    if (this.topicNewName == this.topicOldName) return;
+            docRef
+                .get()
+                .then((doc) => {
+                    const userData = doc.data();
+                    if (userData && userData.topics && userData.topics[this.topicOldName]) {
+                        const selectedTopicData = userData.topics[this.topicOldName];
+                        if (this.topicNewName == this.topicOldName) return;
 
-                    if (userData.topics[formattedNewTopicName]) {
-                        this.topicEditingError = "Esse tópico já existe";
-                        return Promise.reject("Esse tópico já existe");
+                        if (userData.topics[formattedNewTopicName]) {
+                            this.topicEditingError = "Esse tópico já existe";
+                            return Promise.reject("Esse tópico já existe");
+                        }
+
+                        const updatedTopics = {
+                            ...userData.topics
+                        };
+                        updatedTopics[formattedNewTopicName] = selectedTopicData;
+                        updatedTopics[formattedNewTopicName].name = formattedNewTopicName;
+                        delete updatedTopics[this.topicOldName];
+
+                        return docRef.update({
+                            topics: updatedTopics
+                        });
                     }
 
-                    const updatedTopics = { ...userData.topics };
-                    updatedTopics[formattedNewTopicName] = selectedTopicData;
-                    updatedTopics[formattedNewTopicName].name = formattedNewTopicName;
-                    delete updatedTopics[this.topicOldName];
-
-                    return tasksRef.update({ topics: updatedTopics });
-                }
-
-                return Promise.reject("Tópico não encontrado");
-            }).then(() => {
-                this.closeEditingTopic();
-                this.$root.toast = {
-                    type: "success",
-                    text: "Tópico atualizado com sucesso"
-                };
-            }).catch((error) => {
-                this.$root.toast = {
-                    type: "error",
-                    text: "Erro ao alterar tópico: " + error
-                };
-            });
+                    return Promise.reject("Tópico não encontrado");
+                })
+                .then(() => {
+                    this.closeEditingTopic();
+                    this.$root.toast = {
+                        type: "success",
+                        text: "Tópico atualizado com sucesso"
+                    };
+                })
+                .catch((error) => {
+                    this.$root.toast = {
+                        type: "error",
+                        text: "Erro ao alterar tópico: " + error
+                    };
+                });
         },
         deleteTopic(topicName) {
             if (!confirm("Tem certeza que deseja excluir esse tópico? Essa ação não poderá ser desfeita!")) return;
 
             const docRef = this.db.collection("tasks").doc(this.user.uid);
-            docRef.get().then((doc) => {
-                const userData = doc.data();
+            docRef
+                .get()
+                .then((doc) => {
+                    const userData = doc.data();
+                    const topicExists = userData && userData.topics && userData.topics[topicName];
 
-                if (userData && userData.topics && userData.topics[topicName]) {
+                    if (!topicExists) {
+                        this.$root.toast = {
+                            type: "error",
+                            text: "Tópico não encontrado"
+                        };
+                        return;
+                    }
+
                     delete userData.topics[topicName];
-                    docRef.update({
-                        topics: userData.topics
-                    })
+                    docRef
+                        .update({
+                            topics: userData.topics
+                        })
                         .then(() => {
                             this.$root.toast = {
                                 type: "success",
@@ -242,13 +256,7 @@ const Home = {
                                 text: "Erro ao excluir tópico: " + error,
                             }
                         });
-                } else {
-                    this.$root.toast = {
-                        type: "error",
-                        text: "Tópico não encontrado"
-                    };
-                }
-            })
+                })
                 .catch((error) => {
                     this.$root.toast = {
                         type: "error",
@@ -259,21 +267,25 @@ const Home = {
         deleteAllTopics() {
             if (!confirm("Tem certeza que deseja excluir TODOS os tópicos? Essa ação não poderá ser desfeita!")) return;
 
-            this.db.collection("tasks").get().then((querySnapshot) => {
-                querySnapshot.forEach((doc) => {
-                    doc.ref.delete();
+            const collectionRef = this.db.collection('tasks');
+            collectionRef
+                .get()
+                .then(querySnapshot => {
+                    querySnapshot.forEach((doc) => {
+                        doc.ref.delete();
+                        this.$root.toast = {
+                            type: "success",
+                            text: "Tópicos excluídos com sucesso"
+                        };
+                        this.selectedTopic = this.$root.selectedTopicName = null;
+                    });
+                })
+                .catch((error) => {
                     this.$root.toast = {
-                        type: "success",
-                        text: "Tópicos excluídos com sucesso"
-                    };
-                    this.selectedTopic = this.$root.selectedTopicName = null;
+                        type: "error",
+                        text: "Falha ao excluir tópicos:" + error
+                    }
                 });
-            }).catch((error) => {
-                this.$root.toast = {
-                    type: "error",
-                    text: "Falha ao excluir tópicos:" + error
-                }
-            });
         },
         toggleSpeechRecognition() {
             if (!this.isListening) {
@@ -318,50 +330,59 @@ const Home = {
                 return;
             }
 
-            const { name } = this.selectedTopic;
-
+            const {
+                name
+            } = this.selectedTopic;
             const docRef = this.db.collection('tasks').doc(this.user.uid);
-            docRef.get().then(doc => {
-                if (doc.exists) {
-                    const userData = doc.data();
-                    if (userData && userData.topics) {
-                        const topic = userData.topics[name];
+            docRef
+                .get()
+                .then(doc => {
+                    if (doc.exists) {
+                        const userData = doc.data();
 
-                        if (topic) {
-                            const taskData = {
-                                id: Date.now().toString(36),
-                                name: String(this.newTask).replaceAll(".", ""),
-                                status: false,
-                                priority: TASK_PRIORITIES.small,
-                                created_at: currentTime(),
-                            };
-                            const updatedTasks = [...topic.tasks, taskData];
-                            this.db.collection('tasks').doc(this.user.uid).update({
-                                [`topics.${name}.tasks`]: updatedTasks
-                            }).then(() => {
-                                this.$root.toast = {
-                                    type: "success",
-                                    text: "Tarefa adicionada com sucesso"
+                        if (userData && userData.topics) {
+                            const topic = userData.topics[name];
+
+                            if (topic) {
+                                const taskData = {
+                                    id: Date.now().toString(36),
+                                    name: String(this.newTask).replaceAll(".", ""),
+                                    status: false,
+                                    priority: TASK_PRIORITIES.small,
+                                    created_at: currentTime(),
                                 };
-                                this.newTask = '';
-                                this.sortTasksByPriority();
-                            }).catch(error => {
-                                console.error("Error updating tasks:", error);
-                                this.$root.toast = {
-                                    type: "error",
-                                    text: "Erro ao adicionar tarefa: " + error,
-                                };
-                            });
+                                const updatedTasks = [...topic.tasks, taskData];
+
+                                docRef
+                                    .update({
+                                        [`topics.${name}.tasks`]: updatedTasks
+                                    })
+                                    .then(() => {
+                                        this.$root.toast = {
+                                            type: "success",
+                                            text: "Tarefa adicionada com sucesso"
+                                        };
+                                        this.newTask = '';
+                                        this.sortTasksByPriority();
+                                    })
+                                    .catch(error => {
+                                        console.error("Error updating tasks:", error);
+                                        this.$root.toast = {
+                                            type: "error",
+                                            text: "Erro ao adicionar tarefa: " + error,
+                                        };
+                                    });
+                            }
                         }
                     }
-                }
-            }).catch(error => {
-                console.error("Error loading topic: ", error);
-                this.$root.toast = {
-                    type: "error",
-                    text: "Erro ao carregar tópico: " + error,
-                };
-            });
+                })
+                .catch(error => {
+                    console.error("Error loading topic: ", error);
+                    this.$root.toast = {
+                        type: "error",
+                        text: "Erro ao carregar tópico: " + error,
+                    };
+                });
         },
         openEditTask(id, description, priority) {
             this.taskEditingId = id;
@@ -384,86 +405,110 @@ const Home = {
 
             if (!this.taskNewDescription || !this.taskNewPriority) return;
 
-            this.db.collection("tasks").doc(this.user.uid).get().then((doc) => {
-                const selectedTopicData = doc.data().topics[this.selectedTopic.name];
+            const docRef = this.db.collection("tasks").doc(this.user.uid);
+            docRef
+                .get()
+                .then((doc) => {
+                    const selectedTopicData = doc.data().topics[this.selectedTopic.name];
 
-                if (selectedTopicData && selectedTopicData.tasks) {
-                    const updatedTasks = selectedTopicData.tasks.map((task) => {
-                        if (task.id == this.taskEditingId) {
-                            task.name = String(this.taskNewDescription).replaceAll(".", "");
-                            task.priority = this.taskNewPriority;
-                        }
+                    if (selectedTopicData && selectedTopicData.tasks) {
+                        const updatedTasks = selectedTopicData.tasks.map((task) => {
+                            if (task.id == this.taskEditingId) {
+                                task.name = String(this.taskNewDescription).replaceAll(".", "");
+                                task.priority = this.taskNewPriority;
+                            }
 
-                        return task;
-                    });
-                    this.db.collection("tasks").doc(this.user.uid).update({
-                        [`topics.${this.selectedTopic.name}.tasks`]: updatedTasks
-                    }).then(() => {
-                        this.$root.toast = {
-                            type: "success",
-                            text: "Tarefa alterada com sucesso"
-                        }
+                            return task;
+                        });
 
-                        this.closeEditingTask();
-                        this.searchTaskByName();
-                    }).catch((error) => {
-                        this.$root.toast = {
-                            type: "error",
-                            text: "Erro ao alterar tarefa: " + error,
-                        }
-                    });
-                }
-            }).catch((error) => {
-                this.$root.toast = {
-                    type: "error",
-                    text: "Erro ao obter tarefa: " + error,
-                }
-            });
+                        docRef
+                            .update({
+                                [`topics.${this.selectedTopic.name}.tasks`]: updatedTasks
+                            })
+                            .then(() => {
+                                this.$root.toast = {
+                                    type: "success",
+                                    text: "Tarefa alterada com sucesso"
+                                }
+
+                                this.closeEditingTask();
+                                this.searchTaskByName();
+                            })
+                            .catch((error) => {
+                                this.$root.toast = {
+                                    type: "error",
+                                    text: "Erro ao alterar tarefa: " + error,
+                                }
+                            });
+                    }
+                }).catch((error) => {
+                    this.$root.toast = {
+                        type: "error",
+                        text: "Erro ao obter tarefa: " + error,
+                    }
+                });
         },
         changeTaskStatus(taskId) {
-            this.db.collection("tasks").doc(this.user.uid).get().then((doc) => {
-                const selectedTopicData = doc.data().topics[this.selectedTopic.name];
+            const docRef = this.db.collection("tasks").doc(this.user.uid);
 
-                if (selectedTopicData && selectedTopicData.tasks) {
-                    const updatedTasks = selectedTopicData.tasks.map((task) => {
-                        if (task.id == taskId) {
-                            task.status = !task.status;
-                        }
+            docRef
+                .get()
+                .then((doc) => {
+                    const selectedTopicData = doc.data().topics[this.selectedTopic.name];
 
-                        return task;
-                    });
-                    this.db.collection("tasks").doc(this.user.uid).update({
-                        [`topics.${this.selectedTopic.name}.tasks`]: updatedTasks
-                    }).then(() => {
-                        this.$root.toast = {
-                            type: "success",
-                            text: "Status alterado com sucesso"
-                        }
-                        this.searchTaskByStatus();
-                    }).catch((error) => {
-                        this.$root.toast = {
-                            type: "error",
-                            text: "Erro ao alterar status da tarefa: " + error,
-                        }
-                    });
-                }
-            }).catch((error) => {
-                this.$root.toast = {
-                    type: "error",
-                    text: "Erro ao obter tarefa: " + error,
-                }
-            });
+                    if (selectedTopicData && selectedTopicData.tasks) {
+                        const updatedTasks = selectedTopicData.tasks.map((task) => {
+                            if (task.id == taskId) {
+                                task.status = !task.status;
+                            }
+                            return task;
+                        });
+                        this.db
+                            .collection("tasks")
+                            .doc(this.user.uid)
+                            .update({
+                                [`topics.${this.selectedTopic.name}.tasks`]: updatedTasks
+                            })
+                            .then(() => {
+                                this.$root.toast = {
+                                    type: "success",
+                                    text: "Status alterado com sucesso"
+                                }
+                                this.searchTaskByStatus();
+                            }).catch((error) => {
+                                this.$root.toast = {
+                                    type: "error",
+                                    text: "Erro ao alterar status da tarefa: " + error,
+                                }
+                            });
+                    }
+                })
+                .catch((error) => {
+                    this.$root.toast = {
+                        type: "error",
+                        text: "Erro ao obter tarefa: " + error,
+                    }
+                });
         },
         deleteTask(topicName, taskId) {
             if (!confirm("Tem certeza que deseja excluir essa tarefa? Essa ação não poderá ser desfeita!")) return;
 
             const docRef = this.db.collection("tasks").doc(this.user.uid);
-            docRef.get().then((doc) => {
-                const userData = doc.data();
+            docRef.get()
+                .then((doc) => {
+                    const userData = doc.data();
+                    const topicExists = userData && userData.topics && userData.topics[topicName];
 
-                if (userData && userData.topics && userData.topics[topicName]) {
-                    const updatedTasks = userData.topics[topicName].tasks.filter(task => task.id !== taskId);
-                    userData.topics[topicName].tasks = updatedTasks;
+                    if (!topicExists) {
+                        this.$root.toast = {
+                            type: "error",
+                            text: "Tópico não encontrado"
+                        };
+                        return;
+                    }
+
+                    const selectedTopic = userData.topics[topicName];
+                    const updatedTasks = selectedTopic.tasks.filter(task => task.id !== taskId);
 
                     docRef.update({
                         [`topics.${topicName}.tasks`]: updatedTasks
@@ -478,33 +523,21 @@ const Home = {
                         .catch((error) => {
                             this.$root.toast = {
                                 type: "error",
-                                text: "Erro ao excluir tarefa: " + error,
+                                text: "Erro ao excluir tarefa: " + error
                             }
                         });
-                } else {
-                    this.$root.toast = {
-                        type: "error",
-                        text: "Tópico não encontrado"
-                    };
-                }
-            })
+                })
                 .catch((error) => {
                     this.$root.toast = {
                         type: "error",
-                        text: "Erro ao obter dados do usuário: " + error,
+                        text: "Erro ao obter dados do usuário: " + error
                     }
                 });
         },
         searchTaskByName() {
             this.filterTask = "all";
             const searchTerm = this.searchTask.trim().toLowerCase();
-
-            if (searchTerm) {
-                this.selectedTopic.tasks = this.defaultTasks.filter(task => task.name.toLowerCase().includes(searchTerm));
-            } else {
-                this.selectedTopic.tasks = this.defaultTasks;
-            }
-
+            this.selectedTopic.tasks = this.defaultTasks.filter(task => task.name.toLowerCase().includes(searchTerm));
             this.sortTasksByPriority();
         },
         searchTaskByStatus() {
@@ -514,69 +547,73 @@ const Home = {
             if (selectedFilter == "all") {
                 this.selectedTopic.tasks = this.defaultTasks;
             } else {
-                const statusFilter = selectedFilter == "completed";
-                this.selectedTopic.tasks = this.defaultTasks.filter(task => task.status == statusFilter);
+                const taskIsCompleted = selectedFilter == "completed";
+                this.selectedTopic.tasks = this.defaultTasks.filter(task => task.status == taskIsCompleted);
             }
 
             this.sortTasksByPriority();
         },
         loadUserTopics() {
-            this.db.collection("tasks").doc(this.user.uid)
-                .onSnapshot(
-                    (doc) => {
-                        const userData = doc.data();
+            if (!this.user) {
+                this.$router.push("/login");
+                return;
+            }
 
-                        if (userData && userData.topics && Object.keys(userData.topics).length > 0) {
-                            const topics = [];
+            const docRef = this.db.collection("tasks").doc(this.user.uid);
+            docRef.onSnapshot(
+                (doc) => {
+                    const userData = doc.data();
+                    const topicsExists = userData && userData.topics && Object.keys(userData.topics).length > 0;
 
-                            Object.keys(userData.topics).forEach(topicName => {
-                                const topic = userData.topics[topicName];
-                                const topicObject = {
-                                    id: topic.id,
-                                    name: topic.name,
-                                    tasks: topic.tasks,
-                                    tasks_length: topic.tasks?.length ?? 0,
-                                    created_at: topic.created_at
-                                }
+                    if (!topicsExists) {
+                        this.topics = null;
+                        return;
+                    }
 
-                                topics.push(topicObject);
-                            });
-
-                            this.topics = topics.sort((a, b) => {
-                                return new Date(b.created_at) - new Date(a.created_at);
-                            });
-
-                            if (this.$route.params.id) {
-                                this.loadTopic(this.$route.params.id);
-                            }
-                        } else {
-                            this.topics = null;
+                    const topics = [];
+                    Object.keys(userData.topics).forEach(topicName => {
+                        const topic = userData.topics[topicName];
+                        const topicObject = {
+                            id: topic.id,
+                            name: topic.name,
+                            tasks: topic.tasks,
+                            tasks_length: topic.tasks?.length ?? 0,
+                            created_at: topic.created_at
                         }
-                    },
-                    (error) => {
-                        this.$root.toast = {
-                            type: "error",
-                            text: "Erro ao obter documento: " + error
-                        };
+
+                        topics.push(topicObject);
+                    });
+                    this.topics = topics.sort((a, b) => {
+                        return new Date(b.created_at) - new Date(a.created_at);
                     });
 
-            addEventListener('keydown', ({ key }) => {
+                    if (this.$route.params.id) {
+                        this.loadTopic(this.$route.params.id);
+                    }
+                },
+                (error) => {
+                    this.$root.toast = {
+                        type: "error",
+                        text: "Erro ao obter documento: " + error
+                    };
+                });
+
+            addEventListener('keydown', ({
+                key
+            }) => {
                 if (key == 'Escape') {
                     this.closeEditingTopic();
                     this.closeEditingTask();
                 }
             });
+
+            this.loadedTopics = true;
         }
     },
     created() {
-        document.title = "TaskFlow | Suas tarefas";
+        document.title = PAGE_TITLES.home;
         this.$root.showBtn = true;
-
-        if (this.user) {
-            this.loadUserTopics();
-        } else {
-            this.$router.push("/login");
-        }
+        this.loadUserTopics();
     },
     watch: {
         "newTopic": function () {

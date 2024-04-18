@@ -1,3 +1,7 @@
+import {
+    PAGE_TITLES
+} from "../utils.js";
+
 const Login = {
     template: "#login-page",
     props: ["provider", "auth"],
@@ -5,10 +9,12 @@ const Login = {
         loginGoogle() {
             this.auth
                 .signInWithPopup(this.provider)
-                .then((result) => {
-                    const user = result.user;
+                .then(({
+                    user
+                }) => {
                     this.$root.user = user;
-                }).catch((error) => {
+                })
+                .catch(error => {
                     this.$root.toast = {
                         type: "error",
                         text: error.message
@@ -17,11 +23,11 @@ const Login = {
         },
     },
     created() {
-        document.title = "TaskFlow | Acessar sua conta";
+        document.title = PAGE_TITLES.login;
         this.$root.showBtn = false;
-   },
+    },
     watch: {
-        "$root.user": function (user) {
+        "$root.user": function(user) {
             if (user) this.$router.push("/");
         }
     }

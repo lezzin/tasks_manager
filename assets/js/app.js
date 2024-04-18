@@ -57,7 +57,6 @@ const app = new Vue({
             selectedTopicName: null,
             isMobile: innerWidth <= 768,
             isMenuTopicsActive: false,
-            loading: true,
             showBtn: false,
         }
     },
@@ -84,8 +83,6 @@ const app = new Vue({
 
             this.user = user;
         });
-
-        this.loading = false;
 
         addEventListener('keydown', (event) => {
             if (event.key === 'Escape') {
