@@ -1,40 +1,45 @@
-import {
-    db,
-    auth,
-    provider
-} from "./firebase.js";
+import { db, auth, provider } from "./firebase.js";
 import Login from "./components/Login.js";
 import Home from "./components/Home.js";
+import General from "./components/General.js";
 import NotFound from "./components/NotFound.js";
 
-const routes = [{
-    path: "/login",
-    component: Login,
-    props: {
-        provider: provider,
-        auth: auth,
-    }
-},
-{
-    path: "/",
-    component: Home,
-    props: {
-        db: db,
-        auth: auth,
-    }
-},
-{
-    path: "/topic/:id",
-    component: Home,
-    props: {
-        db: db,
-        auth: auth,
-    }
-},
-{
-    path: "*",
-    component: NotFound
-},
+const routes = [
+    {
+        path: "/login",
+        component: Login,
+        props: {
+            provider: provider,
+            auth: auth,
+        }
+    },
+    {
+        path: "/",
+        component: Home,
+        props: {
+            db: db,
+            auth: auth,
+        }
+    },
+    {
+        path: "/topic/:id",
+        component: Home,
+        props: {
+            db: db,
+            auth: auth,
+        }
+    },
+    {
+        path: "/general",
+        component: General,
+        props: {
+            db: db,
+        }
+    },
+    {
+        path: "*",
+        component: NotFound
+    },
 ];
 
 // Vue Router instance

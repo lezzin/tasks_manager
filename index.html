@@ -100,6 +100,8 @@
                         </div>
                         <p class="text text-error" v-if="formTopicError">{{ formTopicError }}</p>
                     </div>
+
+                    <router-link v-if="topics" to="/general" class="btn bg-primary btn-icon block" title="Visualização geral"><i class="fa-solid fa-eye"></i> Visão geral</router-link>
                 </form>
 
                 <span class="divider"></span>
@@ -296,6 +298,33 @@
                 class="small-screen" width="640" height="640" loading="lazy">
 
             <router-link to="/" class="text center" title="Voltar para o início">Voltar para o início</router-link>
+        </div>
+    </template>
+
+    <template id="general-page">
+        <div class="calendar-wrapper">
+            <div class="calendar-header">
+                <h2 class="subtitle">Visualize as suas tarefas de uma maneira geral</h2>
+                <router-link to="/" class="btn primary btn-icon" title="Voltar para o início"><i class="fa-solid fa-arrow-left"></i> Voltar para o início</router-link>
+            </div>
+
+            <div class="calendar">
+                <div v-for="topic in topics">
+                    <router-link class="calendar-item" role="button" :to="'/topic/' + topic.id" title="Acessar tópico">
+                        <h3 class="subtitle">{{ topic.name }}</h3>
+                    
+                        <div class="tasks-content">
+                            <div v-for="task in topic.tasks" :class="`task ${task.status ? 'completed' : ''} ${getPriorityClass(task.priority)}`">
+                                <p class="text">{{ task.name }}</p>
+                                <div class="task-bottom">
+                                    <p class="text text-icon small"><img src="./assets/img/clock.svg" alt="Imagem de um relógio" width="12" height="12"> {{ task.created_at }}</p>
+                                    <p class="text text-icon small"><img src="./assets/img/exclamation-circle.svg" alt="Imagem de alerta" width="12" height="12"> {{ getPriorityText(task.priority) }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </router-link>
+                </div>
+            </div>
         </div>
     </template>
 
