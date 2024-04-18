@@ -34,7 +34,7 @@
 
         <header class="header-wrapper">
             <div class="logo-container">
-                <button class="btn bg-primary btn-mobile" v-if="isMobile && user" @click="toggleTopicsMenu"><i
+                <button class="btn bg-primary btn-mobile" v-if="isMobile && user && showBtn" @click="toggleTopicsMenu"><i
                         class="fa-solid fa-bars"></i></button>
 
                 <router-link to="/" title="Acessar página incial" class="logo">
@@ -243,7 +243,7 @@
                     </div>
 
                     <form @submit.prevent="editTopic">
-                        <div class="form-group">
+                        <div :class="['form-group', topicEditingError ? 'input-error' : '']">
                             <label class="text" for="edit-topic-description">Descrição</label>
                             <input type="text" id="edit-topic-description" v-model="topicNewName"
                                 :class="{ 'input-error' : topicEditingError }">
@@ -264,7 +264,7 @@
                     </div>
 
                     <form @submit.prevent="editTask">
-                        <div class="form-group">
+                        <div :class="['form-group', taskNewDescriptionError ? 'input-error' : '']">
                             <label class="text" for="edit-task-description">Descrição</label>
                             <input type="text" id="edit-task-description" v-model="taskNewDescription"
                                 :class="{ 'input-error' : taskNewDescriptionError }">
@@ -290,44 +290,60 @@
             </div>
         </div>
     </template>
+    <template id="general-page">
+        <div class="calendar-wrapper">
+            <div class="calendar-header">
+                <h2 class="subtitle" v-if="allUserTasks?.length > 0">Visualize as suas tarefas de uma maneira geral</h2>
+                <router-link to="/" class="btn primary btn-icon" title="Voltar para o início"><i class="fa-solid fa-arrow-left"></i> Voltar para o início</router-link>
+            </div>
+
+            <div class="legend" v-if="allUserTasks?.length > 0">
+                <div class="legend-item completed">
+                    <p class="text small">Completo</p>
+                </div>
+
+                <div class="legend-item priority-high">
+                    <p class="text small">Prioridade alta</p>
+                </div>
+
+                <div class="legend-item priority-medium">
+                    <p class="text small">Prioridade média</p>
+                </div>
+
+                <div class="legend-item priority-small">
+                    <p class="text small">Prioridade baixa</p>
+                </div>
+            </div>
+
+            <span class="divider"></span>
+
+            <div class="calendar" v-if="allUserTasks?.length > 0">
+                <router-link :class="`calendar-item task ${task.status ? 'completed' : ''} ${getPriorityClass(task.priority)}`" v-for="task in allUserTasks" role="button" :to="'/topic/' + task.topicId" title="Acessar tópico">
+                    <p class="text">{{ task.name }}</p>
+                    <div class="task-bottom">
+                        <p class="text text-icon small"><img src="./assets/img/clock.svg" alt="Imagem de um relógio" width="12" height="12"> {{ task.created_at }}</p>
+                        <p class="text text-icon small"><img src="./assets/img/exclamation-circle.svg" alt="Imagem de alerta" width="12" height="12"> {{ getPriorityText(task.priority) }}</p>
+                    </div>
+                </router-link>
+            </div>
+            <div v-else>
+                <img src="./assets/img/task_empty_lg.png"
+                    alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="large-screen" width="1200"
+                    height="640" loading="lazy">
+                <img src="./assets/img/task_empty_sm.png"
+                    alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="small-screen" width="640"
+                    height="640" loading="lazy">
+            </div>
+        </div>
+    </template>
     <template id="page-not-found">
         <div class="not-found-wrapper">
             <img src="./assets/img/not_found_lg.png" alt="Homem segurando uma lupa e frase de página não encontrada"
                 class="large-screen" width="1200" height="640" loading="lazy">
             <img src="./assets/img/not_found_sm.png" alt="Homem segurando uma lupa e frase de página não encontrada"
                 class="small-screen" width="640" height="640" loading="lazy">
-
-            <router-link to="/" class="text center" title="Voltar para o início">Voltar para o início</router-link>
         </div>
     </template>
-
-    <template id="general-page">
-        <div class="calendar-wrapper">
-            <div class="calendar-header">
-                <h2 class="subtitle">Visualize as suas tarefas de uma maneira geral</h2>
-                <router-link to="/" class="btn primary btn-icon" title="Voltar para o início"><i class="fa-solid fa-arrow-left"></i> Voltar para o início</router-link>
-            </div>
-
-            <div class="calendar">
-                <div v-for="topic in topics">
-                    <router-link class="calendar-item" role="button" :to="'/topic/' + topic.id" title="Acessar tópico">
-                        <h3 class="subtitle">{{ topic.name }}</h3>
-                    
-                        <div class="tasks-content">
-                            <div v-for="task in topic.tasks" :class="`task ${task.status ? 'completed' : ''} ${getPriorityClass(task.priority)}`">
-                                <p class="text">{{ task.name }}</p>
-                                <div class="task-bottom">
-                                    <p class="text text-icon small"><img src="./assets/img/clock.svg" alt="Imagem de um relógio" width="12" height="12"> {{ task.created_at }}</p>
-                                    <p class="text text-icon small"><img src="./assets/img/exclamation-circle.svg" alt="Imagem de alerta" width="12" height="12"> {{ getPriorityText(task.priority) }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </router-link>
-                </div>
-            </div>
-        </div>
-    </template>
-
     <script src="./assets/js/font-awesome.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue-router@3"></script>

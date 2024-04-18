@@ -246,6 +246,26 @@ body.menu-active {
     height: 1px;
 }
 
+.priority-high {
+    background-color: var(--high-priority) !important;
+}
+
+.priority-medium {
+    background-color: var(--medium-priority) !important;
+}
+
+.priority-small {
+    background-color: var(--small-priority) !important;
+}
+
+.completed {
+    background-color: var(--details-color-light) !important;
+}
+
+.task:hover {
+    box-shadow: 0 .25rem .5rem rgb(0 0 0 / .15);
+}
+
 form {
     display: flex;
     flex-direction: column;
@@ -256,6 +276,17 @@ form {
 
     .title {
         margin-bottom: 1rem;
+    }
+
+    .input-error {
+        button {
+            color: var(--danger-color);
+        }
+
+        input {
+            outline-color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
     }
 
     .form-group {
@@ -276,16 +307,6 @@ form {
             --group-radius: 100px;
         }
 
-        &.input-error {
-            button {
-                color: var(--danger-color);
-            }
-
-            input {
-                outline-color: var(--danger-color);
-                border-color: var(--danger-color);
-            }
-        }
 
         &.input-group-lg {
             input {
@@ -604,32 +625,12 @@ form {
                 background-color: var(--bg-primary);
                 transition: box-shadow .3s ease;
 
-                &.priority-high {
-                    background-color: var(--high-priority);
-
-                    &:not(.completed) .right-content>button {
-                        background-color: var(--medium-priority);
-                    }
-                }
-
-                &.priority-medium {
+                &.priority-high:not(.completed) .right-content>button {
                     background-color: var(--medium-priority);
-
-                    &:not(.completed) .right-content>button {
-                        background-color: var(--small-priority);
-                    }
                 }
 
-                &.priority-small {
+                &.priority-medium :not(.completed) .right-content>button {
                     background-color: var(--small-priority);
-                }
-
-                &.completed {
-                    background-color: var(--details-color-light);
-                }
-
-                &:hover {
-                    box-shadow: 0 .25rem .5rem rgb(0 0 0 / .15);
                 }
 
                 .right-content {
@@ -650,6 +651,12 @@ form {
                             display: flex;
                             align-items: center;
                             gap: 1rem;
+
+                            @media(width <=768px) {
+                                align-items: flex-start;
+                                flex-direction: column;
+                                gap: 0.3rem;
+                            }
                         }
                     }
                 }
@@ -665,17 +672,31 @@ form {
 
 .calendar-wrapper {
     padding: var(--padding);
-    overflow-x: auto;
 
     .calendar-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 2rem;
+        text-align: center;
 
         @media(width <=768px) {
             flex-direction: column;
             gap: 1rem;
+        }
+    }
+
+    .legend {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        margin-bottom: 2rem;
+        gap: 1rem;
+
+        .legend-item {
+            text-align: center;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: calc(var(--padding) / 2);
         }
     }
 
@@ -685,51 +706,34 @@ form {
         gap: 1rem;
 
         .calendar-item {
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            gap: 0.3rem;
             background-color: var(--bg-primary);
             padding: var(--padding);
             border: 1px solid var(--border-color);
             border-radius: var(--radius);
-            text-decoration: none;
             height: 100%;
+            text-decoration: none;
 
-            .subtitle {
-                margin-bottom: 1.2rem;
+            &.priority-high {
+                background-color: var(--high-priority);
             }
 
-            .tasks-content {
-                display: grid;
-                gap: 1rem;
+            &.priority-medium {
+                background-color: var(--medium-priority);
+            }
 
-                .task {
-                    display: grid;
-                    gap: 0.3rem;
-                    padding: calc(var(--padding) / 2);
-                    border: 1px solid var(--border-color);
-                    border-radius: var(--radius);
+            &.priority-small {
+                background-color: var(--small-priority);
+            }
 
-                    &.priority-high {
-                        background-color: var(--high-priority);
-                    }
+            &.completed {
+                background-color: var(--details-color-light);
+            }
 
-                    &.priority-medium {
-                        background-color: var(--medium-priority);
-                    }
-
-                    &.priority-small {
-                        background-color: var(--small-priority);
-                    }
-
-                    &.completed {
-                        background-color: var(--details-color-light);
-                    }
-
-                    .task-bottom {
-                        display: flex;
-                        gap: 1.2rem;
-                    }
-                }
+            .task-bottom {
+                display: flex;
+                gap: 1.2rem;
             }
         }
     }
@@ -756,12 +760,8 @@ form {
 .not-found-wrapper {
     display: grid;
     place-items: center;
-    padding: 2rem;
+    padding: var(--padding);
     min-height: 90vh;
-
-    .text {
-        margin-top: 1rem;
-    }
 }
 
 .toast {

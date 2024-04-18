@@ -10,9 +10,7 @@ const General = {
     data() {
         return {
             user: this.$root.user,
-            topics: null,
-            isMobile: this.$root.isMobile,
-            isMenuTopicsActive: this.$root.isMenuTopicsActive,
+            allUserTasks: null,
         }
     },
     methods: {
@@ -34,48 +32,59 @@ const General = {
 
             return classes[priority] ?? '';
         },
-        loadUserTopics() {
+        createTaskObject(topicId, task) {
+            return {
+                topicId: topicId,
+                name: task.name,
+                status: task.status,
+                priority: task.priority,
+                created_at: task.created_at
+            };
+        },
+        getAllUserTasks() {
             this.db.collection("tasks").doc(this.user.uid)
-                .onSnapshot((doc) => {
-                    const userData = doc.data();
+                .onSnapshot(
+                    (doc) => {
+                        const userData = doc.data();
+                        const userTopicsExists = userData && userData.topics && Object.keys(userData.topics).length > 0;
 
-                    if (userData && userData.topics && Object.keys(userData.topics).length > 0) {
-                        this.topics = userData.topics;
-                    } else {
-                        this.topics = null;
-                    }
-                }, (error) => {
-                    this.$root.toast = {
-                        type: "error",
-                        text: "Erro ao obter documento: " + error
-                    };
-                });
-        }
+                        if (!userTopicsExists) return;
+
+                        const tasks = [];
+
+                        Object.values(userData.topics).forEach(topic => {
+                            const topicId = topic.id;
+
+                            if (topic.tasks && topic.tasks.length > 0) {
+                                topic.tasks.forEach(task => {
+                                    const taskObject = this.createTaskObject(topicId, task);
+                                    tasks.push(taskObject);
+                                });
+                            }
+                        });
+
+                        tasks.sort((a, b) => { return new Date(a.created_at) - new Date(b.created_at); });
+                        this.allUserTasks = tasks;
+                    },
+                    (error) => {
+                        this.$root.toast = {
+                            type: "error",
+                            text: "Erro ao obter documento: " + error
+                        };
+                    });
+        },
     },
     created() {
         document.title = "TaskFlow | Calendário";
         this.$root.selectedTopicName = null;
+        this.$root.showBtn = false;
 
         if (this.user) {
-            this.loadUserTopics();
+            this.getAllUserTasks();
+        } else {
+            this.$router.push("/login");
         }
     },
-    watch: {
-        "$root.isMenuTopicsActive": function (data) {
-            this.isMenuTopicsActive = data;
-        },
-        "$root.isMobile": function (data) {
-            this.isMobile = data;
-        },
-        "$root.user": function (user) {
-            if (user) {
-                this.user = user;
-                this.loadUserTopics();
-            } else {
-                this.$router.push("/login");
-            }
-        }
-    }
 }
 
 export default General;

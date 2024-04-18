@@ -3,6 +3,7 @@ const NotFound = {
     created() {
         document.title = "TaskFlow | Página não encontrada";
         this.$root.selectedTopicName = null;
+        this.$root.showBtn = false;
     }
 }
 

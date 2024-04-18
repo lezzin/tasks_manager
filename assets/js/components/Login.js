@@ -18,6 +18,7 @@ const Login = {
     },
     created() {
         document.title = "TaskFlow | Acessar sua conta";
+        this.$root.showBtn = false;
    },
     watch: {
         "$root.user": function (user) {

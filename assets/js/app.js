@@ -58,6 +58,7 @@ const app = new Vue({
             isMobile: innerWidth <= 768,
             isMenuTopicsActive: false,
             loading: true,
+            showBtn: false,
         }
     },
     methods: {

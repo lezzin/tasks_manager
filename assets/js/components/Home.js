@@ -88,8 +88,7 @@ const Home = {
                 return;
             }
 
-            const topicsArray = Object.values(this.topics);
-            const topic = topicsArray.find(topic => topic.id == id);
+            const topic = this.topics.find(topic => topic.id == id);
 
             if (!topic) {
                 if (this.$router.history.current.fullPath != "/") this.$router.push("/");
@@ -97,8 +96,7 @@ const Home = {
             }
 
             this.selectedTopic = topic;
-            this.selectedTopic.tasks = this.defaultTasks = topic.tasks;
-            this.selectedTopic.tasks_length = this.selectedTopic?.tasks.length;
+            this.defaultTasks = topic.tasks;
             this.$root.selectedTopicName = topic.name;
             this.sortTasksByPriority();
         },
@@ -134,7 +132,8 @@ const Home = {
                             [`topics.${formattedNewTopicName}`]: {
                                 id: Date.now().toString(26),
                                 name: formattedNewTopicName,
-                                tasks: []
+                                tasks: [],
+                                created_at: currentTime(),
                             }
                         });
                     })
@@ -188,31 +187,22 @@ const Home = {
                 const userData = doc.data();
                 if (userData && userData.topics && userData.topics[this.topicOldName]) {
                     const selectedTopicData = userData.topics[this.topicOldName];
-                    if (this.topicNewName == this.topicOldName) {
-                        selectedTopicData.name = this.topicNewName;
-                        return tasksRef.update({
-                            [`topics.${this.topicOldName}.name`]: formattedNewTopicName
-                        });
-                    } else {
-                        if (userData.topics[formattedNewTopicName]) {
-                            this.topicEditingError = "Esse tópico já existe";
-                            return Promise.reject("Tópico já existe");
-                        } else {
-                            const updatedTopics = {
-                                ...userData.topics
-                            };
-                            updatedTopics[formattedNewTopicName] = selectedTopicData;
-                            updatedTopics[formattedNewTopicName].name = formattedNewTopicName;
-                            delete updatedTopics[this.topicOldName];
-                            return tasksRef.update({
-                                topics: updatedTopics
-                            });
-                        }
+                    if (this.topicNewName == this.topicOldName) return;
+
+                    if (userData.topics[formattedNewTopicName]) {
+                        this.topicEditingError = "Esse tópico já existe";
+                        return Promise.reject("Esse tópico já existe");
                     }
-                } else {
-                    this.topicEditingError = "Tópico não encontrado";
-                    return Promise.reject("Tópico não encontrado");
+
+                    const updatedTopics = { ...userData.topics };
+                    updatedTopics[formattedNewTopicName] = selectedTopicData;
+                    updatedTopics[formattedNewTopicName].name = formattedNewTopicName;
+                    delete updatedTopics[this.topicOldName];
+
+                    return tasksRef.update({ topics: updatedTopics });
                 }
+
+                return Promise.reject("Tópico não encontrado");
             }).then(() => {
                 this.closeEditingTopic();
                 this.$root.toast = {
@@ -532,27 +522,43 @@ const Home = {
         },
         loadUserTopics() {
             this.db.collection("tasks").doc(this.user.uid)
-                .onSnapshot((doc) => {
-                    const userData = doc.data();
+                .onSnapshot(
+                    (doc) => {
+                        const userData = doc.data();
 
-                    if (userData && userData.topics && Object.keys(userData.topics).length > 0) {
-                        Object.keys(userData.topics).forEach(topicName => {
-                            const topic = userData.topics[topicName];
-                            topic.tasks_length = topic.tasks?.length ?? 0;
-                        });
-                        this.topics = userData.topics;
-                        if (this.$route.params.id) {
-                            this.loadTopic(this.$route.params.id);
+                        if (userData && userData.topics && Object.keys(userData.topics).length > 0) {
+                            const topics = [];
+
+                            Object.keys(userData.topics).forEach(topicName => {
+                                const topic = userData.topics[topicName];
+                                const topicObject = {
+                                    id: topic.id,
+                                    name: topic.name,
+                                    tasks: topic.tasks,
+                                    tasks_length: topic.tasks?.length ?? 0,
+                                    created_at: topic.created_at
+                                }
+
+                                topics.push(topicObject);
+                            });
+
+                            this.topics = topics.sort((a, b) => {
+                                return new Date(b.created_at) - new Date(a.created_at);
+                            });
+
+                            if (this.$route.params.id) {
+                                this.loadTopic(this.$route.params.id);
+                            }
+                        } else {
+                            this.topics = null;
                         }
-                    } else {
-                        this.topics = null;
-                    }
-                }, (error) => {
-                    this.$root.toast = {
-                        type: "error",
-                        text: "Erro ao obter documento: " + error
-                    };
-                });
+                    },
+                    (error) => {
+                        this.$root.toast = {
+                            type: "error",
+                            text: "Erro ao obter documento: " + error
+                        };
+                    });
 
             addEventListener('keydown', ({ key }) => {
                 if (key == 'Escape') {
@@ -564,9 +570,12 @@ const Home = {
     },
     created() {
         document.title = "TaskFlow | Suas tarefas";
+        this.$root.showBtn = true;
 
         if (this.user) {
             this.loadUserTopics();
+        } else {
+            this.$router.push("/login");
         }
     },
     watch: {
@@ -578,6 +587,9 @@ const Home = {
         },
         "topicNewName": function () {
             this.topicEditingError = '';
+        },
+        "taskNewDescription": function () {
+            this.taskNewDescriptionError = '';
         },
         "$route.params.id": function (id) {
             if (id) {
@@ -595,14 +607,6 @@ const Home = {
         "$root.isMobile": function (data) {
             this.isMobile = data;
         },
-        "$root.user": function (user) {
-            if (user) {
-                this.user = user;
-                this.loadUserTopics();
-            } else {
-                this.$router.push("/login");
-            }
-        }
     }
 }
 
