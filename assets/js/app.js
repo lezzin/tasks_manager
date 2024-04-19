@@ -42,25 +42,31 @@ const routes = [
     },
 ];
 
-// Vue Router instance
 const router = new VueRouter({
     routes
 });
 
-const app = new Vue({
+function appInitialState() {
+    return {
+        user: null,
+        toast: null,
+        toastTimer: null,
+        selectedTopicName: null,
+        isMenuTopicsActive: false,
+        isUserDropdownActive: false,
+        showBtn: false,
+    }
+}
+
+new Vue({
     router,
     data() {
-        return {
-            user: null,
-            toast: null,
-            toastTimer: null,
-            selectedTopicName: null,
-            isMobile: innerWidth <= 768,
-            isMenuTopicsActive: false,
-            showBtn: false,
-        }
+        return appInitialState()
     },
     methods: {
+        toggleUserDropdown() {
+            this.isUserDropdownActive = !this.isUserDropdownActive;
+        },
         toggleTopicsMenu() {
             this.isMenuTopicsActive = !this.isMenuTopicsActive;
             document.body.classList.toggle("menu-active", this.isMenuTopicsActive);
@@ -72,6 +78,28 @@ const app = new Vue({
             auth.signOut();
             this.$router.push("/login");
             this.user = this.selectedTopicName = null;
+            Object.assign(this.$data, appInitialState());
+        },
+        removeUser() {
+            if (!this.user || !confirm("Deseja realmente excluir esse usuário?")) return;
+
+            const docRef = db.collection("tasks").doc(this.user.uid);
+            docRef.delete()
+                .then(() => {
+                    this.user.delete()
+                        .then(() => {
+                            Object.assign(this.$data, appInitialState());
+                        })
+                        .catch((error) => {
+                            Promise.reject(error);
+                        });
+                })
+                .catch((error) => {
+                    this.toast = {
+                        type: "error",
+                        text: "Erro ao excluir documento: " + error
+                    };
+                });
         }
     },
     created() {
@@ -84,14 +112,17 @@ const app = new Vue({
             this.user = user;
         });
 
-        addEventListener('keydown', (event) => {
+        document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape') {
-                this.closeToast();
+                this.toast && this.closeToast();
             }
         });
 
-        addEventListener('resize', () => {
-            this.isMobile = innerWidth <= 768;
+        document.addEventListener("click", e => {
+            const dropdown = document.querySelector(".dropdown");
+            if (dropdown && !dropdown.contains(e.target)) {
+                this.isUserDropdownActive = false;
+            }
         });
     },
     watch: {

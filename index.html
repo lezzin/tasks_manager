@@ -26,7 +26,7 @@
 
         <header class="header-wrapper">
             <div class="logo-container">
-                <button class="btn bg-primary btn-mobile" v-if="isMobile && user && showBtn" @click="toggleTopicsMenu"><i class="fa-solid fa-bars"></i></button>
+                <button class="btn bg-primary btn-mobile" @click="toggleTopicsMenu"><i class="fa-solid fa-bars"></i></button>
 
                 <router-link to="/" title="Acessar página incial" class="logo">
                     <img src="./assets/img/logo_lg.svg" alt="TaskFlow - logo do website" class="large-screen" width="148" height="27" loading="lazy">
@@ -34,19 +34,27 @@
                 </router-link>
             </div>
             <div class="information-container">
-                <h2 class="subtitle" v-if="selectedTopicName && !isMobile">{{ selectedTopicName }}</h2>
+                <h2 class="subtitle large-screen" v-if="selectedTopicName">{{ selectedTopicName }}</h2>
 
                 <div class="right-content" v-if="user">
-                    <div class="user-info">
+                    <button class="user-info btn bordered" @click.stop="toggleUserDropdown" title="Abrir/fechar dropdown">
                         <div>
                             <p class="text small">Olá, {{ user.displayName }}</p>
                             <p class="text smallest">{{ user.email }}</p>
                         </div>
                         <img class="user-profile" :src="user.photoURL" alt="Foto de perfil do usuário" width="37" height="37" :title="`Logado como: ${user.email}`">
-                    </div>
-                    <button class="btn bg-danger rounded" @click="logoutUser" title="Sair da minha conta">
-                        <i class="fa-solid fa-right-from-bracket"></i>
                     </button>
+
+                    <div class="dropdown" v-if="isUserDropdownActive">
+                        <div class="dropdown-menu">
+                            <button class="btn outline-danger bnt-icon" @click="logoutUser" title="Sair da minha conta">
+                                <i class="fa-solid fa-right-from-bracket"></i> Sair da conta
+                            </button>                            
+                            <button class="btn bg-danger btn-icon" @click="removeUser" title="Excluir minha conta">
+                                <i class="fa-solid fa-right-from-bracket"></i> Excluir conta
+                            </button>                            
+                        </div>
+                    </div>
                 </div>
             </div>
         </header>
@@ -72,11 +80,11 @@
     </template>
     <template id="home-page">
         <div class="home-wrapper">
-            <div class="topic-container" v-if="!isMobile || isMenuTopicsActive">
+            <div :class="['topic-container', isMenuTopicsActive && 'active']">
                 <form @submit.prevent="addTopic">
                     <div class="form-group">
                         <div :class="['input-group', formTopicError ? 'input-error' : '']">
-                            <input type="text" placeholder="Adicionar tópico" v-model="newTopic" autocomplete="off">
+                            <input type="text" placeholder="Adicionar novo tópico" v-model="newTopic" autocomplete="off">
                             <button class="btn" title="Adicionar novo tópico"><i class="fa-solid fa-plus"></i></button>
                         </div>
                         <p class="text text-error" v-if="formTopicError">{{ formTopicError }}</p>
@@ -122,7 +130,7 @@
             <div class="task-container" :class="{ 'centered': !selectedTopic }">
                 <div v-if="selectedTopic">
                     <button @click="openAddTask" title="Abrir modal de nova tarefa" class="btn rounded outline-primary" id="btn-add-task"><i class="fa-solid fa-plus"></i></button>
-
+                    
                     <div class="form-container" v-if="selectedTopic.tasks">
                         <div class="form-container-row">
                             <form onsubmit="return false" class="form-100">
@@ -196,12 +204,12 @@
 
                     <form @submit.prevent="editTopic">
                         <div :class="['form-group', topicEditingError ? 'input-error' : '']">
-                            <label class="text" for="edit-topic-description">Descrição</label>
-                            <input type="text" id="edit-topic-description" v-model="topicNewName" :class="{ 'input-error' : topicEditingError }">
+                            <label class="text" for="edit-topic-name">Nome</label>
+                            <input type="text" id="edit-topic-name" v-model="topicNewName" :class="{ 'input-error' : topicEditingError }">
                             <p class="text text-error" v-if="topicEditingError">{{ topicEditingError }}</p>
                         </div>
 
-                        <button type="submit" class="btn bg-primary block" title="Concluir edição do tópico">Concluir edição</button>
+                        <button type="submit" class="btn bg-primary block" title="Concluir edição do tópico"><i class="fa-solid fa-check"></i> Concluir edição</button>
                     </form>
                 </div>
             </div>
@@ -215,8 +223,8 @@
 
                     <form @submit.prevent="editTask">
                         <div :class="['form-group', editNewTaskNameError ? 'input-error' : '']">
-                            <label class="text" for="edit-task-description">Descrição</label>
-                            <input type="text" id="edit-task-description" v-model="editNewTaskName" :class="{ 'input-error' : editNewTaskNameError }">
+                            <label class="text" for="edit-task-name">Nome</label>
+                            <input type="text" id="edit-task-name" v-model="editNewTaskName" :class="{ 'input-error' : editNewTaskNameError }">
                             <p class="text text-error" v-if="editNewTaskNameError">{{ editNewTaskNameError }}</p>
                         </div>
 
@@ -237,7 +245,7 @@
                             <p class="text text-error" v-if="editNewTaskPriorityError">{{ editNewTaskPriorityError }}</p>
                         </div>
 
-                        <button type="submit" class="btn bg-primary block" title="Concluir edição da tarefa">Concluir edição</button>
+                        <button type="submit" class="btn bg-primary block" title="Concluir edição da tarefa"><i class="fa-solid fa-check"></i> Concluir edição</button>
                     </form>
                 </div>
             </div>
@@ -252,7 +260,7 @@
                     <form @submit.prevent="addTask">
                         <div class="form-group">
                             <label class="text" for="add-task-name">Nome da tarefa</label>
-                            <div :class="['input-group', 'input-group-lg', formTaskError ? 'input-error' : '']">
+                            <div :class="['input-group', 'input-group-btn', formTaskError ? 'input-error' : '']">
                                 <input type="text" id="add-task-name" placeholder="Adicionar tarefa..." v-model="addNewTaskName" autocomplete="off">
                                 <button type="button" class="btn" title="Adicionar tarefa através de áudio" @click="toggleSpeechRecognition">
                                     <i class="fa-solid" :class="{'fa-microphone': !isListening, 'fa-stop': isListening}"></i>

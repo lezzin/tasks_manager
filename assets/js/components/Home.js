@@ -11,7 +11,6 @@ const Home = {
     data() {
         return {
             user: this.$root.user,
-            isMobile: this.$root.isMobile,
             isMenuTopicsActive: this.$root.isMenuTopicsActive,
 
             topics: null,
@@ -609,16 +608,6 @@ const Home = {
                     };
                 });
 
-            addEventListener('keydown', ({
-                key
-            }) => {
-                if (key == 'Escape') {
-                    this.closeEditingTopic();
-                    this.closeEditingTask();
-                    this.closeAddingTask();
-                }
-            });
-
             this.loadedTopics = true;
         }
     },
@@ -626,6 +615,29 @@ const Home = {
         document.title = PAGE_TITLES.home;
         this.$root.showBtn = true;
         this.loadUserTopics();
+
+        document.addEventListener('keydown', ({ key }) => {
+            if (key == 'Escape') {
+                this.editingTopic && this.closeEditingTopic();
+                this.editingTask && this.closeEditingTask();
+                this.addingTask && this.closeAddingTask();
+            }
+        });
+
+        document.addEventListener("click", e => {
+            const element = e.target;
+
+            if (element.classList.contains("modal")) {
+                this.editingTopic && this.closeEditingTopic();
+                this.editingTask && this.closeEditingTask();
+                this.addingTask && this.closeAddingTask();
+            }
+
+            const dialog = element.querySelector(".modal-dialog");
+            if (dialog) {
+                dialog.addEventListener("click", e => e.stopPropagation());
+            }
+        });
     },
     watch: {
         "newTopic": function () {
@@ -652,9 +664,6 @@ const Home = {
         },
         "$root.isMenuTopicsActive": function (data) {
             this.isMenuTopicsActive = data;
-        },
-        "$root.isMobile": function (data) {
-            this.isMobile = data;
         },
     }
 }
