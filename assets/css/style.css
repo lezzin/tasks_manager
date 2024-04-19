@@ -386,6 +386,7 @@ form {
     grid-template-columns: var(--aside-width) 1fr;
     background-color: var(--bg-primary);
     border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 0 .5rem rgb(0 0 0 / .15);
     height: 10vh;
     position: relative;
 
@@ -477,17 +478,28 @@ form {
                 position: absolute;
                 top: 100%;
                 right: var(--padding);
-                z-index: 999;
+                pointer-events: none;
+                transform: translateY(-1rem);
+                opacity: 0;
+                transition: all .3s ease;
+
+                &.active {
+                    opacity: 1;
+                    pointer-events: all;
+                    transform: translateY(0);
+                }
 
                 .dropdown-menu {
                     display: grid;
                     border-radius: 0 0 var(--radius) var(--radius);
                     background-color: var(--bg-primary);
+                    border: 1px solid var(--border-color);
                     overflow: hidden;
 
                     .btn {
+                        border: none;
                         border-radius: 0;
-                        padding: 0.5rem;
+                        padding: 0.5rem 1rem;
                     }
                 }
             }
@@ -502,8 +514,8 @@ form {
 
     #btn-add-task {
         position: fixed;
-        right: calc(var(--padding) * 2);
-        bottom: calc(var(--padding) * 2);
+        right: var(--padding);
+        bottom: var(--padding);
         height: 5rem;
         aspect-ratio: 1;
         box-shadow: 0 .5rem 1rem rgb(0 0 0 / .15);
@@ -833,37 +845,75 @@ form {
 
 .toast {
     position: fixed;
-    bottom: 1.6rem;
-    right: 1.6rem;
-    padding: .8rem 1.6rem;
-    border-radius: .3rem;
+    bottom: var(--padding);
+    right: var(--padding);
+    display: grid;
+    grid-template-columns: 1.5rem 1fr;
     box-shadow: 0 .5rem 1rem rgb(0 0 0 / .15);
-    color: #fff;
+    background-color: var(--bg-primary);
+    border-radius: var(--radius);
+    overflow: hidden;
     z-index: 999;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 2rem;
+    opacity: 0;
+    transform: translateX(100%);
+    pointer-events: none;
+    transition: all .3s ease;
 
-    @media(width <=768px) {
-        bottom: 0;
-        right: 0;
-        left: 0;
-        padding: 1rem 2rem;
-    }
-
-    .toast-text {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.6rem;
+    &.active {
+        transform: translateX(0);
+        opacity: 1;
+        pointer-events: all;
     }
 
     &.success-toast {
-        background-color: var(--details-color);
+
+        .toast-banner,
+        .toast-icon {
+            background-color: var(--details-color);
+        }
     }
 
     &.error-toast {
-        background-color: var(--danger-color);
+
+        .toast-banner,
+        .toast-icon {
+            background-color: var(--danger-color);
+        }
+    }
+
+    .toast-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 2rem;
+        padding: 1rem 1.5rem;
+
+        .toast-icon {
+            display: grid;
+            place-items: center;
+            width: 2.4rem;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            color: var(--bg-primary);
+        }
+
+        .toast-title {
+            font-size: 1.6rem;
+            font-weight: 600;
+        }
+
+        .toast-text {
+            font-size: 1.4rem;
+        }
+
+        .btn {
+            align-self: flex-start;
+            margin-left: 1rem;
+
+            i {
+                font-size: 1.4rem;
+            }
+        }
     }
 }
 

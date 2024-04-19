@@ -284,14 +284,14 @@ const Home = {
                     }
                 });
         },
-        toggleSpeechRecognition() {
+        toggleSpeechRecognition(action) {
             if (!this.isListening) {
-                this.startSpeechRecognition();
+                this.startSpeechRecognition(action);
             } else {
                 this.stopSpeechRecognition();
             }
         },
-        startSpeechRecognition() {
+        startSpeechRecognition(action) {
             this.isListening = true;
             this.recognition = new window.webkitSpeechRecognition();
             this.recognition.lang = 'pt-BR';
@@ -299,12 +299,23 @@ const Home = {
 
             this.recognition.onresult = (event) => {
                 const result = event.results[0][0].transcript;
-                this.addNewTaskName = result;
+
+                switch (action) {
+                    case 'addTask':
+                        this.addNewTaskName = result;
+                        break;
+                    case 'editTask':
+                        this.editNewTaskName = result;
+                        break;
+                    default:
+                        this.addNewTaskName = result;
+                        break;
+                }
                 this.stopSpeechRecognition();
             };
 
             this.recognition.onerror = (event) => {
-                console.error('Speech recognition error:', event.error);
+                // console.error('Speech recognition error:', event.error);
                 this.stopSpeechRecognition();
             };
 
@@ -373,7 +384,6 @@ const Home = {
                                         this.closeAddingTask();
                                     })
                                     .catch(error => {
-                                        console.error("Error updating tasks:", error);
                                         this.$root.toast = {
                                             type: "error",
                                             text: "Erro ao adicionar tarefa: " + error,
@@ -384,7 +394,6 @@ const Home = {
                     }
                 })
                 .catch(error => {
-                    console.error("Error loading topic: ", error);
                     this.$root.toast = {
                         type: "error",
                         text: "Erro ao carregar tópico: " + error,

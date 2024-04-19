@@ -45,9 +45,9 @@
                         <img class="user-profile" :src="user.photoURL" alt="Foto de perfil do usuário" width="37" height="37" :title="`Logado como: ${user.email}`">
                     </button>
 
-                    <div class="dropdown" v-if="isUserDropdownActive">
+                    <div :class="['dropdown', isUserDropdownActive && 'active']" >
                         <div class="dropdown-menu">
-                            <button class="btn outline-danger bnt-icon" @click="logoutUser" title="Sair da minha conta">
+                            <button class="btn outline-danger btn-icon" @click="logoutUser" title="Sair da minha conta">
                                 <i class="fa-solid fa-right-from-bracket"></i> Sair da conta
                             </button>                            
                             <button class="btn bg-danger btn-icon" @click="removeUser" title="Excluir minha conta">
@@ -63,9 +63,16 @@
             <router-view></router-view>
         </main>
 
-        <div :class="`toast ${toast.type}-toast`" v-if="toast">
-            <p class="toast-text text"><i class="fa-solid fa-info-circle"></i> {{ toast.text }}</p>
-            <button class="btn" @click="closeToast" title="Fechar mensagem"><i class="fa-solid fa-times"></i></button>
+        <div :class="['toast', toast ? `${toast.type}-toast active` : '']">
+            <div class="toast-banner"></div>
+            <div class="toast-content text">
+                <div class="toast-icon"><i :class="['fa-solid', toast && toast.type == 'error' ? 'fa-xmark' : 'fa-check']"></i></div>
+                <div>
+                    <p class="toast-title">{{ toast && toast.type == 'error' ? 'Erro' : 'Sucesso' }}</p>
+                    <p class="toast-text"> {{ toast && toast.text }}</p>
+                </div>
+                <button class="btn" @click="closeToast" title="Fechar mensagem"><i class="fa-solid fa-times"></i></button>
+            </div>
         </div>
     </div>
 
@@ -222,9 +229,14 @@
                     </div>
 
                     <form @submit.prevent="editTask">
-                        <div :class="['form-group', editNewTaskNameError ? 'input-error' : '']">
+                        <div class="form-group">
                             <label class="text" for="edit-task-name">Nome</label>
-                            <input type="text" id="edit-task-name" v-model="editNewTaskName" :class="{ 'input-error' : editNewTaskNameError }">
+                            <div :class="['input-group', 'input-group-btn', formTaskError ? 'input-error' : '']">
+                                <input type="text" id="edit-task-name" v-model="editNewTaskName">
+                                <button type="button" class="btn" title="Editar tarefa através de áudio" @click="toggleSpeechRecognition('editTask')">
+                                    <i class="fa-solid" :class="{'fa-microphone': !isListening, 'fa-stop': isListening}"></i>
+                                </button>
+                            </div>
                             <p class="text text-error" v-if="editNewTaskNameError">{{ editNewTaskNameError }}</p>
                         </div>
 
@@ -262,7 +274,7 @@
                             <label class="text" for="add-task-name">Nome da tarefa</label>
                             <div :class="['input-group', 'input-group-btn', formTaskError ? 'input-error' : '']">
                                 <input type="text" id="add-task-name" placeholder="Adicionar tarefa..." v-model="addNewTaskName" autocomplete="off">
-                                <button type="button" class="btn" title="Adicionar tarefa através de áudio" @click="toggleSpeechRecognition">
+                                <button type="button" class="btn" title="Adicionar tarefa através de áudio" @click="toggleSpeechRecognition('addTask')">
                                     <i class="fa-solid" :class="{'fa-microphone': !isListening, 'fa-stop': isListening}"></i>
                                 </button>
                             </div>
