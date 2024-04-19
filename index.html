@@ -93,9 +93,7 @@
                         <router-link :to="'/topic/' + topic.id" class="btn btn-topic" role="button" v-for="topic in topics" :title="'Acessar tópico ' + topic.name">
                             <div class="topic-data">
                                 <p class="text">{{ topic.name }}</p>
-                                <p class="text small muted">{{ `${topic.tasks_length} ${topic.tasks_length == 1 ?
-                                    'tarefa' :
-                                    'tarefas'}` }} </p>
+                                <p class="text small muted">{{ `${topic.tasks_length} ${topic.tasks_length == 1 ? 'tarefa' : 'tarefas'}` }} </p>
                             </div>
                             <div class="topic-actions">
                                 <button class="btn rounded" title="Editar tópico" @click.prevent="openEditTopic(topic.name)">
@@ -112,34 +110,22 @@
                 <div class="topic-container-bottom" v-if="loadedTopics && topics">
                     <span class="divider"></span>
 
-                    <router-link to="/general" class="btn outline-primary btn-icon block" title="Visualização geral"><i class="fa-solid fa-eye"></i> Visão geral das tarefas
+                    <router-link to="/general" class="btn outline-primary btn-icon block" title="Visualização geral"><i class="fa-solid fa-eye"></i> 
+                        Visão geral das tarefas
                     </router-link>
 
-                    <button class="btn block outline-danger" title="Excluir todos os tópicos" @click="deleteAllTopics">
-                        Excluir todos os tópicos
+                    <button class="btn btn-icon block outline-danger" title="Excluir todos os tópicos" @click="deleteAllTopics">
+                        <i class="fa-solid fa-trash"></i> Excluir todos os tópicos
                     </button>
                 </div>
             </div>
             <div class="task-container" :class="{ 'centered': !selectedTopic }">
                 <div v-if="selectedTopic">
-                    <div class="form-container" v-if="selectedTopic.tasks">
-                        <form @submit.prevent="addTask">
-                            <div class="form-group">
-                                <div :class="['input-group', 'input-group-rounded', 'input-group-lg', formTaskError ? 'input-error' : '']">
-                                    <input type="text" id="add-task" placeholder="Adicionar tarefa..." v-model="newTask" autocomplete="off">
-                                    <button type="button" class="btn" title="Adicionar tarefa através de áudio" @click="toggleSpeechRecognition">
-                                        <i class="fa-solid" :class="{'fa-microphone': !isListening, 'fa-stop': isListening}"></i>
-                                    </button>
-                                    <button type="submit" class="btn" title="Adicionar tarefa">
-                                        <i class="fa-regular fa-plus"></i>
-                                    </button>
-                                </div>
-                                <p class="text text-error" v-if="formTaskError">{{ formTaskError }}</p>
-                            </div>
-                        </form>
+                    <button @click="openAddTask" title="Abrir modal de nova tarefa" class="btn rounded outline-primary" id="btn-add-task"><i class="fa-solid fa-plus"></i></button>
 
+                    <div class="form-container" v-if="selectedTopic.tasks">
                         <div class="form-container-row">
-                            <form onsubmit="return false">
+                            <form onsubmit="return false" class="form-100">
                                 <div class="form-group">
                                     <label for="search-task" class="text">Pesquisar</label>
                                     <div class="input-group">
@@ -148,7 +134,7 @@
                                     </div>
                                 </div>
                             </form>
-                            <form onsubmit="return false">
+                            <form onsubmit="return false" class="form-100">
                                 <div class="form-group">
                                     <label for="filter-task" class="text">Filtrar</label>
                                     <div class="select">
@@ -174,14 +160,13 @@
                                 <div class="task-information">
                                     <p class="text">{{ task.name }}</p>
                                     <p class="task-information-small">
-                                        <span class="text text-icon small"><img src="./assets/img/clock.svg" alt="Imagem de um relógio" width="12" height="12"> {{ task.created_at
-                                            }}</span>
-                                        <span class="text text-icon small"><img src="./assets/img/exclamation-circle.svg" alt="Imagem de alerta" width="12" height="12"> {{ getPriorityText(task.priority) }}</span>
+                                        <span class="text text-icon small"><i class="fa-regular fa-clock"></i> Criado em: {{ task.created_at }}</span>
+                                        <span class="text text-icon small" v-if="task.delivery_date"><i class="fa-regular fa-bell"></i> Entrega para: {{ formatDate(task.delivery_date) }}</span>
                                     </p>
                                 </div>
                             </div>
                             <div class="task-action">
-                                <button class="btn rounded primary" title="Editar tarefa" @click="openEditTask(task.id, task.name, task.priority)">
+                                <button class="btn rounded primary" title="Editar tarefa" @click="openEditTask(task)">
                                     <span class="fa-solid fa-pen"></span>
                                 </button>
                                 <button class="btn rounded danger" title="Excluir tarefa" @click="deleteTask(selectedTopic.name, task.id)">
@@ -216,8 +201,7 @@
                             <p class="text text-error" v-if="topicEditingError">{{ topicEditingError }}</p>
                         </div>
 
-                        <button type="submit" class="btn bg-primary block" title="Concluir edição do tópico">Concluir
-                            edição</button>
+                        <button type="submit" class="btn bg-primary block" title="Concluir edição do tópico">Concluir edição</button>
                     </form>
                 </div>
             </div>
@@ -230,26 +214,70 @@
                     </div>
 
                     <form @submit.prevent="editTask">
-                        <div :class="['form-group', taskNewDescriptionError ? 'input-error' : '']">
+                        <div :class="['form-group', editNewTaskNameError ? 'input-error' : '']">
                             <label class="text" for="edit-task-description">Descrição</label>
-                            <input type="text" id="edit-task-description" v-model="taskNewDescription" :class="{ 'input-error' : taskNewDescriptionError }">
-                            <p class="text text-error" v-if="taskNewDescriptionError">{{ taskNewDescriptionError }}</p>
+                            <input type="text" id="edit-task-description" v-model="editNewTaskName" :class="{ 'input-error' : editNewTaskNameError }">
+                            <p class="text text-error" v-if="editNewTaskNameError">{{ editNewTaskNameError }}</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="text" for="edit-task-date">Data de entrega</label>
+                            <input type="date" id="edit-task-date" v-model="editNewTaskDate">
                         </div>
 
                         <div class="form-group">
                             <label class="text" for="edit-task-priority">Prioridade</label>
                             <div class="select">
-                                <select id="edit-task-priority" v-model="taskNewPriority" :class="{ 'input-error' : taskNewPriorityError }">
+                                <select id="edit-task-priority" v-model="editNewTaskPriority" :class="{ 'input-error' : editNewTaskPriorityError }">
                                     <option value="1">Baixa</option>
                                     <option value="2">Média</option>
                                     <option value="3">Alta</option>
                                 </select>
                             </div>
-                            <p class="text text-error" v-if="taskNewPriorityError">{{ taskNewPriorityError }}</p>
+                            <p class="text text-error" v-if="editNewTaskPriorityError">{{ editNewTaskPriorityError }}</p>
                         </div>
 
-                        <button type="submit" class="btn bg-primary block" title="Concluir edição da tarefa">Concluir
-                            edição</button>
+                        <button type="submit" class="btn bg-primary block" title="Concluir edição da tarefa">Concluir edição</button>
+                    </form>
+                </div>
+            </div>
+
+            <div v-if="addingTask" class="modal">
+                <div class="modal-dialog">
+                    <div class="modal-header">
+                        <h2 class="title">Adicionar tarefa</h2>
+                        <button class="btn" @click="closeAddingTask" title="Fechar modal"><i class="fa-solid fa-times"></i></button>
+                    </div>
+
+                    <form @submit.prevent="addTask">
+                        <div class="form-group">
+                            <label class="text" for="add-task-name">Nome da tarefa</label>
+                            <div :class="['input-group', 'input-group-lg', formTaskError ? 'input-error' : '']">
+                                <input type="text" id="add-task-name" placeholder="Adicionar tarefa..." v-model="addNewTaskName" autocomplete="off">
+                                <button type="button" class="btn" title="Adicionar tarefa através de áudio" @click="toggleSpeechRecognition">
+                                    <i class="fa-solid" :class="{'fa-microphone': !isListening, 'fa-stop': isListening}"></i>
+                                </button>
+                            </div>
+                            <p class="text text-error" v-if="formTaskError">{{ formTaskError }}</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="text" for="add-task-date">Data de entrega (opcional)</label>
+                            <input type="date" v-model="addNewTaskDate" id="add-task-date">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="text" for="edit-task-priority">Prioridade</label>
+                            <div class="select">
+                                <select id="edit-task-priority" v-model="addNewTaskPriority">
+                                    <option value="1">Baixa</option>
+                                    <option value="2">Média</option>
+                                    <option value="3">Alta</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn bg-primary block" title="Concluir adição da tarefa">Adicionar tarefa</button>
                     </form>
                 </div>
             </div>
@@ -264,26 +292,25 @@
         <div class="calendar-wrapper" v-else>
             <div>
                 <div class="calendar-header">
-                    <h2 class="subtitle">Visualize as suas tarefas de uma maneira geral
-                    </h2>
+                    <h2 class="subtitle">Visualize as suas tarefas de uma maneira geral</h2>
                     <router-link to="/" class="btn primary btn-icon" title="Voltar para o início"><i class="fa-solid fa-arrow-left"></i> Voltar para o início</router-link>
                 </div>
 
                 <div class="legend">
                     <div class="legend-item completed">
-                        <p class="text small">Completo</p>
+                        <p class="text small"><i class="fa-solid fa-check"></i> Completo</p>
                     </div>
 
                     <div class="legend-item priority-high">
-                        <p class="text small">Prioridade alta</p>
+                        <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade alta</p>
                     </div>
 
                     <div class="legend-item priority-medium">
-                        <p class="text small">Prioridade média</p>
+                        <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade média</p>
                     </div>
 
                     <div class="legend-item priority-small">
-                        <p class="text small">Prioridade baixa</p>
+                        <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade baixa</p>
                     </div>
                 </div>
 
@@ -293,9 +320,9 @@
                     <router-link :class="`calendar-item task ${task.status ? 'completed' : ''} ${getPriorityClass(task.priority)}`" v-for="task in allUserTasks" role="button" :to="'/topic/' + task.topicId" title="Acessar tópico">
                         <p class="text">{{ task.name }}</p>
                         <div class="task-bottom">
-                            <p class="text text-icon small"><img src="./assets/img/clock.svg" alt="Imagem de um relógio" width="12" height="12"> {{ task.created_at }}</p>
-                            <p class="text text-icon small"><img src="./assets/img/exclamation-circle.svg" alt="Imagem de alerta" width="12" height="12"> {{ getPriorityText(task.priority) }}
-                            </p>
+                            <p class="text text-icon small"><i class="fa-regular fa-clock"></i> Criado em: {{ task.created_at }}</p>
+                            <p class="text text-icon small" v-if="task.delivery_date"><i class="fa-regular fa-bell"></i> Entrega para: {{ formatDate(task.delivery_date) }}</p>
+                            <p class="text text-icon small"><i class="fa-regular fa-calendar"></i> {{ getPriorityText(task.priority) }}</p>
                         </div>
                     </router-link>
                 </div>
