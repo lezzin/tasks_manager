@@ -26,7 +26,7 @@
 
         <header class="header-wrapper">
             <div class="logo-container">
-                <button class="btn bg-primary btn-mobile" @click="toggleTopicsMenu"><i class="fa-solid fa-bars"></i></button>
+                <button class="btn bg-primary btn-mobile" @click="toggleTopicsMenu" v-if="showBtn"><i class="fa-solid fa-bars"></i></button>
 
                 <router-link to="/" title="Acessar página incial" class="logo">
                     <img src="./assets/img/logo_lg.svg" alt="TaskFlow - logo do website" class="large-screen" width="148" height="27" loading="lazy">
@@ -105,7 +105,7 @@
                 <div v-else>
                     <h2 class="subtitle">Seus tópicos</h2>
                     <div class="topic-nav" v-if="loadedTopics && topics">
-                        <router-link :to="'/topic/' + topic.id" class="btn btn-topic" role="button" v-for="topic in topics" :title="'Acessar tópico ' + topic.name">
+                        <router-link @click.native="closeTopicsMenu" :to="'/topic/' + topic.id" class="btn btn-topic" role="button" v-for="topic in topics" :title="'Acessar tópico ' + topic.name">
                             <div class="topic-data">
                                 <p class="text">{{ topic.name }}</p>
                                 <p class="text small muted">{{ `${topic.tasks_length} ${topic.tasks_length == 1 ? 'tarefa' : 'tarefas'}` }} </p>

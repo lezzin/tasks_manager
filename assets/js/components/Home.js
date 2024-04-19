@@ -618,6 +618,9 @@ const Home = {
                 });
 
             this.loadedTopics = true;
+        },
+        closeTopicsMenu() {
+            this.$root.toggleTopicsMenu();
         }
     },
     created() {

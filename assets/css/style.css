@@ -839,7 +839,7 @@ form {
 .not-found-wrapper {
     display: grid;
     place-items: center;
-    padding: var(--padding);
+    padding: calc(var(--padding)) * 2;
     min-height: 90vh;
 }
 
@@ -931,7 +931,7 @@ form {
         box-shadow: 0 .5rem 1rem rgb(0 0 0 / .15);
         width: 95%;
         max-width: 500px;
-        padding: var(--padding);
+        padding: calc(var(--padding) * 2) var(--padding);
 
         .modal-header {
             display: flex;
