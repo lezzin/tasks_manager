@@ -144,58 +144,60 @@
                         <i class="fa-solid fa-plus"></i> 
                     </button>
                     
-                    <div class="form-container" v-if="selectedTopic.tasks">
-                        <div class="form-container-row">
-                            <form onsubmit="return false" class="form-100">
-                                <div class="form-group">
-                                    <label for="search-task" class="text">Pesquisar</label>
-                                    <div class="input-group">
-                                        <input type="text" @input="searchTaskByName" id="search-task" placeholder="Descrição da tarefa" v-model="searchTask" autocomplete="off">
-                                        <button type="submit" class="btn" title="Pesquisar tarefa"><i class="fa-solid fa-search"></i></button>
+                    <div v-if="defaultTasks && defaultTasks.length > 0">
+                        <div class="form-container">
+                            <div class="form-container-row">
+                                <form onsubmit="return false" class="form-100">
+                                    <div class="form-group">
+                                        <label for="search-task" class="text">Pesquisar</label>
+                                        <div class="input-group">
+                                            <input type="text" @input="searchTaskByName" id="search-task" placeholder="Descrição da tarefa" v-model="searchTask" autocomplete="off">
+                                            <button type="submit" class="btn" title="Pesquisar tarefa"><i class="fa-solid fa-search"></i></button>
+                                        </div>
                                     </div>
-                                </div>
-                            </form>
-                            <form onsubmit="return false" class="form-100">
-                                <div class="form-group">
-                                    <label for="filter-task" class="text">Filtrar</label>
-                                    <div class="select">
-                                        <select id="filter-task" @change="searchTaskByStatus" v-model="filterTask">
-                                            <option value="all">Todas</option>
-                                            <option value="completed">Concluídas</option>
-                                            <option value="not-completed">Não concluídas</option>
-                                        </select>
+                                </form>
+                                <form onsubmit="return false" class="form-100">
+                                    <div class="form-group">
+                                        <label for="filter-task" class="text">Filtrar</label>
+                                        <div class="select">
+                                            <select id="filter-task" @change="searchTaskByStatus" v-model="filterTask">
+                                                <option value="all">Todas</option>
+                                                <option value="completed">Concluídas</option>
+                                                <option value="not-completed">Não concluídas</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <span class="divider"></span>
-
-                    <div class="task-nav" v-if="defaultTasks && defaultTasks.length > 0">
-                        <div :class="`task ${task.status ? 'completed' : ''} ${getPriorityClass(task.priority)}`" v-for="task in selectedTopic.tasks">
-                            <div class="right-content">
-                                <button :class="`btn bordered rounded ${task.status && 'bg-primary'}`" :title="`Marcar tarefa como ${task.status ? 'não concluída' : 'concluída'}`" @click="changeTaskStatus(task.id)">
-                                    <i class="fa-solid fa-check"></i>
-                                </button>
-                                <div class="task-information">
-                                    <p class="text">{{ task.name }}</p>
-                                    <p class="task-information-small">
-                                        <span class="text text-icon small"><i class="fa-regular fa-clock"></i> Criado em: {{ task.created_at }}</span>
-                                        <span class="text text-icon small" v-if="task.delivery_date"><i class="fa-regular fa-bell"></i> Entrega para: {{ formatDate(task.delivery_date) }}</span>
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="task-action">
-                                <button class="btn rounded primary" title="Editar tarefa" @click="openEditTask(task)">
-                                    <span class="fa-solid fa-pen"></span>
-                                </button>
-                                <button class="btn rounded danger" title="Excluir tarefa" @click="deleteTask(selectedTopic.name, task.id)">
-                                    <span class="fa-solid fa-trash"></span>
-                                </button>
+                                </form>
                             </div>
                         </div>
-                        <p class="text center" v-if="selectedTopic.tasks.length < 1">Nenhuma tarefa para esse filtro</p>
+
+                        <span class="divider"></span>
+
+                        <div class="task-nav">
+                            <div :class="`task ${task.status ? 'completed' : ''} ${getPriorityClass(task.priority)}`" v-for="task in selectedTopic.tasks">
+                                <div class="right-content">
+                                    <button :class="`btn bordered rounded ${task.status && 'bg-primary'}`" :title="`Marcar tarefa como ${task.status ? 'não concluída' : 'concluída'}`" @click="changeTaskStatus(task.id)">
+                                        <i class="fa-solid fa-check"></i>
+                                    </button>
+                                    <div class="task-information">
+                                        <p class="text">{{ task.name }}</p>
+                                        <p class="task-information-small">
+                                            <span class="text text-icon small"><i class="fa-regular fa-clock"></i> Criado em: {{ task.created_at }}</span>
+                                            <span class="text text-icon small" v-if="task.delivery_date"><i class="fa-regular fa-bell"></i> Entrega para: {{ formatDate(task.delivery_date) }}</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="task-action">
+                                    <button class="btn rounded primary" title="Editar tarefa" @click="openEditTask(task)">
+                                        <span class="fa-solid fa-pen"></span>
+                                    </button>
+                                    <button class="btn rounded danger" title="Excluir tarefa" @click="deleteTask(selectedTopic.name, task.id)">
+                                        <span class="fa-solid fa-trash"></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text center" v-if="selectedTopic.tasks.length < 1">Nenhuma tarefa para esse filtro</p>
+                        </div>
                     </div>
                     <div v-else>
                         <img src="./assets/img/task_empty_lg.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="large-screen" width="1200" height="640" loading="lazy">
