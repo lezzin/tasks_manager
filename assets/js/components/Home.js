@@ -23,6 +23,7 @@ const Home = {
             addingTask: false,
             formTaskError: '',
             addNewTaskName: '',
+            addNewTaskComment: '',
             addNewTaskDate: '',
             addNewTaskPriority: TASK_PRIORITIES.small,
             isListening: false,
@@ -38,6 +39,7 @@ const Home = {
             editNewTaskNameError: '',
             editNewTaskPriority: '',
             editNewTaskPriorityError: '',
+            editNewTaskComment: '',
             editNewTaskDate: '',
             editingTask: false,
 
@@ -336,7 +338,7 @@ const Home = {
             this.addingTask = true;
         },
         closeAddingTask() {
-            this.addNewTaskDate = this.addNewTaskName = null;
+            this.addNewTaskDate = this.addNewTaskComment = this.addNewTaskName = null;
             this.addNewTaskPriority = TASK_PRIORITIES.small;
             this.addingTask = false;
         },
@@ -366,7 +368,8 @@ const Home = {
                                     status: false,
                                     created_at: currentTime(),
                                     priority: this.addNewTaskPriority,
-                                    delivery_date: this.addNewTaskDate
+                                    comment: this.addNewTaskComment,
+                                    delivery_date: this.addNewTaskDate,
                                 };
                                 const updatedTasks = [...topic.tasks, taskData];
 
@@ -400,15 +403,16 @@ const Home = {
                 });
         },
         openEditTask(task) {
-            const { id, name, priority, delivery_date } = task;
+            const { id, name, priority, delivery_date, comment } = task;
             this.editTaskId = id;
             this.editNewTaskName = name;
             this.editNewTaskPriority = priority;
             this.editNewTaskDate = delivery_date;
+            this.editNewTaskComment = comment;
             this.editingTask = true;
         },
         closeEditingTask() {
-            this.editTaskId = this.editNewTaskName = this.editNewTaskPriority = this.editNewTaskDate = null;
+            this.editTaskId = this.editNewTaskName = this.editNewTaskPriority = this.editNewTaskDate = this.editNewTaskComment = null;
             this.editingTask = false;
         },
         editTask() {
@@ -434,6 +438,7 @@ const Home = {
                                 task.name = String(this.editNewTaskName).replaceAll(".", "");
                                 task.priority = this.editNewTaskPriority;
                                 task.delivery_date = this.editNewTaskDate;
+                                task.comment = this.editNewTaskComment;
                             }
 
                             return task;
