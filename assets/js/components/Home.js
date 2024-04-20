@@ -43,7 +43,6 @@ const Home = {
 
             defaultTasks: [],
             searchTask: "",
-            searckTaskError: '',
             filterTask: 'all',
         }
     },
