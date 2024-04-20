@@ -50,7 +50,10 @@ const General = {
                     const userData = doc.data();
                     const userTopicsExists = userData && userData.topics && Object.keys(userData.topics).length > 0;
 
-                    if (!userTopicsExists) return;
+                    if (!userTopicsExists) {
+                        this.loadedTasks = true;
+                        return;
+                    };
 
                     const tasks = [];
 

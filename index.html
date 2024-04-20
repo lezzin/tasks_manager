@@ -312,48 +312,50 @@
         </div>
     </template>
     <template id="general-page">
-        <div v-if="loadedTasks && allUserTasks.length == 0" class="calendar-empty-wrapper">
-            <img src="./assets/img/task_empty_lg.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="large-screen" width="1200" height="640" loading="lazy">
-            <img src="./assets/img/task_empty_sm.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="small-screen" width="640" height="640" loading="lazy">
-            <router-link to="/" class="btn primary btn-icon" title="Voltar para o início"><i class="fa-solid fa-arrow-left"></i> Voltar para o início</router-link>
-        </div>
-        <div class="calendar-wrapper" v-else>
-            <div>
-                <div class="calendar-header">
-                    <h2 class="subtitle">Visualize as suas tarefas de uma maneira geral</h2>
-                    <router-link to="/" class="btn primary btn-icon" title="Voltar para o início"><i class="fa-solid fa-arrow-left"></i> Voltar para o início</router-link>
-                </div>
-
-                <div class="legend">
-                    <div class="legend-item completed">
-                        <p class="text small"><i class="fa-solid fa-check"></i> Completo</p>
+        <div v-if="loadedTasks">
+            <div class="calendar-wrapper" v-if="allUserTasks.length > 0" class="calendar-empty-wrapper">
+                <div>
+                    <div class="calendar-header">
+                        <h2 class="subtitle">Visualize as suas tarefas de uma maneira geral</h2>
+                        <router-link to="/" class="btn primary btn-icon" title="Voltar para o início"><i class="fa-solid fa-arrow-left"></i> Voltar para o início</router-link>
                     </div>
 
-                    <div class="legend-item priority-high">
-                        <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade alta</p>
-                    </div>
-
-                    <div class="legend-item priority-medium">
-                        <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade média</p>
-                    </div>
-
-                    <div class="legend-item priority-small">
-                        <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade baixa</p>
-                    </div>
-                </div>
-
-                <span class="divider"></span>
-
-                <div class="calendar">
-                    <router-link :class="`calendar-item task ${task.status ? 'completed' : ''} ${getPriorityClass(task.priority)}`" v-for="task in allUserTasks" role="button" :to="'/topic/' + task.topicId" title="Acessar tópico">
-                        <p class="text">{{ task.name }}</p>
-                        <div class="task-bottom">
-                            <p class="text text-icon small"><i class="fa-regular fa-clock"></i> Criado em: {{ task.created_at }}</p>
-                            <p class="text text-icon small" v-if="task.delivery_date"><i class="fa-regular fa-bell"></i> Entrega para: {{ formatDate(task.delivery_date) }}</p>
-                            <p class="text text-icon small"><i class="fa-regular fa-calendar"></i> {{ getPriorityText(task.priority) }}</p>
+                    <div class="legend">
+                        <div class="legend-item completed">
+                            <p class="text small"><i class="fa-solid fa-check"></i> Completo</p>
                         </div>
-                    </router-link>
+
+                        <div class="legend-item priority-high">
+                            <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade alta</p>
+                        </div>
+
+                        <div class="legend-item priority-medium">
+                            <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade média</p>
+                        </div>
+
+                        <div class="legend-item priority-small">
+                            <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade baixa</p>
+                        </div>
+                    </div>
+
+                    <span class="divider"></span>
+
+                    <div class="calendar">
+                        <router-link :class="`calendar-item task ${task.status ? 'completed' : ''} ${getPriorityClass(task.priority)}`" v-for="task in allUserTasks" role="button" :to="'/topic/' + task.topicId" title="Acessar tópico">
+                            <p class="text">{{ task.name }}</p>
+                            <div class="task-bottom">
+                                <p class="text text-icon small"><i class="fa-regular fa-clock"></i> Criado em: {{ task.created_at }}</p>
+                                <p class="text text-icon small" v-if="task.delivery_date"><i class="fa-regular fa-bell"></i> Entrega para: {{ formatDate(task.delivery_date) }}</p>
+                                <p class="text text-icon small"><i class="fa-regular fa-calendar"></i> {{ getPriorityText(task.priority) }}</p>
+                            </div>
+                        </router-link>
+                    </div>
                 </div>
+            </div>
+            <div v-else>
+                <img src="./assets/img/task_empty_lg.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="large-screen" width="1200" height="640" loading="lazy">
+                <img src="./assets/img/task_empty_sm.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="small-screen" width="640" height="640" loading="lazy">
+                <router-link to="/" class="btn primary btn-icon" title="Voltar para o início"><i class="fa-solid fa-arrow-left"></i> Voltar para o início</router-link>
             </div>
         </div>
     </template>
