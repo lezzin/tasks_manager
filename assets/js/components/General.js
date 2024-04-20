@@ -8,11 +8,11 @@ const General = {
             user: this.$root.user,
             allUserTasks: [],
             loadedTasks: false,
-        }
+        };
     },
     methods: {
         formatDate(date) {
-            return formatDate(date)
+            return formatDate(date);
         },
         getPriorityClass(priority) {
             const classes = {
@@ -20,21 +20,19 @@ const General = {
                 [TASK_PRIORITIES.medium]: "priority-medium",
                 [TASK_PRIORITIES.small]: "priority-small",
             };
-
             return classes[priority] ?? '';
         },
         getPriorityText(priority) {
-            const classes = {
+            const priorityTexts = {
                 [TASK_PRIORITIES.high]: "Alta prioridade",
                 [TASK_PRIORITIES.medium]: "Média prioridade",
                 [TASK_PRIORITIES.small]: "Baixa prioridade",
             };
-
-            return classes[priority] ?? '';
+            return priorityTexts[priority] ?? '';
         },
         createTaskObject(topicId, task) {
             return {
-                topicId: topicId,
+                topicId,
                 name: task.name,
                 status: task.status,
                 priority: task.priority,
@@ -42,45 +40,38 @@ const General = {
                 delivery_date: task.delivery_date,
             };
         },
-        getAllUserTasks() {
-            const docRef = this.db.collection("tasks").doc(this.user.uid);
-            docRef
-                .get()
-                .then((doc) => {
-                    const userData = doc.data();
-                    const userTopicsExists = userData && userData.topics && Object.keys(userData.topics).length > 0;
+        async getAllUserTasks() {
+            try {
+                const docRef = this.db.collection("tasks").doc(this.user.uid);
+                const doc = await docRef.get();
+                const userData = doc.data();
 
-                    if (!userTopicsExists) {
-                        this.loadedTasks = true;
-                        return;
-                    };
+                if (!userData || !userData.topics || Object.keys(userData.topics).length === 0) {
+                    this.loadedTasks = true;
+                    return;
+                }
 
-                    const tasks = [];
-
-                    Object.values(userData.topics).forEach(topic => {
-                        const topicId = topic.id;
-
-                        if (topic.tasks && topic.tasks.length > 0) {
-                            topic.tasks.forEach(task => {
-                                const taskObject = this.createTaskObject(topicId, task);
-                                tasks.push(taskObject);
-                            });
+                const tasks = [];
+                for (const topic of Object.values(userData.topics)) {
+                    const topicId = topic.id;
+                    if (topic.tasks && topic.tasks.length > 0) {
+                        for (const task of topic.tasks) {
+                            const taskObject = this.createTaskObject(topicId, task);
+                            tasks.push(taskObject);
                         }
-                    });
-
-                    tasks.sort((a, b) => {
-                        return new Date(a.created_at) - new Date(b.created_at);
-                    });
-                    this.allUserTasks = tasks;
-                    this.loadedTasks = true;
-                })
-                .catch(error => {
-                    this.$root.toast = {
-                        type: "error",
-                        text: "Erro ao obter documento: " + error
                     }
-                    this.loadedTasks = true;
-                });
+                }
+
+                tasks.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+                this.allUserTasks = tasks;
+                this.loadedTasks = true;
+            } catch (error) {
+                this.$root.toast = {
+                    type: "error",
+                    text: "Erro ao obter documento: " + error,
+                };
+                this.loadedTasks = true;
+            }
         },
     },
     created() {
@@ -94,6 +85,6 @@ const General = {
             this.$router.push("/login");
         }
     },
-}
+};
 
 export default General;
