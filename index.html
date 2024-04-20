@@ -313,7 +313,7 @@
     </template>
     <template id="general-page">
         <div v-if="loadedTasks">
-            <div class="calendar-wrapper" v-if="allUserTasks.length > 0" class="calendar-empty-wrapper">
+            <div class="calendar-wrapper" v-if="allUserTasks.length > 0">
                 <div>
                     <div class="calendar-header">
                         <h2 class="subtitle">Visualize as suas tarefas de uma maneira geral</h2>
@@ -352,7 +352,7 @@
                     </div>
                 </div>
             </div>
-            <div v-else>
+            <div v-else class="calendar-empty-wrapper">
                 <img src="./assets/img/task_empty_lg.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="large-screen" width="1200" height="640" loading="lazy">
                 <img src="./assets/img/task_empty_sm.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="small-screen" width="640" height="640" loading="lazy">
                 <router-link to="/" class="btn primary btn-icon" title="Voltar para o início"><i class="fa-solid fa-arrow-left"></i> Voltar para o início</router-link>
