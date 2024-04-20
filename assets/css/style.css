@@ -845,15 +845,16 @@ form {
 
 .toast {
     position: fixed;
-    bottom: var(--padding);
+    top: var(--padding);
     right: var(--padding);
+    z-index: 999;
     display: grid;
     grid-template-columns: 1.5rem 1fr;
-    box-shadow: 0 .5rem 1rem rgb(0 0 0 / .15);
+    box-shadow: 0 0 1rem rgb(0 0 0 / .15);
     background-color: var(--bg-primary);
     border-radius: var(--radius);
+    border: 1px solid var(--border-color);
     overflow: hidden;
-    z-index: 999;
     opacity: 0;
     transform: translateX(100%);
     pointer-events: none;
