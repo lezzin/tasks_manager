@@ -366,6 +366,7 @@ const Home = {
                     }
                 })
                 .catch(error => {
+                    this.addNewTaskName = null;
                     this.$root.toast = {
                         type: "error",
                         text: "Erro ao carregar tópico: " + error,

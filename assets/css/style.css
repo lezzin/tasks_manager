@@ -553,6 +553,7 @@ form {
 
         .divider {
             margin: 1rem 0;
+
             &:first-of-type {
                 margin-top: 0.5rem;
             }
@@ -642,6 +643,10 @@ form {
             margin-top: auto;
             display: grid;
             gap: 0.6rem;
+
+            @media (width <=768px) {
+                margin-top: unset;
+            }
         }
     }
 
