@@ -130,11 +130,11 @@
                 <div class="topic-container-bottom" v-if="loadedTopics && topics">
                     <span class="divider"></span>
 
-                    <router-link to="/general" class="btn outline-primary btn-icon block" title="Visualização geral"><i class="fa-solid fa-eye"></i>
+                    <router-link to="/general" class="btn outline-primary btn-icon block block-small" title="Visualização geral"><i class="fa-solid fa-eye"></i>
                         Visão geral das tarefas
                     </router-link>
 
-                    <button class="btn btn-icon block outline-danger" title="Excluir todos os tópicos" @click="deleteAllTopics">
+                    <button class="btn btn-icon block block-small outline-danger" title="Excluir todos os tópicos" @click="deleteAllTopics">
                         <i class="fa-solid fa-trash"></i> Excluir todos os tópicos
                     </button>
                 </div>
@@ -262,7 +262,7 @@
                             <div :class="['input-group', 'input-group-btn', formTaskError ? 'input-error' : '']">
                                 <input type="text" id="edit-task-name" v-model="editNewTaskName">
                                 <button type="button" class="btn" title="Editar tarefa através de áudio" @click="toggleSpeechRecognition('editTask')">
-                                    <i class="fa-solid" :class="{'fa-microphone': !isListening, 'fa-stop': isListening}"></i>
+                                    <i :class="['fa-solid', isListening ? 'fa-stop' : 'fa-microphone']"></i>
                                 </button>
                             </div>
                             <p class="text text-error" v-if="editNewTaskNameError">{{ editNewTaskNameError }}</p>
@@ -309,7 +309,7 @@
                             <div :class="['input-group', 'input-group-btn', formTaskError ? 'input-error' : '']">
                                 <input type="text" id="add-task-name" placeholder="Adicionar tarefa..." v-model="addNewTaskName" autocomplete="off">
                                 <button type="button" class="btn" title="Adicionar tarefa através de áudio" @click="toggleSpeechRecognition('addTask')">
-                                    <i class="fa-solid" :class="{'fa-microphone': !isListening, 'fa-stop': isListening}"></i>
+                                    <i :class="['fa-solid', isListening ? 'fa-stop' : 'fa-microphone']"></i>
                                 </button>
                             </div>
                             <p class="text text-error" v-if="formTaskError">{{ formTaskError }}</p>

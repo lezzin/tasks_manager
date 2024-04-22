@@ -55,25 +55,55 @@ const Home = {
         formatDate(date) {
             return formatDate(date)
         },
-        getPriorityClass(priority) {
-            const classes = {
-                [TASK_PRIORITIES.high]: "priority-high",
-                [TASK_PRIORITIES.medium]: "priority-medium",
-                [TASK_PRIORITIES.small]: "priority-small",
+
+        toggleSpeechRecognition(action) {
+            if (!this.isListening) {
+                this.startSpeechRecognition(action);
+            } else {
+                this.stopSpeechRecognition();
+            }
+        },
+        startSpeechRecognition(action) {
+            this.isListening = true;
+            this.recognition = new window.webkitSpeechRecognition();
+            this.recognition.lang = 'pt-BR';
+            this.recognition.interimResults = false;
+
+            this.recognition.onresult = (event) => {
+                const result = event.results[0][0].transcript;
+
+                switch (action) {
+                    case 'addTask':
+                        this.addNewTaskName = result;
+                        break;
+                    case 'editTask':
+                        this.editNewTaskName = result;
+                        break;
+                    default:
+                        this.addNewTaskName = result;
+                        break;
+                }
+                this.stopSpeechRecognition();
             };
 
-            return classes[priority] ?? '';
-        },
-        sortTasksByPriority() {
-            this.selectedTopic.tasks = this.selectedTopic.tasks.sort((taskA, taskB) => {
-                const priorityA = taskA.priority;
-                const priorityB = taskB.priority;
+            this.recognition.onerror = (_event) => {
+                this.stopSpeechRecognition();
+            };
 
-                if (priorityA == priorityB) return 0;
-                if (priorityA == TASK_PRIORITIES.high || (priorityA == TASK_PRIORITIES.medium && priorityB == TASK_PRIORITIES.small)) return -1;
-                return 1;
-            });
+            this.recognition.onend = () => {
+                this.isListening = false;
+            };
+
+            this.recognition.start();
         },
+        stopSpeechRecognition() {
+            if (this.recognition) {
+                this.recognition.stop();
+                this.recognition = null;
+            }
+            this.isListening = false;
+        },
+
         loadTopic(id) {
             this.selectedTopic = this.$root.selectedTopicName = null;
 
@@ -154,13 +184,6 @@ const Home = {
                         text: "Erro ao obter dados do usuário: " + error,
                     }
                 });
-        },
-        openEditTopic(name) {
-            this.topicOldName = this.topicNewName = name;
-            this.editingTopic = true;
-        },
-        closeEditingTopic() {
-            this.editingTopic = false;
         },
         editTopic() {
             this.topicEditingError = "";
@@ -287,62 +310,7 @@ const Home = {
                     }
                 });
         },
-        toggleSpeechRecognition(action) {
-            if (!this.isListening) {
-                this.startSpeechRecognition(action);
-            } else {
-                this.stopSpeechRecognition();
-            }
-        },
-        startSpeechRecognition(action) {
-            this.isListening = true;
-            this.recognition = new window.webkitSpeechRecognition();
-            this.recognition.lang = 'pt-BR';
-            this.recognition.interimResults = false;
-
-            this.recognition.onresult = (event) => {
-                const result = event.results[0][0].transcript;
-
-                switch (action) {
-                    case 'addTask':
-                        this.addNewTaskName = result;
-                        break;
-                    case 'editTask':
-                        this.editNewTaskName = result;
-                        break;
-                    default:
-                        this.addNewTaskName = result;
-                        break;
-                }
-                this.stopSpeechRecognition();
-            };
-
-            this.recognition.onerror = (event) => {
-                // console.error('Speech recognition error:', event.error);
-                this.stopSpeechRecognition();
-            };
-
-            this.recognition.onend = () => {
-                this.isListening = false;
-            };
-
-            this.recognition.start();
-        },
-        stopSpeechRecognition() {
-            if (this.recognition) {
-                this.recognition.stop();
-                this.recognition = null;
-            }
-            this.isListening = false;
-        },
-        openAddTask(name) {
-            this.topicOldName = this.topicNewName = name;
-            this.addingTask = true;
-        },
-        closeAddingTask() {
-            this.addNewTaskPriority = TASK_PRIORITIES.small;
-            this.addingTask = false;
-        },
+        
         addTask() {
             if (!this.addNewTaskName) {
                 this.formTaskError = "Preencha o campo";
@@ -403,25 +371,6 @@ const Home = {
                         text: "Erro ao carregar tópico: " + error,
                     };
                 });
-        },
-        openTaskComment(comment) {
-            this.selectedComment = comment.replace(/\n/g, '<br>');
-            this.showingComment = true;
-        },
-        closeShowingComment() {
-            this.showingComment = false;
-        },
-        openEditTask(task) {
-            const { id, name, priority, delivery_date, comment } = task;
-            this.editTaskId = id;
-            this.editNewTaskName = name;
-            this.editNewTaskPriority = priority;
-            this.editNewTaskDate = delivery_date;
-            this.editNewTaskComment = comment?.replace(/<a.*?href=['"](.*?)['"].*?>(.*?)<\/a>/g, '$2');
-            this.editingTask = true;
-        },
-        closeEditingTask() {
-            this.editingTask = false;
         },
         editTask() {
             if (!this.editNewTaskName) {
@@ -565,6 +514,26 @@ const Home = {
                     }
                 });
         },
+
+        getPriorityClass(priority) {
+            const classes = {
+                [TASK_PRIORITIES.high]: "priority-high",
+                [TASK_PRIORITIES.medium]: "priority-medium",
+                [TASK_PRIORITIES.small]: "priority-small",
+            };
+
+            return classes[priority] ?? '';
+        },
+        sortTasksByPriority() {
+            this.selectedTopic.tasks = this.selectedTopic.tasks.sort((taskA, taskB) => {
+                const priorityA = taskA.priority;
+                const priorityB = taskB.priority;
+
+                if (priorityA == priorityB) return 0;
+                if (priorityA == TASK_PRIORITIES.high || (priorityA == TASK_PRIORITIES.medium && priorityB == TASK_PRIORITIES.small)) return -1;
+                return 1;
+            });
+        },
         searchTaskByName() {
             this.filterTask = "all";
             const searchTerm = this.searchTask.trim().toLowerCase();
@@ -584,6 +553,45 @@ const Home = {
 
             this.sortTasksByPriority();
         },
+
+        openEditTopic(name) {
+            this.topicOldName = this.topicNewName = name;
+            this.editingTopic = true;
+        },
+        closeEditingTopic() {
+            this.editingTopic = false;
+        },
+        openAddTask(name) {
+            this.topicOldName = this.topicNewName = name;
+            this.addingTask = true;
+        },
+        closeAddingTask() {
+            this.addNewTaskPriority = TASK_PRIORITIES.small;
+            this.addingTask = false;
+        },
+        openTaskComment(comment) {
+            this.selectedComment = comment.replace(/\n/g, '<br>');
+            this.showingComment = true;
+        },
+        closeShowingComment() {
+            this.showingComment = false;
+        },
+        openEditTask(task) {
+            const { id, name, priority, delivery_date, comment } = task;
+            this.editTaskId = id;
+            this.editNewTaskName = name;
+            this.editNewTaskPriority = priority;
+            this.editNewTaskDate = delivery_date;
+            this.editNewTaskComment = comment?.replace(/<a.*?href=['"](.*?)['"].*?>(.*?)<\/a>/g, '$2');
+            this.editingTask = true;
+        },
+        closeEditingTask() {
+            this.editingTask = false;
+        },
+        closeTopicsMenu() {
+            this.$root.toggleTopicsMenu();
+        },
+
         loadUserTopics() {
             if (!this.user) {
                 this.$router.push("/login");
@@ -615,7 +623,7 @@ const Home = {
                         topics.push(topicObject);
                     });
                     this.topics = topics.sort((a, b) => {
-                        return new Date(b.created_at) - new Date(a.created_at);
+                        return new Date(a.created_at) - new Date(b.created_at);
                     });
 
                     if (this.$route.params.id) {
@@ -631,9 +639,6 @@ const Home = {
 
             this.loadedTopics = true;
         },
-        closeTopicsMenu() {
-            this.$root.toggleTopicsMenu();
-        }
     },
     created() {
         document.title = PAGE_TITLES.home;

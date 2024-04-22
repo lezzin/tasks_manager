@@ -187,6 +187,10 @@ body {
         display: block;
         padding: .8rem 0;
         width: 100%;
+
+        &.block-small {
+            padding: 0.4rem;
+        }
     }
 
     &.btn-input {
@@ -334,10 +338,6 @@ form {
             width: 3rem;
             border: 1px solid transparent;
             aspect-ratio: 1;
-
-            i {
-                font-size: inherit;
-            }
 
             &:hover {
                 filter: unset;
@@ -553,7 +553,6 @@ form {
 
         .divider {
             margin: 1rem 0;
-
             &:first-of-type {
                 margin-top: 0.5rem;
             }
@@ -585,7 +584,7 @@ form {
             display: flex;
             flex-direction: column;
             margin: 1rem 0;
-            gap: 1rem;
+            gap: 0.6rem;
 
             .btn-topic {
                 display: flex;
@@ -640,6 +639,7 @@ form {
         }
 
         .topic-container-bottom {
+            margin-top: auto;
             display: grid;
             gap: 0.6rem;
         }
@@ -704,7 +704,7 @@ form {
                     display: flex;
                     align-items: center;
                     gap: 2rem;
-                 
+
                     .task-information {
                         display: flex;
                         flex-direction: column;
