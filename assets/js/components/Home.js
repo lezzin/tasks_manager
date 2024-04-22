@@ -369,7 +369,7 @@ const Home = {
                                     status: false,
                                     created_at: currentTime(),
                                     priority: this.addNewTaskPriority,
-                                    comment: this.addNewTaskComment.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'),
+                                    comment: this.addNewTaskComment?.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'),
                                     delivery_date: this.addNewTaskDate,
                                 };
                                 const updatedTasks = [...topic.tasks, taskData];
@@ -417,7 +417,7 @@ const Home = {
             this.editNewTaskName = name;
             this.editNewTaskPriority = priority;
             this.editNewTaskDate = delivery_date;
-            this.editNewTaskComment = comment.replace(/<a.*?href=['"](.*?)['"].*?>(.*?)<\/a>/g, '$2');
+            this.editNewTaskComment = comment?.replace(/<a.*?href=['"](.*?)['"].*?>(.*?)<\/a>/g, '$2');
             this.editingTask = true;
         },
         closeEditingTask() {
@@ -446,7 +446,7 @@ const Home = {
                                 task.name = String(this.editNewTaskName).replaceAll(".", "");
                                 task.priority = this.editNewTaskPriority;
                                 task.delivery_date = this.editNewTaskDate;
-                                task.comment = this.editNewTaskComment.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+                                task.comment = this.editNewTaskComment?.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
                             }
 
                             return task;
