@@ -188,13 +188,13 @@
                                     </div>
                                 </div>
                                 <div class="task-action">
-                                    <button class="btn rounded primary" title="Visualizar comentário da tarefa" @click="openTaskComment(task.comment)" v-if="task.comment">
+                                    <button class="btn rounded bg-primary" title="Visualizar comentário da tarefa" @click="openTaskComment(task.comment)" v-if="task.comment">
                                         <span class="fa-solid fa-comment"></span>
                                     </button>
-                                    <button class="btn rounded primary" title="Editar tarefa" @click="openEditTask(task)">
+                                    <button class="btn rounded bg-primary" title="Editar tarefa" @click="openEditTask(task)">
                                         <span class="fa-solid fa-pen"></span>
                                     </button>
-                                    <button class="btn rounded danger" title="Excluir tarefa" @click="deleteTask(selectedTopic.name, task.id)">
+                                    <button class="btn rounded bg-danger" title="Excluir tarefa" @click="deleteTask(selectedTopic.name, task.id)">
                                         <span class="fa-solid fa-trash"></span>
                                     </button>
                                 </div>
