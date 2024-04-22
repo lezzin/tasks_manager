@@ -46,6 +46,19 @@ const router = new VueRouter({
     routes
 });
 
+router.beforeEach((to, from, next) => {
+    const currentUser = auth.currentUser;
+    const requiresAuth = to.path !== "/login";
+
+    if (requiresAuth && !currentUser) {
+        next("/login");
+    } else if (!requiresAuth && currentUser) {
+        next("/");
+    } else {
+        next();
+    }
+});
+
 function appInitialState() {
     return {
         user: null,
