@@ -526,15 +526,11 @@ form {
 
     #btn-add-task {
         position: fixed;
-        right: var(--padding);
-        bottom: var(--padding);
+        right: calc(var(--padding) * 2);
+        bottom: calc(var(--padding) * 2);
         height: 5rem;
         aspect-ratio: 1;
         box-shadow: 0 .5rem 1rem rgb(0 0 0 / .15);
-
-        &:hover {
-            transform: translate(-0.25rem, -0.25rem) scale(1.05);
-        }
 
         i {
             font-size: 2rem;
@@ -688,6 +684,8 @@ form {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
+                gap: 2rem;
+                flex-wrap: wrap;
                 border: 1px solid var(--border-color);
                 padding: 1.4rem var(--padding);
                 border-radius: var(--radius);
@@ -706,7 +704,7 @@ form {
                     display: flex;
                     align-items: center;
                     gap: 2rem;
-
+                 
                     .task-information {
                         display: flex;
                         flex-direction: column;
@@ -733,6 +731,10 @@ form {
                 .task-action {
                     display: flex;
                     gap: 1rem;
+
+                    @media(width <=768px) {
+                        margin-left: auto;
+                    }
                 }
             }
         }
@@ -969,7 +971,7 @@ form {
         box-shadow: 0 .5rem 1rem rgb(0 0 0 / .15);
         width: 95%;
         max-width: 500px;
-        padding: calc(var(--padding) * 2) var(--padding);
+        padding: calc(var(--padding) * 2);
         transform: scale(0.99);
         transition: transform var(--screenTransition) ease-in-out;
 
