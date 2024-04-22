@@ -775,8 +775,10 @@ form {
         gap: 1rem;
 
         .calendar-item {
-            display: grid;
-            gap: 0.3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
             background-color: var(--bg-primary);
             padding: var(--padding);
             border: 1px solid var(--border-color);
@@ -785,28 +787,31 @@ form {
             text-decoration: none;
             transition: all .3s ease;
 
-            &.priority-high {
-                background-color: var(--high-priority);
+            .calendar-item-header {
+                display: grid;
+                gap: 1rem;
+
+                .task-informations {
+                    display: grid;
+                    gap: 1rem;
+
+                    .task-informations-small {
+                        display: flex;
+                        align-items: flex-start;
+                        flex-direction: column;
+                        gap: .5rem;
+                    }
+                }
             }
 
-            &.priority-medium {
-                background-color: var(--medium-priority);
-            }
+            .calendar-item-footer {
+                width: 100%;
 
-            &.priority-small {
-                background-color: var(--small-priority);
-            }
-
-            &.completed {
-                background-color: var(--details-color-light);
-            }
-
-            .task-bottom {
-                display: flex;
-                align-items: flex-start;
-                flex-direction: column;
-                margin-top: 1rem;
-                gap: .5rem;
+                .task-comment {
+                    padding: calc(var(--padding) / 2);
+                    border: 1px solid var(--border-color);
+                    border-radius: var(--radius);
+                }
             }
         }
     }

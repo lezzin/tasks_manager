@@ -367,12 +367,23 @@
                     <span class="divider"></span>
 
                     <div class="calendar">
-                        <router-link :class="`calendar-item task ${task.status ? 'completed' : ''} ${getPriorityClass(task.priority)}`" v-for="task in allUserTasks" role="button" :to="'/topic/' + task.topicId" title="Acessar tópico">
-                            <p class="text">{{ task.name }}</p>
-                            <div class="task-bottom">
-                                <p class="text text-icon small"><i class="fa-regular fa-clock"></i> Criado em: {{ task.created_at }}</p>
-                                <p class="text text-icon small" v-if="task.delivery_date"><i class="fa-regular fa-bell"></i> Entrega para: {{ formatDate(task.delivery_date) }}</p>
-                                <p class="text text-icon small"><i class="fa-regular fa-calendar"></i> {{ getPriorityText(task.priority) }}</p>
+                        <router-link :class="`calendar-item task ${task.status ? 'completed' : ''} ${getPriorityClass(task.priority)}`" v-for="task in allUserTasks" role="button" :to="'/topic/' + task.topic_id" title="Acessar tópico">
+                            <div class="calendar-item-header">
+                                <p class="text smallest muted">{{ task.topic_name }}</p>
+                                <div class="task-informations">
+                                    <p class="text">{{ task.name }}</p>
+
+                                    <div class="task-informations-small">
+                                        <p class="text text-icon small"><i class="fa-regular fa-clock"></i> Criado em: {{ task.created_at }}</p>
+                                        <p class="text text-icon small" v-if="task.delivery_date"><i class="fa-regular fa-bell"></i> Entrega para: {{ formatDate(task.delivery_date) }}</p>
+                                        <p class="text text-icon small"><i class="fa-regular fa-calendar"></i> {{ getPriorityText(task.priority) }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="calendar-item-footer" v-if="task.comment">
+                                <div class="task-comment">
+                                    <p class="text small" v-html="formatComment(task.comment)"></p>
+                                </div>
                             </div>
                         </router-link>
                     </div>

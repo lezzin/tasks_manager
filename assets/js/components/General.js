@@ -14,6 +14,9 @@ const General = {
         formatDate(date) {
             return formatDate(date);
         },
+        formatComment(comment) {
+            return comment.replace(/\n/g, '<br>')
+        },
         getPriorityClass(priority) {
             const classes = {
                 [TASK_PRIORITIES.high]: "priority-high",
@@ -30,14 +33,12 @@ const General = {
             };
             return priorityTexts[priority] ?? '';
         },
-        createTaskObject(topicId, task) {
+        createTaskObject(topic, task) {
+            const { name, id } = topic;
             return {
-                topicId,
-                name: task.name,
-                status: task.status,
-                priority: task.priority,
-                created_at: task.created_at,
-                delivery_date: task.delivery_date,
+                topic_name: name,
+                topic_id: id,
+                ...task
             };
         },
         async getAllUserTasks() {
@@ -53,10 +54,9 @@ const General = {
 
                 const tasks = [];
                 for (const topic of Object.values(userData.topics)) {
-                    const topicId = topic.id;
                     if (topic.tasks && topic.tasks.length > 0) {
                         for (const task of topic.tasks) {
-                            const taskObject = this.createTaskObject(topicId, task);
+                            const taskObject = this.createTaskObject(topic, task);
                             tasks.push(taskObject);
                         }
                     }
