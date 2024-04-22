@@ -83,7 +83,7 @@ const General = {
                     }
                 }
 
-                tasks.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                tasks.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
                 this.allUserTasks = tasks;
                 this.createPriorityCounter();
                 this.loadedTasks = true;
