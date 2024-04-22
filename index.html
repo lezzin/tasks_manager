@@ -49,14 +49,14 @@
                         <img class="user-profile" :src="user.photoURL" alt="Foto de perfil do usuário" width="37" height="37" :title="`Logado como: ${user.email}`">
                     </button>
 
-                    <div :class="['dropdown', isUserDropdownActive && 'active']" >
+                    <div :class="['dropdown', isUserDropdownActive && 'active']">
                         <div class="dropdown-menu">
                             <button class="btn outline-danger btn-icon" @click="logoutUser" title="Sair da minha conta">
                                 <i class="fa-solid fa-right-from-bracket"></i> Sair da conta
-                            </button>                            
+                            </button>
                             <button class="btn bg-danger btn-icon" @click="removeUser" title="Excluir minha conta">
                                 <i class="fa-solid fa-right-from-bracket"></i> Excluir conta
-                            </button>                            
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -77,7 +77,7 @@
                 </div>
                 <button class="btn" @click="closeToast" title="Fechar mensagem"><i class="fa-solid fa-times"></i></button>
             </div>
-        </div>        
+        </div>
     </div>
 
     <template id="login-page">
@@ -112,7 +112,8 @@
                         <router-link @click.native="closeTopicsMenu" :to="'/topic/' + topic.id" class="btn btn-topic" role="button" v-for="topic in topics" :title="'Acessar tópico ' + topic.name">
                             <div class="topic-data">
                                 <p class="text">{{ topic.name }}</p>
-                                <p class="text small muted">{{ `${topic.tasks_length} ${topic.tasks_length == 1 ? 'tarefa' : 'tarefas'}` }} </p>
+                                <p class="text small muted">{{ `${topic.tasks_length} ${topic.tasks_length == 1 ?
+                                    'tarefa' : 'tarefas'}` }} </p>
                             </div>
                             <div class="topic-actions">
                                 <button class="btn rounded" title="Editar tópico" @click.prevent="openEditTopic(topic.name)">
@@ -129,7 +130,7 @@
                 <div class="topic-container-bottom" v-if="loadedTopics && topics">
                     <span class="divider"></span>
 
-                    <router-link to="/general" class="btn outline-primary btn-icon block" title="Visualização geral"><i class="fa-solid fa-eye"></i> 
+                    <router-link to="/general" class="btn outline-primary btn-icon block" title="Visualização geral"><i class="fa-solid fa-eye"></i>
                         Visão geral das tarefas
                     </router-link>
 
@@ -141,9 +142,9 @@
             <div class="task-container" :class="{ 'centered': !selectedTopic }">
                 <div v-if="selectedTopic">
                     <button @click="openAddTask" title="Abrir modal de nova tarefa" class="btn rounded outline-primary" id="btn-add-task">
-                        <i class="fa-solid fa-plus"></i> 
+                        <i class="fa-solid fa-plus"></i>
                     </button>
-                    
+
                     <div v-if="defaultTasks && defaultTasks.length > 0">
                         <div class="form-container">
                             <div class="form-container-row">
@@ -174,7 +175,7 @@
                         <span class="divider"></span>
 
                         <div class="task-nav">
-                            <div :class="`task ${task.status ? 'completed' : ''} ${getPriorityClass(task.priority)}`" v-for="task in selectedTopic.tasks">
+                            <div :class="`task ${task.status ? 'completed' : getPriorityClass(task.priority)}`" v-for="task in selectedTopic.tasks">
                                 <div class="right-content">
                                     <button :class="`btn bordered rounded ${task.status && 'bg-primary'}`" :title="`Marcar tarefa como ${task.status ? 'não concluída' : 'concluída'}`" @click="changeTaskStatus(task.id)">
                                         <i class="fa-solid fa-check"></i>
@@ -182,8 +183,10 @@
                                     <div class="task-information">
                                         <p class="text">{{ task.name }}</p>
                                         <p class="task-information-small">
-                                            <span class="text text-icon small"><i class="fa-regular fa-clock"></i> Criado em: {{ task.created_at }}</span>
-                                            <span class="text text-icon small" v-if="task.delivery_date"><i class="fa-regular fa-bell"></i> Entrega para: {{ formatDate(task.delivery_date) }}</span>
+                                            <span class="text text-icon small"><i class="fa-regular fa-clock"></i>
+                                                Criado em: {{ task.created_at }}</span>
+                                            <span class="text text-icon small" v-if="task.delivery_date"><i class="fa-regular fa-bell"></i> Entrega para: {{
+                                                formatDate(task.delivery_date) }}</span>
                                         </p>
                                     </div>
                                 </div>
@@ -199,7 +202,8 @@
                                     </button>
                                 </div>
                             </div>
-                            <p class="text center" v-if="selectedTopic.tasks.length < 1">Nenhuma tarefa para esse filtro</p>
+                            <p class="text center" v-if="selectedTopic.tasks.length < 1">Nenhuma tarefa para esse filtro
+                            </p>
                         </div>
                     </div>
                     <div v-else>
@@ -283,7 +287,8 @@
                                     <option value="3">Alta</option>
                                 </select>
                             </div>
-                            <p class="text text-error" v-if="editNewTaskPriorityError">{{ editNewTaskPriorityError }}</p>
+                            <p class="text text-error" v-if="editNewTaskPriorityError">{{ editNewTaskPriorityError }}
+                            </p>
                         </div>
 
                         <button type="submit" class="btn bg-primary block" title="Concluir edição da tarefa"><i class="fa-solid fa-check"></i> Concluir edição</button>
@@ -331,7 +336,8 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn bg-primary block" title="Concluir adição da tarefa">Adicionar tarefa</button>
+                        <button type="submit" class="btn bg-primary block" title="Concluir adição da tarefa">Adicionar
+                            tarefa</button>
                     </form>
                 </div>
             </div>
@@ -347,36 +353,40 @@
                     </div>
 
                     <div class="legend">
-                        <div class="legend-item completed">
-                            <p class="text small"><i class="fa-solid fa-check"></i> Completo</p>
+                        <div class="legend-item completed" @mouseover="handleFocusOnTaskByPriority('completed')" @mouseleave="handleRemoveFocus">
+                            <p class="text small"><i class="fa-solid fa-check"></i> Completo ({{ priorityCount.completed }})</p>
                         </div>
 
-                        <div class="legend-item priority-high">
-                            <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade alta</p>
+                        <div class="legend-item priority-high" @mouseover="handleFocusOnTaskByPriority('3')" @mouseleave="handleRemoveFocus">
+                            <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade alta ({{ priorityCount.high }})</p>
                         </div>
 
-                        <div class="legend-item priority-medium">
-                            <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade média</p>
+                        <div class="legend-item priority-medium" @mouseover="handleFocusOnTaskByPriority('2')" @mouseleave="handleRemoveFocus">
+                            <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade média ({{ priorityCount.medium }})</p>
                         </div>
 
-                        <div class="legend-item priority-small">
-                            <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade baixa</p>
+                        <div class="legend-item priority-small" @mouseover="handleFocusOnTaskByPriority('1')" @mouseleave="handleRemoveFocus">
+                            <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade baixa ({{ priorityCount.small }})</p>
                         </div>
                     </div>
 
                     <span class="divider"></span>
 
                     <div class="calendar">
-                        <router-link :class="`calendar-item task ${task.status ? 'completed' : ''} ${getPriorityClass(task.priority)}`" v-for="task in allUserTasks" role="button" :to="'/topic/' + task.topic_id" title="Acessar tópico">
+                        <router-link :class="['calendar-item', 'task', task.status ? 'completed' : getPriorityClass(task.priority), { 'is-hovering': task.isHovering, 'focused': task.isFocused }]" v-for="task in allUserTasks" role="button" :to="'/topic/' + task.topic_id" title="Acessar tópico">
                             <div class="calendar-item-header">
                                 <p class="text smallest muted">{{ task.topic_name }}</p>
                                 <div class="task-informations">
                                     <p class="text">{{ task.name }}</p>
 
                                     <div class="task-informations-small">
-                                        <p class="text text-icon small"><i class="fa-regular fa-clock"></i> Criado em: {{ task.created_at }}</p>
-                                        <p class="text text-icon small" v-if="task.delivery_date"><i class="fa-regular fa-bell"></i> Entrega para: {{ formatDate(task.delivery_date) }}</p>
-                                        <p class="text text-icon small"><i class="fa-regular fa-calendar"></i> {{ getPriorityText(task.priority) }}</p>
+                                        <p class="text text-icon small"><i class="fa-regular fa-clock"></i> Criado em:
+                                            {{ task.created_at }}
+                                        </p>
+                                        <p class="text text-icon small" v-if="task.delivery_date"><i class="fa-regular fa-bell"></i> Entrega para: {{
+                                            formatDate(task.delivery_date) }}</p>
+                                        <p class="text text-icon small"><i class="fa-regular fa-calendar"></i> {{
+                                            getPriorityText(task.priority) }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -402,7 +412,7 @@
             <img src="./assets/img/not_found_sm.png" alt="Homem segurando uma lupa e frase de página não encontrada" class="small-screen" width="640" height="640" loading="lazy">
         </div>
     </template>
-    
+
     <script src="./assets/js/font-awesome.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue-router@3"></script>

@@ -28,7 +28,7 @@ const Login = {
     },
     watch: {
         "$root.user": function(user) {
-            if (user) this.$router.push("/");
+            if (user) this.$router.push("/general");
         }
     }
 }

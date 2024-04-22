@@ -766,6 +766,7 @@ form {
             border: 1px solid var(--border-color);
             border-radius: var(--radius);
             padding: calc(var(--padding) / 2);
+            cursor: default;
         }
     }
 
@@ -786,6 +787,14 @@ form {
             height: 100%;
             text-decoration: none;
             transition: all .3s ease;
+
+            &.completed .calendar-item-footer {
+                --border-color: hsl(158, 40%, 70%);
+            }
+
+            &.is-hovering:not(.focused) {
+                opacity: 0.3;
+            }
 
             .calendar-item-header {
                 display: grid;
