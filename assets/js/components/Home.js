@@ -383,6 +383,7 @@ const Home = {
                                             type: "success",
                                             text: "Tarefa adicionada com sucesso"
                                         };
+                                        this.addNewTaskComment = this.addNewTaskDate = this.addNewTaskName = null;
                                         this.sortTasksByPriority();
                                         this.closeAddingTask();
                                     })
