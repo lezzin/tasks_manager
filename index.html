@@ -184,11 +184,13 @@
                                         <p class="task-information-small">
                                             <span class="text text-icon small"><i class="fa-regular fa-clock"></i> Criado em: {{ task.created_at }}</span>
                                             <span class="text text-icon small" v-if="task.delivery_date"><i class="fa-regular fa-bell"></i> Entrega para: {{ formatDate(task.delivery_date) }}</span>
-                                            <span class="text text-icon small" v-if="task.comment"><i class="fa-regular fa-comment"></i> {{ task.comment }}</span>
                                         </p>
                                     </div>
                                 </div>
                                 <div class="task-action">
+                                    <button class="btn rounded primary" title="Visualizar comentário da tarefa" @click="openTaskComment(task.comment)" v-if="task.comment">
+                                        <span class="fa-solid fa-comment"></span>
+                                    </button>
                                     <button class="btn rounded primary" title="Editar tarefa" @click="openEditTask(task)">
                                         <span class="fa-solid fa-pen"></span>
                                     </button>
@@ -230,6 +232,19 @@
                 </div>
             </div>
 
+            <div :class="['modal', showingComment && 'active']">
+                <div class="modal-dialog">
+                    <div class="modal-header">
+                        <h2 class="title">Comentário da tarefa</h2>
+                        <button class="btn" @click="closeShowingComment" title="Fechar modal"><i class="fa-solid fa-times"></i></button>
+                    </div>
+
+                    <div class="comment-content">
+                        <p class="text" v-html="selectedComment"></p>
+                    </div>
+                </div>
+            </div>
+
             <div :class="['modal', editingTask && 'active']">
                 <div class="modal-dialog">
                     <div class="modal-header">
@@ -255,7 +270,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="text" for="edit-task-comment">Detalhes (opcional)</label>
+                            <label class="text" for="edit-task-comment">Detalhes (opcional) - pode conter links</label>
                             <textarea v-model="editNewTaskComment" id="edit-task-comment" rows="3"></textarea>
                         </div>
 
@@ -301,7 +316,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="text" for="add-task-comment">Detalhes (opcional)</label>
+                            <label class="text" for="add-task-comment">Detalhes (opcional) - pode conter links</label>
                             <textarea v-model="addNewTaskComment" id="add-task-comment" rows="3"></textarea>
                         </div>
 

@@ -46,6 +46,9 @@ const Home = {
             defaultTasks: [],
             searchTask: "",
             filterTask: 'all',
+
+            selectedComment: null,
+            showingComment: false,
         }
     },
     methods: {
@@ -157,7 +160,6 @@ const Home = {
             this.editingTopic = true;
         },
         closeEditingTopic() {
-            this.topicOldName = this.topicNewName = null;
             this.editingTopic = false;
         },
         editTopic() {
@@ -338,7 +340,6 @@ const Home = {
             this.addingTask = true;
         },
         closeAddingTask() {
-            this.addNewTaskDate = this.addNewTaskComment = this.addNewTaskName = null;
             this.addNewTaskPriority = TASK_PRIORITIES.small;
             this.addingTask = false;
         },
@@ -368,7 +369,7 @@ const Home = {
                                     status: false,
                                     created_at: currentTime(),
                                     priority: this.addNewTaskPriority,
-                                    comment: this.addNewTaskComment,
+                                    comment: this.addNewTaskComment.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'),
                                     delivery_date: this.addNewTaskDate,
                                 };
                                 const updatedTasks = [...topic.tasks, taskData];
@@ -402,17 +403,23 @@ const Home = {
                     };
                 });
         },
+        openTaskComment(comment) {
+            this.selectedComment = comment.replace(/\n/g, '<br>');
+            this.showingComment = true;
+        },
+        closeShowingComment() {
+            this.showingComment = false;
+        },
         openEditTask(task) {
             const { id, name, priority, delivery_date, comment } = task;
             this.editTaskId = id;
             this.editNewTaskName = name;
             this.editNewTaskPriority = priority;
             this.editNewTaskDate = delivery_date;
-            this.editNewTaskComment = comment;
+            this.editNewTaskComment = comment.replace(/<a.*?href=['"](.*?)['"].*?>(.*?)<\/a>/g, '$2');
             this.editingTask = true;
         },
         closeEditingTask() {
-            this.editTaskId = this.editNewTaskName = this.editNewTaskPriority = this.editNewTaskDate = this.editNewTaskComment = null;
             this.editingTask = false;
         },
         editTask() {
@@ -438,7 +445,7 @@ const Home = {
                                 task.name = String(this.editNewTaskName).replaceAll(".", "");
                                 task.priority = this.editNewTaskPriority;
                                 task.delivery_date = this.editNewTaskDate;
-                                task.comment = this.editNewTaskComment;
+                                task.comment = this.editNewTaskComment.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
                             }
 
                             return task;
@@ -637,6 +644,7 @@ const Home = {
                 this.editingTopic && this.closeEditingTopic();
                 this.editingTask && this.closeEditingTask();
                 this.addingTask && this.closeAddingTask();
+                this.showingComment && this.closeShowingComment();
             }
         });
 
@@ -647,6 +655,7 @@ const Home = {
                 this.editingTopic && this.closeEditingTopic();
                 this.editingTask && this.closeEditingTask();
                 this.addingTask && this.closeAddingTask();
+                this.showingComment && this.closeShowingComment();
             }
 
             const dialog = element.querySelector(".modal-dialog");
