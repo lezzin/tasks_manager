@@ -89,8 +89,6 @@ new Vue({
         },
         logoutUser() {
             auth.signOut();
-            this.$router.push("/login");
-            this.user = this.selectedTopicName = null;
             Object.assign(this.$data, appInitialState());
         },
         removeUser() {
