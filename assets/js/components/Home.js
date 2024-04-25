@@ -2,7 +2,8 @@ import {
     PAGE_TITLES,
     TASK_PRIORITIES,
     currentTime,
-    formatDate
+    formatDate,
+    sanitizeHtml
 } from "../utils.js";
 
 const Home = {
@@ -148,7 +149,7 @@ const Home = {
                         return;
                     }
 
-                    const formattedNewTopicName = String(this.newTopic).replaceAll(".", "");
+                    const formattedNewTopicName = sanitizeHtml(String(this.newTopic).replaceAll(".", ""));
 
                     docRef
                         .set({}, {
@@ -199,7 +200,7 @@ const Home = {
             }
 
             const docRef = this.db.collection("tasks").doc(this.user.uid);
-            const formattedNewTopicName = String(this.topicNewName).replaceAll(".", "");
+            const formattedNewTopicName = sanitizeHtml(String(this.topicNewName).replaceAll(".", ""));
 
             docRef
                 .get()
@@ -333,11 +334,11 @@ const Home = {
                             if (topic) {
                                 const taskData = {
                                     id: Date.now().toString(36),
-                                    name: String(this.addNewTaskName).replaceAll(".", ""),
+                                    name: sanitizeHtml(String(this.addNewTaskName).replaceAll(".", "")),
                                     status: false,
                                     created_at: currentTime(),
                                     priority: this.addNewTaskPriority,
-                                    comment: this.addNewTaskComment?.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'),
+                                    comment: this.addNewTaskComment ? sanitizeHtml(this.addNewTaskComment).replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>') : "",
                                     delivery_date: this.addNewTaskDate,
                                 };
                                 const updatedTasks = [...topic.tasks, taskData];
@@ -366,7 +367,6 @@ const Home = {
                     }
                 })
                 .catch(error => {
-                    this.addNewTaskName = null;
                     this.$root.toast = {
                         type: "error",
                         text: "Erro ao carregar tópico: " + error,
@@ -393,10 +393,10 @@ const Home = {
                     if (selectedTopicData && selectedTopicData.tasks) {
                         const updatedTasks = selectedTopicData.tasks.map((task) => {
                             if (task.id == this.editTaskId) {
-                                task.name = String(this.editNewTaskName).replaceAll(".", "");
+                                task.name = sanitizeHtml(String(this.editNewTaskName).replaceAll(".", ""));
                                 task.priority = this.editNewTaskPriority;
                                 task.delivery_date = this.editNewTaskDate;
-                                task.comment = this.editNewTaskComment?.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+                                task.comment = this.editNewTaskComment ? sanitizeHtml(this.editNewTaskComment).replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>') : "";
                             }
 
                             return task;
@@ -583,7 +583,7 @@ const Home = {
             this.editNewTaskName = name;
             this.editNewTaskPriority = priority;
             this.editNewTaskDate = delivery_date;
-            this.editNewTaskComment = comment?.replace(/<a.*?href=['"](.*?)['"].*?>(.*?)<\/a>/g, '$2');
+            this.editNewTaskComment = comment.replace(/<a.*?href=['"](.*?)['"].*?>(.*?)<\/a>/g, '$2');
             this.editingTask = true;
         },
         closeEditingTask() {

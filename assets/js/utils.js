@@ -31,9 +31,14 @@ function currentTime() {
     });
 }
 
+function sanitizeHtml(html) {
+    return html ? html.replace(/</g, "").replace(/>/g, "") : html;
+}
+
 export {
     PAGE_TITLES,
     TASK_PRIORITIES,
     currentTime,
-    formatDate
+    formatDate,
+    sanitizeHtml
 };
