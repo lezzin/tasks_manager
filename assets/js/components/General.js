@@ -12,6 +12,19 @@ const General = {
         };
     },
     methods: {
+        downloadAsPDF() {
+            const pdfName = `${Date.now().toString()}.pdf`;
+            const elementToConvert = document.querySelector('#pdf-container');
+            const options = {
+                margin: 10,
+                filename: pdfName,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+            };
+
+            html2pdf().set(options).from(elementToConvert).save();
+        },
         handleFocusOnTaskByPriority(priority) {
             this.allUserTasks.forEach(task => {
                 task.isHovering = true;

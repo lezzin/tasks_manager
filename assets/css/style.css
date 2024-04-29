@@ -237,13 +237,17 @@ body {
         color: var(--danger-color);
     }
 
+    &.only-icon,
     &.rounded {
-        border-radius: 50%;
         display: grid;
         place-items: center;
         padding: 0;
         height: 3.6rem;
         aspect-ratio: 1;
+    }
+
+    &.rounded {
+        border-radius: 50%;
     }
 
     &.bordered {
@@ -754,6 +758,17 @@ form {
         align-items: center;
         text-align: center;
 
+        .header-buttons {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+
+            >* {
+                height: 3.6rem;
+                aspect-ratio: 1;
+            }
+        }
+
         @media(width <=768px) {
             flex-direction: column;
             padding-top: var(--padding);
@@ -902,6 +917,7 @@ form {
     }
 
     &.success-toast {
+
         .toast-banner,
         .toast-icon {
             background-color: var(--details-color);
@@ -909,6 +925,7 @@ form {
     }
 
     &.error-toast {
+
         .toast-banner,
         .toast-icon {
             background-color: var(--danger-color);
