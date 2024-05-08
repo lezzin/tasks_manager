@@ -1,19 +1,16 @@
-![Foto do projeto](https://github.com/lezzin/tasks_manager/assets/103830032/ce1e67f6-cc45-45a1-b574-42f2c4ada83b)
+# TaskFlow
 
-# Gerenciador de Tarefas
-
-Um aplicativo de gerenciamento de tarefas com design inspirado no Google.
+Um aplicativo para gerenciamento de tarefas.
 
 ## Recursos
 
-- Autenticação de usuários via Conta Google
+- Autenticação de usuário com Firebase Authentication
 - Persistência de dados através do Firebase Firestore
-- Atualização de dados em tempo real
 - Gerenciamento de tópicos (adição, edição e exclusão)
 - Gerenciamento de tarefas (adição, edição e exclusão)
-- Adição de tarefas por voz e texto (API nativa do JavaScript)
-- Recurso visual para prioridade de tarefas (alta, média e baixa)
-- Sistema de feedback utilizando Toast (mensagem de texto no canto inferior direito)
+- Adição de tarefas por voz (API nativa do JavaScript)
+- Filtro de tarefas por prioridade (alta, média e baixa)
+- Mensagens de feedback para cada interação do usuário com o website
 - Imagens de feedback personalizadas para as seguintes situações: nenhum tópico selecionado, lista de tarefas vazia e página não encontrada
 
 ## Guia de Instalação
