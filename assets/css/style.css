@@ -842,6 +842,11 @@ form {
                 width: 100%;
 
                 .task-comment {
+                    
+                    p {
+                        word-break: break-all;
+                    }
+
                     padding: calc(var(--padding) / 2);
                     border: 1px solid var(--border-color);
                     border-radius: var(--radius);
@@ -1003,6 +1008,10 @@ form {
             justify-content: space-between;
             align-items: center;
             margin-bottom: 3rem;
+        }
+
+        .comment-content p {
+            word-break: break-all;
         }
 
         form {
