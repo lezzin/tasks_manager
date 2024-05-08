@@ -1,3 +1,5 @@
+![TaskFlow](https://github.com/lezzin/tasks_manager/assets/103830032/872d8da9-631a-449d-86cb-1b2433c7b16e)
+
 # TaskFlow
 
 Um aplicativo para gerenciamento de tarefas.
