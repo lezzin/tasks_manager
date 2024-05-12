@@ -1,8 +1,12 @@
+<h1 align="center"> 🚀 <br> TaskFlow</h1>
+
 ![TaskFlow](https://github.com/lezzin/tasks_manager/assets/103830032/872d8da9-631a-449d-86cb-1b2433c7b16e)
 
-# TaskFlow
+<h3 align="center">Um aplicativo para gerenciamento de tarefas</h3>
+<h4 align="center"><a href="https://tasks-manager-woad.vercel.app">Acessar projeto</a></h4>
 
-Um aplicativo para gerenciamento de tarefas.
+---
+
 
 ## Recursos
 
@@ -17,17 +21,11 @@ Um aplicativo para gerenciamento de tarefas.
 
 ## Guia de Instalação
 
-### Acesso Local:
-
 Para usar o aplicativo localmente, é necessário configurar um servidor local:
 
 1. Utilize um servidor local, como XAMPP ou Live Server (Extensão do VSCode).
    - Se estiver usando XAMPP, adicione a pasta do projeto, inicie o servidor e acesse o arquivo `index.html` em um navegador da web.
    - Se estiver usando a extensão Live Server, abra o VSCode e clique em "Go Live" no canto inferior esquerdo da tela.
-
-### Acesso Online:
-
-Você pode acessar o aplicativo hospedado no seguinte link: [Clique aqui para acessar](https://tasks-manager-woad.vercel.app/)
 
 ## Tecnologias Utilizadas:
 
