@@ -2,11 +2,11 @@
 
 ![TaskFlow](https://github.com/lezzin/tasks_manager/assets/103830032/872d8da9-631a-449d-86cb-1b2433c7b16e)
 
-<h3 align="center">Um aplicativo para gerenciamento de tarefas</h3>
 <h4 align="center"><a href="https://tasks-manager-woad.vercel.app">Acessar projeto</a></h4>
 
 ---
 
+Um aplicativo para gerenciamento de tarefas
 
 ## Recursos
 
