@@ -114,7 +114,7 @@ const General = {
         document.title = PAGE_TITLES.general;
         this.$root.selectedTopicName = null;
         this.$root.showBtn = false;
-        this.$root.toggleTopicsMenu();
+        this.$root.closeTopicsMenu();
 
         if (this.user) {
             this.getAllUserTasks();

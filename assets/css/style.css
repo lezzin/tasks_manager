@@ -55,6 +55,7 @@
 }
 
 ::-webkit-scrollbar {
+    background: var(--details-color-light);
     width: 6px;
 }
 
@@ -750,7 +751,7 @@ form {
 }
 
 .calendar-wrapper {
-    padding: var(--padding);
+    padding: var(--padding) var(--padding) calc(var(--padding) * 5);
 
     .calendar-header {
         display: flex;
@@ -809,7 +810,6 @@ form {
             padding: var(--padding);
             border: 1px solid var(--border-color);
             border-radius: var(--radius);
-            height: 100%;
             text-decoration: none;
             transition: all .3s ease;
 
@@ -842,14 +842,24 @@ form {
                 width: 100%;
 
                 .task-comment {
-                    
-                    p {
-                        word-break: break-all;
-                    }
-
+                    height: 100%;
                     padding: calc(var(--padding) / 2);
                     border: 1px solid var(--border-color);
                     border-radius: var(--radius);
+
+                    p {
+                        word-break: break-all;
+                        overflow: hidden;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 8;
+                        line-clamp: 8;
+                        -webkit-box-orient: vertical;
+
+                        a {
+                            pointer-events: none;
+                            text-decoration: none;
+                        }
+                    }
                 }
             }
         }

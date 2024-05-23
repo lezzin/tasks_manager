@@ -80,6 +80,9 @@ new Vue({
         toggleUserDropdown() {
             this.isUserDropdownActive = !this.isUserDropdownActive;
         },
+        closeTopicsMenu() {
+            document.body.classList.remove("menu-active");
+        },
         toggleTopicsMenu() {
             this.isMenuTopicsActive = !this.isMenuTopicsActive;
             document.body.classList.toggle("menu-active", this.isMenuTopicsActive);
