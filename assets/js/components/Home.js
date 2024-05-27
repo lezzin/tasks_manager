@@ -311,7 +311,7 @@ const Home = {
                     }
                 });
         },
-        
+
         addTask() {
             if (!this.addNewTaskName) {
                 this.formTaskError = "Preencha o campo";
@@ -529,10 +529,18 @@ const Home = {
             this.selectedTopic.tasks = this.selectedTopic.tasks.sort((taskA, taskB) => {
                 const priorityA = taskA.priority;
                 const priorityB = taskB.priority;
+                const statusA = taskA.status;
+                const statusB = taskB.status;
+        
+                if (statusA !== statusB) {
+                    return statusA ? -1 : 1;
+                }
 
-                if (priorityA == priorityB) return 0;
-                if (priorityA == TASK_PRIORITIES.high || (priorityA == TASK_PRIORITIES.medium && priorityB == TASK_PRIORITIES.small)) return -1;
-                return 1;
+                if (priorityA !== priorityB) {
+                    return priorityB - priorityA;
+                }
+        
+                return 0;
             });
         },
         searchTaskByName() {

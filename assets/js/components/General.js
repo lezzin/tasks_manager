@@ -12,6 +12,24 @@ const General = {
         };
     },
     methods: {
+        sortTasksByPriority() {
+            this.allUserTasks = this.allUserTasks.sort((taskA, taskB) => {
+                const priorityA = taskA.priority;
+                const priorityB = taskB.priority;
+                const statusA = taskA.status;
+                const statusB = taskB.status;
+
+                if (statusA !== statusB) {
+                    return statusA ? -1 : 1;
+                }
+
+                if (priorityA !== priorityB) {
+                    return priorityB - priorityA;
+                }
+
+                return 0;
+            });
+        },
         downloadAsPDF() {
             const pdfName = `${Date.now().toString()}.pdf`;
             const elementToConvert = document.querySelector('#pdf-container');
@@ -96,9 +114,9 @@ const General = {
                     }
                 }
 
-                tasks.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
                 this.allUserTasks = tasks;
                 this.createPriorityCounter();
+                this.sortTasksByPriority();
                 this.loadedTasks = true;
             } catch (error) {
                 console.error("Error retrieving document:", error);
