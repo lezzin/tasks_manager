@@ -1009,7 +1009,7 @@ form {
         box-shadow: 0 .5rem 1rem rgb(0 0 0 / 15%);
         width: 95%;
         max-width: 500px;
-        padding: calc(var(--padding) * 2);
+        padding: var(--padding);
         transform: scale(0.99);
         transition: transform var(--screen-transition) ease-in-out;
 
