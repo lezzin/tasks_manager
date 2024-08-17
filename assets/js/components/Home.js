@@ -602,11 +602,11 @@ const Home = {
         },
 
         loadUserTopics() {
-            if (!this.user) {
+            if (!this.user || !this.user.uid) {
                 this.$router.push("/login");
                 return;
             }
-
+            
             const docRef = this.db.collection("tasks").doc(this.user.uid);
             docRef.onSnapshot(
                 (doc) => {
