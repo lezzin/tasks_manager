@@ -119,9 +119,11 @@ new Vue({
     created() {
         auth.onAuthStateChanged(user => {
             document.querySelector(".loader-container").classList.add("hidden");
+            const currentRoute = this.$router.history.current.fullPath;
 
-            if (!user) {
-                if (this.$router.history.current.fullPath != "/login") this.$router.push("/login");
+            if (!user && currentRoute != "/login") {
+                this.user = null;
+                this.$router.push("/login");
                 return;
             }
 
