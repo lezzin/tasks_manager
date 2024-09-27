@@ -119,7 +119,6 @@ const General = {
                 this.sortTasksByPriority();
                 this.loadedTasks = true;
             } catch (error) {
-                console.error("Error retrieving document:", error);
                 this.$root.toast = {
                     type: "error",
                     text: "Erro ao obter documento: " + error,
