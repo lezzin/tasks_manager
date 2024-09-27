@@ -83,6 +83,7 @@ img {
     object-fit: cover;
     display: flex;
     margin: 0 auto;
+    -webkit-user-drag: none;
 }
 
 body {
@@ -484,6 +485,11 @@ form {
                 .user-profile {
                     border-radius: 50%;
                     border: 1px solid var(--border-color);
+                }
+
+                span {
+                    transform: translateY(-2px);
+                    margin-inline: 0.5rem;
                 }
             }
 

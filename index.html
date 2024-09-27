@@ -47,6 +47,7 @@
                             <p class="text smallest">{{ user.email }}</p>
                         </div>
                         <img class="user-profile" :src="user.photoURL" alt="Foto de perfil do usuário" width="37" height="37" :title="`Logado como: ${user.email}`">
+                        <span> <i class="fa-solid fa-caret-down"></i> </span>
                     </button>
 
                     <div :class="['dropdown', isUserDropdownActive && 'active']">
