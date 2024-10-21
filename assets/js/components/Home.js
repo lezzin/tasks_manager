@@ -665,6 +665,8 @@ const Home = {
                     }
                 },
                 (error) => {
+                    if (!this.$root.user) return;
+
                     this.$root.toast = {
                         type: "error",
                         text: "Erro ao obter documento: " + error
