@@ -289,26 +289,51 @@ const Home = {
                 });
         },
         deleteAllTopics() {
-            if (!confirm("Tem certeza que deseja excluir TODOS os tópicos? Essa ação não poderá ser desfeita!")) return;
+            if (!confirm("Tem certeza que deseja excluir TODOS os seus tópicos? Essa ação não poderá ser desfeita!")) return;
 
-            const collectionRef = this.db.collection('tasks');
-            collectionRef
+            const docRef = this.db.collection('tasks').doc(this.user.uid);
+            docRef
                 .get()
-                .then(querySnapshot => {
-                    querySnapshot.forEach((doc) => {
-                        doc.ref.delete();
+                .then((doc) => {
+                    if (!doc.exists) {
                         this.$root.toast = {
-                            type: "success",
-                            text: "Tópicos excluídos com sucesso"
+                            type: "info",
+                            text: "Nenhum tópico encontrado para excluir."
                         };
-                        this.selectedTopic = this.$root.selectedTopicName = null;
-                    });
+                        return;
+                    }
+
+                    const userData = doc.data();
+                    if (!userData || !userData.topics || Object.keys(userData.topics).length === 0) {
+                        this.$root.toast = {
+                            type: "info",
+                            text: "Nenhum tópico encontrado para excluir."
+                        };
+                        return;
+                    }
+
+                    const updatedData = { topics: {} };
+
+                    docRef.update(updatedData)
+                        .then(() => {
+                            this.$root.toast = {
+                                type: "success",
+                                text: "Todos os tópicos foram excluídos com sucesso."
+                            };
+                            this.selectedTopic = this.$root.selectedTopicName = null;
+                        })
+                        .catch((error) => {
+                            this.$root.toast = {
+                                type: "error",
+                                text: "Erro ao excluir tópicos: " + error
+                            };
+                        });
                 })
                 .catch((error) => {
                     this.$root.toast = {
                         type: "error",
-                        text: "Falha ao excluir tópicos:" + error
-                    }
+                        text: "Erro ao obter dados do usuário: " + error
+                    };
                 });
         },
 
@@ -531,7 +556,7 @@ const Home = {
                 const priorityB = taskB.priority;
                 const statusA = taskA.status;
                 const statusB = taskB.status;
-        
+
                 if (statusA !== statusB) {
                     return statusA ? -1 : 1;
                 }
@@ -539,7 +564,7 @@ const Home = {
                 if (priorityA !== priorityB) {
                     return priorityB - priorityA;
                 }
-        
+
                 return 0;
             });
         },
@@ -606,7 +631,7 @@ const Home = {
                 this.$router.push("/login");
                 return;
             }
-            
+
             const docRef = this.db.collection("tasks").doc(this.user.uid);
             docRef.onSnapshot(
                 (doc) => {
