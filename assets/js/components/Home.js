@@ -1,3 +1,5 @@
+import "https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js";
+import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
 import {
     PAGE_TITLES,
     TASK_PRIORITIES,
@@ -24,7 +26,6 @@ const Home = {
             addingTask: false,
             formTaskError: '',
             addNewTaskName: '',
-            addNewTaskComment: '',
             addNewTaskDate: '',
             addNewTaskPriority: TASK_PRIORITIES.small,
             isListening: false,
@@ -40,7 +41,6 @@ const Home = {
             editNewTaskNameError: '',
             editNewTaskPriority: '',
             editNewTaskPriorityError: '',
-            editNewTaskComment: '',
             editNewTaskDate: '',
             editingTask: false,
 
@@ -50,6 +50,11 @@ const Home = {
 
             selectedComment: null,
             showingComment: false,
+
+            commentMd: {
+                add: null,
+                edit: null
+            }
         }
     },
     methods: {
@@ -355,6 +360,7 @@ const Home = {
 
                         if (userData && userData.topics) {
                             const topic = userData.topics[name];
+                            const sanitizedComment = this.commentMd.add.value() ? sanitizeHtml(this.commentMd.add.value()).replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>') : "";
 
                             if (topic) {
                                 const taskData = {
@@ -363,7 +369,7 @@ const Home = {
                                     status: false,
                                     created_at: currentTime(),
                                     priority: this.addNewTaskPriority,
-                                    comment: this.addNewTaskComment ? sanitizeHtml(this.addNewTaskComment).replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>') : "",
+                                    comment: sanitizedComment,
                                     delivery_date: this.addNewTaskDate,
                                 };
                                 const updatedTasks = [...topic.tasks, taskData];
@@ -414,6 +420,7 @@ const Home = {
                 .get()
                 .then((doc) => {
                     const selectedTopicData = doc.data().topics[this.selectedTopic.name];
+                    const sanitizedComment = this.commentMd.edit.value() ? sanitizeHtml(this.commentMd.edit.value()).replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>') : "";
 
                     if (selectedTopicData && selectedTopicData.tasks) {
                         const updatedTasks = selectedTopicData.tasks.map((task) => {
@@ -421,7 +428,7 @@ const Home = {
                                 task.name = sanitizeHtml(String(this.editNewTaskName).replaceAll(".", ""));
                                 task.priority = this.editNewTaskPriority;
                                 task.delivery_date = this.editNewTaskDate;
-                                task.comment = this.editNewTaskComment ? sanitizeHtml(this.editNewTaskComment).replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>') : "";
+                                task.comment = sanitizedComment;
                             }
 
                             return task;
@@ -604,8 +611,11 @@ const Home = {
             this.addingTask = false;
         },
         openTaskComment(comment) {
-            this.selectedComment = comment.replace(/\n/g, '<br>');
             this.showingComment = true;
+            this.selectedComment = marked.parse(comment, {
+                gfm: true,
+                breaks: true
+            });
         },
         closeShowingComment() {
             this.showingComment = false;
@@ -616,7 +626,7 @@ const Home = {
             this.editNewTaskName = name;
             this.editNewTaskPriority = priority;
             this.editNewTaskDate = delivery_date;
-            this.editNewTaskComment = comment.replace(/<a.*?href=['"](.*?)['"].*?>(.*?)<\/a>/g, '$2');
+            this.commentMd.edit.value(comment);
             this.editingTask = true;
         },
         closeEditingTask() {
@@ -675,11 +685,35 @@ const Home = {
 
             this.loadedTopics = true;
         },
+
+        initializeMarkdownEditors() {
+            this.destroyMarkdownEditors();
+
+            this.commentMd.edit = new SimpleMDE({
+                element: document.querySelector("#edit-task-comment"),
+                spellChecker: false
+            });
+
+            this.commentMd.add = new SimpleMDE({
+                element: document.querySelector("#add-task-comment"),
+                spellChecker: false
+            });
+        },
+        destroyMarkdownEditors() {
+            if (this.commentMd.add) {
+                this.commentMd.add.toTextArea();
+                this.commentMd.add = null;
+            }
+
+            if (this.commentMd.edit) {
+                this.commentMd.edit.toTextArea();
+                this.commentMd.edit = null;
+            }
+        },
     },
     created() {
         document.title = PAGE_TITLES.home;
         this.$root.showBtn = true;
-        this.loadUserTopics();
 
         document.addEventListener('keydown', ({ key }) => {
             if (key == 'Escape') {
@@ -705,6 +739,10 @@ const Home = {
                 dialog.addEventListener("click", e => e.stopPropagation());
             }
         });
+    },
+    mounted() {
+        this.loadUserTopics();
+        this.initializeMarkdownEditors();
     },
     watch: {
         "newTopic": function () {

@@ -9,6 +9,10 @@
     <meta name="theme-color" content="#02a267">
     <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+
+    <!-- Markdown -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+
     <title>TaskFlow</title>
 </head>
 
@@ -20,23 +24,28 @@
     <div id="app">
         <header class="header-wrapper">
             <div class="logo-container">
-                <button class="btn bg-primary btn-mobile" @click="toggleTopicsMenu" v-if="showBtn"><i class="fa-solid fa-bars"></i></button>
+                <button class="btn bg-primary btn-mobile" @click="toggleTopicsMenu" v-if="showBtn"><i
+                        class="fa-solid fa-bars"></i></button>
 
                 <router-link to="/" title="Acessar página incial" class="logo">
-                    <img src="./assets/img/logo_lg.svg" alt="TaskFlow - logo do website" class="large-screen" width="148" height="27" loading="lazy">
-                    <img src="./assets/img/logo_sm.svg" alt="TaskFlow - logo do website" width="118" height="37" class="small-screen" loading="lazy">
+                    <img src="./assets/img/logo_lg.svg" alt="TaskFlow - logo do website" class="large-screen"
+                        width="148" height="27" loading="lazy">
+                    <img src="./assets/img/logo_sm.svg" alt="TaskFlow - logo do website" width="118" height="37"
+                        class="small-screen" loading="lazy">
                 </router-link>
             </div>
             <div class="information-container">
                 <h2 class="subtitle large-screen" v-if="selectedTopicName">{{ selectedTopicName }}</h2>
 
                 <div class="right-content" v-if="user">
-                    <button class="user-info btn bordered" @click.stop="toggleUserDropdown" title="Abrir/fechar dropdown">
+                    <button class="user-info btn bordered" @click.stop="toggleUserDropdown"
+                        title="Abrir/fechar dropdown">
                         <div>
                             <p class="text small">Olá, {{ user.displayName }}</p>
                             <p class="text smallest">{{ user.email }}</p>
                         </div>
-                        <img class="user-profile" :src="user.photoURL" alt="Foto de perfil do usuário" width="37" height="37" :title="`Logado como: ${user.email}`">
+                        <img class="user-profile" :src="user.photoURL" alt="Foto de perfil do usuário" width="37"
+                            height="37" :title="`Logado como: ${user.email}`">
                         <span> <i class="fa-solid fa-caret-down"></i> </span>
                     </button>
 
@@ -61,12 +70,14 @@
         <div :class="['toast', toast ? `${toast.type}-toast active` : '']">
             <div class="toast-banner"></div>
             <div class="toast-content text">
-                <div class="toast-icon"><i :class="['fa-solid', toast && toast.type == 'error' ? 'fa-xmark' : 'fa-check']"></i></div>
+                <div class="toast-icon"><i
+                        :class="['fa-solid', toast && toast.type == 'error' ? 'fa-xmark' : 'fa-check']"></i></div>
                 <div>
                     <p class="toast-title">{{ toast && toast.type == 'error' ? 'Erro' : 'Sucesso' }}</p>
                     <p class="toast-text"> {{ toast && toast.text }}</p>
                 </div>
-                <button class="btn" @click="closeToast" title="Fechar mensagem"><i class="fa-solid fa-times"></i></button>
+                <button class="btn" @click="closeToast" title="Fechar mensagem"><i
+                        class="fa-solid fa-times"></i></button>
             </div>
         </div>
     </div>
@@ -74,9 +85,12 @@
     <template id="login-page">
         <div class="form-wrapper">
             <form style="--form-width: 450px" @submit.prevent="loginGoogle">
-                <img src="./assets/img/login_lg.png" alt="Uma pessoa escrevendo em um caderno" class="large-screen" width="1200" height="800" loading="lazy">
-                <img src="./assets/img/login_sm.png" alt="Uma pessoa escrevendo em um caderno" class="small-screen" width="640" height="640" loading="lazy">
-                <button class="btn block btn-icon bg-primary" title="Entrar com o Google"><i class="fa-brands fa-google"></i> Entrar com o Google</button>
+                <img src="./assets/img/login_lg.png" alt="Uma pessoa escrevendo em um caderno" class="large-screen"
+                    width="1200" height="800" loading="lazy">
+                <img src="./assets/img/login_sm.png" alt="Uma pessoa escrevendo em um caderno" class="small-screen"
+                    width="640" height="640" loading="lazy">
+                <button class="btn block btn-icon bg-primary" title="Entrar com o Google"><i
+                        class="fa-brands fa-google"></i> Entrar com o Google</button>
             </form>
         </div>
     </template>
@@ -86,7 +100,8 @@
                 <form @submit.prevent="addTopic">
                     <div class="form-group">
                         <div :class="['input-group', formTopicError ? 'input-error' : '']">
-                            <input type="text" placeholder="Adicionar novo tópico" v-model="newTopic" autocomplete="off">
+                            <input type="text" placeholder="Adicionar novo tópico" v-model="newTopic"
+                                autocomplete="off">
                             <button class="btn" title="Adicionar novo tópico"><i class="fa-solid fa-plus"></i></button>
                         </div>
                         <p class="text text-error" v-if="formTopicError">{{ formTopicError }}</p>
@@ -100,17 +115,20 @@
                 <div v-else>
                     <h2 class="subtitle">Seus tópicos</h2>
                     <div class="topic-nav" v-if="loadedTopics && topics">
-                        <router-link @click.native="closeTopicsMenu" :to="'/topic/' + topic.id" class="btn btn-topic" role="button" v-for="topic in topics" :title="'Acessar tópico ' + topic.name">
+                        <router-link @click.native="closeTopicsMenu" :to="'/topic/' + topic.id" class="btn btn-topic"
+                            role="button" v-for="topic in topics" :title="'Acessar tópico ' + topic.name">
                             <div class="topic-data">
                                 <p class="text">{{ topic.name }}</p>
                                 <p class="text small muted">{{ `${topic.tasks_length} ${topic.tasks_length == 1 ?
                                     'tarefa' : 'tarefas'}` }} </p>
                             </div>
                             <div class="topic-actions">
-                                <button class="btn rounded" title="Editar tópico" @click.prevent="openEditTopic(topic.name)">
+                                <button class="btn rounded" title="Editar tópico"
+                                    @click.prevent="openEditTopic(topic.name)">
                                     <i class="fa-solid fa-pen"></i>
                                 </button>
-                                <button class="btn rounded" title="Excluir tópico" @click.prevent="deleteTopic(topic.name)">
+                                <button class="btn rounded" title="Excluir tópico"
+                                    @click.prevent="deleteTopic(topic.name)">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </div>
@@ -121,11 +139,13 @@
                 <div class="topic-container-bottom" v-if="loadedTopics && topics">
                     <span class="divider"></span>
 
-                    <router-link to="/general" class="btn outline-primary btn-icon block block-small" title="Visualização geral"><i class="fa-solid fa-eye"></i>
+                    <router-link to="/general" class="btn outline-primary btn-icon block block-small"
+                        title="Visualização geral"><i class="fa-solid fa-eye"></i>
                         Visão geral das tarefas
                     </router-link>
 
-                    <button class="btn btn-icon block block-small outline-danger" title="Excluir todos os tópicos" @click="deleteAllTopics">
+                    <button class="btn btn-icon block block-small outline-danger" title="Excluir todos os tópicos"
+                        @click="deleteAllTopics">
                         <i class="fa-solid fa-trash"></i> Excluir todos os tópicos
                     </button>
 
@@ -136,7 +156,8 @@
             </div>
             <div class="task-container" :class="{ 'centered': !selectedTopic }">
                 <div v-if="selectedTopic">
-                    <button @click="openAddTask" title="Abrir modal de nova tarefa" class="btn rounded outline-primary" id="btn-add-task">
+                    <button @click="openAddTask" title="Abrir modal de nova tarefa" class="btn rounded outline-primary"
+                        id="btn-add-task">
                         <i class="fa-solid fa-plus"></i>
                     </button>
 
@@ -147,8 +168,11 @@
                                     <div class="form-group">
                                         <label for="search-task" class="text">Pesquisar</label>
                                         <div class="input-group">
-                                            <input type="text" @input="searchTaskByName" id="search-task" placeholder="Descrição da tarefa" v-model="searchTask" autocomplete="off">
-                                            <button type="submit" class="btn" title="Pesquisar tarefa"><i class="fa-solid fa-search"></i></button>
+                                            <input type="text" @input="searchTaskByName" id="search-task"
+                                                placeholder="Descrição da tarefa" v-model="searchTask"
+                                                autocomplete="off">
+                                            <button type="submit" class="btn" title="Pesquisar tarefa"><i
+                                                    class="fa-solid fa-search"></i></button>
                                         </div>
                                     </div>
                                 </form>
@@ -170,9 +194,12 @@
                         <span class="divider"></span>
 
                         <div class="task-nav">
-                            <div :class="`task ${task.status ? 'completed' : getPriorityClass(task.priority)}`" v-for="task in selectedTopic.tasks">
+                            <div :class="`task ${task.status ? 'completed' : getPriorityClass(task.priority)}`"
+                                v-for="task in selectedTopic.tasks">
                                 <div class="right-content">
-                                    <button :class="`btn bordered rounded ${task.status && 'bg-primary'}`" :title="`Marcar tarefa como ${task.status ? 'não concluída' : 'concluída'}`" @click="changeTaskStatus(task.id)">
+                                    <button :class="`btn bordered rounded ${task.status && 'bg-primary'}`"
+                                        :title="`Marcar tarefa como ${task.status ? 'não concluída' : 'concluída'}`"
+                                        @click="changeTaskStatus(task.id)">
                                         <i class="fa-solid fa-check"></i>
                                     </button>
                                     <div class="task-information">
@@ -180,19 +207,23 @@
                                         <p class="task-information-small">
                                             <span class="text text-icon small"><i class="fa-regular fa-clock"></i>
                                                 Criado em: {{ task.created_at }}</span>
-                                            <span class="text text-icon small" v-if="task.delivery_date"><i class="fa-regular fa-bell"></i> Entrega para: {{
+                                            <span class="text text-icon small" v-if="task.delivery_date"><i
+                                                    class="fa-regular fa-bell"></i> Entrega para: {{
                                                 formatDate(task.delivery_date) }}</span>
                                         </p>
                                     </div>
                                 </div>
                                 <div class="task-action">
-                                    <button class="btn rounded bg-primary" title="Visualizar comentário da tarefa" @click="openTaskComment(task.comment)" v-if="task.comment">
+                                    <button class="btn rounded bg-primary" title="Visualizar comentário da tarefa"
+                                        @click="openTaskComment(task.comment)" v-if="task.comment">
                                         <span class="fa-solid fa-comment"></span>
                                     </button>
-                                    <button class="btn rounded bg-primary" title="Editar tarefa" @click="openEditTask(task)">
+                                    <button class="btn rounded bg-primary" title="Editar tarefa"
+                                        @click="openEditTask(task)">
                                         <span class="fa-solid fa-pen"></span>
                                     </button>
-                                    <button class="btn rounded bg-danger" title="Excluir tarefa" @click="deleteTask(selectedTopic.name, task.id)">
+                                    <button class="btn rounded bg-danger" title="Excluir tarefa"
+                                        @click="deleteTask(selectedTopic.name, task.id)">
                                         <span class="fa-solid fa-trash"></span>
                                     </button>
                                 </div>
@@ -202,13 +233,21 @@
                         </div>
                     </div>
                     <div v-else>
-                        <img src="./assets/img/task_empty_lg.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="large-screen" width="1200" height="640" loading="lazy">
-                        <img src="./assets/img/task_empty_sm.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="small-screen" width="640" height="640" loading="lazy">
+                        <img src="./assets/img/task_empty_lg.png"
+                            alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="large-screen" width="1200"
+                            height="640" loading="lazy">
+                        <img src="./assets/img/task_empty_sm.png"
+                            alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="small-screen" width="640"
+                            height="640" loading="lazy">
                     </div>
                 </div>
                 <div v-else>
-                    <img src="./assets/img/topic_unselected_lg.png" alt="Uma pessoa escrevendo em um diário suas tarefas pessoais" class="large-screen" width="1200" height="640" loading="lazy">
-                    <img src="./assets/img/topic_unselected_sm.png" alt="Uma pessoa escrevendo em um diário suas tarefas pessoais" class="small-screen" width="640" height="640" loading="lazy">
+                    <img src="./assets/img/topic_unselected_lg.png"
+                        alt="Uma pessoa escrevendo em um diário suas tarefas pessoais" class="large-screen" width="1200"
+                        height="640" loading="lazy">
+                    <img src="./assets/img/topic_unselected_sm.png"
+                        alt="Uma pessoa escrevendo em um diário suas tarefas pessoais" class="small-screen" width="640"
+                        height="640" loading="lazy">
                 </div>
             </div>
 
@@ -216,17 +255,20 @@
                 <div class="modal-dialog">
                     <div class="modal-header">
                         <h2 class="title">Editar tópico</h2>
-                        <button class="btn" @click="closeEditingTopic" title="Fechar modal"><i class="fa-solid fa-times"></i></button>
+                        <button class="btn" @click="closeEditingTopic" title="Fechar modal"><i
+                                class="fa-solid fa-times"></i></button>
                     </div>
 
                     <form @submit.prevent="editTopic">
                         <div :class="['form-group', topicEditingError ? 'input-error' : '']">
                             <label class="text" for="edit-topic-name">Nome</label>
-                            <input type="text" id="edit-topic-name" v-model="topicNewName" :class="{ 'input-error' : topicEditingError }">
+                            <input type="text" id="edit-topic-name" v-model="topicNewName"
+                                :class="{ 'input-error' : topicEditingError }">
                             <p class="text text-error" v-if="topicEditingError">{{ topicEditingError }}</p>
                         </div>
 
-                        <button type="submit" class="btn bg-primary block" title="Concluir edição do tópico"><i class="fa-solid fa-check"></i> Concluir edição</button>
+                        <button type="submit" class="btn bg-primary block" title="Concluir edição do tópico"><i
+                                class="fa-solid fa-check"></i> Concluir edição</button>
                     </form>
                 </div>
             </div>
@@ -235,12 +277,11 @@
                 <div class="modal-dialog">
                     <div class="modal-header">
                         <h2 class="title">Comentário da tarefa</h2>
-                        <button class="btn" @click="closeShowingComment" title="Fechar modal"><i class="fa-solid fa-times"></i></button>
+                        <button class="btn" @click="closeShowingComment" title="Fechar modal"><i
+                                class="fa-solid fa-times"></i></button>
                     </div>
 
-                    <div class="comment-content">
-                        <p class="text" v-html="selectedComment"></p>
-                    </div>
+                    <div class="comment-content markdown" v-html="selectedComment"></div>
                 </div>
             </div>
 
@@ -248,7 +289,8 @@
                 <div class="modal-dialog">
                     <div class="modal-header">
                         <h2 class="title">Editar tarefa</h2>
-                        <button class="btn" @click="closeEditingTask" title="Fechar modal"><i class="fa-solid fa-times"></i></button>
+                        <button class="btn" @click="closeEditingTask" title="Fechar modal"><i
+                                class="fa-solid fa-times"></i></button>
                     </div>
 
                     <form @submit.prevent="editTask">
@@ -256,7 +298,8 @@
                             <label class="text" for="edit-task-name">Nome</label>
                             <div :class="['input-group', 'input-group-btn', formTaskError ? 'input-error' : '']">
                                 <input type="text" id="edit-task-name" v-model="editNewTaskName">
-                                <button type="button" class="btn" title="Editar tarefa através de áudio" @click="toggleSpeechRecognition('editTask')">
+                                <button type="button" class="btn" title="Editar tarefa através de áudio"
+                                    @click="toggleSpeechRecognition('editTask')">
                                     <i :class="['fa-solid', isListening ? 'fa-stop' : 'fa-microphone']"></i>
                                 </button>
                             </div>
@@ -270,13 +313,14 @@
 
                         <div class="form-group">
                             <label class="text" for="edit-task-comment">Detalhes (opcional) - pode conter links</label>
-                            <textarea v-model="editNewTaskComment" id="edit-task-comment" rows="3" placeholder="Comentário relacionado à tarefa"></textarea>
+                            <input type="text" id="edit-task-comment">
                         </div>
 
                         <div class="form-group">
                             <label class="text" for="edit-task-priority">Prioridade</label>
                             <div class="select">
-                                <select id="edit-task-priority" v-model="editNewTaskPriority" :class="{ 'input-error' : editNewTaskPriorityError }">
+                                <select id="edit-task-priority" v-model="editNewTaskPriority"
+                                    :class="{ 'input-error' : editNewTaskPriorityError }">
                                     <option value="1">Baixa</option>
                                     <option value="2">Média</option>
                                     <option value="3">Alta</option>
@@ -286,7 +330,8 @@
                             </p>
                         </div>
 
-                        <button type="submit" class="btn bg-primary block" title="Concluir edição da tarefa"><i class="fa-solid fa-check"></i> Concluir edição</button>
+                        <button type="submit" class="btn bg-primary block" title="Concluir edição da tarefa"><i
+                                class="fa-solid fa-check"></i> Concluir edição</button>
                     </form>
                 </div>
             </div>
@@ -295,15 +340,18 @@
                 <div class="modal-dialog">
                     <div class="modal-header">
                         <h2 class="title">Adicionar tarefa</h2>
-                        <button class="btn" @click="closeAddingTask" title="Fechar modal"><i class="fa-solid fa-times"></i></button>
+                        <button class="btn" @click="closeAddingTask" title="Fechar modal"><i
+                                class="fa-solid fa-times"></i></button>
                     </div>
 
                     <form @submit.prevent="addTask">
                         <div class="form-group">
                             <label class="text" for="add-task-name">Nome da tarefa</label>
                             <div :class="['input-group', 'input-group-btn', formTaskError ? 'input-error' : '']">
-                                <input type="text" id="add-task-name" placeholder="Adicionar tarefa..." v-model="addNewTaskName" autocomplete="off">
-                                <button type="button" class="btn" title="Adicionar tarefa através de áudio" @click="toggleSpeechRecognition('addTask')">
+                                <input type="text" id="add-task-name" placeholder="Adicionar tarefa..."
+                                    v-model="addNewTaskName" autocomplete="off">
+                                <button type="button" class="btn" title="Adicionar tarefa através de áudio"
+                                    @click="toggleSpeechRecognition('addTask')">
                                     <i :class="['fa-solid', isListening ? 'fa-stop' : 'fa-microphone']"></i>
                                 </button>
                             </div>
@@ -317,7 +365,7 @@
 
                         <div class="form-group">
                             <label class="text" for="add-task-comment">Detalhes (opcional) - pode conter links</label>
-                            <textarea v-model="addNewTaskComment" id="add-task-comment" rows="3" placeholder="Comentário relacionado à tarefa"></textarea>
+                            <input type="text" id="add-task-comment">
                         </div>
 
                         <div class="form-group">
@@ -345,33 +393,46 @@
                     <div class="calendar-header">
                         <h2 class="subtitle">Visualize as suas tarefas de uma maneira geral</h2>
                         <div class="header-buttons">
-                            <button type="button" @click="downloadAsPDF" class="btn bg-primary only-icon" title="Baixar em PDF"><i class="fa-solid fa-download"></i></button>
-                            <router-link to="/" class="btn outline-primary only-icon" title="Voltar para o início"><i class="fa-solid fa-arrow-left"></i></router-link>
+                            <button type="button" @click="downloadAsPDF" class="btn bg-primary only-icon"
+                                title="Baixar em PDF"><i class="fa-solid fa-download"></i></button>
+                            <router-link to="/" class="btn outline-primary only-icon" title="Voltar para o início"><i
+                                    class="fa-solid fa-arrow-left"></i></router-link>
                         </div>
                     </div>
 
                     <div class="legend">
-                        <div class="legend-item completed" @mouseover="handleFocusOnTaskByPriority('completed')" @mouseleave="handleRemoveFocus">
-                            <p class="text small"><i class="fa-solid fa-check"></i> Completo ({{ priorityCount.completed }})</p>
+                        <div class="legend-item completed" @mouseover="handleFocusOnTaskByPriority('completed')"
+                            @mouseleave="handleRemoveFocus">
+                            <p class="text small"><i class="fa-solid fa-check"></i> Completo ({{ priorityCount.completed
+                                }})</p>
                         </div>
 
-                        <div class="legend-item priority-high" @mouseover="handleFocusOnTaskByPriority('3')" @mouseleave="handleRemoveFocus">
-                            <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade alta ({{ priorityCount.high }})</p>
+                        <div class="legend-item priority-high" @mouseover="handleFocusOnTaskByPriority('3')"
+                            @mouseleave="handleRemoveFocus">
+                            <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade alta ({{
+                                priorityCount.high }})</p>
                         </div>
 
-                        <div class="legend-item priority-medium" @mouseover="handleFocusOnTaskByPriority('2')" @mouseleave="handleRemoveFocus">
-                            <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade média ({{ priorityCount.medium }})</p>
+                        <div class="legend-item priority-medium" @mouseover="handleFocusOnTaskByPriority('2')"
+                            @mouseleave="handleRemoveFocus">
+                            <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade média ({{
+                                priorityCount.medium }})</p>
                         </div>
 
-                        <div class="legend-item priority-small" @mouseover="handleFocusOnTaskByPriority('1')" @mouseleave="handleRemoveFocus">
-                            <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade baixa ({{ priorityCount.small }})</p>
+                        <div class="legend-item priority-small" @mouseover="handleFocusOnTaskByPriority('1')"
+                            @mouseleave="handleRemoveFocus">
+                            <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade baixa ({{
+                                priorityCount.small }})</p>
                         </div>
                     </div>
 
                     <span class="divider"></span>
 
                     <div class="calendar">
-                        <router-link :class="['calendar-item', 'task', task.status ? 'completed' : getPriorityClass(task.priority), { 'is-hovering': task.isHovering, 'focused': task.isFocused }]" v-for="task in allUserTasks" role="button" :to="'/topic/' + task.topic_id" title="Acessar tópico">
+                        <router-link
+                            :class="['calendar-item', 'task', task.status ? 'completed' : getPriorityClass(task.priority), { 'is-hovering': task.isHovering, 'focused': task.isFocused }]"
+                            v-for="task in allUserTasks" role="button" :to="'/topic/' + task.topic_id"
+                            title="Acessar tópico">
                             <div class="calendar-item-header">
                                 <p class="text smallest muted">{{ task.topic_name }}</p>
                                 <div class="task-informations">
@@ -381,7 +442,8 @@
                                         <p class="text text-icon small"><i class="fa-regular fa-clock"></i> Criado em:
                                             {{ task.created_at }}
                                         </p>
-                                        <p class="text text-icon small" v-if="task.delivery_date"><i class="fa-regular fa-bell"></i> Entrega para: {{
+                                        <p class="text text-icon small" v-if="task.delivery_date"><i
+                                                class="fa-regular fa-bell"></i> Entrega para: {{
                                             formatDate(task.delivery_date) }}</p>
                                         <p class="text text-icon small"><i class="fa-regular fa-calendar"></i> {{
                                             getPriorityText(task.priority) }}</p>
@@ -398,16 +460,21 @@
                 </div>
             </div>
             <div v-else class="calendar-empty-wrapper">
-                <img src="./assets/img/task_empty_lg.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="large-screen" width="1200" height="640" loading="lazy">
-                <img src="./assets/img/task_empty_sm.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="small-screen" width="640" height="640" loading="lazy">
-                <router-link to="/" class="btn primary btn-icon" title="Voltar para o início"><i class="fa-solid fa-arrow-left"></i> Voltar para o início</router-link>
+                <img src="./assets/img/task_empty_lg.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia"
+                    class="large-screen" width="1200" height="640" loading="lazy">
+                <img src="./assets/img/task_empty_sm.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia"
+                    class="small-screen" width="640" height="640" loading="lazy">
+                <router-link to="/" class="btn primary btn-icon" title="Voltar para o início"><i
+                        class="fa-solid fa-arrow-left"></i> Voltar para o início</router-link>
             </div>
         </div>
     </template>
     <template id="page-not-found">
         <div class="not-found-wrapper">
-            <img src="./assets/img/not_found_lg.png" alt="Homem segurando uma lupa e frase de página não encontrada" class="large-screen" width="1200" height="640" loading="lazy">
-            <img src="./assets/img/not_found_sm.png" alt="Homem segurando uma lupa e frase de página não encontrada" class="small-screen" width="640" height="640" loading="lazy">
+            <img src="./assets/img/not_found_lg.png" alt="Homem segurando uma lupa e frase de página não encontrada"
+                class="large-screen" width="1200" height="640" loading="lazy">
+            <img src="./assets/img/not_found_sm.png" alt="Homem segurando uma lupa e frase de página não encontrada"
+                class="small-screen" width="640" height="640" loading="lazy">
         </div>
     </template>
 
@@ -417,8 +484,10 @@
     <script src="https://cdn.jsdelivr.net/npm/vue-router@3"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-app-compat.js" type="text/javascript"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-auth-compat.js" type="text/javascript"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore-compat.js" type="text/javascript"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-analytics-compat.js" type="text/javascript"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore-compat.js"
+        type="text/javascript"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-analytics-compat.js"
+        type="text/javascript"></script>
     <script src="./assets/js/app.js" type="module"></script>
 </body>
 
