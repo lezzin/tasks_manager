@@ -214,7 +214,7 @@
                                     </div>
                                 </div>
                                 <div class="task-action">
-                                    <button class="btn rounded bg-primary" title="Visualizar comentário da tarefa"
+                                    <button class="btn rounded bg-primary" title="Visualizar comentários da tarefa"
                                         @click="openTaskComment(task.comment)" v-if="task.comment">
                                         <span class="fa-solid fa-comment"></span>
                                     </button>
@@ -276,12 +276,13 @@
             <div :class="['modal', showingComment && 'active']">
                 <div class="modal-dialog">
                     <div class="modal-header">
-                        <h2 class="title">Comentário da tarefa</h2>
-                        <button class="btn" @click="closeShowingComment" title="Fechar modal"><i
-                                class="fa-solid fa-times"></i></button>
+                        <h2 class="title">Comentários da tarefa</h2>
+                        <button class="btn" @click="closeShowingComment" title="Fechar modal">
+                            <i class="fa-solid fa-times"></i>
+                        </button>
                     </div>
 
-                    <div class="comment-content markdown" v-html="selectedComment"></div>
+                    <div class="comment-content" v-html="selectedComment"></div>
                 </div>
             </div>
 
@@ -312,7 +313,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="text" for="edit-task-comment">Detalhes (opcional) - pode conter links</label>
+                            <label class="text" for="edit-task-comment">Comentários (opcional)</label>
                             <input type="text" id="edit-task-comment">
                         </div>
 
@@ -330,8 +331,9 @@
                             </p>
                         </div>
 
-                        <button type="submit" class="btn bg-primary block" title="Concluir edição da tarefa"><i
-                                class="fa-solid fa-check"></i> Concluir edição</button>
+                        <button type="submit" class="btn bg-primary block" title="Concluir edição da tarefa">
+                            <i class="fa-solid fa-check"></i> Concluir edição
+                        </button>
                     </form>
                 </div>
             </div>
@@ -364,7 +366,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="text" for="add-task-comment">Detalhes (opcional) - pode conter links</label>
+                            <label class="text" for="add-task-comment">Comentários (opcional)</label>
                             <input type="text" id="add-task-comment">
                         </div>
 
