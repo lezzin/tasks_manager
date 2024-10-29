@@ -1026,22 +1026,34 @@ form {
         max-width: 500px;
         transform: scale(0.99);
         transition: transform var(--screen-transition) ease-in-out;
+        overflow: hidden;
 
         display: grid;
         grid-template-rows: auto 1fr;
         max-height: 90vh;
 
         .modal-header {
-            padding: var(--padding);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: var(--padding);
+            background: var(--bg-secondary);
         }
 
         .modal-header+form,
         .modal-header+div {
             overflow-y: auto;
             padding: var(--padding);
+        }
+
+        .modal-header+div>* {
+            padding-top: 0;
+            margin-top: 0;
+        }
+
+        .modal-header+div:last-child {
+            padding-bottom: 0;
+            margin-bottom: 0;
         }
 
         form {
@@ -1084,7 +1096,7 @@ form {
     font-size: 14px !important;
 }
 
-.markdown * {
+.comment-content * {
     font-size: 16px !important;
     margin: revert;
     padding: revert;
