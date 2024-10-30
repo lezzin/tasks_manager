@@ -28,7 +28,7 @@
         <header class="header-wrapper">
             <div class="header container">
                 <div class="header__logo">
-                    <button class="btn only-icon bg-primary" @click="toggleTopicsMenu" v-if="showBtn">
+                    <button class="btn only-icon bg-primary btn-mobile" @click="toggleTopicsMenu" v-if="showBtn">
                         <i class="fa-solid fa-bars"></i>
                     </button>
 
@@ -512,8 +512,8 @@
                         v-for="kanbanStatus in ['todo', 'doing', 'completed']" :key="kanbanStatus"
                         @drop="onDrop(kanbanStatus)" @dragover="onDragOver"
                         @dragenter="event => onDragEnter(event, kanbanStatus)"
-                        @touchstart="handleTouchStart($event, kanbanStatus)" @touchmove="handleTouchMove($event)"
-                        @touchend="handleTouchEnd($event)" :data-status="kanbanStatus">
+                        @touchstart="handleTouchStart($event, kanbanStatus)" @touchend="handleTouchEnd($event)"
+                        :data-status="kanbanStatus">
                         <h2 class="subtitle">
                             {{ kanbanStatus === 'todo' ? 'Para fazer' : kanbanStatus === 'doing' ? 'Fazendo' :
                             'Concluído'

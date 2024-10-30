@@ -556,6 +556,7 @@ const Home = {
                 this.editingTask && this.closeEditingTask();
                 this.addingTask && this.closeAddingTask();
                 this.showingComment && this.closeShowingComment();
+                this.$root.isMenuTopicsActive && this.closeTopicsMenu();
             }
         });
 
@@ -569,9 +570,16 @@ const Home = {
                 this.showingComment && this.closeShowingComment();
             }
 
-            const dialog = element.querySelector(".modal-dialog");
-            if (dialog) {
-                dialog.addEventListener("click", e => e.stopPropagation());
+            if (
+                !element.closest('.topic-container') &&
+                !element.closest('.btn-mobile') &&
+                this.$root.isMenuTopicsActive
+            ) {
+                this.closeTopicsMenu();
+            }
+
+            if (element.classList.contains("btn-mobile") || element.classList.contains("modal-dialog")) {
+                e.stopPropagation();
             }
         });
     },

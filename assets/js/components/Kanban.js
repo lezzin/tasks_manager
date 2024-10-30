@@ -113,21 +113,9 @@ const Kanban = {
             this.startY = touch.clientY;
         },
 
-        handleTouchMove(event) {
-            if (!this.draggedTask) return;
-
-            const touch = event.touches[0];
-            const deltaX = touch.clientX - this.startX;
-            const deltaY = touch.clientY - this.startY;
-
-            // Aqui você pode implementar a lógica para mover a tarefa
-            // Por exemplo, alterando a posição do elemento baseado em deltaX e deltaY
-        },
-
         handleTouchEnd(event) {
             if (!this.draggedTask) return;
 
-            // Aqui você pode implementar a lógica para soltar a tarefa
             const column = this.getDropColumn(event);
             if (column) {
                 this.onDrop(column);
@@ -138,16 +126,18 @@ const Kanban = {
         },
 
         getDropColumn(event) {
-            // Lógica para determinar em qual coluna a tarefa foi solta
             const touch = event.changedTouches[0];
             const columnElements = document.querySelectorAll('.kanban-column');
+
             for (const column of columnElements) {
                 const rect = column.getBoundingClientRect();
+
                 if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
                     touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
-                    return column.getAttribute('data-status'); // Defina um atributo data-status para cada coluna
+                    return column.getAttribute('data-status'); 
                 }
             }
+
             return null;
         },
 

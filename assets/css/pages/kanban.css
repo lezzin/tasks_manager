@@ -33,6 +33,7 @@
             &.drag-over {
                 position: relative;
                 border-color: var(--border-color);
+                min-height: 70vh;
 
                 &::after {
                     position: absolute;
@@ -72,11 +73,12 @@
                 padding: 1.4rem var(--padding);
                 border-radius: var(--radius);
                 background-color: transparent;
-                transition: box-shadow .3s ease;
+                transition: all .3s ease;
                 cursor: move;
-                
+
                 &.dragging {
                     border-style: dashed;
+                    transform: scale(1.05);
                 }
 
                 &.task-empty {
