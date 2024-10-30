@@ -477,7 +477,7 @@ const Home = {
             this.editingTask = false;
         },
         closeTopicsMenu() {
-            this.$root.toggleTopicsMenu();
+            this.$root.isMenuTopicsActive = false;
         },
 
         loadUserTopics() {

@@ -26,19 +26,15 @@ new Vue({
         toggleUserDropdown() {
             this.isUserDropdownActive = !this.isUserDropdownActive;
         },
-        closeTopicsMenu() {
-            document.body.classList.remove("menu-active");
-        },
         toggleTopicsMenu() {
             this.isMenuTopicsActive = !this.isMenuTopicsActive;
-            document.body.classList.toggle("menu-active", this.isMenuTopicsActive);
         },
         closeToast() {
             this.toast = null;
         },
         async logoutUser() {
             try {
-                await signOut(this.auth);
+                await signOut(auth);
                 Object.assign(this.$data, appInitialState());
             } catch ({ code, message }) {
                 const errors = {

@@ -199,7 +199,6 @@ const Kanban = {
     mounted() {
         document.title = PAGE_TITLES.kanban;
         Object.assign(this.$root, { selectedTopicName: null, showBtn: false });
-        this.$root.closeTopicsMenu();
         this.getAllUserTasks();
     },
 };

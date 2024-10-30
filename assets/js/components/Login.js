@@ -31,6 +31,10 @@ const Login = {
         },
     },
     mounted() {
+        if (this.$root.user) {
+            this.$router.push("/");
+        }
+
         document.title = PAGE_TITLES.login;
         this.$root.showBtn = false;
     },
