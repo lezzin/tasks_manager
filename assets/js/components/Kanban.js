@@ -1,5 +1,5 @@
-import { DOC_NAME, PAGE_TITLES, TASK_PRIORITIES } from "../utils/variables.js";
-import { formatDate } from "../utils/functions.js";
+import { DOC_NAME, PAGE_TITLES } from "../utils/variables.js";
+import { formatDate, getPriorityClass, getPriorityText } from "../utils/functions.js";
 import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
 const Kanban = {
@@ -21,15 +21,8 @@ const Kanban = {
     },
     methods: {
         formatDate,
-
-        getPriorityClass(priority) {
-            const priorityClasses = {
-                [TASK_PRIORITIES.high]: "priority-high",
-                [TASK_PRIORITIES.medium]: "priority-medium",
-                [TASK_PRIORITIES.small]: "priority-small",
-            };
-            return priorityClasses[priority] ?? '';
-        },
+        getPriorityClass,
+        getPriorityText,
 
         createTaskObject({ name, id }, task) {
             return {
@@ -112,6 +105,52 @@ const Kanban = {
             event.preventDefault();
         },
 
+        handleTouchStart(event, task) {
+            this.draggedTask = task;
+            const touch = event.touches[0];
+            event.target.classList.add("dragging");
+            this.startX = touch.clientX;
+            this.startY = touch.clientY;
+        },
+
+        handleTouchMove(event) {
+            if (!this.draggedTask) return;
+
+            const touch = event.touches[0];
+            const deltaX = touch.clientX - this.startX;
+            const deltaY = touch.clientY - this.startY;
+
+            // Aqui você pode implementar a lógica para mover a tarefa
+            // Por exemplo, alterando a posição do elemento baseado em deltaX e deltaY
+        },
+
+        handleTouchEnd(event) {
+            if (!this.draggedTask) return;
+
+            // Aqui você pode implementar a lógica para soltar a tarefa
+            const column = this.getDropColumn(event);
+            if (column) {
+                this.onDrop(column);
+            }
+
+            event.target.classList.remove("dragging");
+            this.draggedTask = null;
+        },
+
+        getDropColumn(event) {
+            // Lógica para determinar em qual coluna a tarefa foi solta
+            const touch = event.changedTouches[0];
+            const columnElements = document.querySelectorAll('.kanban-column');
+            for (const column of columnElements) {
+                const rect = column.getBoundingClientRect();
+                if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
+                    touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
+                    return column.getAttribute('data-status'); // Defina um atributo data-status para cada coluna
+                }
+            }
+            return null;
+        },
+
         changeTaskColumn(task, newColumn) {
             task.kanbanStatus = newColumn;
             this.tasks.todo = this.tasks.todo.filter(t => t !== task);
@@ -128,10 +167,14 @@ const Kanban = {
                 const userData = docSnap.exists() ? docSnap.data() : null;
 
                 if (userData && userData.topics) {
-                    const selectedTopic = taskToUpdate.topic_id;
-                    const selectedTopicData = userData.topics[selectedTopic];
+                    const selectedTopicId = taskToUpdate.topic_id;
+                    const selectedTopicData = Object.values(userData.topics).find(topic => topic.id === selectedTopicId);
+                    const selectedTopicName = selectedTopicData.name;
 
                     if (selectedTopicData && selectedTopicData.tasks) {
+                        taskToUpdate.kanbanStatus = newKanbanStatus;
+                        taskToUpdate.status = newKanbanStatus === "completed";
+
                         const updatedTasks = selectedTopicData.tasks.map(task => {
                             if (taskToUpdate.id == task.id) {
                                 return {
@@ -144,7 +187,7 @@ const Kanban = {
                             return task;
                         });
 
-                        await updateDoc(docRef, { [`topics.${selectedTopic}.${DOC_NAME}`]: updatedTasks });
+                        await updateDoc(docRef, { [`topics.${selectedTopicName}.${DOC_NAME}`]: updatedTasks });
                     }
                 }
             } catch (error) {

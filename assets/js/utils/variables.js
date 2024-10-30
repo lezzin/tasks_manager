@@ -6,7 +6,7 @@ const PAGE_TITLES = {
     "not_found": `${PROJECT_TITLE} | Página não encontrada`,
     "home": `${PROJECT_TITLE} | Suas tarefas`,
     "general": `${PROJECT_TITLE} | Visão geral`,
-    "kanban": `${PROJECT_TITLE} | Visão geral`,
+    "kanban": `${PROJECT_TITLE} | Kanban`,
 }
 
 const TASK_PRIORITIES = {

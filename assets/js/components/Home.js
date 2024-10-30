@@ -1,7 +1,7 @@
 import { doc, getDoc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
 import { DOC_NAME, PAGE_TITLES, TASK_PRIORITIES } from "../utils/variables.js";
-import { formatDate, currentTime, filterField } from "../utils/functions.js";
+import { formatDate, currentTime, filterField, getPriorityClass } from "../utils/functions.js";
 
 const Home = {
     template: "#home-page",
@@ -175,7 +175,7 @@ const Home = {
                 return;
             }
 
-            const formattedTopicName = filterField(this.newTopic);
+            const formattedTopicName = filterField(this.topicNewName);
 
             if (formattedTopicName.length <= 3) {
                 this.topicEditingError = "Insira pelo menos 4 letras!";
@@ -187,7 +187,10 @@ const Home = {
 
             if (userData && userData.topics && userData.topics[this.topicOldName]) {
                 const selectedTopicData = userData.topics[this.topicOldName];
-                if (this.topicNewName == this.topicOldName) return;
+                if (formattedTopicName == this.topicOldName) {
+                    this.closeEditingTopic();
+                    return;
+                };
 
                 if (userData.topics[formattedTopicName]) {
                     this.topicEditingError = "Esse tópico já existe";
@@ -396,15 +399,8 @@ const Home = {
             return docSnap.exists() ? docSnap.data() : null;
         },
 
-        getPriorityClass(priority) {
-            const classes = {
-                [TASK_PRIORITIES.high]: "priority-high",
-                [TASK_PRIORITIES.medium]: "priority-medium",
-                [TASK_PRIORITIES.small]: "priority-small",
-            };
+        getPriorityClass,
 
-            return classes[priority] ?? '';
-        },
         sortTasksByPriority() {
             this.selectedTopic.tasks = this.selectedTopic.tasks.sort((taskA, taskB) => {
                 const priorityA = taskA.priority;

@@ -3,7 +3,7 @@ import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
 
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 import { DOC_NAME, PAGE_TITLES, TASK_PRIORITIES } from "../utils/variables.js";
-import { formatDate } from "../utils/functions.js";
+import { formatDate, getPriorityClass, getPriorityText } from "../utils/functions.js";
 
 const General = {
     template: "#general-page",
@@ -45,28 +45,14 @@ const General = {
         },
 
         formatDate,
+        getPriorityClass,
+        getPriorityText,
 
         formatComment(comment) {
             return marked.parse(comment, {
                 gfm: true,
                 breaks: true
             });
-        },
-
-        getPriorityClass(priority) {
-            return {
-                [TASK_PRIORITIES.high]: "priority-high",
-                [TASK_PRIORITIES.medium]: "priority-medium",
-                [TASK_PRIORITIES.small]: "priority-small",
-            }[priority] || '';
-        },
-
-        getPriorityText(priority) {
-            return {
-                [TASK_PRIORITIES.high]: "Alta prioridade",
-                [TASK_PRIORITIES.medium]: "Média prioridade",
-                [TASK_PRIORITIES.small]: "Baixa prioridade",
-            }[priority] || '';
         },
 
         createTaskObject({ name, id }, task) {

@@ -146,7 +146,8 @@
                     <span class="divider"></span>
 
                     <router-link to="/kanban" class="btn outline-primary btn-icon block block-small"
-                        title="Acessar Kanban"><i class="fa-solid fa-eye"></i>
+                        title="Acessar Kanban">
+                        <i class="fa-solid fa-chart-simple"></i>
                         Acessar Kanban
                     </router-link>
 
@@ -293,7 +294,7 @@
                         </button>
                     </div>
 
-                    <div class="comment-content" v-html="selectedComment"></div>
+                    <div class="markdown-content markdown-content--normal" v-html="selectedComment"></div>
                 </div>
             </div>
 
@@ -465,7 +466,8 @@
                                 </div>
                             </div>
                             <div class="calendar-item-footer" v-if="task.comment">
-                                <div class="task-comment" v-html="formatComment(task.comment)"></div>
+                                <div class="task-comment markdown-content markdown-content--small"
+                                    v-html="formatComment(task.comment)"></div>
                             </div>
                         </router-link>
                     </div>
@@ -485,7 +487,6 @@
     <template id="kanban-page">
         <div class="kanban-wrapper" v-if="loadedTasks">
             <div class="kanban-header">
-                <h2 class="subtitle">Kanban</h2>
                 <router-link to="/" class="btn btn-icon outline-primary" title="Voltar para o início">
                     <i class="fa-solid fa-arrow-left"></i> Voltar
                 </router-link>
@@ -495,20 +496,32 @@
                 <div class="kanban-column" :class=" { 'drag-over': activeColumn === kanbanStatus }"
                     v-for="kanbanStatus in ['todo', 'doing', 'completed']" :key="kanbanStatus"
                     @drop="onDrop(kanbanStatus)" @dragover="onDragOver"
-                    @dragenter="event => onDragEnter(event, kanbanStatus)">
+                    @dragenter="event => onDragEnter(event, kanbanStatus)"
+                    @touchstart="handleTouchStart($event, kanbanStatus)" @touchmove="handleTouchMove($event)"
+                    @touchend="handleTouchEnd($event)" :data-status="kanbanStatus">
                     <h2 class="subtitle">
                         {{ kanbanStatus === 'todo' ? 'Para fazer' : kanbanStatus === 'doing' ? 'Fazendo' : 'Concluído'
                         }}
                     </h2>
 
                     <div class="kanban-tasks">
-                        <div v-for="task in tasks[kanbanStatus]" :key="task.id"
-                            :class="['task', task.status ? 'completed' : getPriorityClass(task.priority)]"
-                            draggable="true" @dragstart="handleDragEvents($event, 'start', task)"
-                            @dragend="handleDragEvents($event, 'end')">
-                            <router-link class="text" :to="'/topic/' + task.topic_id">{{ task.name }}</router-link>
+                        <div class="task task-empty" v-if="tasks[kanbanStatus] == 0">
+                            <i class="fa-solid fa-exclamation-triangle"></i>
+                            <p class="text">Nenhuma tarefa na coluna</p>
+                        </div>
+                        <div v-else v-for="task in tasks[kanbanStatus]" :key="task.id"
+                            :class="['task', task.status && 'completed']" draggable="true"
+                            @dragstart="handleDragEvents($event, 'start', task)"
+                            @dragend="handleDragEvents($event, 'end')" @touchstart="handleTouchStart($event, task)"
+                            @touchend="handleTouchEnd($event, task)">
+                            <router-link class="text task-name" :to="'/topic/' + task.topic_id">{{ task.name
+                                }}</router-link>
 
-                            <p class="task-information">
+                            <span :class="['task-priority-tag', getPriorityClass(task.priority) + '-kanban']">
+                                {{ getPriorityText(task.priority) }}
+                            </span>
+
+                            <div class="task-information">
                                 <span class="text text-icon small">
                                     <i class="fa-regular fa-clock"></i>
                                     Criado em: {{ task.created_at }}
@@ -517,7 +530,7 @@
                                     <i class="fa-regular fa-bell"></i>
                                     Entrega para: {{ formatDate(task.delivery_date) }}
                                 </span>
-                            </p>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -188,6 +188,10 @@
                     background-color: var(--small-priority);
                 }
 
+                .task:hover {
+                    box-shadow: 0 .25rem .5rem rgb(0 0 0 / 15%);
+                }
+
                 .right-content {
                     display: flex;
                     align-items: center;

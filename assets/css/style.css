@@ -130,6 +130,10 @@ body {
     }
 }
 
+button {
+    font-family: inherit;
+}
+
 .btn {
     cursor: pointer;
     background-color: transparent;
@@ -238,26 +242,6 @@ body {
     width: 100%;
     background-color: var(--border-color);
     height: 1px;
-}
-
-.priority-high {
-    background-color: var(--high-priority) !important;
-}
-
-.priority-medium {
-    background-color: var(--medium-priority) !important;
-}
-
-.priority-small {
-    background-color: var(--small-priority) !important;
-}
-
-.completed {
-    background-color: var(--details-color-light) !important;
-}
-
-.task:hover {
-    box-shadow: 0 .25rem .5rem rgb(0 0 0 / 15%);
 }
 
 .toast .btn i,
@@ -708,8 +692,41 @@ form {
     font-size: 1.4rem !important;
 }
 
-.comment-content * {
-    font-size: 1.6rem !important;
+.markdown-content * {
     margin: revert;
     padding: revert;
+}
+
+.markdown-content--normal {
+    font-size: 1.6rem !important;
+}
+
+.markdown-content--small {
+    font-size: 1.1rem !important;
+}
+
+.markdown-content--small :first-child {
+    margin-top: 0;
+    padding-top: 0;
+}
+
+.markdown-content--small :last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.priority-high {
+    background-color: var(--high-priority) !important;
+}
+
+.priority-medium {
+    background-color: var(--medium-priority) !important;
+}
+
+.priority-small {
+    background-color: var(--small-priority) !important;
+}
+
+.completed {
+    background-color: var(--details-color-light) !important;
 }
