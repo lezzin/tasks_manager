@@ -355,7 +355,7 @@ button {
 
         display: grid;
         grid-template-rows: auto 1fr;
-        max-height: 90vh;
+        max-height: 90dvh;
 
         .modal-header {
             display: flex;
