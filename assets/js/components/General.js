@@ -1,4 +1,9 @@
-import { TASK_PRIORITIES, formatDate, PAGE_TITLES } from "../utils.js";
+import "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
+import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
+
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+import { DOC_NAME, PAGE_TITLES, TASK_PRIORITIES } from "../utils/variables.js";
+import { formatDate } from "../utils/functions.js";
 
 const General = {
     template: "#general-page",
@@ -12,73 +17,59 @@ const General = {
         };
     },
     methods: {
-        sortTasksByPriority() {
-            this.allUserTasks = this.allUserTasks.sort((taskA, taskB) => {
-                const priorityA = taskA.priority;
-                const priorityB = taskB.priority;
-                const statusA = taskA.status;
-                const statusB = taskB.status;
-
-                if (statusA !== statusB) {
-                    return statusA ? -1 : 1;
-                }
-
-                if (priorityA !== priorityB) {
-                    return priorityB - priorityA;
-                }
-
-                return 0;
-            });
-        },
         downloadAsPDF() {
-            const pdfName = `${Date.now().toString()}.pdf`;
-            const elementToConvert = document.querySelector('#pdf-container');
+            const pdf = document.querySelector('#pdf-container');
             const options = {
                 margin: 10,
-                filename: pdfName,
+                filename: `${Date.now().toString()}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
             };
 
-            html2pdf().set(options).from(elementToConvert).save();
+            html2pdf().set(options).from(pdf).save();
         },
-        handleFocusOnTaskByPriority(priority) {
+
+        focusTasksByPriority(priority) {
             this.allUserTasks.forEach(task => {
                 task.isHovering = true;
-                if (task.priority == priority || (priority == 'completed' && task.status)) {
-                    task.isFocused = true;
-                }
+                task.isFocused = task.priority == priority || (priority == 'completed' && task.status);
             });
         },
-        handleRemoveFocus() {
+
+        removeFocusFromTasks() {
             this.allUserTasks.forEach(task => {
                 task.isHovering = false;
                 task.isFocused = false;
             });
         },
-        formatDate(date) {
-            return formatDate(date);
-        },
+
+        formatDate,
+
         formatComment(comment) {
-            return comment.replace(/\n/g, '<br>');
+            return marked.parse(comment, {
+                gfm: true,
+                breaks: true
+            });
         },
+
         getPriorityClass(priority) {
             return {
                 [TASK_PRIORITIES.high]: "priority-high",
                 [TASK_PRIORITIES.medium]: "priority-medium",
                 [TASK_PRIORITIES.small]: "priority-small",
-            }[priority] ?? '';
+            }[priority] || '';
         },
+
         getPriorityText(priority) {
             return {
                 [TASK_PRIORITIES.high]: "Alta prioridade",
                 [TASK_PRIORITIES.medium]: "Média prioridade",
                 [TASK_PRIORITIES.small]: "Baixa prioridade",
-            }[priority] ?? '';
+            }[priority] || '';
         },
-        createTaskObject(topic, task) {
-            const { name, id } = topic;
+
+        createTaskObject({ name, id }, task) {
             return {
                 topic_name: name,
                 topic_id: id,
@@ -87,57 +78,57 @@ const General = {
                 isFocused: false
             };
         },
-        createPriorityCounter() {
-            const priorityCounts = {
-                completed: this.allUserTasks.filter(task => task.status).length,
-                high: this.allUserTasks.filter(task => task.priority == TASK_PRIORITIES.high).length,
-                medium: this.allUserTasks.filter(task => task.priority == TASK_PRIORITIES.medium).length,
-                small: this.allUserTasks.filter(task => task.priority == TASK_PRIORITIES.small).length,
-            };
-            this.priorityCount = priorityCounts;
-        },
-        async getAllUserTasks() {
-            try {
-                const docRef = this.db.collection("tasks").doc(this.user.uid);
-                const doc = await docRef.get();
-                const userData = doc.data();
 
-                if (!userData || !userData.topics || Object.keys(userData.topics).length === 0) {
+        updatePriorityCounter() {
+            this.priorityCount = {
+                completed: this.allUserTasks.filter(task => task.status).length,
+                high: this.allUserTasks.filter(task => task.priority === TASK_PRIORITIES.high).length,
+                medium: this.allUserTasks.filter(task => task.priority === TASK_PRIORITIES.medium).length,
+                small: this.allUserTasks.filter(task => task.priority === TASK_PRIORITIES.small).length,
+            };
+        },
+
+        async fetchUserTasks() {
+            try {
+                const docRef = doc(this.db, DOC_NAME, this.user.uid);
+                const docSnap = await getDoc(docRef);
+                const userData = docSnap.data();
+
+                if (!userData?.topics || Object.keys(userData.topics).length === 0) {
                     this.loadedTasks = true;
                     return;
                 }
 
-                const tasks = [];
-                for (const topic of Object.values(userData.topics)) {
-                    if (topic.tasks && topic.tasks.length > 0) {
-                        tasks.push(...topic.tasks.map(task => this.createTaskObject(topic, task)));
-                    }
-                }
+                this.allUserTasks = this.getUserTasks(userData.topics);
 
-                this.allUserTasks = tasks;
-                this.createPriorityCounter();
-                this.sortTasksByPriority();
-                this.loadedTasks = true;
+                this.updatePriorityCounter();
             } catch (error) {
                 this.$root.toast = {
                     type: "error",
-                    text: "Erro ao obter documento: " + error,
+                    text: `Erro ao obter tarefas: ${error}`
                 };
+            } finally {
                 this.loadedTasks = true;
             }
+        },
+
+        getUserTasks(topics) {
+            return Object.values(topics)
+                .filter(topic => topic.tasks?.length > 0)
+                .flatMap(topic => topic.tasks.map(task => this.createTaskObject(topic, task)))
+                .sort((taskA, taskB) => {
+                    if (taskA.status !== taskB.status) return taskA.status ? -1 : 1;
+                    return taskB.priority - taskA.priority;
+                });;
         }
     },
-    created() {
+
+    mounted() {
         document.title = PAGE_TITLES.general;
-        this.$root.selectedTopicName = null;
-        this.$root.showBtn = false;
+        Object.assign(this.$root, { selectedTopicName: null, showBtn: false });
         this.$root.closeTopicsMenu();
 
-        if (this.user) {
-            this.getAllUserTasks();
-        } else {
-            this.$router.push("/login");
-        }
+        this.fetchUserTasks();
     },
 };
 

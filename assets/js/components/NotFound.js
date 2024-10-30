@@ -1,8 +1,8 @@
-import { PAGE_TITLES } from "../utils.js";
+import { PAGE_TITLES } from "../utils/variables.js";
 
 const NotFound = {
-    template: "#page-not-found",
-    created() {
+    template: "#not-found-page",
+    mounted() {
         document.title = PAGE_TITLES.not_found;
         this.$root.selectedTopicName = null;
         this.$root.showBtn = false;

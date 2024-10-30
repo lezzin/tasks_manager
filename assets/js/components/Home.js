@@ -1,12 +1,7 @@
-import "https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js";
+import { doc, getDoc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
-import {
-    PAGE_TITLES,
-    TASK_PRIORITIES,
-    currentTime,
-    formatDate,
-    sanitizeHtml
-} from "../utils.js";
+import { DOC_NAME, PAGE_TITLES, TASK_PRIORITIES } from "../utils/variables.js";
+import { formatDate, currentTime, filterField } from "../utils/functions.js";
 
 const Home = {
     template: "#home-page",
@@ -130,68 +125,49 @@ const Home = {
             this.$root.selectedTopicName = topic.name;
             this.sortTasksByPriority();
         },
-        addTopic() {
+
+        async addTopic() {
             this.formTopicError = '';
 
             if (!this.newTopic) {
-                this.formTopicError = "Preencha o campo"
+                this.formTopicError = "Preencha o campo";
                 return;
             }
 
-            if (String(this.newTopic).replaceAll(".", "").length <= 3) {
+            const formattedTopicName = filterField(this.newTopic);
+
+            if (formattedTopicName.length <= 3) {
                 this.formTopicError = "Insira pelo menos 4 letras!";
                 return;
             }
 
-            const docRef = this.db.collection("tasks").doc(this.user.uid);
-            docRef
-                .get()
-                .then((doc) => {
-                    const userData = doc.data();
+            const docRef = doc(this.db, DOC_NAME, this.user.uid);
+            const userData = await this.getUserData(docRef);
 
-                    if (userData && userData.topics && userData.topics[this.newTopic]) {
-                        this.formTopicError = "Esse tópico já existe";
-                        return;
-                    }
+            if (userData && userData.topics && userData.topics[formattedTopicName]) {
+                this.formTopicError = "Esse tópico já existe";
+                return;
+            }
 
-                    const formattedNewTopicName = sanitizeHtml(String(this.newTopic).replaceAll(".", ""));
+            await setDoc(docRef, {}, { merge: true });
+            await updateDoc(docRef, {
+                [`topics.${formattedTopicName}`]: {
+                    id: Date.now().toString(26),
+                    name: formattedTopicName,
+                    tasks: [],
+                    created_at: currentTime(),
+                }
+            });
 
-                    docRef
-                        .set({}, {
-                            merge: true
-                        })
-                        .then(() => {
-                            return docRef.update({
-                                [`topics.${formattedNewTopicName}`]: {
-                                    id: Date.now().toString(26),
-                                    name: formattedNewTopicName,
-                                    tasks: [],
-                                    created_at: currentTime(),
-                                }
-                            });
-                        })
-                        .then(() => {
-                            this.$root.toast = {
-                                type: "success",
-                                text: "Tópico criado com sucesso"
-                            };
-                            this.newTopic = '';
-                        })
-                        .catch((error) => {
-                            this.$root.toast = {
-                                type: "error",
-                                text: "Erro ao criar tópico: " + error,
-                            }
-                        });
-                })
-                .catch((error) => {
-                    this.$root.toast = {
-                        type: "error",
-                        text: "Erro ao obter dados do usuário: " + error,
-                    }
-                });
+            this.$root.toast = {
+                type: "success",
+                text: "Tópico criado com sucesso"
+            };
+
+            this.newTopic = '';
         },
-        editTopic() {
+
+        async editTopic() {
             this.topicEditingError = "";
 
             if (!this.topicNewName) {
@@ -199,353 +175,225 @@ const Home = {
                 return;
             }
 
-            if (String(this.topicNewName).replaceAll(".", "").length <= 3) {
+            const formattedTopicName = filterField(this.newTopic);
+
+            if (formattedTopicName.length <= 3) {
                 this.topicEditingError = "Insira pelo menos 4 letras!";
                 return;
             }
 
-            const docRef = this.db.collection("tasks").doc(this.user.uid);
-            const formattedNewTopicName = sanitizeHtml(String(this.topicNewName).replaceAll(".", ""));
+            const docRef = doc(this.db, DOC_NAME, this.user.uid);
+            const userData = await this.getUserData(docRef);
 
-            docRef
-                .get()
-                .then((doc) => {
-                    const userData = doc.data();
-                    if (userData && userData.topics && userData.topics[this.topicOldName]) {
-                        const selectedTopicData = userData.topics[this.topicOldName];
-                        if (this.topicNewName == this.topicOldName) return;
+            if (userData && userData.topics && userData.topics[this.topicOldName]) {
+                const selectedTopicData = userData.topics[this.topicOldName];
+                if (this.topicNewName == this.topicOldName) return;
 
-                        if (userData.topics[formattedNewTopicName]) {
-                            this.topicEditingError = "Esse tópico já existe";
-                            return Promise.reject("Esse tópico já existe");
-                        }
+                if (userData.topics[formattedTopicName]) {
+                    this.topicEditingError = "Esse tópico já existe";
+                    return;
+                }
 
-                        const updatedTopics = {
-                            ...userData.topics
-                        };
-                        updatedTopics[formattedNewTopicName] = selectedTopicData;
-                        updatedTopics[formattedNewTopicName].name = formattedNewTopicName;
-                        delete updatedTopics[this.topicOldName];
+                const updatedTopics = {
+                    ...userData.topics,
+                    [formattedTopicName]: {
+                        ...selectedTopicData,
+                        name: formattedTopicName
+                    },
+                };
+                delete updatedTopics[this.topicOldName];
 
-                        return docRef.update({
-                            topics: updatedTopics
-                        });
-                    }
-
-                    return Promise.reject("Tópico não encontrado");
-                })
-                .then(() => {
-                    this.closeEditingTopic();
-                    this.$root.toast = {
-                        type: "success",
-                        text: "Tópico atualizado com sucesso"
-                    };
-                })
-                .catch((error) => {
-                    this.$root.toast = {
-                        type: "error",
-                        text: "Erro ao alterar tópico: " + error
-                    };
-                });
+                await updateDoc(docRef, { topics: updatedTopics });
+                this.closeEditingTopic();
+                this.$root.toast = {
+                    type: "success",
+                    text: "Tópico atualizado com sucesso"
+                };
+            } else {
+                this.topicEditingError = "Tópico não encontrado";
+            }
         },
-        deleteTopic(topicName) {
+
+        async deleteTopic(topicName) {
             if (!confirm("Tem certeza que deseja excluir esse tópico? Essa ação não poderá ser desfeita!")) return;
 
-            const docRef = this.db.collection("tasks").doc(this.user.uid);
-            docRef
-                .get()
-                .then((doc) => {
-                    const userData = doc.data();
-                    const topicExists = userData && userData.topics && userData.topics[topicName];
+            const docRef = doc(this.db, DOC_NAME, this.user.uid);
+            const userData = await this.getUserData(docRef);
 
-                    if (!topicExists) {
-                        this.$root.toast = {
-                            type: "error",
-                            text: "Tópico não encontrado"
-                        };
-                        return;
-                    }
+            if (!userData || !userData.topics || !userData.topics[topicName]) {
+                this.$root.toast = {
+                    type: "error",
+                    text: "Tópico não encontrado"
+                };
+                return;
+            }
 
-                    delete userData.topics[topicName];
-                    docRef
-                        .update({
-                            topics: userData.topics
-                        })
-                        .then(() => {
-                            this.$root.toast = {
-                                type: "success",
-                                text: "Tópico excluído com sucesso"
-                            };
-                            this.selectedTopic = this.$root.selectedTopicName = null;
-                            if (this.$router.history.current.fullPath != "/") this.$router.push("/");
-                        })
-                        .catch((error) => {
-                            this.$root.toast = {
-                                type: "error",
-                                text: "Erro ao excluir tópico: " + error,
-                            }
-                        });
-                })
-                .catch((error) => {
-                    this.$root.toast = {
-                        type: "error",
-                        text: "Erro ao obter dados do usuário: " + error,
-                    }
-                });
+            delete userData.topics[topicName];
+            await updateDoc(docRef, { topics: userData.topics });
+            this.$root.toast = {
+                type: "success",
+                text: "Tópico excluído com sucesso"
+            };
+            this.selectedTopic = this.$root.selectedTopicName = null;
+            if (this.$router.history.current.fullPath !== "/") this.$router.push("/");
         },
-        deleteAllTopics() {
+
+        async deleteAllTopics() {
             if (!confirm("Tem certeza que deseja excluir TODOS os seus tópicos? Essa ação não poderá ser desfeita!")) return;
 
-            const docRef = this.db.collection('tasks').doc(this.user.uid);
-            docRef
-                .get()
-                .then((doc) => {
-                    if (!doc.exists) {
-                        this.$root.toast = {
-                            type: "info",
-                            text: "Nenhum tópico encontrado para excluir."
-                        };
-                        return;
-                    }
+            const docRef = doc(this.db, 'tasks', this.user.uid);
+            const userData = await this.getUserData(docRef);
 
-                    const userData = doc.data();
-                    if (!userData || !userData.topics || Object.keys(userData.topics).length === 0) {
-                        this.$root.toast = {
-                            type: "info",
-                            text: "Nenhum tópico encontrado para excluir."
-                        };
-                        return;
-                    }
+            if (!userData || !userData.topics || Object.keys(userData.topics).length === 0) {
+                this.$root.toast = {
+                    type: "error",
+                    text: "Nenhum tópico encontrado para excluir."
+                };
+                return;
+            }
 
-                    const updatedData = { topics: {} };
-
-                    docRef.update(updatedData)
-                        .then(() => {
-                            this.$root.toast = {
-                                type: "success",
-                                text: "Todos os tópicos foram excluídos com sucesso."
-                            };
-                            this.selectedTopic = this.$root.selectedTopicName = null;
-                        })
-                        .catch((error) => {
-                            this.$root.toast = {
-                                type: "error",
-                                text: "Erro ao excluir tópicos: " + error
-                            };
-                        });
-                })
-                .catch((error) => {
-                    this.$root.toast = {
-                        type: "error",
-                        text: "Erro ao obter dados do usuário: " + error
-                    };
-                });
+            await updateDoc(docRef, { topics: {} });
+            this.$root.toast = {
+                type: "success",
+                text: "Todos os tópicos foram excluídos com sucesso."
+            };
+            this.selectedTopic = this.$root.selectedTopicName = null;
         },
 
-        addTask() {
+        async addTask() {
             if (!this.addNewTaskName) {
                 this.formTaskError = "Preencha o campo";
                 return;
             }
 
-            const {
-                name
-            } = this.selectedTopic;
-            const docRef = this.db.collection('tasks').doc(this.user.uid);
-            docRef
-                .get()
-                .then(doc => {
-                    if (doc.exists) {
-                        const userData = doc.data();
+            const { name, id } = this.selectedTopic;
+            const docRef = doc(this.db, 'tasks', this.user.uid);
+            const userData = await this.getUserData(docRef);
 
-                        if (userData && userData.topics) {
-                            const topic = userData.topics[name];
-                            const sanitizedComment = this.commentMd.add.value() ? sanitizeHtml(this.commentMd.add.value()).replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>') : "";
+            if (userData && userData.topics) {
+                const topic = userData.topics[name];
+                const sanitizedComment = this.commentMd.add.value() ?? "";
 
-                            if (topic) {
-                                const taskData = {
-                                    id: Date.now().toString(36),
-                                    name: sanitizeHtml(String(this.addNewTaskName).replaceAll(".", "")),
-                                    status: false,
-                                    created_at: currentTime(),
-                                    priority: this.addNewTaskPriority,
-                                    comment: sanitizedComment,
-                                    delivery_date: this.addNewTaskDate,
-                                };
-                                const updatedTasks = [...topic.tasks, taskData];
-
-                                docRef
-                                    .update({
-                                        [`topics.${name}.tasks`]: updatedTasks
-                                    })
-                                    .then(() => {
-                                        this.$root.toast = {
-                                            type: "success",
-                                            text: "Tarefa adicionada com sucesso"
-                                        };
-                                        this.addNewTaskComment = this.addNewTaskDate = this.addNewTaskName = null;
-                                        this.sortTasksByPriority();
-                                        this.closeAddingTask();
-                                    })
-                                    .catch(error => {
-                                        this.$root.toast = {
-                                            type: "error",
-                                            text: "Erro ao adicionar tarefa: " + error,
-                                        };
-                                    });
-                            }
-                        }
-                    }
-                })
-                .catch(error => {
-                    this.$root.toast = {
-                        type: "error",
-                        text: "Erro ao carregar tópico: " + error,
+                if (topic) {
+                    const taskData = {
+                        id: Date.now().toString(36),
+                        name: filterField(this.addNewTaskName),
+                        status: false,
+                        created_at: currentTime(),
+                        priority: this.addNewTaskPriority,
+                        comment: sanitizedComment,
+                        delivery_date: this.addNewTaskDate,
+                        kanbanStatus: "todo",
+                        topic_id: id
                     };
-                });
+                    const updatedTasks = [...topic.tasks, taskData];
+
+                    await updateDoc(docRef, { [`topics.${name}.${DOC_NAME}`]: updatedTasks });
+                    this.$root.toast = {
+                        type: "success",
+                        text: "Tarefa adicionada com sucesso"
+                    };
+                    this.addNewTaskComment = this.addNewTaskDate = this.addNewTaskName = null;
+                    this.sortTasksByPriority();
+                    this.closeAddingTask();
+                }
+            }
         },
-        editTask() {
-            if (!this.editNewTaskName) {
-                this.editNewTaskNameError = "Preencha o campo";
+
+        async editTask() {
+            if (!this.editNewTaskName || !this.editNewTaskPriority) {
+                if (!this.editNewTaskName) this.editNewTaskNameError = "Preencha o campo";
+                if (!this.editNewTaskPriority) this.editNewTaskPriorityError = "Preencha o campo";
+                return;
             }
 
-            if (!this.editNewTaskPriority) {
-                this.editNewTaskPriorityError = "Preencha o campo";
+            const docRef = doc(this.db, DOC_NAME, this.user.uid);
+            const selectedTopicData = (await getDoc(docRef)).data().topics[this.selectedTopic.name];
+            const sanitizedComment = this.commentMd.edit.value() ?? "";
+
+            if (selectedTopicData && selectedTopicData.tasks) {
+                const updatedTasks = selectedTopicData.tasks.map(task => {
+                    if (task.id == this.editTaskId) {
+                        return {
+                            ...task,
+                            name: filterField(this.editNewTaskName),
+                            priority: this.editNewTaskPriority,
+                            delivery_date: this.editNewTaskDate,
+                            comment: sanitizedComment
+                        };
+                    }
+                    return task;
+                });
+
+                await updateDoc(docRef, { [`topics.${this.selectedTopic.name}.${DOC_NAME}`]: updatedTasks });
+                this.$root.toast = {
+                    type: "success",
+                    text: "Tarefa alterada com sucesso"
+                };
+                this.closeEditingTask();
+                this.searchTaskByName();
             }
-
-            if (!this.editNewTaskName || !this.editNewTaskPriority) return;
-
-            const docRef = this.db.collection("tasks").doc(this.user.uid);
-            docRef
-                .get()
-                .then((doc) => {
-                    const selectedTopicData = doc.data().topics[this.selectedTopic.name];
-                    const sanitizedComment = this.commentMd.edit.value() ? sanitizeHtml(this.commentMd.edit.value()).replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>') : "";
-
-                    if (selectedTopicData && selectedTopicData.tasks) {
-                        const updatedTasks = selectedTopicData.tasks.map((task) => {
-                            if (task.id == this.editTaskId) {
-                                task.name = sanitizeHtml(String(this.editNewTaskName).replaceAll(".", ""));
-                                task.priority = this.editNewTaskPriority;
-                                task.delivery_date = this.editNewTaskDate;
-                                task.comment = sanitizedComment;
-                            }
-
-                            return task;
-                        });
-
-                        docRef
-                            .update({
-                                [`topics.${this.selectedTopic.name}.tasks`]: updatedTasks
-                            })
-                            .then(() => {
-                                this.$root.toast = {
-                                    type: "success",
-                                    text: "Tarefa alterada com sucesso"
-                                }
-
-                                this.closeEditingTask();
-                                this.searchTaskByName();
-                            })
-                            .catch((error) => {
-                                this.$root.toast = {
-                                    type: "error",
-                                    text: "Erro ao alterar tarefa: " + error,
-                                }
-                            });
-                    }
-                }).catch((error) => {
-                    this.$root.toast = {
-                        type: "error",
-                        text: "Erro ao obter tarefa: " + error,
-                    }
-                });
         },
-        changeTaskStatus(taskId) {
-            const docRef = this.db.collection("tasks").doc(this.user.uid);
 
-            docRef
-                .get()
-                .then((doc) => {
-                    const selectedTopicData = doc.data().topics[this.selectedTopic.name];
+        async changeTaskStatus(taskId) {
+            const docRef = doc(this.db, DOC_NAME, this.user.uid);
+            const userData = await this.getUserData(docRef);
 
-                    if (selectedTopicData && selectedTopicData.tasks) {
-                        const updatedTasks = selectedTopicData.tasks.map((task) => {
-                            if (task.id == taskId) {
-                                task.status = !task.status;
-                            }
-                            return task;
-                        });
-                        this.db
-                            .collection("tasks")
-                            .doc(this.user.uid)
-                            .update({
-                                [`topics.${this.selectedTopic.name}.tasks`]: updatedTasks
-                            })
-                            .then(() => {
-                                this.$root.toast = {
-                                    type: "success",
-                                    text: "Status alterado com sucesso"
-                                }
-                                this.searchTaskByStatus();
-                            }).catch((error) => {
-                                this.$root.toast = {
-                                    type: "error",
-                                    text: "Erro ao alterar status da tarefa: " + error,
-                                }
-                            });
-                    }
-                })
-                .catch((error) => {
+            if (userData && userData.topics) {
+                const selectedTopicData = userData.topics[this.selectedTopic.name];
+
+                if (selectedTopicData && selectedTopicData.tasks) {
+                    const updatedTasks = selectedTopicData.tasks.map(task => {
+                        const newStatus = !task.status;
+
+                        if (task.id == taskId) {
+                            return {
+                                ...task,
+                                status: newStatus,
+                                kanbanStatus: newStatus ? "completed" : "todo"
+                            };
+                        }
+                        return task;
+                    });
+
+                    await updateDoc(docRef, { [`topics.${this.selectedTopic.name}.${DOC_NAME}`]: updatedTasks });
                     this.$root.toast = {
-                        type: "error",
-                        text: "Erro ao obter tarefa: " + error,
-                    }
-                });
+                        type: "success",
+                        text: "Status de conclusão alterado com sucesso"
+                    };
+                    this.searchTaskByStatus();
+                }
+            }
         },
-        deleteTask(topicName, taskId) {
+
+        async deleteTask(topicName, taskId) {
             if (!confirm("Tem certeza que deseja excluir essa tarefa? Essa ação não poderá ser desfeita!")) return;
 
-            const docRef = this.db.collection("tasks").doc(this.user.uid);
-            docRef.get()
-                .then((doc) => {
-                    const userData = doc.data();
-                    const topicExists = userData && userData.topics && userData.topics[topicName];
+            const docRef = doc(this.db, DOC_NAME, this.user.uid);
+            const userData = await this.getUserData(docRef);
 
-                    if (!topicExists) {
-                        this.$root.toast = {
-                            type: "error",
-                            text: "Tópico não encontrado"
-                        };
-                        return;
-                    }
+            if (!userData || !userData.topics || !userData.topics[topicName]) {
+                this.$root.toast = {
+                    type: "error",
+                    text: "Tópico não encontrado"
+                };
+                return;
+            }
 
-                    const selectedTopic = userData.topics[topicName];
-                    const updatedTasks = selectedTopic.tasks.filter(task => task.id !== taskId);
+            const selectedTopic = userData.topics[topicName];
+            const updatedTasks = selectedTopic.tasks.filter(task => task.id !== taskId);
 
-                    docRef.update({
-                        [`topics.${topicName}.tasks`]: updatedTasks
-                    })
-                        .then(() => {
-                            this.$root.toast = {
-                                type: "success",
-                                text: "Tarefa excluída com sucesso"
-                            };
-                            this.sortTasksByPriority();
-                        })
-                        .catch((error) => {
-                            this.$root.toast = {
-                                type: "error",
-                                text: "Erro ao excluir tarefa: " + error
-                            }
-                        });
-                })
-                .catch((error) => {
-                    this.$root.toast = {
-                        type: "error",
-                        text: "Erro ao obter dados do usuário: " + error
-                    }
-                });
+            await updateDoc(docRef, { [`topics.${topicName}.${DOC_NAME}`]: updatedTasks });
+            this.$root.toast = {
+                type: "success",
+                text: "Tarefa excluída com sucesso"
+            };
+            this.sortTasksByPriority();
+        },
+
+        async getUserData(docRef) {
+            const docSnap = await getDoc(docRef);
+            return docSnap.exists() ? docSnap.data() : null;
         },
 
         getPriorityClass(priority) {
@@ -637,51 +485,39 @@ const Home = {
         },
 
         loadUserTopics() {
-            if (!this.user || !this.user.uid) {
-                this.$router.push("/login");
-                return;
-            }
+            const docRef = doc(this.db, DOC_NAME, this.user.uid);
 
-            const docRef = this.db.collection("tasks").doc(this.user.uid);
-            docRef.onSnapshot(
-                (doc) => {
-                    const userData = doc.data();
-                    const topicsExists = userData && userData.topics && Object.keys(userData.topics).length > 0;
+            onSnapshot(docRef, (doc) => {
+                const userData = doc.data();
+                const topicsExists = userData && userData.topics && Object.keys(userData.topics).length > 0;
 
-                    if (!topicsExists) {
-                        this.topics = null;
-                        return;
-                    }
+                if (!topicsExists) {
+                    this.topics = null;
+                    return;
+                }
 
-                    const topics = [];
-                    Object.keys(userData.topics).forEach(topicName => {
-                        const topic = userData.topics[topicName];
-                        const topicObject = {
-                            id: topic.id,
-                            name: topic.name,
-                            tasks: topic.tasks,
-                            tasks_length: topic.tasks?.length ?? 0,
-                            created_at: topic.created_at
-                        }
-
-                        topics.push(topicObject);
-                    });
-                    this.topics = topics.sort((a, b) => {
-                        return new Date(a.created_at) - new Date(b.created_at);
-                    });
-
-                    if (this.$route.params.id) {
-                        this.loadTopic(this.$route.params.id);
-                    }
-                },
-                (error) => {
-                    if (!this.$root.user) return;
-
-                    this.$root.toast = {
-                        type: "error",
-                        text: "Erro ao obter documento: " + error
+                this.topics = Object.keys(userData.topics).map(topicName => {
+                    const topic = userData.topics[topicName];
+                    return {
+                        id: topic.id,
+                        name: topic.name,
+                        tasks: topic.tasks,
+                        tasks_length: topic.tasks?.length ?? 0,
+                        created_at: topic.created_at
                     };
-                });
+                }).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+                if (this.$route.params.id) {
+                    this.loadTopic(this.$route.params.id);
+                }
+            }, (error) => {
+                if (!this.$root.user) return;
+
+                this.$root.toast = {
+                    type: "error",
+                    text: "Erro ao obter documento: " + error.message
+                };
+            });
 
             this.loadedTopics = true;
         },
@@ -711,9 +547,12 @@ const Home = {
             }
         },
     },
-    created() {
+    mounted() {
         document.title = PAGE_TITLES.home;
         this.$root.showBtn = true;
+
+        this.loadUserTopics();
+        this.initializeMarkdownEditors();
 
         document.addEventListener('keydown', ({ key }) => {
             if (key == 'Escape') {
@@ -740,21 +579,17 @@ const Home = {
             }
         });
     },
-    mounted() {
-        this.loadUserTopics();
-        this.initializeMarkdownEditors();
-    },
     watch: {
-        "newTopic": function () {
+        newTopic: function () {
             this.formTopicError = '';
         },
-        "addNewTaskName": function () {
+        addNewTaskName: function () {
             this.formTaskError = '';
         },
-        "topicNewName": function () {
+        topicNewName: function () {
             this.topicEditingError = '';
         },
-        "editNewTaskName": function () {
+        editNewTaskName: function () {
             this.editNewTaskNameError = '';
         },
         "$route.params.id": function (id) {
