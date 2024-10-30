@@ -17,6 +17,10 @@ const General = {
         };
     },
     methods: {
+        sendBack() {
+            this.$router.back();
+        },
+
         downloadAsPDF() {
             const pdf = document.querySelector('#pdf-container');
             const options = {

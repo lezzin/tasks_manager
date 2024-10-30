@@ -14,13 +14,9 @@
     --danger-color: #f83f3f;
     --danger-color-light: #faebeb;
 
-    --high-priority: #f0ebd1;
-    --medium-priority: #fbfaf4;
-    --small-priority: var(--bg-primary);
-
-    --high-priority-kanban: #9d46e0;
-    --medium-priority-kanban: #f8a521;
-    --small-priority-kanban: #4bd9fc;
+    --high-priority: #EB5757;
+    --medium-priority: #F2C94C;
+    --small-priority: #4bd9fc;
 
     --aside-width: 25%;
     --padding: 1.5rem;

@@ -686,17 +686,26 @@ form {
 }
 
 .priority-high {
-    background-color: var(--high-priority) !important;
+    background-color: var(--high-priority);
+    color: var(--font-secondary);
 }
 
 .priority-medium {
-    background-color: var(--medium-priority) !important;
+    background-color: var(--medium-priority);
+    color: var(--font-primary);
 }
 
 .priority-small {
-    background-color: var(--small-priority) !important;
+    background-color: var(--small-priority);
+    color: var(--font-primary);
 }
 
 .completed {
     background-color: var(--details-color-light) !important;
+}
+
+.tag {
+    padding: .5rem 1rem;
+    font-size: 1.2rem;
+    font-weight: 500;
 }

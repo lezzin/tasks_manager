@@ -72,11 +72,10 @@ new Vue({
         }
     },
     mounted() {
-        document.querySelector(".loader-container").classList.add("hidden");
-
         onAuthStateChanged(auth, user => {
             if (user) {
                 this.user = user;
+                document.querySelector(".loader-container").classList.add("hidden");
             } else {
                 this.$router.push("/login");
             }

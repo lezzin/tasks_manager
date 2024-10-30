@@ -24,6 +24,10 @@ const Kanban = {
         getPriorityClass,
         getPriorityText,
 
+        sendBack() {
+            this.$router.back();
+        },
+
         createTaskObject({ name, id }, task) {
             return {
                 topic_name: name,

@@ -216,11 +216,16 @@
 
                     .task-information {
                         display: flex;
+                        align-items: flex-start;
                         flex-direction: column;
                         gap: 0.4rem;
 
                         p.text {
                             font-size: 2rem;
+                        }
+
+                        .tag {
+                            border-radius: calc(var(--radius) * 1.8);
                         }
 
                         p.task-information-small {

@@ -214,8 +214,7 @@
                             <span class="divider"></span>
 
                             <div class="task-nav">
-                                <div :class="`task ${task.status ? 'completed' : getPriorityClass(task.priority)}`"
-                                    v-for="task in selectedTopic.tasks">
+                                <div :class="`task ${task.status && 'completed'}`" v-for="task in selectedTopic.tasks">
                                     <div class="right-content">
                                         <button :class="`btn bordered rounded ${task.status && 'bg-primary'}`"
                                             :title="`Marcar tarefa como ${task.status ? 'não concluída' : 'concluída'}`"
@@ -224,12 +223,22 @@
                                         </button>
                                         <div class="task-information">
                                             <p class="text">{{ task.name }}</p>
+
+
                                             <p class="task-information-small">
-                                                <span class="text text-icon small"><i class="fa-regular fa-clock"></i>
-                                                    Criado em: {{ task.created_at }}</span>
-                                                <span class="text text-icon small" v-if="task.delivery_date"><i
-                                                        class="fa-regular fa-bell"></i> Entrega para: {{
-                                                    formatDate(task.delivery_date) }}</span>
+                                                <span :class="['tag', getPriorityClass(task.priority)]">
+                                                    <i class="fa-solid fa-exclamation-circle"></i>
+                                                    {{ getPriorityText(task.priority) }}
+                                                </span>
+
+                                                <span class="text text-icon small">
+                                                    <i class="fa-regular fa-clock"></i>
+                                                    Criado em: {{ task.created_at }}
+                                                </span>
+                                                <span class="text text-icon small" v-if="task.delivery_date">
+                                                    <i class="fa-regular fa-bell"></i>
+                                                    Entrega para: {{ formatDate(task.delivery_date) }}
+                                                </span>
                                             </p>
                                         </div>
                                     </div>
@@ -421,8 +430,9 @@
                             <div class="header-buttons">
                                 <button type="button" @click="downloadAsPDF" class="btn bg-primary only-icon"
                                     title="Baixar em PDF"><i class="fa-solid fa-download"></i></button>
-                                <router-link to="/" class="btn outline-primary only-icon"
-                                    title="Voltar para o início"><i class="fa-solid fa-arrow-left"></i></router-link>
+                                <button @click="sendBack()" class="btn outline-primary btn-icon"
+                                    title="Voltar para o início"> <i class="fa-solid fa-arrow-left"></i>
+                                </button>
                             </div>
                         </div>
 
@@ -457,7 +467,7 @@
 
                         <div class="calendar">
                             <router-link
-                                :class="['calendar-item', 'task', task.status ? 'completed' : getPriorityClass(task.priority), { 'is-hovering': task.isHovering, 'focused': task.isFocused }]"
+                                :class="['calendar-item', 'task', task.status && 'completed', { 'is-hovering': task.isHovering, 'focused': task.isFocused }]"
                                 v-for="task in allUserTasks" role="button" :to="'/topic/' + task.topic_id"
                                 title="Acessar tópico">
                                 <div class="calendar-item-header">
@@ -466,6 +476,10 @@
                                         <p class="text">{{ task.name }}</p>
 
                                         <div class="task-informations-small">
+                                            <span :class="['tag', getPriorityClass(task.priority)]">
+                                                <i class="fa-solid fa-exclamation-circle"></i>
+                                                {{ getPriorityText(task.priority) }}
+                                            </span>
                                             <p class="text text-icon small"><i class="fa-regular fa-clock"></i> Criado
                                                 em:
                                                 {{ task.created_at }}
@@ -473,14 +487,15 @@
                                             <p class="text text-icon small" v-if="task.delivery_date"><i
                                                     class="fa-regular fa-bell"></i> Entrega para: {{
                                                 formatDate(task.delivery_date) }}</p>
-                                            <p class="text text-icon small"><i class="fa-regular fa-calendar"></i> {{
-                                                getPriorityText(task.priority) }}</p>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="calendar-item-footer" v-if="task.comment">
-                                    <div class="task-comment markdown-content markdown-content--small"
-                                        v-html="formatComment(task.comment)"></div>
+                                    <div class="task-comment">
+                                        <p class="text small muted">Comentário da tarefa:</p>
+
+                                        <div class="markdown-content markdown-content--small" v-html="formatComment(task.comment)"></div>
+                                    </div>
                                 </div>
                             </router-link>
                         </div>
@@ -502,9 +517,10 @@
         <div class="kanban-wrapper" v-if="loadedTasks">
             <div class="container">
                 <div class="kanban-header">
-                    <router-link to="/" class="btn btn-icon outline-primary" title="Voltar para o início">
-                        <i class="fa-solid fa-arrow-left"></i> Voltar
-                    </router-link>
+                    <button @click="sendBack" class="btn outline-primary btn-icon" title="Voltar para o início">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        Voltar para o início
+                    </button>
                 </div>
 
                 <div class="kanban" v-if="tasksLength > 0">
@@ -535,7 +551,8 @@
                                     {{ task.name }}
                                 </router-link>
 
-                                <span :class="['task-priority-tag', getPriorityClass(task.priority) + '-kanban']">
+                                <span :class="['tag', getPriorityClass(task.priority)]">
+                                    <i class="fa-solid fa-exclamation-circle"></i>
                                     {{ getPriorityText(task.priority) }}
                                 </span>
 
@@ -558,8 +575,8 @@
                         class="large-screen" width="1200" height="640" loading="lazy">
                     <img src="./assets/img/task_empty_sm.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia"
                         class="small-screen" width="640" height="640" loading="lazy">
-                    <router-link to="/" class="btn primary btn-icon" title="Voltar para o início"><i
-                            class="fa-solid fa-arrow-left"></i> Voltar para o início</router-link>
+                    <router-link to="/" class="btn primary btn-icon" title="Voltar para o início">
+                        <i class="fa-solid fa-arrow-left"></i> Voltar para o início</router-link>
                 </div>
             </div>
         </div>

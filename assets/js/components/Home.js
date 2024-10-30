@@ -1,7 +1,7 @@
 import { doc, getDoc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
 import { DOC_NAME, PAGE_TITLES, TASK_PRIORITIES } from "../utils/variables.js";
-import { formatDate, currentTime, filterField, getPriorityClass } from "../utils/functions.js";
+import { formatDate, currentTime, filterField, getPriorityClass, getPriorityText } from "../utils/functions.js";
 
 const Home = {
     template: "#home-page",
@@ -400,6 +400,7 @@ const Home = {
         },
 
         getPriorityClass,
+        getPriorityText,
 
         sortTasksByPriority() {
             this.selectedTopic.tasks = this.selectedTopic.tasks.sort((taskA, taskB) => {
