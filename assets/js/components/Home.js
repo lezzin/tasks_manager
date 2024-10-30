@@ -1,6 +1,6 @@
 import { doc, getDoc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
-import { DOC_NAME, PAGE_TITLES, TASK_PRIORITIES } from "../utils/variables.js";
+import { DOC_NAME, PAGE_TITLES, TASK_KANBAN_STATUSES, TASK_PRIORITIES } from "../utils/variables.js";
 import { formatDate, currentTime, filterField, getPriorityClass, getPriorityText } from "../utils/functions.js";
 
 const Home = {
@@ -8,7 +8,6 @@ const Home = {
     props: ["db", "auth"],
     data() {
         return {
-            user: this.$root.user,
             isMenuTopicsActive: this.$root.isMenuTopicsActive,
 
             topics: null,
@@ -141,7 +140,7 @@ const Home = {
                 return;
             }
 
-            const docRef = doc(this.db, DOC_NAME, this.user.uid);
+            const docRef = doc(this.db, DOC_NAME, this.$root.user.uid);
             const userData = await this.getUserData(docRef);
 
             if (userData && userData.topics && userData.topics[formattedTopicName]) {
@@ -159,10 +158,7 @@ const Home = {
                 }
             });
 
-            this.$root.toast = {
-                type: "success",
-                text: "Tópico criado com sucesso"
-            };
+            this.$root.showToast("success", "Tópico criado com sucesso");
 
             this.newTopic = '';
         },
@@ -182,7 +178,7 @@ const Home = {
                 return;
             }
 
-            const docRef = doc(this.db, DOC_NAME, this.user.uid);
+            const docRef = doc(this.db, DOC_NAME, this.$root.user.uid);
             const userData = await this.getUserData(docRef);
 
             if (userData && userData.topics && userData.topics[this.topicOldName]) {
@@ -208,10 +204,7 @@ const Home = {
 
                 await updateDoc(docRef, { topics: updatedTopics });
                 this.closeEditingTopic();
-                this.$root.toast = {
-                    type: "success",
-                    text: "Tópico atualizado com sucesso"
-                };
+                this.$root.showToast("success", "Tópico atualizado com sucesso");
             } else {
                 this.topicEditingError = "Tópico não encontrado";
             }
@@ -220,23 +213,17 @@ const Home = {
         async deleteTopic(topicName) {
             if (!confirm("Tem certeza que deseja excluir esse tópico? Essa ação não poderá ser desfeita!")) return;
 
-            const docRef = doc(this.db, DOC_NAME, this.user.uid);
+            const docRef = doc(this.db, DOC_NAME, this.$root.user.uid);
             const userData = await this.getUserData(docRef);
 
             if (!userData || !userData.topics || !userData.topics[topicName]) {
-                this.$root.toast = {
-                    type: "error",
-                    text: "Tópico não encontrado"
-                };
+                this.$root.showToast("error", "Tópico não encontrado");
                 return;
             }
 
             delete userData.topics[topicName];
             await updateDoc(docRef, { topics: userData.topics });
-            this.$root.toast = {
-                type: "success",
-                text: "Tópico excluído com sucesso"
-            };
+            this.$root.showToast("success", "Tópico excluído com sucesso");
             this.selectedTopic = this.$root.selectedTopicName = null;
             if (this.$router.history.current.fullPath !== "/") this.$router.push("/");
         },
@@ -244,22 +231,16 @@ const Home = {
         async deleteAllTopics() {
             if (!confirm("Tem certeza que deseja excluir TODOS os seus tópicos? Essa ação não poderá ser desfeita!")) return;
 
-            const docRef = doc(this.db, 'tasks', this.user.uid);
+            const docRef = doc(this.db, 'tasks', this.$root.user.uid);
             const userData = await this.getUserData(docRef);
 
             if (!userData || !userData.topics || Object.keys(userData.topics).length === 0) {
-                this.$root.toast = {
-                    type: "error",
-                    text: "Nenhum tópico encontrado para excluir."
-                };
+                this.$root.showToast("error", "Nenhum tópico encontrado para excluir.");
                 return;
             }
 
             await updateDoc(docRef, { topics: {} });
-            this.$root.toast = {
-                type: "success",
-                text: "Todos os tópicos foram excluídos com sucesso."
-            };
+            this.$root.showToast("success", "Todos os tópicos foram excluídos com sucesso.");
             this.selectedTopic = this.$root.selectedTopicName = null;
         },
 
@@ -270,7 +251,7 @@ const Home = {
             }
 
             const { name, id } = this.selectedTopic;
-            const docRef = doc(this.db, 'tasks', this.user.uid);
+            const docRef = doc(this.db, 'tasks', this.$root.user.uid);
             const userData = await this.getUserData(docRef);
 
             if (userData && userData.topics) {
@@ -292,10 +273,7 @@ const Home = {
                     const updatedTasks = [...topic.tasks, taskData];
 
                     await updateDoc(docRef, { [`topics.${name}.${DOC_NAME}`]: updatedTasks });
-                    this.$root.toast = {
-                        type: "success",
-                        text: "Tarefa adicionada com sucesso"
-                    };
+                    this.$root.showToast("success", "Tarefa adicionada com sucesso");
                     this.addNewTaskComment = this.addNewTaskDate = this.addNewTaskName = null;
                     this.sortTasksByPriority();
                     this.closeAddingTask();
@@ -310,7 +288,7 @@ const Home = {
                 return;
             }
 
-            const docRef = doc(this.db, DOC_NAME, this.user.uid);
+            const docRef = doc(this.db, DOC_NAME, this.$root.user.uid);
             const selectedTopicData = (await getDoc(docRef)).data().topics[this.selectedTopic.name];
             const sanitizedComment = this.commentMd.edit.value() ?? "";
 
@@ -329,17 +307,14 @@ const Home = {
                 });
 
                 await updateDoc(docRef, { [`topics.${this.selectedTopic.name}.${DOC_NAME}`]: updatedTasks });
-                this.$root.toast = {
-                    type: "success",
-                    text: "Tarefa alterada com sucesso"
-                };
+                this.$root.showToast("success", "Tarefa alterada com sucesso");
                 this.closeEditingTask();
                 this.searchTaskByName();
             }
         },
 
         async changeTaskStatus(taskId) {
-            const docRef = doc(this.db, DOC_NAME, this.user.uid);
+            const docRef = doc(this.db, DOC_NAME, this.$root.user.uid);
             const userData = await this.getUserData(docRef);
 
             if (userData && userData.topics) {
@@ -353,17 +328,14 @@ const Home = {
                             return {
                                 ...task,
                                 status: newStatus,
-                                kanbanStatus: newStatus ? "completed" : "todo"
+                                kanbanStatus: newStatus ? TASK_KANBAN_STATUSES.completed : TASK_KANBAN_STATUSES.todo
                             };
                         }
                         return task;
                     });
 
                     await updateDoc(docRef, { [`topics.${this.selectedTopic.name}.${DOC_NAME}`]: updatedTasks });
-                    this.$root.toast = {
-                        type: "success",
-                        text: "Status de conclusão alterado com sucesso"
-                    };
+                    this.$root.showToast("success", "Status de conclusão alterado com sucesso");
                     this.searchTaskByStatus();
                 }
             }
@@ -372,14 +344,11 @@ const Home = {
         async deleteTask(topicName, taskId) {
             if (!confirm("Tem certeza que deseja excluir essa tarefa? Essa ação não poderá ser desfeita!")) return;
 
-            const docRef = doc(this.db, DOC_NAME, this.user.uid);
+            const docRef = doc(this.db, DOC_NAME, this.$root.user.uid);
             const userData = await this.getUserData(docRef);
 
             if (!userData || !userData.topics || !userData.topics[topicName]) {
-                this.$root.toast = {
-                    type: "error",
-                    text: "Tópico não encontrado"
-                };
+                this.$root.showToast("error", "Tópico não encontrado");
                 return;
             }
 
@@ -387,10 +356,7 @@ const Home = {
             const updatedTasks = selectedTopic.tasks.filter(task => task.id !== taskId);
 
             await updateDoc(docRef, { [`topics.${topicName}.${DOC_NAME}`]: updatedTasks });
-            this.$root.toast = {
-                type: "success",
-                text: "Tarefa excluída com sucesso"
-            };
+            this.$root.showToast("success", "Tarefa excluída com sucesso");
             this.sortTasksByPriority();
         },
 
@@ -433,7 +399,7 @@ const Home = {
             if (selectedFilter == "all") {
                 this.selectedTopic.tasks = this.defaultTasks;
             } else {
-                const taskIsCompleted = selectedFilter == "completed";
+                const taskIsCompleted = selectedFilter == TASK_PRIORITIES.completed;
                 this.selectedTopic.tasks = this.defaultTasks.filter(task => task.status == taskIsCompleted);
             }
 
@@ -482,7 +448,7 @@ const Home = {
         },
 
         loadUserTopics() {
-            const docRef = doc(this.db, DOC_NAME, this.user.uid);
+            const docRef = doc(this.db, DOC_NAME, this.$root.user.uid);
 
             onSnapshot(docRef, (doc) => {
                 const userData = doc.data();
@@ -510,10 +476,7 @@ const Home = {
             }, (error) => {
                 if (!this.$root.user) return;
 
-                this.$root.toast = {
-                    type: "error",
-                    text: "Erro ao obter documento: " + error.message
-                };
+                this.$root.showToast("error", "Erro ao obter documento: " + error.message);
             });
 
             this.loadedTopics = true;
@@ -552,13 +515,17 @@ const Home = {
         this.initializeMarkdownEditors();
 
         document.addEventListener('keydown', ({ key }) => {
-            if (key == 'Escape') {
-                this.editingTopic && this.closeEditingTopic();
-                this.editingTask && this.closeEditingTask();
-                this.addingTask && this.closeAddingTask();
-                this.showingComment && this.closeShowingComment();
-                this.$root.isMenuTopicsActive && this.closeTopicsMenu();
+            const events = {
+                'Escape': () => {
+                    this.editingTopic && this.closeEditingTopic();
+                    this.editingTask && this.closeEditingTask();
+                    this.addingTask && this.closeAddingTask();
+                    this.showingComment && this.closeShowingComment();
+                    this.$root.isMenuTopicsActive && this.closeTopicsMenu();
+                }
             }
+
+            events[key] && events[key]();
         });
 
         document.addEventListener("click", e => {

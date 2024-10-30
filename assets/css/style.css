@@ -73,7 +73,7 @@ body {
     }
 
     .small-screen {
-        display: flex;
+        display: initial;
     }
 }
 
@@ -255,6 +255,7 @@ button {
     z-index: 999;
     display: grid;
     grid-template-columns: 1.5rem 1fr;
+    border: 1px solid var(--border-color);
     box-shadow: var(--shadow-md);
     background-color: var(--bg-primary);
     border-radius: var(--radius);
@@ -692,12 +693,12 @@ form {
 
 .priority-medium {
     background-color: var(--medium-priority);
-    color: var(--font-primary);
+    color: var(--font-primary-light);
 }
 
 .priority-small {
     background-color: var(--small-priority);
-    color: var(--font-primary);
+    color: var(--font-primary-light);
 }
 
 .completed {
@@ -708,4 +709,9 @@ form {
     padding: .5rem 1rem;
     font-size: 1.2rem;
     font-weight: 500;
+}
+
+.image-centered {
+    display: grid;
+    place-items: center;
 }

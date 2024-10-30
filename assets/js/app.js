@@ -1,8 +1,8 @@
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+import { onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
 import { doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 import { auth, db } from "./libs/firebase.js";
 import router from "./router.js";
-import { DOC_NAME } from "./utils/variables.js";
+import { DOC_NAME, TOAST_ANIMATION } from "./utils/variables.js";
 
 function appInitialState() {
     return {
@@ -32,6 +32,13 @@ new Vue({
         closeToast() {
             this.toast = null;
         },
+        showToast(type, message) {
+            this.toast = {
+                show: false,
+                type: type,
+                text: message
+            }
+        },
         async logoutUser() {
             try {
                 await signOut(auth);
@@ -43,10 +50,7 @@ new Vue({
                     'auth/no-current-user': 'Nenhum usuário autenticado no momento.'
                 };
 
-                this.toast = {
-                    type: "error",
-                    text: errors[code] ?? `Erro ao sair: ${message}`
-                };
+                this.showToast("error", errors[code] ?? `Erro ao sair: ${message}`)
             }
         },
         async removeUser() {
@@ -56,26 +60,25 @@ new Vue({
 
             try {
                 await deleteDoc(docRef);
-                await this.user.delete();
+                await deleteUser(auth.currentUser);
                 Object.assign(this.$data, appInitialState());
+                this.$router.push("/login");
             } catch ({ code, message }) {
                 const errors = {
                     "auth/requires-recent-login": "Para excluir sua conta, faça login novamente e tente novamente.",
                     "auth/network-request-failed": "Falha na conexão de rede. Verifique sua conexão e tente novamente.",
                 };
 
-                this.toast = {
-                    type: "error",
-                    text: errors[code] ?? message
-                };
+                this.showToast("error", errors[code] ?? message);
             }
         }
     },
     mounted() {
         onAuthStateChanged(auth, user => {
+            document.querySelector(".loader-container").classList.add("hidden");
+
             if (user) {
                 this.user = user;
-                document.querySelector(".loader-container").classList.add("hidden");
             } else {
                 this.$router.push("/login");
             }
@@ -101,7 +104,11 @@ new Vue({
             }
 
             this.toastTimer = setTimeout(() => {
-                this.toast = null;
+                this.toast.show = false;
+
+                setTimeout(() => {
+                    this.toast = null;
+                }, TOAST_ANIMATION * 2);
             }, 5000);
         },
     }

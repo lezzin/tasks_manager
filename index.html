@@ -33,7 +33,7 @@
                     </button>
 
                     <router-link to="/" title="Acessar página incial" class="logo">
-                        <img src="./assets/img/logo_lg.svg" alt="TaskFlow - logo do website" width="148" height="27"
+                        <img src="./assets/img/logo_lg.svg" alt="TaskFlow - logo do website" width="148" height="37"
                             loading="lazy" v-if="!showBtn">
                         <img src="./assets/img/logo_sm.svg" alt="TaskFlow - logo do website" width="118" height="37"
                             loading="lazy" v-if="showBtn">
@@ -102,187 +102,184 @@
     </template>
 
     <template id="home-page">
-        <div class="home-wrapper">
-            <div :class="['topic-container', isMenuTopicsActive && 'active']">
-                <form @submit.prevent="addTopic">
-                    <div class="form-group">
-                        <div :class="['input-group', formTopicError ? 'input-error' : '']">
-                            <input type="text" placeholder="Adicionar novo tópico" v-model="newTopic"
-                                autocomplete="off">
-                            <button class="btn" title="Adicionar novo tópico"><i class="fa-solid fa-plus"></i></button>
+        <div>
+            <div class="home-wrapper" v-if="loadedTopics">
+                <div :class="['topic-container', isMenuTopicsActive && 'active']">
+                    <form @submit.prevent="addTopic">
+                        <div class="form-group">
+                            <div :class="['input-group', formTopicError ? 'input-error' : '']">
+                                <input type="text" placeholder="Adicionar novo tópico" v-model="newTopic"
+                                    autocomplete="off">
+                                <button class="btn" title="Adicionar novo tópico"><i
+                                        class="fa-solid fa-plus"></i></button>
+                            </div>
+                            <p class="text text-error" v-if="formTopicError">{{ formTopicError }}</p>
                         </div>
-                        <p class="text text-error" v-if="formTopicError">{{ formTopicError }}</p>
-                    </div>
-                </form>
+                    </form>
 
-                <span class="divider"></span>
-
-                <p class="text center" v-if="loadedTopics && !topics">Nenhum tópico cadastrado</p>
-
-                <div v-else>
-                    <h2 class="subtitle">Seus tópicos</h2>
-                    <div class="topic-nav" v-if="loadedTopics && topics">
-                        <router-link @click.native="closeTopicsMenu" :to="'/topic/' + topic.id" class="btn btn-topic"
-                            role="button" v-for="topic in topics" :title="'Acessar tópico ' + topic.name">
-                            <div class="topic-data">
-                                <p class="text">{{ topic.name }}</p>
-                                <p class="text small muted">{{ `${topic.tasks_length} ${topic.tasks_length == 1 ?
-                                    'tarefa' : 'tarefas'}` }} </p>
-                            </div>
-                            <div class="topic-actions">
-                                <button class="btn rounded" title="Editar tópico"
-                                    @click.prevent="openEditTopic(topic.name)">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-                                <button class="btn rounded" title="Excluir tópico"
-                                    @click.prevent="deleteTopic(topic.name)">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
-                        </router-link>
-                    </div>
-                </div>
-
-                <div class="topic-container-bottom" v-if="loadedTopics && topics">
                     <span class="divider"></span>
 
-                    <router-link to="/kanban" class="btn outline-primary btn-icon block block-small"
-                        title="Acessar Kanban">
-                        <i class="fa-solid fa-chart-simple"></i>
-                        Acessar Kanban
-                    </router-link>
+                    <div v-if="topics">
+                        <h2 class="subtitle">Seus tópicos</h2>
+                        <div class="topic-nav">
+                            <router-link @click.native="closeTopicsMenu" :to="'/topic/' + topic.id"
+                                class="btn btn-topic" role="button" v-for="topic in topics"
+                                :title="'Acessar tópico ' + topic.name">
+                                <div class="topic-data">
+                                    <p class="text">{{ topic.name }}</p>
+                                    <p class="text small muted">{{ `${topic.tasks_length} ${topic.tasks_length == 1 ?
+                                        'tarefa' : 'tarefas'}` }} </p>
+                                </div>
+                                <div class="topic-actions">
+                                    <button class="btn rounded" title="Editar tópico"
+                                        @click.prevent="openEditTopic(topic.name)">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button class="btn rounded" title="Excluir tópico"
+                                        @click.prevent="deleteTopic(topic.name)">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </router-link>
+                        </div>
+                    </div>
 
-                    <router-link to="/general" class="btn outline-primary btn-icon block block-small"
-                        title="Visualização geral"><i class="fa-solid fa-eye"></i>
-                        Visão geral das tarefas
-                    </router-link>
+                    <div class="topic-container-bottom" v-if="topics">
+                        <span class="divider"></span>
 
-                    <button class="btn btn-icon block block-small outline-danger" title="Excluir todos os tópicos"
-                        @click="deleteAllTopics">
-                        <i class="fa-solid fa-trash"></i> Excluir todos os tópicos
-                    </button>
+                        <router-link to="/kanban" class="btn outline-primary btn-icon block block-small"
+                            title="Acessar Kanban">
+                            <i class="fa-solid fa-chart-simple"></i>
+                            Acessar Kanban
+                        </router-link>
 
-                    <a title="Acessar GitHub" href="https://lezzin.github.io" target="_blank">
-                        <i class="fab fa-github"></i> Criado por Leandro Adrian da Silva
-                    </a>
+                        <router-link to="/general" class="btn outline-primary btn-icon block block-small"
+                            title="Visualização geral"><i class="fa-solid fa-eye"></i>
+                            Visão geral das tarefas
+                        </router-link>
+
+                        <button class="btn btn-icon block block-small outline-danger" title="Excluir todos os tópicos"
+                            @click="deleteAllTopics">
+                            <i class="fa-solid fa-trash"></i> Excluir todos os tópicos
+                        </button>
+
+                        <a title="Acessar GitHub" href="https://lezzin.github.io" target="_blank">
+                            <i class="fab fa-github"></i> Criado por Leandro Adrian da Silva
+                        </a>
+                    </div>
+                    <p class="text center" v-else>Nenhum tópico cadastrado</p>
                 </div>
-            </div>
 
-            <div class="container">
-                <div class="task-container" :class="{ 'centered': !selectedTopic }">
-                    <h2 class="subtitle large-screen" v-if="selectedTopic">{{ selectedTopic.name }}</h2>
+                <div class="task-container container" v-if="selectedTopic">
+                    <div id="add-task-container">
+                        <button @click="openAddTask" title="Abrir modal de nova tarefa"
+                            class="btn rounded outline-primary">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
 
-                    <div v-if="selectedTopic">
-                        <div id="add-task-container">
-                            <button @click="openAddTask" title="Abrir modal de nova tarefa"
-                                class="btn rounded outline-primary">
-                                <i class="fa-solid fa-plus"></i>
-                            </button>
-                        </div>
+                    <div v-if="defaultTasks.length > 0">
+                        <h2 class="subtitle large-screen">{{ selectedTopic.name }}</h2>
 
-                        <div v-if="defaultTasks && defaultTasks.length > 0">
-                            <div class="form-container">
-                                <div class="form-container-row">
-                                    <form onsubmit="return false" class="form-100">
-                                        <div class="form-group">
-                                            <label for="search-task" class="text">Pesquisar</label>
-                                            <div class="input-group">
-                                                <input type="text" @input="searchTaskByName" id="search-task"
-                                                    placeholder="Descrição da tarefa" v-model="searchTask"
-                                                    autocomplete="off">
-                                                <button type="submit" class="btn" title="Pesquisar tarefa"><i
-                                                        class="fa-solid fa-search"></i></button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                    <form onsubmit="return false" class="form-100">
-                                        <div class="form-group">
-                                            <label for="filter-task" class="text">Filtrar</label>
-                                            <div class="select">
-                                                <select id="filter-task" @change="searchTaskByStatus"
-                                                    v-model="filterTask">
-                                                    <option value="all">Todas</option>
-                                                    <option value="completed">Concluídas</option>
-                                                    <option value="not-completed">Não concluídas</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-
-                            <span class="divider"></span>
-
-                            <div class="task-nav">
-                                <div :class="`task ${task.status && 'completed'}`" v-for="task in selectedTopic.tasks">
-                                    <div class="right-content">
-                                        <button :class="`btn bordered rounded ${task.status && 'bg-primary'}`"
-                                            :title="`Marcar tarefa como ${task.status ? 'não concluída' : 'concluída'}`"
-                                            @click="changeTaskStatus(task.id)">
-                                            <i class="fa-solid fa-check"></i>
-                                        </button>
-                                        <div class="task-information">
-                                            <p class="text">{{ task.name }}</p>
-
-
-                                            <p class="task-information-small">
-                                                <span :class="['tag', getPriorityClass(task.priority)]">
-                                                    <i class="fa-solid fa-exclamation-circle"></i>
-                                                    {{ getPriorityText(task.priority) }}
-                                                </span>
-
-                                                <span class="text text-icon small">
-                                                    <i class="fa-regular fa-clock"></i>
-                                                    Criado em: {{ task.created_at }}
-                                                </span>
-                                                <span class="text text-icon small" v-if="task.delivery_date">
-                                                    <i class="fa-regular fa-bell"></i>
-                                                    Entrega para: {{ formatDate(task.delivery_date) }}
-                                                </span>
-                                            </p>
+                        <div class="form-container">
+                            <div class="form-container-row">
+                                <form onsubmit="return false" class="form-100">
+                                    <div class="form-group">
+                                        <label for="search-task" class="text">Pesquisar</label>
+                                        <div class="input-group">
+                                            <input type="text" @input="searchTaskByName" id="search-task"
+                                                placeholder="Descrição da tarefa" v-model="searchTask"
+                                                autocomplete="off">
+                                            <button type="submit" class="btn" title="Pesquisar tarefa"><i
+                                                    class="fa-solid fa-search"></i></button>
                                         </div>
                                     </div>
-                                    <div class="task-action">
-                                        <button class="btn rounded bg-primary" title="Visualizar comentários da tarefa"
-                                            @click="openTaskComment(task.comment)" v-if="task.comment">
-                                            <span class="fa-solid fa-comment"></span>
-                                        </button>
-                                        <button class="btn rounded bg-primary" title="Editar tarefa"
-                                            @click="openEditTask(task)">
-                                            <span class="fa-solid fa-pen"></span>
-                                        </button>
-                                        <button class="btn rounded bg-danger" title="Excluir tarefa"
-                                            @click="deleteTask(selectedTopic.name, task.id)">
-                                            <span class="fa-solid fa-trash"></span>
-                                        </button>
+                                </form>
+                                <form onsubmit="return false" class="form-100">
+                                    <div class="form-group">
+                                        <label for="filter-task" class="text">Filtrar</label>
+                                        <div class="select">
+                                            <select id="filter-task" @change="searchTaskByStatus" v-model="filterTask">
+                                                <option value="all">Todas</option>
+                                                <option value="completed">Concluídas</option>
+                                                <option value="not-completed">Não concluídas</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                </div>
-                                <p class="text center" v-if="selectedTopic.tasks.length < 1">Nenhuma tarefa para esse
-                                    filtro
-                                </p>
+                                </form>
                             </div>
                         </div>
-                        <div v-else>
-                            <img src="./assets/img/task_empty_lg.png"
-                                alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="large-screen"
-                                width="1200" height="640" loading="lazy">
-                            <img src="./assets/img/task_empty_sm.png"
-                                alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="small-screen"
-                                width="640" height="640" loading="lazy">
+
+                        <span class="divider"></span>
+
+                        <div class="task-nav">
+                            <div :class="`task ${task.status && 'completed'}`" v-for="task in selectedTopic.tasks">
+                                <div class="right-content">
+                                    <button :class="`btn bordered rounded ${task.status && 'bg-primary'}`"
+                                        :title="`Marcar tarefa como ${task.status ? 'não concluída' : 'concluída'}`"
+                                        @click="changeTaskStatus(task.id)">
+                                        <i class="fa-solid fa-check"></i>
+                                    </button>
+                                    <div class="task-information">
+                                        <p class="text">{{ task.name }}</p>
+
+                                        <p class="task-information-small">
+                                            <span :class="['tag', getPriorityClass(task.priority)]">
+                                                <i class="fa-solid fa-exclamation-circle"></i>
+                                                {{ getPriorityText(task.priority) }}
+                                            </span>
+
+                                            <span class="text text-icon small">
+                                                <i class="fa-regular fa-clock"></i>
+                                                Criado em: {{ task.created_at }}
+                                            </span>
+                                            <span class="text text-icon small" v-if="task.delivery_date">
+                                                <i class="fa-regular fa-bell"></i>
+                                                Entrega para: {{ formatDate(task.delivery_date) }}
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="task-action">
+                                    <button class="btn rounded bg-primary" title="Visualizar comentários da tarefa"
+                                        @click="openTaskComment(task.comment)" v-if="task.comment">
+                                        <span class="fa-solid fa-comment"></span>
+                                    </button>
+                                    <button class="btn rounded bg-primary" title="Editar tarefa"
+                                        @click="openEditTask(task)">
+                                        <span class="fa-solid fa-pen"></span>
+                                    </button>
+                                    <button class="btn rounded bg-danger" title="Excluir tarefa"
+                                        @click="deleteTask(selectedTopic.name, task.id)">
+                                        <span class="fa-solid fa-trash"></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text center" v-if="selectedTopic.tasks.length === 0">
+                                Nenhuma tarefa para esse filtro
+                            </p>
                         </div>
                     </div>
                     <div v-else>
-                        <img src="./assets/img/topic_unselected_lg.png"
-                            alt="Uma pessoa escrevendo em um diário suas tarefas pessoais" class="large-screen"
-                            width="1200" height="640" loading="lazy">
-                        <img src="./assets/img/topic_unselected_sm.png"
-                            alt="Uma pessoa escrevendo em um diário suas tarefas pessoais" class="small-screen"
-                            width="640" height="640" loading="lazy">
+                        <img src="./assets/img/task_empty_lg.png"
+                            alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="large-screen"
+                            loading="lazy">
+                        <img src="./assets/img/task_empty_sm.png"
+                            alt="Frase tarefas vazias e uma imagem de uma caixa vazia" class="small-screen"
+                            loading="lazy">
                     </div>
+                </div>
+                <div class="container" v-else>
+                    <img src="./assets/img/topic_unselected_lg.png"
+                        alt="Uma pessoa escrevendo em um diário suas tarefas pessoais" class="large-screen"
+                        loading="lazy">
+                    <img src="./assets/img/topic_unselected_sm.png"
+                        alt="Uma pessoa escrevendo em um diário suas tarefas pessoais" class="small-screen"
+                        loading="lazy">
                 </div>
             </div>
 
-            <div :class="['modal', editingTopic && 'active']">
+            <aside :class="['modal', editingTopic && 'active']">
                 <div class="modal-dialog">
                     <div class="modal-header">
                         <h2 class="title">Editar tópico</h2>
@@ -302,9 +299,9 @@
                                 class="fa-solid fa-check"></i> Concluir edição</button>
                     </form>
                 </div>
-            </div>
+            </aside>
 
-            <div :class="['modal', showingComment && 'active']">
+            <aside :class="['modal', showingComment && 'active']">
                 <div class="modal-dialog">
                     <div class="modal-header">
                         <h2 class="title">Comentários da tarefa</h2>
@@ -315,9 +312,9 @@
 
                     <div class="markdown-content markdown-content--normal" v-html="selectedComment"></div>
                 </div>
-            </div>
+            </aside>
 
-            <div :class="['modal', editingTask && 'active']">
+            <aside :class="['modal', editingTask && 'active']">
                 <div class="modal-dialog">
                     <div class="modal-header">
                         <h2 class="title">Editar tarefa</h2>
@@ -367,9 +364,9 @@
                         </button>
                     </form>
                 </div>
-            </div>
+            </aside>
 
-            <div :class="['modal', addingTask && 'active']">
+            <aside :class="['modal', addingTask && 'active']">
                 <div class="modal-dialog">
                     <div class="modal-header">
                         <h2 class="title">Adicionar tarefa</h2>
@@ -416,106 +413,107 @@
                             tarefa</button>
                     </form>
                 </div>
-            </div>
+            </aside>
         </div>
     </template>
 
     <template id="general-page">
         <div v-if="loadedTasks">
-            <div class="container">
-                <div class="calendar-wrapper" v-if="allUserTasks.length > 0" id="pdf-container">
-                    <div>
-                        <div class="calendar-header">
-                            <h2 class="subtitle">Visualize as suas tarefas de uma maneira geral</h2>
-                            <div class="header-buttons">
-                                <button type="button" @click="downloadAsPDF" class="btn bg-primary only-icon"
-                                    title="Baixar em PDF"><i class="fa-solid fa-download"></i></button>
-                                <button @click="sendBack()" class="btn outline-primary btn-icon"
-                                    title="Voltar para o início"> <i class="fa-solid fa-arrow-left"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="legend">
-                            <div class="legend-item completed" @mouseover="focusTasksByPriority('completed')"
-                                @mouseleave="removeFocusFromTasks">
-                                <p class="text small"><i class="fa-solid fa-check"></i> Completo ({{
-                                    priorityCount.completed
-                                    }})</p>
-                            </div>
-
-                            <div class="legend-item priority-high" @mouseover="focusTasksByPriority('3')"
-                                @mouseleave="removeFocusFromTasks">
-                                <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade alta ({{
-                                    priorityCount.high }})</p>
-                            </div>
-
-                            <div class="legend-item priority-medium" @mouseover="focusTasksByPriority('2')"
-                                @mouseleave="removeFocusFromTasks">
-                                <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade média ({{
-                                    priorityCount.medium }})</p>
-                            </div>
-
-                            <div class="legend-item priority-small" @mouseover="focusTasksByPriority('1')"
-                                @mouseleave="removeFocusFromTasks">
-                                <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade baixa ({{
-                                    priorityCount.small }})</p>
-                            </div>
-                        </div>
-
-                        <span class="divider"></span>
-
-                        <div class="calendar">
-                            <router-link
-                                :class="['calendar-item', 'task', task.status && 'completed', { 'is-hovering': task.isHovering, 'focused': task.isFocused }]"
-                                v-for="task in allUserTasks" role="button" :to="'/topic/' + task.topic_id"
-                                title="Acessar tópico">
-                                <div class="calendar-item-header">
-                                    <p class="text smallest muted">{{ task.topic_name }}</p>
-                                    <div class="task-informations">
-                                        <p class="text">{{ task.name }}</p>
-
-                                        <div class="task-informations-small">
-                                            <span :class="['tag', getPriorityClass(task.priority)]">
-                                                <i class="fa-solid fa-exclamation-circle"></i>
-                                                {{ getPriorityText(task.priority) }}
-                                            </span>
-                                            <p class="text text-icon small"><i class="fa-regular fa-clock"></i> Criado
-                                                em:
-                                                {{ task.created_at }}
-                                            </p>
-                                            <p class="text text-icon small" v-if="task.delivery_date"><i
-                                                    class="fa-regular fa-bell"></i> Entrega para: {{
-                                                formatDate(task.delivery_date) }}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="calendar-item-footer" v-if="task.comment">
-                                    <div class="task-comment">
-                                        <p class="text small muted">Comentário da tarefa:</p>
-
-                                        <div class="markdown-content markdown-content--small" v-html="formatComment(task.comment)"></div>
-                                    </div>
-                                </div>
-                            </router-link>
-                        </div>
+            <div class="calendar-wrapper container" id="pdf-container" v-if="allUserTasks.length > 0">
+                <div class="calendar-header">
+                    <h2 class="subtitle">Visualize as suas tarefas de uma maneira geral</h2>
+                    <div class="header-buttons">
+                        <button type="button" @click="downloadAsPDF" class="btn bg-primary only-icon"
+                            title="Baixar em PDF"><i class="fa-solid fa-download"></i></button>
+                        <button @click="sendBack()" class="btn outline-primary btn-icon" title="Voltar para o início">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
                     </div>
                 </div>
-                <div v-else class="tasks-empty-wrapper">
+
+                <div class="legend">
+                    <div class="legend-item completed" @mouseover="focusTasksByPriority('completed')"
+                        @mouseleave="removeFocusFromTasks">
+                        <p class="text small"><i class="fa-solid fa-check"></i>
+                            Concluídas ({{ priorityCount.completed }})
+                        </p>
+                    </div>
+
+                    <div class="legend-item priority-high" @mouseover="focusTasksByPriority('3')"
+                        @mouseleave="removeFocusFromTasks">
+                        <p class="text small">
+                            <i class="fa-regular fa-calendar"></i>
+                            Prioridade alta ({{ priorityCount.high }})
+                        </p>
+                    </div>
+
+                    <div class="legend-item priority-medium" @mouseover="focusTasksByPriority('2')"
+                        @mouseleave="removeFocusFromTasks">
+                        <p class="text small">
+                            <i class="fa-regular fa-calendar"></i>
+                            Prioridade média ({{ priorityCount.medium }})
+                        </p>
+                    </div>
+
+                    <div class="legend-item priority-small" @mouseover="focusTasksByPriority('1')"
+                        @mouseleave="removeFocusFromTasks">
+                        <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade baixa ({{
+                            priorityCount.small }})</p>
+                    </div>
+                </div>
+
+                <span class="divider"></span>
+
+                <div class="calendar">
+                    <router-link
+                        :class="['calendar-item', 'task', task.status && 'completed', { 'is-hovering': task.isHovering, 'focused': task.isFocused }]"
+                        v-for="task in allUserTasks" role="button" :to="'/topic/' + task.topic_id"
+                        title="Acessar tópico">
+                        <div class="calendar-item-header">
+                            <p class="text smallest muted">{{ task.topic_name }}</p>
+                            <div class="task-informations">
+                                <p class="text">{{ task.name }}</p>
+
+                                <div class="task-informations-small">
+                                    <span :class="['tag', getPriorityClass(task.priority)]">
+                                        <i class="fa-solid fa-exclamation-circle"></i>
+                                        {{ getPriorityText(task.priority) }}
+                                    </span>
+                                    <p class="text text-icon small"><i class="fa-regular fa-clock"></i> Criado
+                                        em:
+                                        {{ task.created_at }}
+                                    </p>
+                                    <p class="text text-icon small" v-if="task.delivery_date"><i
+                                            class="fa-regular fa-bell"></i> Entrega para: {{
+                                        formatDate(task.delivery_date) }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="calendar-item-footer" v-if="task.comment">
+                            <div class="task-comment">
+                                <p class="text small muted">Comentário da tarefa:</p>
+
+                                <div class="markdown-content markdown-content--small"
+                                    v-html="formatComment(task.comment)"></div>
+                            </div>
+                        </div>
+                    </router-link>
+                </div>
+            </div>
+            <div class="container" v-else>
+                <router-link to="/" title="Voltar para o início">
                     <img src="./assets/img/task_empty_lg.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia"
                         class="large-screen" width="1200" height="640" loading="lazy">
                     <img src="./assets/img/task_empty_sm.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia"
                         class="small-screen" width="640" height="640" loading="lazy">
-                    <router-link to="/" class="btn primary btn-icon" title="Voltar para o início"><i
-                            class="fa-solid fa-arrow-left"></i> Voltar para o início</router-link>
-                </div>
+                </router-link>
             </div>
         </div>
     </template>
 
     <template id="kanban-page">
-        <div class="kanban-wrapper" v-if="loadedTasks">
-            <div class="container">
+        <div v-if="loadedTasks">
+            <div class="kanban-wrapper container" v-if="tasksLength > 0">
                 <div class="kanban-header">
                     <button @click="sendBack" class="btn outline-primary btn-icon" title="Voltar para o início">
                         <i class="fa-solid fa-arrow-left"></i>
@@ -523,7 +521,7 @@
                     </button>
                 </div>
 
-                <div class="kanban" v-if="tasksLength > 0">
+                <div class="kanban">
                     <div class="kanban-column" :class=" { 'drag-over': activeColumn === kanbanStatus }"
                         v-for="kanbanStatus in ['todo', 'doing', 'completed']" :key="kanbanStatus"
                         @drop="onDrop(kanbanStatus)" @dragover="onDragOver"
@@ -570,20 +568,20 @@
                         </div>
                     </div>
                 </div>
-                <div v-else class="tasks-empty-wrapper">
+            </div>
+            <div class="container" v-else>
+                <router-link to="/" title="Voltar para o início">
                     <img src="./assets/img/task_empty_lg.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia"
-                        class="large-screen" width="1200" height="640" loading="lazy">
+                        class="large-screen" loading="lazy">
                     <img src="./assets/img/task_empty_sm.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia"
                         class="small-screen" width="640" height="640" loading="lazy">
-                    <router-link to="/" class="btn primary btn-icon" title="Voltar para o início">
-                        <i class="fa-solid fa-arrow-left"></i> Voltar para o início</router-link>
-                </div>
+                </router-link>
             </div>
         </div>
     </template>
 
     <template id="not-found-page">
-        <div class="not-found-wrapper">
+        <div class="container">
             <img src="./assets/img/not_found_lg.png" alt="Homem segurando uma lupa e frase de página não encontrada"
                 class="large-screen" width="1200" height="640" loading="lazy">
             <img src="./assets/img/not_found_sm.png" alt="Homem segurando uma lupa e frase de página não encontrada"

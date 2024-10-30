@@ -23,10 +23,7 @@ const Login = {
                     'auth/web-storage-unsupported': 'O navegador não é compatível com armazenamento da Web necessário para autenticação.',
                 };
 
-                this.$root.toast = {
-                    type: "error",
-                    text: errors[code] ?? message
-                };
+                this.$root.showToast("error", errors[code] ?? message);
             };
         },
     },

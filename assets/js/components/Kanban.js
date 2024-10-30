@@ -1,4 +1,4 @@
-import { DOC_NAME, PAGE_TITLES } from "../utils/variables.js";
+import { DOC_NAME, PAGE_TITLES, TASK_KANBAN_STATUSES } from "../utils/variables.js";
 import { formatDate, getPriorityClass, getPriorityText } from "../utils/functions.js";
 import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
@@ -7,7 +7,6 @@ const Kanban = {
     props: ["db"],
     data() {
         return {
-            user: this.$root.user,
             tasks: {
                 todo: [],
                 doing: [],
@@ -38,7 +37,7 @@ const Kanban = {
 
         async getAllUserTasks() {
             try {
-                const docRef = doc(this.db, DOC_NAME, this.user.uid);
+                const docRef = doc(this.db, DOC_NAME, this.$root.user.uid);
                 const docSnap = await getDoc(docRef);
                 const userData = docSnap.data();
 
@@ -50,13 +49,13 @@ const Kanban = {
                 const tasks = this.getUserTasks(userData.topics);
 
                 this.tasksLength = tasks.length;
-                this.tasks.todo = tasks.filter(task => task.kanbanStatus === "todo" || !task.kanbanStatus);
-                this.tasks.doing = tasks.filter(task => task.kanbanStatus === "doing");
-                this.tasks.completed = tasks.filter(task => task.kanbanStatus === "completed");
-
-                this.loadedTasks = true;
+                this.tasks.todo = tasks.filter(task => task.kanbanStatus === TASK_KANBAN_STATUSES.todo || !task.kanbanStatus);
+                this.tasks.doing = tasks.filter(task => task.kanbanStatus === TASK_KANBAN_STATUSES.doing);
+                this.tasks.completed = tasks.filter(task => task.kanbanStatus === TASK_KANBAN_STATUSES.completed);
             } catch (error) {
-                this.showError("Erro ao obter documento", error);
+                this.$root.showToast("error", `Erro ao resgatar tarefas": ${error.message}`);
+            } finally {
+                this.loadedTasks = true;
             }
         },
 
@@ -64,14 +63,6 @@ const Kanban = {
             return Object.values(topics)
                 .filter(topic => topic.tasks?.length > 0)
                 .flatMap(topic => topic.tasks.map(task => this.createTaskObject(topic, task)));
-        },
-
-        showError(message, error) {
-            this.$root.toast = {
-                type: "error",
-                text: `${message}: ${error.message}`,
-            };
-            this.loadedTasks = true;
         },
 
         handleDragEvents(event, action, task = null) {
@@ -138,7 +129,7 @@ const Kanban = {
 
                 if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
                     touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
-                    return column.getAttribute('data-status'); 
+                    return column.getAttribute('data-status');
                 }
             }
 
@@ -156,7 +147,7 @@ const Kanban = {
 
         async updateTaskStatus(taskToUpdate, newKanbanStatus) {
             try {
-                const docRef = doc(this.db, DOC_NAME, this.user.uid);
+                const docRef = doc(this.db, DOC_NAME, this.$root.user.uid);
                 const docSnap = await getDoc(docRef);
                 const userData = docSnap.exists() ? docSnap.data() : null;
 
@@ -167,14 +158,14 @@ const Kanban = {
 
                     if (selectedTopicData && selectedTopicData.tasks) {
                         taskToUpdate.kanbanStatus = newKanbanStatus;
-                        taskToUpdate.status = newKanbanStatus === "completed";
+                        taskToUpdate.status = newKanbanStatus === TASK_KANBAN_STATUSES.completed;
 
                         const updatedTasks = selectedTopicData.tasks.map(task => {
                             if (taskToUpdate.id == task.id) {
                                 return {
                                     ...task,
                                     kanbanStatus: newKanbanStatus,
-                                    status: newKanbanStatus === "completed"
+                                    status: newKanbanStatus === TASK_KANBAN_STATUSES.completed
                                 };
                             }
 
@@ -185,7 +176,7 @@ const Kanban = {
                     }
                 }
             } catch (error) {
-                this.showError("Erro ao atualizar status da tarefa", error);
+                this.$root.showToast("error", `Erro ao atualizar status da tarefa: ${error.message}`);
             }
         }
     },

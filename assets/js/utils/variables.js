@@ -12,11 +12,23 @@ const PAGE_TITLES = {
 const TASK_PRIORITIES = {
     high: 3,
     medium: 2,
-    small: 1
+    small: 1,
+    completed: "completed"
 }
+
+const TASK_KANBAN_STATUSES = {
+    todo: "todo",
+    doing: "doing",
+    completed: "completed",
+}
+
+// Milisegundos
+const TOAST_ANIMATION = 300;
 
 export {
     TASK_PRIORITIES,
+    TASK_KANBAN_STATUSES,
+    TOAST_ANIMATION,
     PAGE_TITLES,
     DOC_NAME
 };

@@ -10,7 +10,6 @@ const General = {
     props: ["db"],
     data() {
         return {
-            user: this.$root.user,
             allUserTasks: [],
             loadedTasks: false,
             priorityCount: null,
@@ -37,7 +36,7 @@ const General = {
         focusTasksByPriority(priority) {
             this.allUserTasks.forEach(task => {
                 task.isHovering = true;
-                task.isFocused = task.priority == priority || (priority == 'completed' && task.status);
+                task.isFocused = (task.priority == priority) || (priority == TASK_PRIORITIES.completed && task.status);
             });
         },
 
@@ -80,7 +79,7 @@ const General = {
 
         async fetchUserTasks() {
             try {
-                const docRef = doc(this.db, DOC_NAME, this.user.uid);
+                const docRef = doc(this.db, DOC_NAME, this.$root.user.uid);
                 const docSnap = await getDoc(docRef);
                 const userData = docSnap.data();
 
@@ -93,10 +92,7 @@ const General = {
 
                 this.updatePriorityCounter();
             } catch (error) {
-                this.$root.toast = {
-                    type: "error",
-                    text: `Erro ao obter tarefas: ${error}`
-                };
+                this.$root.showToast("error", `Erro ao obter tarefas: ${error}`);
             } finally {
                 this.loadedTasks = true;
             }
