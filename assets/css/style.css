@@ -534,9 +534,11 @@ body {
                 overflow: hidden;
                 transition: all var(--screen-transition) ease-in-out;
                 z-index: 999;
+                opacity: 0;
 
                 &.active {
                     pointer-events: all;
+                    opacity: 1;
 
                     .dropdown-menu {
                         height: calc(0.5rem + 1.6rem * 4);
