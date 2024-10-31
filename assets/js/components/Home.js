@@ -105,7 +105,12 @@ const Home = {
         },
 
         loadTopic(id) {
-            this.selectedTopic = this.$root.selectedTopicName = null;
+            this.selectedTopic = null;
+
+            if (!id) {
+                document.title = PAGE_TITLES.home.default;
+                return;
+            }
 
             if (!this.topics) {
                 if (this.$router.history.current.fullPath != "/") this.$router.push("/");
@@ -121,7 +126,8 @@ const Home = {
 
             this.selectedTopic = topic;
             this.defaultTasks = topic.tasks;
-            this.$root.selectedTopicName = topic.name;
+            document.title = PAGE_TITLES.home.topic(topic.name);
+
             this.sortTasksByPriority();
         },
 
@@ -224,7 +230,7 @@ const Home = {
             delete userData.topics[topicName];
             await updateDoc(docRef, { topics: userData.topics });
             this.$root.showToast("success", "Tópico excluído com sucesso");
-            this.selectedTopic = this.$root.selectedTopicName = null;
+            this.selectedTopic = null;
             if (this.$router.history.current.fullPath !== "/") this.$router.push("/");
         },
 
@@ -241,7 +247,7 @@ const Home = {
 
             await updateDoc(docRef, { topics: {} });
             this.$root.showToast("success", "Todos os tópicos foram excluídos com sucesso.");
-            this.selectedTopic = this.$root.selectedTopicName = null;
+            this.selectedTopic = null;
         },
 
         async addTask() {
@@ -508,7 +514,7 @@ const Home = {
         },
     },
     mounted() {
-        document.title = PAGE_TITLES.home;
+        document.title = PAGE_TITLES.home.default;
         this.$root.showBtn = true;
 
         this.loadUserTopics();
@@ -540,13 +546,13 @@ const Home = {
 
             if (
                 !element.closest('.topic-container') &&
-                !element.closest('.btn-mobile') &&
+                !element.closest('.btn--mobile') &&
                 this.$root.isMenuTopicsActive
             ) {
                 this.closeTopicsMenu();
             }
 
-            if (element.classList.contains("btn-mobile") || element.classList.contains("modal-dialog")) {
+            if (element.classList.contains("btn--mobile") || element.classList.contains("modal-dialog")) {
                 e.stopPropagation();
             }
         });
@@ -565,11 +571,7 @@ const Home = {
             this.editNewTaskNameError = '';
         },
         "$route.params.id": function (id) {
-            if (id) {
-                this.loadTopic(id);
-            } else {
-                this.selectedTopic = this.$root.selectedTopicName = null;
-            }
+            this.loadTopic(id);
 
             this.filterTask = "all";
             this.searchTask = "";
