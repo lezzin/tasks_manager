@@ -1,6 +1,5 @@
 @import "./utils/variables.css";
 
-@import "./pages/not-found.css";
 @import "./pages/home.css";
 @import "./pages/general.css";
 @import "./pages/kanban.css";
@@ -142,12 +141,11 @@ button {
         filter: brightness(90%);
     }
 
-    &.btn-icon i {
+    &.btn--icon i {
         margin-right: .3rem;
     }
 
-    .fa-solid,
-    .fa-regular {
+    i {
         margin-bottom: 0.05rem;
         font-size: 1.2rem;
 
@@ -156,7 +154,7 @@ button {
         }
     }
 
-    &.block {
+    &.btn--block {
         text-align: center;
         display: block;
         padding: .8rem 0;
@@ -167,52 +165,30 @@ button {
         }
     }
 
-    &.btn-input {
-        border-radius: 0;
-        aspect-ratio: 1;
-        width: 3.8rem;
-    }
-
-    &.primary {
-        color: var(--details-color);
-    }
-
-    &.bg-primary {
+    &.btn--primary {
         background-color: var(--details-color);
         color: var(--font-secondary);
     }
 
-    &.outline-primary {
+    &.btn--outline-primary {
         border: 1px solid var(--details-color);
         background-color: var(--details-color-light-2);
         color: var(--details-color);
     }
 
-    &.secondary {
-        background-color: var(--bg-secondary);
-    }
-
-    &.white {
-        background-color: var(--bg-primary);
-    }
-
-    &.danger {
-        color: var(--danger-color);
-    }
-
-    &.bg-danger {
+    &.btn--danger {
         color: var(--font-secondary);
         background-color: var(--danger-color);
     }
 
-    &.outline-danger {
+    &.btn--outline-danger {
         border: 1px solid var(--danger-color);
         background-color: var(--danger-color-light);
         color: var(--danger-color);
     }
 
-    &.only-icon,
-    &.rounded {
+    &.btn--only-icon,
+    &.btn--rounded {
         display: grid;
         place-items: center;
         padding: 0;
@@ -220,11 +196,11 @@ button {
         aspect-ratio: 1;
     }
 
-    &.rounded {
+    &.btn--rounded {
         border-radius: 50%;
     }
 
-    &.bordered {
+    &.btn--bordered {
         border: 1px solid var(--border-color);
     }
 }
@@ -246,81 +222,6 @@ button {
     max-width: 1080px;
     width: 100%;
     margin: 0 auto;
-}
-
-.toast {
-    position: fixed;
-    top: var(--padding);
-    right: var(--padding);
-    z-index: 999;
-    display: grid;
-    grid-template-columns: 1.5rem 1fr;
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-md);
-    background-color: var(--bg-primary);
-    border-radius: var(--radius);
-    overflow: hidden;
-    opacity: 0;
-    transform: translateX(100%);
-    pointer-events: none;
-    transition: all var(--screen-transition) ease-in-out;
-
-    &.active {
-        transform: translateX(0);
-        opacity: 1;
-        pointer-events: all;
-    }
-
-    &.success-toast {
-
-        .toast-banner,
-        .toast-icon {
-            background-color: var(--details-color);
-        }
-    }
-
-    &.error-toast {
-
-        .toast-banner,
-        .toast-icon {
-            background-color: var(--danger-color);
-        }
-    }
-
-    .toast-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 2rem;
-        padding: 1rem 1.5rem;
-
-        .toast-icon {
-            display: grid;
-            place-items: center;
-            width: 2.4rem;
-            aspect-ratio: 1;
-            border-radius: 50%;
-            color: var(--bg-primary);
-        }
-
-        .toast-title {
-            font-size: 1.6rem;
-            font-weight: 600;
-        }
-
-        .toast-text {
-            font-size: 1.4rem;
-        }
-
-        .btn {
-            align-self: flex-start;
-            margin-left: 1rem;
-
-            i {
-                font-size: 1.4rem;
-            }
-        }
-    }
 }
 
 .modal {
@@ -387,7 +288,7 @@ button {
     }
 }
 
-.loader-container {
+.loader {
     position: fixed;
     background-color: var(--bg-primary);
     inset: 0;
@@ -402,7 +303,7 @@ button {
         pointer-events: none;
     }
 
-    .spinner {
+    .loader__spinner {
         border-radius: 50%;
         width: 4rem;
         aspect-ratio: 1;
@@ -515,6 +416,79 @@ button {
                     border: none;
                     border-radius: 0;
                     padding: 0.5rem 1rem;
+                }
+            }
+        }
+
+        .toast {
+            --__toast-bg: transparent;
+
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: grid;
+            grid-template-columns: 1.5rem 1fr;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+            background-color: var(--bg-primary);
+            border-radius: var(--radius);
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(-100%);
+            pointer-events: none;
+            transition: all var(--screen-transition) ease-in-out;
+
+            &.toast--active {
+                transform: translateY(0);
+                opacity: 1;
+                pointer-events: all;
+            }
+
+            &.toast--success {
+                --__toast-bg: var(--details-color);
+            }
+
+            &.toast--error {
+                --__toast-bg: : var(--danger-color);
+            }
+
+            .toast__banner,
+            .toast__icon {
+                background: var(--__toast-bg);
+            }
+
+            .toast__content {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 2rem;
+                padding: 1rem 1.5rem;
+
+                .toast__icon {
+                    display: grid;
+                    place-items: center;
+                    width: 2.4rem;
+                    aspect-ratio: 1;
+                    border-radius: 50%;
+                    color: var(--bg-primary);
+                }
+
+                .toast__title {
+                    font-size: 1.6rem;
+                    font-weight: 600;
+                }
+
+                .toast__text {
+                    font-size: 1.4rem;
+                }
+
+                .btn {
+                    align-self: flex-start;
+                    margin-left: 1rem;
+
+                    i {
+                        font-size: 1.4rem;
+                    }
                 }
             }
         }

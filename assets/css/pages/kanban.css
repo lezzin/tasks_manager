@@ -2,6 +2,16 @@
     padding: var(--padding);
     user-select: none;
     -webkit-user-select: none;
+    overflow-x: auto;
+
+    @media(width<=768px) {
+        min-height: calc(90dvh - var(--padding));
+        padding-bottom: 0;
+
+        ::-webkit-scrollbar {
+            display: none !important;
+        }
+    }
 
     .kanban-header {
         display: flex;
@@ -11,6 +21,10 @@
         margin-bottom: 2rem;
         width: 100%;
         padding-inline: var(--padding);
+
+        @media(width<=768px) {
+            justify-content: flex-start;
+        }
 
         button {
             padding: .5rem 1rem;
@@ -25,10 +39,6 @@
         .kanban-column {
             border: 1px dashed transparent;
             padding: var(--padding) 0;
-
-            @media(width<=768px) {
-                padding-right: var(--padding);
-            }
 
             &.drag-over {
                 position: relative;

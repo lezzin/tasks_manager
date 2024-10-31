@@ -20,15 +20,16 @@
 </head>
 
 <body>
-    <div class="loader-container">
-        <span class="spinner"></span>
+    <div class="loader">
+        <span class="loader__spinner"></span>
     </div>
 
     <div id="app">
         <header class="header-wrapper">
             <div class="header container">
                 <div class="header__logo">
-                    <button class="btn only-icon bg-primary btn-mobile" @click="toggleTopicsMenu" v-if="showBtn">
+                    <button class="btn btn--only-icon btn--primary btn--mobile" @click="toggleTopicsMenu"
+                        v-if="showBtn">
                         <i class="fa-solid fa-bars"></i>
                     </button>
 
@@ -40,7 +41,7 @@
                     </router-link>
                 </div>
 
-                <button class="account btn bordered" @click.stop="toggleUserDropdown" title="Abrir/fechar dropdown"
+                <button class="account btn btn--bordered" @click.stop="toggleUserDropdown" title="Abrir/fechar dropdown"
                     v-if="user">
 
                     <div class="account__details">
@@ -56,11 +57,30 @@
 
                 <div :class="['dropdown', isUserDropdownActive && 'active']">
                     <div class="dropdown__menu">
-                        <button class="btn outline-danger btn-icon" @click="logoutUser" title="Sair da minha conta">
+                        <button class="btn btn--outline-danger btn--icon" @click="logoutUser"
+                            title="Sair da minha conta">
                             <i class="fa-solid fa-right-from-bracket"></i> Sair da conta
                         </button>
-                        <button class="btn bg-danger btn-icon" @click="removeUser" title="Excluir minha conta">
+                        <button class="btn btn--danger btn--icon" @click="removeUser" title="Excluir minha conta">
                             <i class="fa-solid fa-right-from-bracket"></i> Excluir conta
+                        </button>
+                    </div>
+                </div>
+
+                <div :class="['toast', toast.show && 'toast--active', toast.type && `toast--${toast.type}`]">
+                    <div class="toast__banner"></div>
+
+                    <div class="toast__content">
+                        <div class="toast__icon">
+                            <i :class="['fa-solid', toast.type && toast.type == 'error' ? 'fa-xmark' : 'fa-check']"></i>
+                        </div>
+                        <div>
+                            <p class="toast__title">{{ toast.type && toast.type == 'error' ? 'Erro' : 'Sucesso' }}
+                            </p>
+                            <p class="toast__text"> {{ toast.text && toast.text }}</p>
+                        </div>
+                        <button class="btn" @click="closeToast" title="Fechar mensagem">
+                            <i class="fa-solid fa-times"></i>
                         </button>
                     </div>
                 </div>
@@ -70,22 +90,6 @@
         <main>
             <router-view></router-view>
         </main>
-
-        <div :class="['toast', toast ? `${toast.type}-toast active` : '']">
-            <div class="toast-banner"></div>
-            <div class="toast-content text">
-                <div class="toast-icon">
-                    <i :class="['fa-solid', toast && toast.type == 'error' ? 'fa-xmark' : 'fa-check']"></i>
-                </div>
-                <div>
-                    <p class="toast-title">{{ toast && toast.type == 'error' ? 'Erro' : 'Sucesso' }}</p>
-                    <p class="toast-text"> {{ toast && toast.text }}</p>
-                </div>
-                <button class="btn" @click="closeToast" title="Fechar mensagem">
-                    <i class="fa-solid fa-times"></i>
-                </button>
-            </div>
-        </div>
     </div>
 
     <template id="login-page">
@@ -95,8 +99,11 @@
                     width="1200" height="800" loading="lazy">
                 <img src="./assets/img/login_sm.png" alt="Uma pessoa escrevendo em um caderno" class="small-screen"
                     width="640" height="640" loading="lazy">
-                <button class="btn block btn-icon bg-primary" title="Entrar com o Google"><i
-                        class="fa-brands fa-google"></i> Entrar com o Google</button>
+
+                <button class="btn btn--block btn--icon btn--primary" title="Entrar com o Google">
+                    <i class="fa-brands fa-google"></i>
+                    Entrar com o Google
+                </button>
             </form>
         </div>
     </template>
@@ -131,11 +138,11 @@
                                         'tarefa' : 'tarefas'}` }} </p>
                                 </div>
                                 <div class="topic-actions">
-                                    <button class="btn rounded" title="Editar tópico"
+                                    <button class="btn btn--rounded" title="Editar tópico"
                                         @click.prevent="openEditTopic(topic.name)">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
-                                    <button class="btn rounded" title="Excluir tópico"
+                                    <button class="btn btn--rounded" title="Excluir tópico"
                                         @click.prevent="deleteTopic(topic.name)">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
@@ -147,19 +154,20 @@
                     <div class="topic-container-bottom" v-if="topics">
                         <span class="divider"></span>
 
-                        <router-link to="/kanban" class="btn outline-primary btn-icon block block-small"
+                        <router-link to="/kanban" class="btn btn--outline-primary btn--icon btn--block btn--block-small"
                             title="Acessar Kanban">
                             <i class="fa-solid fa-chart-simple"></i>
                             Acessar Kanban
                         </router-link>
 
-                        <router-link to="/general" class="btn outline-primary btn-icon block block-small"
+                        <router-link to="/general"
+                            class="btn btn--outline-primary btn--icon btn--block btn--block-small"
                             title="Visualização geral"><i class="fa-solid fa-eye"></i>
                             Visão geral das tarefas
                         </router-link>
 
-                        <button class="btn btn-icon block block-small outline-danger" title="Excluir todos os tópicos"
-                            @click="deleteAllTopics">
+                        <button class="btn btn--icon btn--block btn--block-small btn--outline-danger"
+                            title="Excluir todos os tópicos" @click="deleteAllTopics">
                             <i class="fa-solid fa-trash"></i> Excluir todos os tópicos
                         </button>
 
@@ -173,14 +181,12 @@
                 <div class="task-container container" v-if="selectedTopic">
                     <div id="add-task-container">
                         <button @click="openAddTask" title="Abrir modal de nova tarefa"
-                            class="btn rounded outline-primary">
+                            class="btn btn--rounded btn--outline-primary">
                             <i class="fa-solid fa-plus"></i>
                         </button>
                     </div>
 
                     <div v-if="defaultTasks.length > 0">
-                        <h2 class="subtitle large-screen">{{ selectedTopic.name }}</h2>
-
                         <div class="form-container">
                             <div class="form-container-row">
                                 <form onsubmit="return false" class="form-100">
@@ -215,7 +221,7 @@
                         <div class="task-nav">
                             <div :class="`task ${task.status && 'completed'}`" v-for="task in selectedTopic.tasks">
                                 <div class="right-content">
-                                    <button :class="`btn bordered rounded ${task.status && 'bg-primary'}`"
+                                    <button :class="`btn btn--bordered btn--rounded ${task.status && 'btn--primary'}`"
                                         :title="`Marcar tarefa como ${task.status ? 'não concluída' : 'concluída'}`"
                                         @click="changeTaskStatus(task.id)">
                                         <i class="fa-solid fa-check"></i>
@@ -241,15 +247,16 @@
                                     </div>
                                 </div>
                                 <div class="task-action">
-                                    <button class="btn rounded bg-primary" title="Visualizar comentários da tarefa"
-                                        @click="openTaskComment(task.comment)" v-if="task.comment">
+                                    <button class="btn btn--rounded btn--primary"
+                                        title="Visualizar comentários da tarefa" @click="openTaskComment(task.comment)"
+                                        v-if="task.comment">
                                         <span class="fa-solid fa-comment"></span>
                                     </button>
-                                    <button class="btn rounded bg-primary" title="Editar tarefa"
+                                    <button class="btn btn--rounded btn--primary" title="Editar tarefa"
                                         @click="openEditTask(task)">
                                         <span class="fa-solid fa-pen"></span>
                                     </button>
-                                    <button class="btn rounded bg-danger" title="Excluir tarefa"
+                                    <button class="btn btn--rounded btn--danger" title="Excluir tarefa"
                                         @click="deleteTask(selectedTopic.name, task.id)">
                                         <span class="fa-solid fa-trash"></span>
                                     </button>
@@ -295,7 +302,7 @@
                             <p class="text text-error" v-if="topicEditingError">{{ topicEditingError }}</p>
                         </div>
 
-                        <button type="submit" class="btn bg-primary block" title="Concluir edição do tópico"><i
+                        <button type="submit" class="btn btn--primary btn--block" title="Concluir edição do tópico"><i
                                 class="fa-solid fa-check"></i> Concluir edição</button>
                     </form>
                 </div>
@@ -359,7 +366,7 @@
                             </p>
                         </div>
 
-                        <button type="submit" class="btn bg-primary block" title="Concluir edição da tarefa">
+                        <button type="submit" class="btn btn--primary btn--block" title="Concluir edição da tarefa">
                             <i class="fa-solid fa-check"></i> Concluir edição
                         </button>
                     </form>
@@ -409,7 +416,8 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn bg-primary block" title="Concluir adição da tarefa">Adicionar
+                        <button type="submit" class="btn btn--primary btn--block"
+                            title="Concluir adição da tarefa">Adicionar
                             tarefa</button>
                     </form>
                 </div>
@@ -423,9 +431,10 @@
                 <div class="calendar-header">
                     <h2 class="subtitle">Visualize as suas tarefas de uma maneira geral</h2>
                     <div class="header-buttons">
-                        <button type="button" @click="downloadAsPDF" class="btn bg-primary only-icon"
+                        <button type="button" @click="downloadAsPDF" class="btn btn--primary btn--only-icon"
                             title="Baixar em PDF"><i class="fa-solid fa-download"></i></button>
-                        <button @click="sendBack()" class="btn outline-primary btn-icon" title="Voltar para o início">
+                        <button @click="sendBack()" class="btn btn--outline-primary btn--icon"
+                            title="Voltar para o início">
                             <i class="fa-solid fa-arrow-left"></i>
                         </button>
                     </div>
@@ -515,7 +524,7 @@
         <div v-if="loadedTasks">
             <div class="kanban-wrapper container" v-if="tasksLength > 0">
                 <div class="kanban-header">
-                    <button @click="sendBack" class="btn outline-primary btn-icon" title="Voltar para o início">
+                    <button @click="sendBack" class="btn btn--outline-primary btn--icon" title="Voltar para o início">
                         <i class="fa-solid fa-arrow-left"></i>
                         Voltar para o início
                     </button>
