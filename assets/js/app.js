@@ -2,15 +2,15 @@ import { onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com
 import { doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 import { auth, db } from "./libs/firebase.js";
 import router from "./router.js";
-import { DOC_NAME, TOAST_ANIMATION } from "./utils/variables.js";
+import { DOC_NAME, TOAST_TIMEOUT } from "./utils/variables.js";
 
 function appInitialState() {
     return {
-        lastRoute: null,
         user: null,
-        toast: null,
-        toastTimer: null,
-        selectedTopicName: null,
+        toast: {
+            show: false,
+            timer: false
+        },
         isMenuTopicsActive: false,
         isUserDropdownActive: false,
         showBtn: false,
@@ -30,11 +30,15 @@ new Vue({
             this.isMenuTopicsActive = !this.isMenuTopicsActive;
         },
         closeToast() {
-            this.toast = null;
+            if (this.toast.timer) {
+                clearTimeout(this.toast.timer);
+            }
+
+            this.toast.show = false;
         },
         showToast(type, message) {
             this.toast = {
-                show: false,
+                show: true,
                 type: type,
                 text: message
             }
@@ -75,7 +79,7 @@ new Vue({
     },
     mounted() {
         onAuthStateChanged(auth, user => {
-            document.querySelector(".loader-container").classList.add("hidden");
+            document.querySelector(".loader").classList.add("hidden");
 
             if (user) {
                 this.user = user;
@@ -98,18 +102,14 @@ new Vue({
         });
     },
     watch: {
-        toast: function (_) {
-            if (this.toastTimer) {
-                clearTimeout(this.toastTimer);
+        "toast": function (_) {
+            if (this.toast.timer) {
+                clearTimeout(this.toast.timer);
             }
 
-            this.toastTimer = setTimeout(() => {
+            this.toast.timer = setTimeout(() => {
                 this.toast.show = false;
-
-                setTimeout(() => {
-                    this.toast = null;
-                }, TOAST_ANIMATION * 2);
-            }, 5000);
+            }, TOAST_TIMEOUT);
         },
     }
 }).$mount("#app");

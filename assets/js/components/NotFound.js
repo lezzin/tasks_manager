@@ -4,7 +4,6 @@ const NotFound = {
     template: "#not-found-page",
     mounted() {
         document.title = PAGE_TITLES.not_found;
-        this.$root.selectedTopicName = null;
         this.$root.showBtn = false;
     }
 }

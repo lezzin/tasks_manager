@@ -111,7 +111,7 @@ const General = {
 
     mounted() {
         document.title = PAGE_TITLES.general;
-        Object.assign(this.$root, { selectedTopicName: null, showBtn: false });
+        Object.assign(this.$root, { showBtn: false });
 
         this.fetchUserTasks();
     },
