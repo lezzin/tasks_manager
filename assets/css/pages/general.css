@@ -95,6 +95,7 @@
 
                 .grid__item-footer {
                     width: 100%;
+                    margin-top: auto;
 
                     .grid__item-comment {
                         height: 100%;
@@ -103,14 +104,6 @@
                         border-radius: var(--radius);
 
                         div {
-                            --line-clamp: 4;
-
-                            overflow: hidden;
-                            display: -webkit-box;
-                            -webkit-line-clamp: var(--line-clamp);
-                            line-clamp: var(--line-clamp);
-                            -webkit-box-orient: vertical;
-
                             * {
                                 margin: revert;
                                 padding: revert;

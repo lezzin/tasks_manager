@@ -123,7 +123,7 @@ const Kanban = {
 
         getDropColumn(event) {
             const touch = event.changedTouches[0];
-            const columnElements = document.querySelectorAll('.kanban-column');
+            const columnElements = document.querySelectorAll('.kanban__column');
 
             for (const column of columnElements) {
                 const rect = column.getBoundingClientRect();

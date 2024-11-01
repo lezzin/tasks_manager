@@ -412,6 +412,9 @@ const Home = {
         openEditTopic(name) {
             this.topicOldName = this.topicNewName = name;
             this.editingTopic = true;
+
+            console.log("aqui");
+
         },
         closeEditingTopic() {
             this.editingTopic = false;
@@ -542,7 +545,10 @@ const Home = {
         document.addEventListener("click", e => {
             const element = e.target;
 
-            if (element.classList.contains("modal")) {
+            if (
+                element.classList.contains("modal") &&
+                !element.classList.contains("modal__dialog")
+            ) {
                 this.editingTopic && this.closeEditingTopic();
                 this.editingTask && this.closeEditingTask();
                 this.addingTask && this.closeAddingTask();
@@ -552,13 +558,10 @@ const Home = {
             if (
                 !element.closest('.home-aside') &&
                 !element.closest('.btn--mobile') &&
+                !element.closest('.modal') &&
                 this.$root.isMenuTopicsActive
             ) {
                 this.closeTopicsMenu();
-            }
-
-            if (element.geta.contains("btn--mobile") || element.classList.contains("modal__dialog")) {
-                e.stopPropagation();
             }
         });
     },

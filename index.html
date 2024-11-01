@@ -129,27 +129,31 @@
                     <div v-if="topics">
                         <h2 class="title">Seus tópicos</h2>
                         <div class="topics-nav">
-                            <router-link @click.native="closeTopicsMenu" :to="'/topic/' + topic.id" class="topic btn"
-                                role="button" v-for="topic in topics" :title="'Acessar tópico ' + topic.name">
+                            <div class="topic" v-for="topic in topics"
+                                :class="{ active: selectedTopic && topic.name == selectedTopic.name }">
+                                <router-link @click.native="closeTopicsMenu()" :to="'/topic/' + topic.id" class="topic__link btn"
+                                    role="button" :title="'Acessar tópico ' + topic.name">
 
-                                <div>
-                                    <p class="text">{{ topic.name }}</p>
-                                    <p class="text text--small text--muted">
-                                        {{ `${topic.tasks_length} ${topic.tasks_length == 1 ? 'tarefa' : 'tarefas'}` }}
-                                    </p>
-                                </div>
+                                    <div>
+                                        <p class="text">{{ topic.name }}</p>
+                                        <p class="text text--small text--muted">
+                                            {{ `${topic.tasks_length} ${topic.tasks_length == 1 ? 'tarefa' : 'tarefas'}`
+                                            }}
+                                        </p>
+                                    </div>
+                                </router-link>
 
                                 <div class="topic__actions">
                                     <button class="btn btn--rounded" title="Editar tópico"
-                                        @click.prevent="openEditTopic(topic.name)">
+                                        @click="openEditTopic(topic.name)">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
                                     <button class="btn btn--rounded" title="Excluir tópico"
-                                        @click.prevent="deleteTopic(topic.name)">
+                                        @click="deleteTopic(topic.name)">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </div>
-                            </router-link>
+                            </div>
                         </div>
                     </div>
 
@@ -275,7 +279,7 @@
                             loading="lazy">
                     </div>
                 </div>
-                <div class="container" v-else>
+                <div class="container image-centered" v-else>
                     <img src="./assets/img/topic_unselected_lg.png"
                         alt="Uma pessoa escrevendo em um diário suas tarefas pessoais" class="large-screen"
                         loading="lazy">
@@ -509,9 +513,11 @@
                         </div>
                         <div class="grid__item-footer" v-if="task.comment">
                             <div class="grid__item-comment">
-                                <p class="text text--small text--muted">Comentário da
-                                    tarefa:</p>
-                                <div class="markdown-content markdown-content--small"
+                                <p class="text text--small text--muted">
+                                    Comentário da tarefa:
+                                </p>
+
+                                <div class="markdown-content markdown-content--small truncate"
                                     v-html="formatComment(task.comment)"></div>
                             </div>
                         </div>
@@ -532,7 +538,8 @@
     <template id="kanban-page">
         <div v-if="loadedTasks" id="kanban-page-container">
             <div class="kanban-wrapper container" v-if="tasksLength > 0">
-                <div class="kanban-header">
+                <div class="kanban-wrapper__header">
+                    <h2 class="title">Kanban</h2>
                     <button @click="sendBack" class="btn btn--outline-primary btn--icon" title="Voltar para o início">
                         <i class="fa-solid fa-arrow-left"></i>
                         Voltar para o início
@@ -540,7 +547,7 @@
                 </div>
 
                 <div class="kanban">
-                    <div class="kanban-column" :class=" { 'drag-over': activeColumn === kanbanStatus }"
+                    <div class="kanban__column" :class=" { 'drag-over': activeColumn === kanbanStatus }"
                         v-for="kanbanStatus in ['todo', 'doing', 'completed']" :key="kanbanStatus"
                         @drop="onDrop(kanbanStatus)" @dragover="onDragOver"
                         @dragenter="event => onDragEnter(event, kanbanStatus)"
@@ -552,10 +559,10 @@
                             }}
                         </h2>
 
-                        <div class="kanban-tasks">
-                            <div class="task task-empty" v-if="tasks[kanbanStatus] == 0">
+                        <div class="kanban__tasks">
+                            <div class="task task--empty" v-if="tasks[kanbanStatus] == 0">
                                 <i class="fa-solid fa-box-open"></i>
-                                <p class="text">Nenhuma tarefa na coluna</p>
+                                <p class="text text--bold">Nenhuma tarefa na coluna</p>
                             </div>
                             <div v-else v-for="task in tasks[kanbanStatus]" :key="task.id"
                                 :class="['task', task.status && 'completed']" draggable="true"
@@ -563,7 +570,7 @@
                                 @dragend="handleDragEvents($event, 'end')" @touchstart="handleTouchStart($event, task)"
                                 @touchend="handleTouchEnd($event, task)">
 
-                                <router-link class="text task-name" :to="'/topic/' + task.topic_id">
+                                <router-link class="text text--bold truncate" :to="'/topic/' + task.topic_id" style="--line-clamp: 1">
                                     {{ task.name }}
                                 </router-link>
 
@@ -599,7 +606,7 @@
     </template>
 
     <template id="not-found-page">
-        <div class="container">
+        <div class="container image-centered">
             <img src="./assets/img/not_found_lg.png" alt="Homem segurando uma lupa e frase de página não encontrada"
                 class="large-screen" width="1200" height="640" loading="lazy">
             <img src="./assets/img/not_found_sm.png" alt="Homem segurando uma lupa e frase de página não encontrada"
