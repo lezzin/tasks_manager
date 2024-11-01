@@ -77,8 +77,11 @@
                     align-items: center;
                     text-decoration: none;
                     padding: 1rem 1.5rem;
-                    font-weight: 500;
                     border: 1px solid var(--border-color);
+
+                    div>.text {
+                        font-weight: 500;
+                    }
 
                     &.router-link-exact-active {
                         background-color: var(--details-color);
