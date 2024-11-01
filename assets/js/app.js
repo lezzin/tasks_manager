@@ -91,6 +91,7 @@ new Vue({
         document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape') {
                 this.toast && this.closeToast();
+                this.isUserDropdownActive = false;
             }
         });
 
