@@ -269,7 +269,7 @@
                         <p class="text text--center" v-else>Nenhum tópico cadastrado</p>
                     </aside>
 
-                    <div class="task-container container" v-if="selectedTopic">
+                    <div :class="['container', defaultTasks.length > 0 ? 'task-container' : '']" v-if="selectedTopic">
                         <div id="add-task-container">
                             <button
                                 @click="openAddTask"
