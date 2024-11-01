@@ -1,143 +1,129 @@
-.calendar-wrapper {
-    padding: var(--padding) var(--padding) calc(var(--padding) * 5);
+#general-page-container {
+    .task-view {
+        padding: var(--padding) var(--padding) calc(var(--padding) * 5);
 
-    .calendar-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        text-align: center;
-
-        @media(width <=768px) {
-            flex-direction: column;
-            padding-top: var(--padding);
-            gap: 1rem;
-        }
-
-        .header-buttons {
+        .task-view__header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 0.6rem;
-
-            >* {
-                height: 3.6rem;
-                aspect-ratio: 1;
-            }
-        }
-    }
-
-    .legend {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        margin: 1rem 0 2rem;
-        gap: 1rem;
-
-        .legend-item {
             text-align: center;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            padding: calc(var(--padding) / 2);
-            cursor: default;
-        }
-    }
 
-    .calendar {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 1rem;
-
-        @media(width <=768px) {
-            padding-bottom: calc(var(--padding) * 2);
-        }
-
-        .calendar-item {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
-            background-color: var(--bg-primary);
-            padding: var(--padding);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            text-decoration: none;
-            transition: all .3s ease;
-
-            &.completed .calendar-item-footer {
-                --border-color: hsl(158, 40%, 70%);
-            }
-
-            &.is-hovering:not(.focused) {
-                opacity: 0.3;
-            }
-
-            .calendar-item-header {
-                display: grid;
+            @media(width <=768px) {
+                flex-direction: column;
+                padding-top: var(--padding);
                 gap: 1rem;
+            }
 
-                >.text {
-                    font-weight: 500;
+            .task-view__header-buttons {
+                display: flex;
+                align-items: center;
+                gap: 0.6rem;
+            }
+        }
+
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            margin: 1rem 0 2rem;
+            gap: 1rem;
+
+            .legend__item {
+                text-align: center;
+                border: 1px solid var(--border-color);
+                border-radius: var(--radius);
+                padding: calc(var(--padding) / 2);
+                cursor: default;
+                font-weight: 500;
+                box-shadow: var(--shadow-sm);
+            }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+
+            @media(width <=768px) {
+                padding-bottom: calc(var(--padding) * 2);
+            }
+
+            .grid__item {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                background-color: var(--bg-primary);
+                padding: var(--padding);
+                border: 1px solid var(--border-color);
+                border-radius: var(--radius);
+                text-decoration: none;
+                transition: all .3s ease;
+
+                &.completed .grid__item-footer {
+                    --border-color: hsl(158, 40%, 70%);
                 }
 
-                .task-informations {
+                &.task--hovering:not(.task--focused) {
+                    opacity: 0.4;
+                }
+
+                .grid__item-header {
                     display: grid;
                     gap: 1rem;
 
-                    .task-informations-small {
-                        display: flex;
-                        align-items: flex-start;
-                        flex-direction: column;
-                        gap: .5rem;
+                    >.text {
+                        font-weight: 500;
+                    }
 
-                        .tag {
-                            border-radius: calc(var(--radius) * 1.5);
-                            margin-bottom: 0.25rem;
+                    .grid__item-info {
+                        display: grid;
+                        gap: 1rem;
+
+                        .grid__item-info--small {
+                            display: flex;
+                            align-items: flex-start;
+                            flex-direction: column;
+                            gap: .5rem;
+
+                            .tag {
+                                border-radius: calc(var(--radius) * 1.5);
+                                margin-bottom: 0.25rem;
+                            }
                         }
                     }
                 }
-            }
 
-            .calendar-item-footer {
-                width: 100%;
+                .grid__item-footer {
+                    width: 100%;
 
-                .task-comment {
-                    height: 100%;
-                    padding: calc(var(--padding) / 2);
-                    border: 1px solid var(--border-color);
-                    border-radius: var(--radius);
+                    .grid__item-comment {
+                        height: 100%;
+                        padding: calc(var(--padding) / 2);
+                        border: 1px solid var(--border-color);
+                        border-radius: var(--radius);
 
-                    div {
-                        --line-clamp: 4;
+                        div {
+                            --line-clamp: 4;
 
-                        overflow: hidden;
-                        display: -webkit-box;
-                        -webkit-line-clamp: var(--line-clamp);
-                        line-clamp: var(--line-clamp);
-                        -webkit-box-orient: vertical;
+                            overflow: hidden;
+                            display: -webkit-box;
+                            -webkit-line-clamp: var(--line-clamp);
+                            line-clamp: var(--line-clamp);
+                            -webkit-box-orient: vertical;
 
-                        * {
-                            margin: revert;
-                            padding: revert;
-                        }
+                            * {
+                                margin: revert;
+                                padding: revert;
+                            }
 
-                        a {
-                            pointer-events: none;
-                            text-decoration: none;
+                            a {
+                                pointer-events: none;
+                                text-decoration: none;
+                            }
                         }
                     }
                 }
             }
         }
-    }
-}
-
-.tasks-empty-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    gap: 1rem;
-    height: 90vh;
-
-    .btn {
-        text-align: center;
     }
 }

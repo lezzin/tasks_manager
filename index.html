@@ -45,8 +45,8 @@
                     v-if="user">
 
                     <div class="account__details">
-                        <p class="text small">Olá, {{ user.displayName }}</p>
-                        <p class="text smallest">{{ user.email }}</p>
+                        <p class="text text--small">Olá, {{ user.displayName }}</p>
+                        <p class="text text--smallest">{{ user.email }}</p>
                     </div>
 
                     <img class="account__avatar" :src="user.photoURL" alt="Foto de perfil do usuário" width="37"
@@ -109,9 +109,9 @@
     </template>
 
     <template id="home-page">
-        <div>
+        <div id="home-page-container">
             <div class="home-wrapper" v-if="loadedTopics">
-                <div :class="['topic-container', isMenuTopicsActive && 'active']">
+                <aside :class="['home-aside', isMenuTopicsActive && 'home-aside--active']">
                     <form @submit.prevent="addTopic">
                         <div class="form-group">
                             <div :class="['input-group', formTopicError ? 'input-error' : '']">
@@ -120,24 +120,26 @@
                                 <button class="btn" title="Adicionar novo tópico"><i
                                         class="fa-solid fa-plus"></i></button>
                             </div>
-                            <p class="text text-error" v-if="formTopicError">{{ formTopicError }}</p>
+                            <p class="text text--error" v-if="formTopicError">{{ formTopicError }}</p>
                         </div>
                     </form>
 
                     <span class="divider"></span>
 
                     <div v-if="topics">
-                        <h2 class="subtitle">Seus tópicos</h2>
-                        <div class="topic-nav">
-                            <router-link @click.native="closeTopicsMenu" :to="'/topic/' + topic.id"
-                                class="btn btn-topic" role="button" v-for="topic in topics"
-                                :title="'Acessar tópico ' + topic.name">
-                                <div class="topic-data">
+                        <h2 class="title">Seus tópicos</h2>
+                        <div class="topics-nav">
+                            <router-link @click.native="closeTopicsMenu" :to="'/topic/' + topic.id" class="topic btn"
+                                role="button" v-for="topic in topics" :title="'Acessar tópico ' + topic.name">
+
+                                <div>
                                     <p class="text">{{ topic.name }}</p>
-                                    <p class="text small muted">{{ `${topic.tasks_length} ${topic.tasks_length == 1 ?
-                                        'tarefa' : 'tarefas'}` }} </p>
+                                    <p class="text text--small text--muted">
+                                        {{ `${topic.tasks_length} ${topic.tasks_length == 1 ? 'tarefa' : 'tarefas'}` }}
+                                    </p>
                                 </div>
-                                <div class="topic-actions">
+
+                                <div class="topic__actions">
                                     <button class="btn btn--rounded" title="Editar tópico"
                                         @click.prevent="openEditTopic(topic.name)">
                                         <i class="fa-solid fa-pen"></i>
@@ -151,22 +153,21 @@
                         </div>
                     </div>
 
-                    <div class="topic-container-bottom" v-if="topics">
+                    <div class="home-aside__footer" v-if="topics">
                         <span class="divider"></span>
 
-                        <router-link to="/kanban" class="btn btn--outline-primary btn--icon btn--block btn--block-small"
+                        <router-link to="/kanban" class="btn btn--outline-primary btn--icon btn--block-small"
                             title="Acessar Kanban">
                             <i class="fa-solid fa-chart-simple"></i>
                             Acessar Kanban
                         </router-link>
 
-                        <router-link to="/general"
-                            class="btn btn--outline-primary btn--icon btn--block btn--block-small"
+                        <router-link to="/general" class="btn btn--outline-primary btn--icon btn--block-small"
                             title="Visualização geral"><i class="fa-solid fa-eye"></i>
                             Visão geral das tarefas
                         </router-link>
 
-                        <button class="btn btn--icon btn--block btn--block-small btn--outline-danger"
+                        <button class="btn btn--icon btn--block-small btn--outline-danger"
                             title="Excluir todos os tópicos" @click="deleteAllTopics">
                             <i class="fa-solid fa-trash"></i> Excluir todos os tópicos
                         </button>
@@ -175,8 +176,8 @@
                             <i class="fab fa-github"></i> Criado por Leandro Adrian da Silva
                         </a>
                     </div>
-                    <p class="text center" v-else>Nenhum tópico cadastrado</p>
-                </div>
+                    <p class="text text--center" v-else>Nenhum tópico cadastrado</p>
+                </aside>
 
                 <div class="task-container container" v-if="selectedTopic">
                     <div id="add-task-container">
@@ -187,66 +188,64 @@
                     </div>
 
                     <div v-if="defaultTasks.length > 0">
-                        <div class="form-container">
-                            <div class="form-container-row">
-                                <form onsubmit="return false" class="form-100">
-                                    <div class="form-group">
-                                        <label for="search-task" class="text">Pesquisar</label>
-                                        <div class="input-group">
-                                            <input type="text" @input="searchTaskByName" id="search-task"
-                                                placeholder="Descrição da tarefa" v-model="searchTask"
-                                                autocomplete="off">
-                                            <button type="submit" class="btn" title="Pesquisar tarefa"><i
-                                                    class="fa-solid fa-search"></i></button>
-                                        </div>
+                        <div class="task-container__header">
+                            <form onsubmit="return false">
+                                <div class="form-group">
+                                    <label for="search-task" class="text">Pesquisar</label>
+                                    <div class="input-group">
+                                        <input type="text" @input="searchTaskByName" id="search-task"
+                                            placeholder="Descrição da tarefa" v-model="searchTask" autocomplete="off">
+                                        <button type="submit" class="btn" title="Pesquisar tarefa">
+                                            <i class="fa-solid fa-search"></i>
+                                        </button>
                                     </div>
-                                </form>
-                                <form onsubmit="return false" class="form-100">
-                                    <div class="form-group">
-                                        <label for="filter-task" class="text">Filtrar</label>
-                                        <div class="select">
-                                            <select id="filter-task" @change="searchTaskByStatus" v-model="filterTask">
-                                                <option value="all">Todas</option>
-                                                <option value="completed">Concluídas</option>
-                                                <option value="not-completed">Não concluídas</option>
-                                            </select>
-                                        </div>
+                                </div>
+                            </form>
+                            <form onsubmit="return false">
+                                <div class="form-group">
+                                    <label for="filter-task" class="text">Filtrar</label>
+                                    <div class="select">
+                                        <select id="filter-task" @change="searchTaskByStatus" v-model="filterTask">
+                                            <option value="all">Todas</option>
+                                            <option value="completed">Concluídas</option>
+                                            <option value="not-completed">Não concluídas</option>
+                                        </select>
                                     </div>
-                                </form>
-                            </div>
+                                </div>
+                            </form>
                         </div>
 
                         <span class="divider"></span>
 
                         <div class="task-nav">
                             <div :class="`task ${task.status && 'completed'}`" v-for="task in selectedTopic.tasks">
-                                <div class="right-content">
+                                <div class="task__content">
                                     <button :class="`btn btn--bordered btn--rounded ${task.status && 'btn--primary'}`"
                                         :title="`Marcar tarefa como ${task.status ? 'não concluída' : 'concluída'}`"
                                         @click="changeTaskStatus(task.id)">
                                         <i class="fa-solid fa-check"></i>
                                     </button>
-                                    <div class="task-information">
+                                    <div class="task__information">
                                         <p class="text">{{ task.name }}</p>
 
-                                        <p class="task-information-small">
+                                        <p class="task__information__bottom">
                                             <span :class="['tag', getPriorityClass(task.priority)]">
-                                                <i class="fa-solid fa-exclamation-circle"></i>
+                                                <i :class="getPriorityIcon(task.priority)"></i>
                                                 {{ getPriorityText(task.priority) }}
                                             </span>
-
-                                            <span class="text text-icon small">
+                                            <span class="text text--icon text--small text--muted">
                                                 <i class="fa-regular fa-clock"></i>
                                                 Criado em: {{ task.created_at }}
                                             </span>
-                                            <span class="text text-icon small" v-if="task.delivery_date">
+                                            <span class="text text--icon text--small text--muted"
+                                                v-if="task.delivery_date">
                                                 <i class="fa-regular fa-bell"></i>
                                                 Entrega para: {{ formatDate(task.delivery_date) }}
                                             </span>
                                         </p>
                                     </div>
                                 </div>
-                                <div class="task-action">
+                                <div class="task__action">
                                     <button class="btn btn--rounded btn--primary"
                                         title="Visualizar comentários da tarefa" @click="openTaskComment(task.comment)"
                                         v-if="task.comment">
@@ -262,7 +261,7 @@
                                     </button>
                                 </div>
                             </div>
-                            <p class="text center" v-if="selectedTopic.tasks.length === 0">
+                            <p class="text text--center" v-if="selectedTopic.tasks.length === 0">
                                 Nenhuma tarefa para esse filtro
                             </p>
                         </div>
@@ -287,11 +286,12 @@
             </div>
 
             <aside :class="['modal', editingTopic && 'active']">
-                <div class="modal-dialog">
-                    <div class="modal-header">
-                        <h2 class="title">Editar tópico</h2>
-                        <button class="btn" @click="closeEditingTopic" title="Fechar modal"><i
-                                class="fa-solid fa-times"></i></button>
+                <div class="modal__dialog">
+                    <div class="modal__header">
+                        <h2 class="modal__title">Editar tópico</h2>
+                        <button class="btn" @click="closeEditingTopic" title="Fechar modal">
+                            <i class="fa-solid fa-times"></i>
+                        </button>
                     </div>
 
                     <form @submit.prevent="editTopic">
@@ -299,19 +299,20 @@
                             <label class="text" for="edit-topic-name">Nome</label>
                             <input type="text" id="edit-topic-name" v-model="topicNewName"
                                 :class="{ 'input-error' : topicEditingError }">
-                            <p class="text text-error" v-if="topicEditingError">{{ topicEditingError }}</p>
+                            <p class="text text--error" v-if="topicEditingError">{{ topicEditingError }}</p>
                         </div>
 
-                        <button type="submit" class="btn btn--primary btn--block" title="Concluir edição do tópico"><i
-                                class="fa-solid fa-check"></i> Concluir edição</button>
+                        <button type="submit" class="btn btn--primary btn--block" title="Concluir edição do tópico">
+                            <i class="fa-solid fa-check"></i> Concluir edição
+                        </button>
                     </form>
                 </div>
             </aside>
 
             <aside :class="['modal', showingComment && 'active']">
-                <div class="modal-dialog">
-                    <div class="modal-header">
-                        <h2 class="title">Comentários da tarefa</h2>
+                <div class="modal__dialog">
+                    <div class="modal__header">
+                        <h2 class="modal__title">Comentários da tarefa</h2>
                         <button class="btn" @click="closeShowingComment" title="Fechar modal">
                             <i class="fa-solid fa-times"></i>
                         </button>
@@ -322,9 +323,9 @@
             </aside>
 
             <aside :class="['modal', editingTask && 'active']">
-                <div class="modal-dialog">
-                    <div class="modal-header">
-                        <h2 class="title">Editar tarefa</h2>
+                <div class="modal__dialog">
+                    <div class="modal__header">
+                        <h2 class="modal__title">Editar tarefa</h2>
                         <button class="btn" @click="closeEditingTask" title="Fechar modal"><i
                                 class="fa-solid fa-times"></i></button>
                     </div>
@@ -339,7 +340,7 @@
                                     <i :class="['fa-solid', isListening ? 'fa-stop' : 'fa-microphone']"></i>
                                 </button>
                             </div>
-                            <p class="text text-error" v-if="editNewTaskNameError">{{ editNewTaskNameError }}</p>
+                            <p class="text text--error" v-if="editNewTaskNameError">{{ editNewTaskNameError }}</p>
                         </div>
 
                         <div class="form-group">
@@ -362,7 +363,7 @@
                                     <option value="3">Alta</option>
                                 </select>
                             </div>
-                            <p class="text text-error" v-if="editNewTaskPriorityError">{{ editNewTaskPriorityError }}
+                            <p class="text text--error" v-if="editNewTaskPriorityError">{{ editNewTaskPriorityError }}
                             </p>
                         </div>
 
@@ -374,9 +375,9 @@
             </aside>
 
             <aside :class="['modal', addingTask && 'active']">
-                <div class="modal-dialog">
-                    <div class="modal-header">
-                        <h2 class="title">Adicionar tarefa</h2>
+                <div class="modal__dialog">
+                    <div class="modal__header">
+                        <h2 class="modal__title">Adicionar tarefa</h2>
                         <button class="btn" @click="closeAddingTask" title="Fechar modal"><i
                                 class="fa-solid fa-times"></i></button>
                     </div>
@@ -392,7 +393,7 @@
                                     <i :class="['fa-solid', isListening ? 'fa-stop' : 'fa-microphone']"></i>
                                 </button>
                             </div>
-                            <p class="text text-error" v-if="formTaskError">{{ formTaskError }}</p>
+                            <p class="text text--error" v-if="formTaskError">{{ formTaskError }}</p>
                         </div>
 
                         <div class="form-group">
@@ -426,14 +427,17 @@
     </template>
 
     <template id="general-page">
-        <div v-if="loadedTasks">
-            <div class="calendar-wrapper container" id="pdf-container" v-if="allUserTasks.length > 0">
-                <div class="calendar-header">
-                    <h2 class="subtitle">Visualize as suas tarefas de uma maneira geral</h2>
-                    <div class="header-buttons">
-                        <button type="button" @click="downloadAsPDF" class="btn btn--primary btn--only-icon"
-                            title="Baixar em PDF"><i class="fa-solid fa-download"></i></button>
-                        <button @click="sendBack()" class="btn btn--outline-primary btn--icon"
+        <div v-if="loadedTasks" id="general-page-container">
+            <div class="task-view container" id="pdf-container" v-if="allUserTasks.length > 0">
+                <div class="task-view__header">
+                    <h2 class="title">Visualize as suas tarefas de uma maneira geral</h2>
+                    <div class="task-view__header-buttons">
+                        <button type="button" @click="downloadAsPDF" class="btn btn--block btn--primary btn--icon"
+                            title="Baixar em PDF">
+                            <i class="fa-solid fa-download"></i>
+                            Baixar tarefas
+                        </button>
+                        <button @click="sendBack()" class="btn btn--outline-primary btn--only-icon"
                             title="Voltar para o início">
                             <i class="fa-solid fa-arrow-left"></i>
                         </button>
@@ -441,67 +445,72 @@
                 </div>
 
                 <div class="legend">
-                    <div class="legend-item completed" @mouseover="focusTasksByPriority('completed')"
+                    <div class="legend__item completed" @mouseover="focusTasksByPriority('completed')"
                         @mouseleave="removeFocusFromTasks">
-                        <p class="text small"><i class="fa-solid fa-check"></i>
+                        <p class="text text--small">
+                            <i :class="getPriorityIcon('completed')"></i>
                             Concluídas ({{ priorityCount.completed }})
                         </p>
                     </div>
 
-                    <div class="legend-item priority-high" @mouseover="focusTasksByPriority('3')"
+                    <div class="legend__item priority-high" @mouseover="focusTasksByPriority('3')"
                         @mouseleave="removeFocusFromTasks">
-                        <p class="text small">
-                            <i class="fa-regular fa-calendar"></i>
-                            Prioridade alta ({{ priorityCount.high }})
+                        <p class="text text--small">
+                            <i :class="getPriorityIcon('3')"></i>
+                            Alta prioridade ({{ priorityCount.high }})
                         </p>
                     </div>
 
-                    <div class="legend-item priority-medium" @mouseover="focusTasksByPriority('2')"
+                    <div class="legend__item priority-medium" @mouseover="focusTasksByPriority('2')"
                         @mouseleave="removeFocusFromTasks">
-                        <p class="text small">
-                            <i class="fa-regular fa-calendar"></i>
-                            Prioridade média ({{ priorityCount.medium }})
+                        <p class="text text--small">
+                            <i :class="getPriorityIcon('2')"></i>
+                            Média prioridade ({{ priorityCount.medium }})
                         </p>
                     </div>
 
-                    <div class="legend-item priority-small" @mouseover="focusTasksByPriority('1')"
+                    <div class="legend__item priority-low" @mouseover="focusTasksByPriority('1')"
                         @mouseleave="removeFocusFromTasks">
-                        <p class="text small"><i class="fa-regular fa-calendar"></i> Prioridade baixa ({{
-                            priorityCount.small }})</p>
+                        <p class="text text--small">
+                            <i :class="getPriorityIcon('1')"></i>
+                            Baixa prioridade ({{ priorityCount.small }})
+                        </p>
                     </div>
                 </div>
 
                 <span class="divider"></span>
 
-                <div class="calendar">
+                <div class="grid">
                     <router-link
-                        :class="['calendar-item', 'task', task.status && 'completed', { 'is-hovering': task.isHovering, 'focused': task.isFocused }]"
+                        :class="['grid__item', 'task', task.status && 'completed', { 'task--hovering': task.isHovering, 'task--focused': task.isFocused }]"
                         v-for="task in allUserTasks" role="button" :to="'/topic/' + task.topic_id"
                         title="Acessar tópico">
-                        <div class="calendar-item-header">
-                            <p class="text smallest muted">{{ task.topic_name }}</p>
-                            <div class="task-informations">
-                                <p class="text">{{ task.name }}</p>
+                        <div class="grid__item-header">
+                            <p class="grid__item-title text text--small text--muted">
+                                {{ task.topic_name }}
+                            </p>
+                            <div class="grid__item-info">
+                                <p class="grid__item-name text">{{ task.name }}</p>
 
-                                <div class="task-informations-small">
+                                <div class="grid__item-info--small">
                                     <span :class="['tag', getPriorityClass(task.priority)]">
-                                        <i class="fa-solid fa-exclamation-circle"></i>
+                                        <i :class="getPriorityIcon(task.priority)"></i>
                                         {{ getPriorityText(task.priority) }}
                                     </span>
-                                    <p class="text text-icon small"><i class="fa-regular fa-clock"></i> Criado
-                                        em:
-                                        {{ task.created_at }}
+                                    <p class="text text--icon text--small">
+                                        <i class="fa-regular fa-clock"></i> Criado em: {{ task.created_at }}
                                     </p>
-                                    <p class="text text-icon small" v-if="task.delivery_date"><i
-                                            class="fa-regular fa-bell"></i> Entrega para: {{
-                                        formatDate(task.delivery_date) }}</p>
+                                    <p class="text text--icon text--small" v-if="task.delivery_date">
+                                        <i class="fa-regular fa-bell"></i> Entrega para: {{
+                                        formatDate(task.delivery_date) }}
+                                    </p>
                                 </div>
                             </div>
                         </div>
-                        <div class="calendar-item-footer" v-if="task.comment">
-                            <div class="task-comment">
-                                <p class="text small muted">Comentário da tarefa:</p>
-
+                        <div class="grid__item-footer" v-if="task.comment">
+                            <div class="grid__item-comment">
+                                <p class="text text--small text--muted">Comentário da
+                                    tarefa:</p>
                                 <div class="markdown-content markdown-content--small"
                                     v-html="formatComment(task.comment)"></div>
                             </div>
@@ -521,7 +530,7 @@
     </template>
 
     <template id="kanban-page">
-        <div v-if="loadedTasks">
+        <div v-if="loadedTasks" id="kanban-page-container">
             <div class="kanban-wrapper container" v-if="tasksLength > 0">
                 <div class="kanban-header">
                     <button @click="sendBack" class="btn btn--outline-primary btn--icon" title="Voltar para o início">
@@ -545,7 +554,7 @@
 
                         <div class="kanban-tasks">
                             <div class="task task-empty" v-if="tasks[kanbanStatus] == 0">
-                                <i class="fa-solid fa-exclamation-triangle"></i>
+                                <i class="fa-solid fa-box-open"></i>
                                 <p class="text">Nenhuma tarefa na coluna</p>
                             </div>
                             <div v-else v-for="task in tasks[kanbanStatus]" :key="task.id"
@@ -559,16 +568,16 @@
                                 </router-link>
 
                                 <span :class="['tag', getPriorityClass(task.priority)]">
-                                    <i class="fa-solid fa-exclamation-circle"></i>
+                                    <i :class="getPriorityIcon(task.priority)"></i>
                                     {{ getPriorityText(task.priority) }}
                                 </span>
 
-                                <div class="task-information">
-                                    <span class="text text-icon small muted">
+                                <div class="task__information">
+                                    <span class="text text--icon text--small text--muted">
                                         <i class="fa-regular fa-clock"></i>
                                         Criado em: {{ task.created_at }}
                                     </span>
-                                    <span class="text text-icon small muted" v-if="task.delivery_date">
+                                    <span class="text text--icon text--small text--muted" v-if="task.delivery_date">
                                         <i class="fa-regular fa-bell"></i>
                                         Entrega para: {{ formatDate(task.delivery_date) }}
                                     </span>

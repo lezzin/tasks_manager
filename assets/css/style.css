@@ -8,6 +8,7 @@
     box-sizing: border-box;
     padding: 0;
     margin: 0;
+    font: inherit;
 }
 
 html,
@@ -82,12 +83,8 @@ body {
 }
 
 .title {
-    font-size: 2.4rem;
+    font-size: 2rem;
     font-weight: 600;
-}
-
-.center {
-    text-align: center;
 }
 
 .subtitle {
@@ -98,32 +95,32 @@ body {
 .text {
     font-size: 1.6rem;
 
-    &.small {
+    &.text--center {
+        text-align: center;
+    }
+
+    &.text--small {
         font-size: 1.2rem;
     }
 
-    &.text-icon {
+    &.text--icon {
         display: flex;
         align-items: center;
         gap: 0.3rem;
     }
 
-    &.smallest {
+    &.text--smallest {
         font-size: 1rem;
     }
 
-    &.text-error {
+    &.text--error {
         font-size: 1.4rem;
         color: var(--danger-color);
     }
 
-    &.muted {
-        opacity: .7;
+    &.text--muted {
+        opacity: .8;
     }
-}
-
-button {
-    font-family: inherit;
 }
 
 .btn {
@@ -154,15 +151,19 @@ button {
         }
     }
 
-    &.btn--block {
+    &.btn--block,
+    &.btn--block-small {
         text-align: center;
         display: block;
-        padding: .8rem 0;
         width: 100%;
+    }
 
-        &.block-small {
-            padding: 0.4rem;
-        }
+    &.btn--block-small {
+        padding: 0.4rem .8rem;
+    }
+
+    &.btn--block {
+        padding: .8rem 1.6rem;
     }
 
     &.btn--primary {
@@ -220,7 +221,7 @@ button {
 
 .container {
     max-width: 1080px;
-    width: 100%;
+    width: calc(100% - var(--padding));
     margin: 0 auto;
 }
 
@@ -239,12 +240,12 @@ button {
         pointer-events: all;
         opacity: 1;
 
-        .modal-dialog {
+        .modal__dialog {
             transform: scale(1);
         }
     }
 
-    .modal-dialog {
+    .modal__dialog {
         background-color: var(--bg-primary);
         border-radius: var(--radius);
         box-shadow: var(--shadow-md);
@@ -258,7 +259,12 @@ button {
         grid-template-rows: auto 1fr;
         max-height: 90dvh;
 
-        .modal-header {
+        .modal__title {
+            font-size: 2.4rem;
+            font-weight: 600;
+        }
+
+        .modal__header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -266,18 +272,18 @@ button {
             background: var(--bg-secondary);
         }
 
-        .modal-header+form,
-        .modal-header+div {
+        .modal__header+form,
+        .modal__header+div {
             overflow-y: auto;
             padding: var(--padding);
         }
 
-        .modal-header+div>* {
+        .modal__header+div>* {
             padding-top: 0;
             margin-top: 0;
         }
 
-        .modal-header+div:last-child {
+        .modal__header+div:last-child {
             padding-bottom: 0;
             margin-bottom: 0;
         }
@@ -331,7 +337,6 @@ button {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding-inline: var(--padding);
         height: 100%;
 
         .header__logo {
@@ -361,7 +366,7 @@ button {
             .account__details {
                 text-align: right;
 
-                .small {
+                .text--small {
                     font-weight: 500;
                 }
             }
@@ -386,10 +391,11 @@ button {
         .dropdown {
             position: absolute;
             top: 100%;
-            right: var(--padding);
+            right: 0;
             pointer-events: none;
             overflow: hidden;
             transition: all var(--screen-transition) ease-in-out;
+            box-shadow: var(--shadow-sm);
             z-index: 100;
             opacity: 0;
 
@@ -425,7 +431,7 @@ button {
 
             position: absolute;
             top: 1rem;
-            right: 1rem;
+            right: 0;
             display: grid;
             grid-template-columns: 1.5rem 1fr;
             border: 1px solid var(--border-color);
@@ -455,6 +461,10 @@ button {
             .toast__banner,
             .toast__icon {
                 background: var(--__toast-bg);
+            }
+
+            .toast__icon {
+                font-size: 2rem;
             }
 
             .toast__content {
@@ -521,14 +531,6 @@ form {
     width: 96%;
     max-width: var(--form-width, 100%);
     margin: 0 auto;
-
-    &.form-100 {
-        width: 100%;
-    }
-
-    .title {
-        margin-bottom: 1rem;
-    }
 
     .input-error {
         button {
@@ -599,7 +601,6 @@ form {
     input,
     textarea,
     select {
-        font-family: inherit;
         padding: 1rem 1.5rem;
     }
 
@@ -661,27 +662,27 @@ form {
 }
 
 .priority-high {
-    background-color: var(--high-priority);
+    background-color: var(--task-priority-high);
     color: var(--font-secondary);
 }
 
 .priority-medium {
-    background-color: var(--medium-priority);
+    background-color: var(--task-priority-medium);
     color: var(--font-primary-light);
 }
 
-.priority-small {
-    background-color: var(--small-priority);
+.priority-low {
+    background-color: var(--task-priority-low);
     color: var(--font-primary-light);
 }
 
 .completed {
-    background-color: var(--details-color-light) !important;
+    background-color: var(--task-completed) !important;
 }
 
 .tag {
-    padding: .5rem 1rem;
-    font-size: 1.2rem;
+    padding: .4rem .8rem;
+    font-size: 1.1rem;
     font-weight: 500;
 }
 
