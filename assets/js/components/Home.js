@@ -281,7 +281,6 @@ const Home = {
 
                     await updateDoc(docRef, { [`topics.${name}.${DOC_NAME}`]: updatedTasks });
                     this.$root.showToast("success", "Tarefa adicionada com sucesso");
-                    this.addNewTaskComment = this.addNewTaskDate = this.addNewTaskName = null;
                     this.sortTasksByPriority();
                     this.closeAddingTask();
                 }
@@ -422,7 +421,9 @@ const Home = {
             this.addingTask = true;
         },
         closeAddingTask() {
+            this.addNewTaskDate = this.addNewTaskName = null;
             this.addNewTaskPriority = TASK_PRIORITIES.small;
+            this.commentMd.add.value('');
             this.addingTask = false;
         },
         openTaskComment(comment) {
@@ -445,6 +446,11 @@ const Home = {
             this.editingTask = true;
         },
         closeEditingTask() {
+            this.editTaskId = null;
+            this.editNewTaskName = null;
+            this.editNewTaskPriority = TASK_PRIORITIES.small;
+            this.editNewTaskDate = null;
+            this.commentMd.edit.value('');
             this.editingTask = false;
         },
         closeTopicsMenu() {
