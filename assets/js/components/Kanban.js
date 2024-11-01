@@ -1,5 +1,5 @@
 import { DOC_NAME, PAGE_TITLES, TASK_KANBAN_STATUSES } from "../utils/variables.js";
-import { formatDate, getPriorityClass, getPriorityText, isUserMobile } from "../utils/functions.js";
+import { formatDate, getPriorityClass, getPriorityText, getPriorityIcon } from "../utils/functions.js";
 import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
 const Kanban = {
@@ -22,6 +22,7 @@ const Kanban = {
         formatDate,
         getPriorityClass,
         getPriorityText,
+        getPriorityIcon,
 
         sendBack() {
             this.$router.back();
@@ -182,10 +183,6 @@ const Kanban = {
     },
 
     mounted() {
-        if (isUserMobile) {
-            this.$root.showToast("error", "A funcionalidade de Kanban não funcionará corretamente em dispositivos móveis.");
-        }
-
         document.title = PAGE_TITLES.kanban;
         Object.assign(this.$root, { showBtn: false });
         this.getAllUserTasks();
