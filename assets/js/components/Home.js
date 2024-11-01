@@ -1,7 +1,7 @@
 import { doc, getDoc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
 import { DOC_NAME, PAGE_TITLES, TASK_KANBAN_STATUSES, TASK_PRIORITIES } from "../utils/variables.js";
-import { formatDate, currentTime, filterField, getPriorityClass, getPriorityText } from "../utils/functions.js";
+import { formatDate, currentTime, filterField, getPriorityClass, getPriorityText, getPriorityIcon } from "../utils/functions.js";
 
 const Home = {
     template: "#home-page",
@@ -52,9 +52,10 @@ const Home = {
         }
     },
     methods: {
-        formatDate(date) {
-            return formatDate(date)
-        },
+        formatDate,
+        getPriorityClass,
+        getPriorityText,
+        getPriorityIcon,
 
         toggleSpeechRecognition(action) {
             if (!this.isListening) {
@@ -371,9 +372,6 @@ const Home = {
             return docSnap.exists() ? docSnap.data() : null;
         },
 
-        getPriorityClass,
-        getPriorityText,
-
         sortTasksByPriority() {
             this.selectedTopic.tasks = this.selectedTopic.tasks.sort((taskA, taskB) => {
                 const priorityA = taskA.priority;
@@ -478,6 +476,8 @@ const Home = {
 
                 if (this.$route.params.id) {
                     this.loadTopic(this.$route.params.id);
+                } else {
+                    document.title = PAGE_TITLES.home.default;
                 }
             }, (error) => {
                 if (!this.$root.user) return;
@@ -514,7 +514,6 @@ const Home = {
         },
     },
     mounted() {
-        document.title = PAGE_TITLES.home.default;
         this.$root.showBtn = true;
 
         this.loadUserTopics();
@@ -545,14 +544,14 @@ const Home = {
             }
 
             if (
-                !element.closest('.topic-container') &&
+                !element.closest('.home-aside') &&
                 !element.closest('.btn--mobile') &&
                 this.$root.isMenuTopicsActive
             ) {
                 this.closeTopicsMenu();
             }
 
-            if (element.classList.contains("btn--mobile") || element.classList.contains("modal-dialog")) {
+            if (element.geta.contains("btn--mobile") || element.classList.contains("modal__dialog")) {
                 e.stopPropagation();
             }
         });
