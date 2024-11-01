@@ -12,19 +12,26 @@ const Login = {
                 this.$router.push("/");
             } catch ({ code, message }) {
                 const errors = {
-                    'auth/popup-closed-by-user': 'O processo de autenticação foi cancelado.',
-                    'auth/cancelled-popup-request': 'Aguarde o processo de autenticação ser concluído.',
-                    'auth/popup-blocked': 'O navegador bloqueou o pop-up de autenticação. Desative o bloqueador de pop-up.',
-                    'auth/account-exists-with-different-credential': 'Essa conta já está associada a outro provedor de autenticação.',
-                    'auth/operation-not-allowed': 'Autenticação com este provedor não está habilitada.',
-                    'auth/unauthorized-domain': 'O domínio atual não está autorizado para autenticação.',
-                    'auth/user-disabled': 'Esse email de usuário está desativado.',
-                    'auth/invalid-credential': 'As credenciais fornecidas são inválidas ou expiraram.',
-                    'auth/web-storage-unsupported': 'O navegador não é compatível com armazenamento da Web necessário para autenticação.',
+                    "auth/popup-closed-by-user": "O processo de autenticação foi cancelado.",
+                    "auth/cancelled-popup-request":
+                        "Aguarde o processo de autenticação ser concluído.",
+                    "auth/popup-blocked":
+                        "O navegador bloqueou o pop-up de autenticação. Desative o bloqueador de pop-up.",
+                    "auth/account-exists-with-different-credential":
+                        "Essa conta já está associada a outro provedor de autenticação.",
+                    "auth/operation-not-allowed":
+                        "Autenticação com este provedor não está habilitada.",
+                    "auth/unauthorized-domain":
+                        "O domínio atual não está autorizado para autenticação.",
+                    "auth/user-disabled": "Esse email de usuário está desativado.",
+                    "auth/invalid-credential":
+                        "As credenciais fornecidas são inválidas ou expiraram.",
+                    "auth/web-storage-unsupported":
+                        "O navegador não é compatível com armazenamento da Web necessário para autenticação.",
                 };
 
                 this.$root.showToast("error", errors[code] ?? message);
-            };
+            }
         },
     },
     mounted() {
@@ -40,8 +47,8 @@ const Login = {
             if (user) {
                 this.$router.push("/");
             }
-        }
-    }
+        },
+    },
 };
 
 export default Login;

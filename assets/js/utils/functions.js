@@ -7,11 +7,13 @@ export function formatDate(date) {
     const month = utcDate.getUTCMonth() + 1;
     const year = utcDate.getUTCFullYear();
 
-    return `${day < 10 ? '0' : ''}${day}/${month < 10 ? '0' : ''}${month}/${year}`;
+    return `${day < 10 ? "0" : ""}${day}/${month < 10 ? "0" : ""}${month}/${year}`;
 }
 
 export function filterField(field) {
-    return String(field).trim().replace(/[.\[\]*`]/g, "");
+    return String(field)
+        .trim()
+        .replace(/[.\[\]*`]/g, "");
 }
 
 export function currentTime() {
@@ -20,33 +22,39 @@ export function currentTime() {
         month: "2-digit",
         year: "numeric",
         hour: "2-digit",
-        minute: "2-digit"
+        minute: "2-digit",
     });
 }
 
 export function getPriorityClass(priority) {
-    return {
-        [TASK_PRIORITIES.high]: "priority-high",
-        [TASK_PRIORITIES.medium]: "priority-medium",
-        [TASK_PRIORITIES.small]: "priority-low",
-    }[priority] ?? '';
+    return (
+        {
+            [TASK_PRIORITIES.high]: "priority-high",
+            [TASK_PRIORITIES.medium]: "priority-medium",
+            [TASK_PRIORITIES.small]: "priority-low",
+        }[priority] ?? ""
+    );
 }
 
 export function getPriorityText(priority) {
-    return {
-        [TASK_PRIORITIES.high]: "Alta prioridade",
-        [TASK_PRIORITIES.medium]: "Média prioridade",
-        [TASK_PRIORITIES.small]: "Baixa prioridade",
-    }[priority] || '';
+    return (
+        {
+            [TASK_PRIORITIES.high]: "Alta prioridade",
+            [TASK_PRIORITIES.medium]: "Média prioridade",
+            [TASK_PRIORITIES.small]: "Baixa prioridade",
+        }[priority] || ""
+    );
 }
 
 export function getPriorityIcon(priority) {
     const icon = (className) => `fa-solid fa-${className}`;
 
-    return {
-        [TASK_PRIORITIES.high]: icon("arrow-up"),
-        [TASK_PRIORITIES.medium]: icon("arrow-right"),
-        [TASK_PRIORITIES.small]: icon("arrow-down"),
-        [TASK_PRIORITIES.completed]: icon("check-circle"),
-    }[priority] || '';
+    return (
+        {
+            [TASK_PRIORITIES.high]: icon("arrow-up"),
+            [TASK_PRIORITIES.medium]: icon("arrow-right"),
+            [TASK_PRIORITIES.small]: icon("arrow-down"),
+            [TASK_PRIORITIES.completed]: icon("check-circle"),
+        }[priority] || ""
+    );
 }

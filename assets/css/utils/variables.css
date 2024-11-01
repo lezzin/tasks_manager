@@ -16,20 +16,21 @@
     --danger-color-light: #faebeb;
 
     --task-completed: #d9f2e9;
-    --task-priority-high: #EB5757;
-    --task-priority-medium: #F2C94C;
+    --task-priority-high: #eb5757;
+    --task-priority-medium: #f2c94c;
     --task-priority-low: #4bd9fc;
 
     --aside-width: 25%;
     --padding: 1.5rem;
     --radius: 5px;
 
-    --screen-transition: .3s;
+    --screen-transition: 0.3s;
 
-    --shadow-md: 0 .5rem 1rem rgb(0 0 0 / .15);
-    --shadow-sm: 0 .125rem .25rem rgb(0 0 0 / .075);
+    --shadow-md: 0 0.5rem 1rem rgb(0 0 0 / 0.15);
+    --shadow-sm: 0 0.125rem 0.25rem rgb(0 0 0 / 0.075);
 
-    --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+        Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
 
 @keyframes spin {

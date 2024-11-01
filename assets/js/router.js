@@ -10,14 +10,14 @@ const getCurrentUser = () => {
     return new Promise((resolve, reject) => {
         const removeListener = onAuthStateChanged(
             auth,
-            user => {
+            (user) => {
                 removeListener();
                 resolve(user);
             },
             reject
         );
     });
-}
+};
 
 const routes = [
     {
@@ -28,8 +28,8 @@ const routes = [
             auth: auth,
         },
         meta: {
-            requiresAuth: false
-        }
+            requiresAuth: false,
+        },
     },
     {
         path: "/",
@@ -39,8 +39,8 @@ const routes = [
             auth: auth,
         },
         meta: {
-            requiresAuth: true
-        }
+            requiresAuth: true,
+        },
     },
     {
         path: "/topic/:id",
@@ -50,8 +50,8 @@ const routes = [
             auth: auth,
         },
         meta: {
-            requiresAuth: true
-        }
+            requiresAuth: true,
+        },
     },
     {
         path: "/general",
@@ -60,8 +60,8 @@ const routes = [
             db: db,
         },
         meta: {
-            requiresAuth: true
-        }
+            requiresAuth: true,
+        },
     },
     {
         path: "/kanban",
@@ -70,22 +70,22 @@ const routes = [
             db: db,
         },
         meta: {
-            requiresAuth: true
-        }
+            requiresAuth: true,
+        },
     },
     {
         path: "*",
         component: NotFound,
         meta: {
-            requiresAuth: false
-        }
-    }
+            requiresAuth: false,
+        },
+    },
 ];
 
 const router = new VueRouter({ routes });
 
 router.beforeEach(async (to, from, next) => {
-    if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (to.matched.some((record) => record.meta.requiresAuth)) {
         if (await getCurrentUser()) {
             next();
         } else {

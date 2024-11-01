@@ -1,7 +1,25 @@
-import { doc, getDoc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+import {
+    doc,
+    getDoc,
+    setDoc,
+    updateDoc,
+    onSnapshot,
+} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
-import { DOC_NAME, PAGE_TITLES, TASK_KANBAN_STATUSES, TASK_PRIORITIES } from "../utils/variables.js";
-import { formatDate, currentTime, filterField, getPriorityClass, getPriorityText, getPriorityIcon } from "../utils/functions.js";
+import {
+    DOC_NAME,
+    PAGE_TITLES,
+    TASK_KANBAN_STATUSES,
+    TASK_PRIORITIES,
+} from "../utils/variables.js";
+import {
+    formatDate,
+    currentTime,
+    filterField,
+    getPriorityClass,
+    getPriorityText,
+    getPriorityIcon,
+} from "../utils/functions.js";
 
 const Home = {
     template: "#home-page",
@@ -14,42 +32,42 @@ const Home = {
             selectedTopic: null,
             loadedTopics: false,
 
-            newTopic: '',
-            formTopicError: '',
+            newTopic: "",
+            formTopicError: "",
 
             addingTask: false,
-            formTaskError: '',
-            addNewTaskName: '',
-            addNewTaskDate: '',
+            formTaskError: "",
+            addNewTaskName: "",
+            addNewTaskDate: "",
             addNewTaskPriority: TASK_PRIORITIES.small,
             isListening: false,
             recognition: null,
 
             topicOldName: null,
-            topicNewName: '',
-            topicEditingError: '',
+            topicNewName: "",
+            topicEditingError: "",
             editingTopic: false,
 
             editTaskId: null,
-            editNewTaskName: '',
-            editNewTaskNameError: '',
-            editNewTaskPriority: '',
-            editNewTaskPriorityError: '',
-            editNewTaskDate: '',
+            editNewTaskName: "",
+            editNewTaskNameError: "",
+            editNewTaskPriority: "",
+            editNewTaskPriorityError: "",
+            editNewTaskDate: "",
             editingTask: false,
 
             defaultTasks: [],
             searchTask: "",
-            filterTask: 'all',
+            filterTask: "all",
 
             selectedComment: null,
             showingComment: false,
 
             commentMd: {
                 add: null,
-                edit: null
-            }
-        }
+                edit: null,
+            },
+        };
     },
     methods: {
         formatDate,
@@ -67,17 +85,17 @@ const Home = {
         startSpeechRecognition(action) {
             this.isListening = true;
             this.recognition = new window.webkitSpeechRecognition();
-            this.recognition.lang = 'pt-BR';
+            this.recognition.lang = "pt-BR";
             this.recognition.interimResults = false;
 
             this.recognition.onresult = (event) => {
                 const result = event.results[0][0].transcript;
 
                 switch (action) {
-                    case 'addTask':
+                    case "addTask":
                         this.addNewTaskName = result;
                         break;
-                    case 'editTask':
+                    case "editTask":
                         this.editNewTaskName = result;
                         break;
                     default:
@@ -118,7 +136,7 @@ const Home = {
                 return;
             }
 
-            const topic = this.topics.find(topic => topic.id == id);
+            const topic = this.topics.find((topic) => topic.id == id);
 
             if (!topic) {
                 if (this.$router.history.current.fullPath != "/") this.$router.push("/");
@@ -133,7 +151,7 @@ const Home = {
         },
 
         async addTopic() {
-            this.formTopicError = '';
+            this.formTopicError = "";
 
             if (!this.newTopic) {
                 this.formTopicError = "Preencha o campo";
@@ -162,12 +180,12 @@ const Home = {
                     name: formattedTopicName,
                     tasks: [],
                     created_at: currentTime(),
-                }
+                },
             });
 
             this.$root.showToast("success", "Tópico criado com sucesso");
 
-            this.newTopic = '';
+            this.newTopic = "";
         },
 
         async editTopic() {
@@ -193,7 +211,7 @@ const Home = {
                 if (formattedTopicName == this.topicOldName) {
                     this.closeEditingTopic();
                     return;
-                };
+                }
 
                 if (userData.topics[formattedTopicName]) {
                     this.topicEditingError = "Esse tópico já existe";
@@ -204,7 +222,7 @@ const Home = {
                     ...userData.topics,
                     [formattedTopicName]: {
                         ...selectedTopicData,
-                        name: formattedTopicName
+                        name: formattedTopicName,
                     },
                 };
                 delete updatedTopics[this.topicOldName];
@@ -218,7 +236,12 @@ const Home = {
         },
 
         async deleteTopic(topicName) {
-            if (!confirm("Tem certeza que deseja excluir esse tópico? Essa ação não poderá ser desfeita!")) return;
+            if (
+                !confirm(
+                    "Tem certeza que deseja excluir esse tópico? Essa ação não poderá ser desfeita!"
+                )
+            )
+                return;
 
             const docRef = doc(this.db, DOC_NAME, this.$root.user.uid);
             const userData = await this.getUserData(docRef);
@@ -236,9 +259,14 @@ const Home = {
         },
 
         async deleteAllTopics() {
-            if (!confirm("Tem certeza que deseja excluir TODOS os seus tópicos? Essa ação não poderá ser desfeita!")) return;
+            if (
+                !confirm(
+                    "Tem certeza que deseja excluir TODOS os seus tópicos? Essa ação não poderá ser desfeita!"
+                )
+            )
+                return;
 
-            const docRef = doc(this.db, 'tasks', this.$root.user.uid);
+            const docRef = doc(this.db, "tasks", this.$root.user.uid);
             const userData = await this.getUserData(docRef);
 
             if (!userData || !userData.topics || Object.keys(userData.topics).length === 0) {
@@ -258,7 +286,7 @@ const Home = {
             }
 
             const { name, id } = this.selectedTopic;
-            const docRef = doc(this.db, 'tasks', this.$root.user.uid);
+            const docRef = doc(this.db, "tasks", this.$root.user.uid);
             const userData = await this.getUserData(docRef);
 
             if (userData && userData.topics) {
@@ -275,11 +303,13 @@ const Home = {
                         comment: sanitizedComment,
                         delivery_date: this.addNewTaskDate,
                         kanbanStatus: "todo",
-                        topic_id: id
+                        topic_id: id,
                     };
                     const updatedTasks = [...topic.tasks, taskData];
 
-                    await updateDoc(docRef, { [`topics.${name}.${DOC_NAME}`]: updatedTasks });
+                    await updateDoc(docRef, {
+                        [`topics.${name}.${DOC_NAME}`]: updatedTasks,
+                    });
                     this.$root.showToast("success", "Tarefa adicionada com sucesso");
                     this.sortTasksByPriority();
                     this.closeAddingTask();
@@ -299,20 +329,22 @@ const Home = {
             const sanitizedComment = this.commentMd.edit.value() ?? "";
 
             if (selectedTopicData && selectedTopicData.tasks) {
-                const updatedTasks = selectedTopicData.tasks.map(task => {
+                const updatedTasks = selectedTopicData.tasks.map((task) => {
                     if (task.id == this.editTaskId) {
                         return {
                             ...task,
                             name: filterField(this.editNewTaskName),
                             priority: this.editNewTaskPriority,
                             delivery_date: this.editNewTaskDate,
-                            comment: sanitizedComment
+                            comment: sanitizedComment,
                         };
                     }
                     return task;
                 });
 
-                await updateDoc(docRef, { [`topics.${this.selectedTopic.name}.${DOC_NAME}`]: updatedTasks });
+                await updateDoc(docRef, {
+                    [`topics.${this.selectedTopic.name}.${DOC_NAME}`]: updatedTasks,
+                });
                 this.$root.showToast("success", "Tarefa alterada com sucesso");
                 this.closeEditingTask();
                 this.searchTaskByName();
@@ -327,20 +359,24 @@ const Home = {
                 const selectedTopicData = userData.topics[this.selectedTopic.name];
 
                 if (selectedTopicData && selectedTopicData.tasks) {
-                    const updatedTasks = selectedTopicData.tasks.map(task => {
+                    const updatedTasks = selectedTopicData.tasks.map((task) => {
                         const newStatus = !task.status;
 
                         if (task.id == taskId) {
                             return {
                                 ...task,
                                 status: newStatus,
-                                kanbanStatus: newStatus ? TASK_KANBAN_STATUSES.completed : TASK_KANBAN_STATUSES.todo
+                                kanbanStatus: newStatus
+                                    ? TASK_KANBAN_STATUSES.completed
+                                    : TASK_KANBAN_STATUSES.todo,
                             };
                         }
                         return task;
                     });
 
-                    await updateDoc(docRef, { [`topics.${this.selectedTopic.name}.${DOC_NAME}`]: updatedTasks });
+                    await updateDoc(docRef, {
+                        [`topics.${this.selectedTopic.name}.${DOC_NAME}`]: updatedTasks,
+                    });
                     this.$root.showToast("success", "Status de conclusão alterado com sucesso");
                     this.searchTaskByStatus();
                 }
@@ -348,7 +384,12 @@ const Home = {
         },
 
         async deleteTask(topicName, taskId) {
-            if (!confirm("Tem certeza que deseja excluir essa tarefa? Essa ação não poderá ser desfeita!")) return;
+            if (
+                !confirm(
+                    "Tem certeza que deseja excluir essa tarefa? Essa ação não poderá ser desfeita!"
+                )
+            )
+                return;
 
             const docRef = doc(this.db, DOC_NAME, this.$root.user.uid);
             const userData = await this.getUserData(docRef);
@@ -359,9 +400,11 @@ const Home = {
             }
 
             const selectedTopic = userData.topics[topicName];
-            const updatedTasks = selectedTopic.tasks.filter(task => task.id !== taskId);
+            const updatedTasks = selectedTopic.tasks.filter((task) => task.id !== taskId);
 
-            await updateDoc(docRef, { [`topics.${topicName}.${DOC_NAME}`]: updatedTasks });
+            await updateDoc(docRef, {
+                [`topics.${topicName}.${DOC_NAME}`]: updatedTasks,
+            });
             this.$root.showToast("success", "Tarefa excluída com sucesso");
             this.sortTasksByPriority();
         },
@@ -392,7 +435,9 @@ const Home = {
         searchTaskByName() {
             this.filterTask = "all";
             const searchTerm = this.searchTask.trim().toLowerCase();
-            this.selectedTopic.tasks = this.defaultTasks.filter(task => task.name.toLowerCase().includes(searchTerm));
+            this.selectedTopic.tasks = this.defaultTasks.filter((task) =>
+                task.name.toLowerCase().includes(searchTerm)
+            );
             this.sortTasksByPriority();
         },
         searchTaskByStatus() {
@@ -403,7 +448,9 @@ const Home = {
                 this.selectedTopic.tasks = this.defaultTasks;
             } else {
                 const taskIsCompleted = selectedFilter == TASK_PRIORITIES.completed;
-                this.selectedTopic.tasks = this.defaultTasks.filter(task => task.status == taskIsCompleted);
+                this.selectedTopic.tasks = this.defaultTasks.filter(
+                    (task) => task.status == taskIsCompleted
+                );
             }
 
             this.sortTasksByPriority();
@@ -414,7 +461,6 @@ const Home = {
             this.editingTopic = true;
 
             console.log("aqui");
-
         },
         closeEditingTopic() {
             this.editingTopic = false;
@@ -426,14 +472,14 @@ const Home = {
         closeAddingTask() {
             this.addNewTaskDate = this.addNewTaskName = null;
             this.addNewTaskPriority = TASK_PRIORITIES.small;
-            this.commentMd.add.value('');
+            this.commentMd.add.value("");
             this.addingTask = false;
         },
         openTaskComment(comment) {
             this.showingComment = true;
             this.selectedComment = marked.parse(comment, {
                 gfm: true,
-                breaks: true
+                breaks: true,
             });
         },
         closeShowingComment() {
@@ -453,7 +499,7 @@ const Home = {
             this.editNewTaskName = null;
             this.editNewTaskPriority = TASK_PRIORITIES.small;
             this.editNewTaskDate = null;
-            this.commentMd.edit.value('');
+            this.commentMd.edit.value("");
             this.editingTask = false;
         },
         closeTopicsMenu() {
@@ -463,36 +509,43 @@ const Home = {
         loadUserTopics() {
             const docRef = doc(this.db, DOC_NAME, this.$root.user.uid);
 
-            onSnapshot(docRef, (doc) => {
-                const userData = doc.data();
-                const topicsExists = userData && userData.topics && Object.keys(userData.topics).length > 0;
+            onSnapshot(
+                docRef,
+                (doc) => {
+                    const userData = doc.data();
+                    const topicsExists =
+                        userData && userData.topics && Object.keys(userData.topics).length > 0;
 
-                if (!topicsExists) {
-                    this.topics = null;
-                    return;
+                    if (!topicsExists) {
+                        this.topics = null;
+                        return;
+                    }
+
+                    this.topics = Object.keys(userData.topics)
+                        .map((topicName) => {
+                            const topic = userData.topics[topicName];
+                            return {
+                                id: topic.id,
+                                name: topic.name,
+                                tasks: topic.tasks,
+                                tasks_length: topic.tasks?.length ?? 0,
+                                created_at: topic.created_at,
+                            };
+                        })
+                        .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+                    if (this.$route.params.id) {
+                        this.loadTopic(this.$route.params.id);
+                    } else {
+                        document.title = PAGE_TITLES.home.default;
+                    }
+                },
+                (error) => {
+                    if (!this.$root.user) return;
+
+                    this.$root.showToast("error", "Erro ao obter documento: " + error.message);
                 }
-
-                this.topics = Object.keys(userData.topics).map(topicName => {
-                    const topic = userData.topics[topicName];
-                    return {
-                        id: topic.id,
-                        name: topic.name,
-                        tasks: topic.tasks,
-                        tasks_length: topic.tasks?.length ?? 0,
-                        created_at: topic.created_at
-                    };
-                }).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-
-                if (this.$route.params.id) {
-                    this.loadTopic(this.$route.params.id);
-                } else {
-                    document.title = PAGE_TITLES.home.default;
-                }
-            }, (error) => {
-                if (!this.$root.user) return;
-
-                this.$root.showToast("error", "Erro ao obter documento: " + error.message);
-            });
+            );
 
             this.loadedTopics = true;
         },
@@ -502,12 +555,12 @@ const Home = {
 
             this.commentMd.edit = new SimpleMDE({
                 element: document.querySelector("#edit-task-comment"),
-                spellChecker: false
+                spellChecker: false,
             });
 
             this.commentMd.add = new SimpleMDE({
                 element: document.querySelector("#add-task-comment"),
-                spellChecker: false
+                spellChecker: false,
             });
         },
         destroyMarkdownEditors() {
@@ -528,21 +581,21 @@ const Home = {
         this.loadUserTopics();
         this.initializeMarkdownEditors();
 
-        document.addEventListener('keydown', ({ key }) => {
+        document.addEventListener("keydown", ({ key }) => {
             const events = {
-                'Escape': () => {
+                Escape: () => {
                     this.editingTopic && this.closeEditingTopic();
                     this.editingTask && this.closeEditingTask();
                     this.addingTask && this.closeAddingTask();
                     this.showingComment && this.closeShowingComment();
                     this.$root.isMenuTopicsActive && this.closeTopicsMenu();
-                }
-            }
+                },
+            };
 
             events[key] && events[key]();
         });
 
-        document.addEventListener("click", e => {
+        document.addEventListener("click", (e) => {
             const element = e.target;
 
             if (
@@ -556,9 +609,9 @@ const Home = {
             }
 
             if (
-                !element.closest('.home-aside') &&
-                !element.closest('.btn--mobile') &&
-                !element.closest('.modal') &&
+                !element.closest(".home-aside") &&
+                !element.closest(".btn--mobile") &&
+                !element.closest(".modal") &&
                 this.$root.isMenuTopicsActive
             ) {
                 this.closeTopicsMenu();
@@ -567,16 +620,16 @@ const Home = {
     },
     watch: {
         newTopic: function () {
-            this.formTopicError = '';
+            this.formTopicError = "";
         },
         addNewTaskName: function () {
-            this.formTaskError = '';
+            this.formTaskError = "";
         },
         topicNewName: function () {
-            this.topicEditingError = '';
+            this.topicEditingError = "";
         },
         editNewTaskName: function () {
-            this.editNewTaskNameError = '';
+            this.editNewTaskNameError = "";
         },
         "$route.params.id": function (id) {
             this.loadTopic(id);
@@ -587,7 +640,7 @@ const Home = {
         "$root.isMenuTopicsActive": function (data) {
             this.isMenuTopicsActive = data;
         },
-    }
-}
+    },
+};
 
 export default Home;

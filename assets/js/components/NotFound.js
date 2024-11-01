@@ -5,7 +5,7 @@ const NotFound = {
     mounted() {
         document.title = PAGE_TITLES.not_found;
         this.$root.showBtn = false;
-    }
-}
+    },
+};
 
 export default NotFound;

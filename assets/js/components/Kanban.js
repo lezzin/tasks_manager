@@ -1,6 +1,15 @@
 import { DOC_NAME, PAGE_TITLES, TASK_KANBAN_STATUSES } from "../utils/variables.js";
-import { formatDate, getPriorityClass, getPriorityText, getPriorityIcon } from "../utils/functions.js";
-import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+import {
+    formatDate,
+    getPriorityClass,
+    getPriorityText,
+    getPriorityIcon,
+} from "../utils/functions.js";
+import {
+    doc,
+    getDoc,
+    updateDoc,
+} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
 const Kanban = {
     template: "#kanban-page",
@@ -16,6 +25,8 @@ const Kanban = {
             activeColumn: null,
             tasksLength: 0,
             loadedTasks: false,
+            lastClickTime: 0,
+            doubleClickDelay: 300,
         };
     },
     methods: {
@@ -50,11 +61,17 @@ const Kanban = {
                 const tasks = this.getUserTasks(userData.topics);
 
                 this.tasksLength = tasks.length;
-                this.tasks.todo = tasks.filter(task => task.kanbanStatus === TASK_KANBAN_STATUSES.todo || !task.kanbanStatus);
-                this.tasks.doing = tasks.filter(task => task.kanbanStatus === TASK_KANBAN_STATUSES.doing);
-                this.tasks.completed = tasks.filter(task => task.kanbanStatus === TASK_KANBAN_STATUSES.completed);
+                this.tasks.todo = tasks.filter(
+                    (task) => task.kanbanStatus === TASK_KANBAN_STATUSES.todo || !task.kanbanStatus
+                );
+                this.tasks.doing = tasks.filter(
+                    (task) => task.kanbanStatus === TASK_KANBAN_STATUSES.doing
+                );
+                this.tasks.completed = tasks.filter(
+                    (task) => task.kanbanStatus === TASK_KANBAN_STATUSES.completed
+                );
             } catch (error) {
-                this.$root.showToast("error", `Erro ao resgatar tarefas": ${error.message}`);
+                this.$root.showToast("error", `Erro ao resgatar tarefas: ${error.message}`);
             } finally {
                 this.loadedTasks = true;
             }
@@ -62,8 +79,8 @@ const Kanban = {
 
         getUserTasks(topics) {
             return Object.values(topics)
-                .filter(topic => topic.tasks?.length > 0)
-                .flatMap(topic => topic.tasks.map(task => this.createTaskObject(topic, task)));
+                .filter((topic) => topic.tasks?.length > 0)
+                .flatMap((topic) => topic.tasks.map((task) => this.createTaskObject(topic, task)));
         },
 
         handleDragEvents(event, action, task = null) {
@@ -72,102 +89,82 @@ const Kanban = {
                 event.target.classList.add("dragging");
                 return;
             }
-        
+
             if (action === "end") {
                 event.target.classList.remove("dragging");
                 this.draggedTask = null;
             }
         },
-        
+
         onDrop(column) {
             if (!this.draggedTask) return;
-        
-            if (this.draggedTask.kanbanStatus !== column) {
-                this.changeTaskColumn(this.draggedTask, column);
+
+            if (typeof this.draggedTask === "object" && this.draggedTask !== null) {
+                if (this.draggedTask.kanbanStatus !== column) {
+                    this.changeTaskColumn(this.draggedTask, column);
+                }
+            } else {
+                console.error("Dragged task is not a valid object:", this.draggedTask);
             }
-        
+
             this.draggedTask = null;
             this.activeColumn = null;
         },
-        
+
         onDragEnter(event, kanbanStatus) {
             if (this.activeColumn !== kanbanStatus) {
                 this.activeColumn = kanbanStatus;
             }
             event.preventDefault();
         },
-        
+
         onDragOver(event) {
             event.preventDefault();
         },
-        
-        handleTouchStart(event, task) {
-            this.draggedTask = task;
-            const touch = event.touches[0];
-            event.target.classList.add("dragging");
-            this.startX = touch.clientX;
-            this.startY = touch.clientY;
-        
-            // Definindo um tempo limite para diferenciar entre um toque e um arrastar
-            this.touchTimer = setTimeout(() => {
-                // Se o usuário ainda estiver pressionando após um pequeno atraso, inicie o arrastar
-                this.isDragging = true;
-            }, 200);
-        },
-        
-        handleTouchMove(event) {
-            const touch = event.touches[0];
-            const deltaX = touch.clientX - this.startX;
-            const deltaY = touch.clientY - this.startY;
-        
-            // Se a movimentação for maior que um determinado limite, considere como um arrastar
-            if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
-                event.preventDefault(); // Evita a ação padrão
+
+        moveTask(task, direction) {
+            const currentColumn = task.kanbanStatus;
+            let newColumn;
+
+            if (direction === "prev") {
+                newColumn = this.getPreviousColumn(currentColumn);
+            } else if (direction === "next") {
+                newColumn = this.getNextColumn(currentColumn);
+            }
+
+            if (newColumn) {
+                this.changeTaskColumn(task, newColumn);
             }
         },
-        
-        handleTouchEnd(event) {
-            clearTimeout(this.touchTimer); // Limpa o timer
-        
-            if (!this.draggedTask) return;
-        
-            if (this.isDragging) {
-                const column = this.getDropColumn(event);
-                if (column) {
-                    this.onDrop(column);
-                }
-            }
-        
-            event.target.classList.remove("dragging");
-            this.draggedTask = null;
-            this.isDragging = false; // Reseta o estado de arrasto
+
+        getPreviousColumn(currentColumn) {
+            const columns = ["todo", "doing", "completed"];
+            const currentIndex = columns.indexOf(currentColumn);
+            return currentIndex > 0 ? columns[currentIndex - 1] : null;
         },
-        
-        getDropColumn(event) {
-            const touch = event.changedTouches[0];
-            const columnElements = document.querySelectorAll('.kanban__column');
-        
-            for (const column of columnElements) {
-                const rect = column.getBoundingClientRect();
-        
-                if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
-                    touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
-                    return column.getAttribute('data-status');
-                }
-            }
-        
-            return null;
+
+        getNextColumn(currentColumn) {
+            const columns = ["todo", "doing", "completed"];
+            const currentIndex = columns.indexOf(currentColumn);
+            return currentIndex < columns.length - 1 ? columns[currentIndex + 1] : null;
         },
-        
+
+        isFirstColumn(currentColumn) {
+            return currentColumn === "todo";
+        },
+
+        isLastColumn(currentColumn) {
+            return currentColumn === "completed";
+        },
+
         changeTaskColumn(task, newColumn) {
             task.kanbanStatus = newColumn;
-            this.tasks.todo = this.tasks.todo.filter(t => t !== task);
-            this.tasks.doing = this.tasks.doing.filter(t => t !== task);
-            this.tasks.completed = this.tasks.completed.filter(t => t !== task);
+            this.tasks.todo = this.tasks.todo.filter((t) => t !== task);
+            this.tasks.doing = this.tasks.doing.filter((t) => t !== task);
+            this.tasks.completed = this.tasks.completed.filter((t) => t !== task);
             this.tasks[newColumn].push(task);
             this.updateTaskStatus(task, newColumn);
         },
-        
 
         async updateTaskStatus(taskToUpdate, newKanbanStatus) {
             try {
@@ -177,32 +174,39 @@ const Kanban = {
 
                 if (userData && userData.topics) {
                     const selectedTopicId = taskToUpdate.topic_id;
-                    const selectedTopicData = Object.values(userData.topics).find(topic => topic.id === selectedTopicId);
+                    const selectedTopicData = Object.values(userData.topics).find(
+                        (topic) => topic.id === selectedTopicId
+                    );
                     const selectedTopicName = selectedTopicData.name;
 
                     if (selectedTopicData && selectedTopicData.tasks) {
                         taskToUpdate.kanbanStatus = newKanbanStatus;
                         taskToUpdate.status = newKanbanStatus === TASK_KANBAN_STATUSES.completed;
 
-                        const updatedTasks = selectedTopicData.tasks.map(task => {
+                        const updatedTasks = selectedTopicData.tasks.map((task) => {
                             if (taskToUpdate.id == task.id) {
                                 return {
                                     ...task,
                                     kanbanStatus: newKanbanStatus,
-                                    status: newKanbanStatus === TASK_KANBAN_STATUSES.completed
+                                    status: newKanbanStatus === TASK_KANBAN_STATUSES.completed,
                                 };
                             }
 
                             return task;
                         });
 
-                        await updateDoc(docRef, { [`topics.${selectedTopicName}.${DOC_NAME}`]: updatedTasks });
+                        await updateDoc(docRef, {
+                            [`topics.${selectedTopicName}.${DOC_NAME}`]: updatedTasks,
+                        });
                     }
                 }
             } catch (error) {
-                this.$root.showToast("error", `Erro ao atualizar status da tarefa: ${error.message}`);
+                this.$root.showToast(
+                    "error",
+                    `Erro ao atualizar status da tarefa: ${error.message}`
+                );
             }
-        }
+        },
     },
 
     mounted() {
