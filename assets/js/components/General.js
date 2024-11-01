@@ -3,7 +3,7 @@ import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
 
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 import { DOC_NAME, PAGE_TITLES, TASK_PRIORITIES } from "../utils/variables.js";
-import { formatDate, getPriorityClass, getPriorityText } from "../utils/functions.js";
+import { formatDate, getPriorityClass, getPriorityText, getPriorityIcon } from "../utils/functions.js";
 
 const General = {
     template: "#general-page",
@@ -16,6 +16,11 @@ const General = {
         };
     },
     methods: {
+        formatDate,
+        getPriorityClass,
+        getPriorityText,
+        getPriorityIcon,
+
         sendBack() {
             this.$router.back();
         },
@@ -46,10 +51,6 @@ const General = {
                 task.isFocused = false;
             });
         },
-
-        formatDate,
-        getPriorityClass,
-        getPriorityText,
 
         formatComment(comment) {
             return marked.parse(comment, {
