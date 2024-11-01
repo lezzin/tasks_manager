@@ -72,71 +72,93 @@ const Kanban = {
                 event.target.classList.add("dragging");
                 return;
             }
-
+        
             if (action === "end") {
                 event.target.classList.remove("dragging");
                 this.draggedTask = null;
             }
         },
-
+        
         onDrop(column) {
             if (!this.draggedTask) return;
-
+        
             if (this.draggedTask.kanbanStatus !== column) {
                 this.changeTaskColumn(this.draggedTask, column);
             }
-
+        
             this.draggedTask = null;
             this.activeColumn = null;
         },
-
+        
         onDragEnter(event, kanbanStatus) {
             if (this.activeColumn !== kanbanStatus) {
                 this.activeColumn = kanbanStatus;
             }
             event.preventDefault();
         },
-
+        
         onDragOver(event) {
             event.preventDefault();
         },
-
+        
         handleTouchStart(event, task) {
             this.draggedTask = task;
             const touch = event.touches[0];
             event.target.classList.add("dragging");
             this.startX = touch.clientX;
             this.startY = touch.clientY;
+        
+            // Definindo um tempo limite para diferenciar entre um toque e um arrastar
+            this.touchTimer = setTimeout(() => {
+                // Se o usuário ainda estiver pressionando após um pequeno atraso, inicie o arrastar
+                this.isDragging = true;
+            }, 200);
         },
-
-        handleTouchEnd(event) {
-            if (!this.draggedTask) return;
-
-            const column = this.getDropColumn(event);
-            if (column) {
-                this.onDrop(column);
+        
+        handleTouchMove(event) {
+            const touch = event.touches[0];
+            const deltaX = touch.clientX - this.startX;
+            const deltaY = touch.clientY - this.startY;
+        
+            // Se a movimentação for maior que um determinado limite, considere como um arrastar
+            if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+                event.preventDefault(); // Evita a ação padrão
             }
-
+        },
+        
+        handleTouchEnd(event) {
+            clearTimeout(this.touchTimer); // Limpa o timer
+        
+            if (!this.draggedTask) return;
+        
+            if (this.isDragging) {
+                const column = this.getDropColumn(event);
+                if (column) {
+                    this.onDrop(column);
+                }
+            }
+        
             event.target.classList.remove("dragging");
             this.draggedTask = null;
+            this.isDragging = false; // Reseta o estado de arrasto
         },
-
+        
         getDropColumn(event) {
             const touch = event.changedTouches[0];
             const columnElements = document.querySelectorAll('.kanban__column');
-
+        
             for (const column of columnElements) {
                 const rect = column.getBoundingClientRect();
-
+        
                 if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
                     touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
                     return column.getAttribute('data-status');
                 }
             }
-
+        
             return null;
         },
-
+        
         changeTaskColumn(task, newColumn) {
             task.kanbanStatus = newColumn;
             this.tasks.todo = this.tasks.todo.filter(t => t !== task);
@@ -145,6 +167,7 @@ const Kanban = {
             this.tasks[newColumn].push(task);
             this.updateTaskStatus(task, newColumn);
         },
+        
 
         async updateTaskStatus(taskToUpdate, newKanbanStatus) {
             try {

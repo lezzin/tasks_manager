@@ -131,8 +131,8 @@
                         <div class="topics-nav">
                             <div class="topic" v-for="topic in topics"
                                 :class="{ active: selectedTopic && topic.name == selectedTopic.name }">
-                                <router-link @click.native="closeTopicsMenu()" :to="'/topic/' + topic.id" class="topic__link btn"
-                                    role="button" :title="'Acessar tópico ' + topic.name">
+                                <router-link @click.native="closeTopicsMenu()" :to="'/topic/' + topic.id"
+                                    class="topic__link btn" role="button" :title="'Acessar tópico ' + topic.name">
 
                                     <div>
                                         <p class="text">{{ topic.name }}</p>
@@ -547,20 +547,20 @@
                 </div>
 
                 <div class="kanban">
-                    <div class="kanban__column" :class=" { 'drag-over': activeColumn === kanbanStatus }"
+                    <div class="kanban__column" :class="{ 'drag-over': activeColumn === kanbanStatus }"
                         v-for="kanbanStatus in ['todo', 'doing', 'completed']" :key="kanbanStatus"
                         @drop="onDrop(kanbanStatus)" @dragover="onDragOver"
                         @dragenter="event => onDragEnter(event, kanbanStatus)"
-                        @touchstart="handleTouchStart($event, kanbanStatus)" @touchend="handleTouchEnd($event)"
-                        :data-status="kanbanStatus">
+                        @touchstart="handleTouchStart($event, kanbanStatus)" @touchmove="handleTouchMove"
+                        @touchend="handleTouchEnd($event)" :data-status="kanbanStatus">
+
                         <h2 class="subtitle">
                             {{ kanbanStatus === 'todo' ? 'Para fazer' : kanbanStatus === 'doing' ? 'Fazendo' :
-                            'Concluído'
-                            }}
+                            'Concluído' }}
                         </h2>
 
                         <div class="kanban__tasks">
-                            <div class="task task--empty" v-if="tasks[kanbanStatus] == 0">
+                            <div class="task task--empty" v-if="tasks[kanbanStatus].length === 0">
                                 <i class="fa-solid fa-box-open"></i>
                                 <p class="text text--bold">Nenhuma tarefa na coluna</p>
                             </div>
@@ -568,9 +568,10 @@
                                 :class="['task', task.status && 'completed']" draggable="true"
                                 @dragstart="handleDragEvents($event, 'start', task)"
                                 @dragend="handleDragEvents($event, 'end')" @touchstart="handleTouchStart($event, task)"
-                                @touchend="handleTouchEnd($event, task)">
+                                @touchmove="handleTouchMove($event)" @touchend="handleTouchEnd($event, task)">
 
-                                <router-link class="text text--bold truncate" :to="'/topic/' + task.topic_id" style="--line-clamp: 1">
+                                <router-link class="text text--bold truncate" :to="'/topic/' + task.topic_id"
+                                    style="--line-clamp: 1">
                                     {{ task.name }}
                                 </router-link>
 
