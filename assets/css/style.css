@@ -286,24 +286,19 @@ body {
             background: var(--bg-secondary);
         }
 
-        .modal__header+form,
-        .modal__header+div {
+        form {
+            width: 100%;
+        }
+
+        form,
+        .markdown-content {
             overflow-y: auto;
             padding: var(--padding);
         }
 
-        .modal__header+div>* {
+        .markdown-content>* {
             padding-top: 0;
             margin-top: 0;
-        }
-
-        .modal__header+div:last-child {
-            padding-bottom: 0;
-            margin-bottom: 0;
-        }
-
-        form {
-            width: 100%;
         }
     }
 }
