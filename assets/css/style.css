@@ -297,7 +297,9 @@ body {
         }
 
         .markdown-content {
-            word-break: break-all;
+            a {
+                word-break: break-all;
+            }
 
             >* {
                 padding-top: 0;
