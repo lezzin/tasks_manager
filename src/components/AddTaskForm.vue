@@ -1,19 +1,86 @@
 <script setup>
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { useAuthUser } from '../composables/useAuthUser';
+import { db } from '../libs/firebase';
+import { DOC_NAME, TASK_KANBAN_STATUSES, TASK_PRIORITIES } from '../utils/variables';
+import { ref } from 'vue';
+import { currentTime, filterField } from '../utils/functions';
+import { useToast } from '../composables/useToast';
+import RecognitionInput from './RecognitionInput.vue';
+import MdEditor from './MdEditor.vue';
+
+const { user } = useAuthUser();
+const { showToast } = useToast();
 
 const emit = defineEmits(["close"]);
 
 const props = defineProps({
+    topic: {
+        type: Object,
+        required: false
+    },
     isActive: {
         type: Boolean,
         required: true
     }
-})
+});
 
 const closeAddingTask = () => {
     emit("close");
 }
 
-const addNewTaskName = ref("");
+const taskName = ref("");
+const taskNameError = ref("");
+const taskPriority = ref(TASK_PRIORITIES.small);
+const taskDate = ref("");
+const taskComment = ref("");
+
+const getUserData = async (docRef) => {
+    const docSnap = await getDoc(docRef);
+    return docSnap.exists() ? docSnap.data() : null;
+};
+
+const updateTaskName = (value) => {
+    taskName.value = value;
+    taskNameError.value = ''
+}
+
+const addTask = async () => {
+    if (!taskName.value) {
+        taskNameError.value = "Preencha o campo";
+        return;
+    }
+
+    const { name, id } = props.topic;
+    const docRef = doc(db, DOC_NAME, user.value.uid);
+    const userData = await getUserData(docRef);
+
+    if (userData && userData.topics) {
+        const topic = userData.topics[name];
+
+        if (topic) {
+            const taskData = {
+                id: Date.now().toString(36),
+                name: filterField(taskName.value),
+                status: false,
+                created_at: currentTime(),
+                priority: taskPriority.value,
+                comment: taskComment.value ?? "",
+                delivery_date: taskDate.value,
+                kanbanStatus: TASK_KANBAN_STATUSES.todo,
+                topic_id: id,
+            };
+            const updatedTasks = [...topic.tasks, taskData];
+
+            await updateDoc(docRef, {
+                [`topics.${name}.${DOC_NAME}`]: updatedTasks,
+            });
+            showToast("success", "Tarefa adicionada com sucesso");
+            closeAddingTask();
+        }
+    }
+}
+
 </script>
 
 <template>
@@ -27,35 +94,21 @@ const addNewTaskName = ref("");
             </div>
 
             <form @submit.prevent="addTask">
-                <div class="form-group">
-                    <label class="text" for="add-task-name">Nome da tarefa</label>
-                    <div :class="['input-group', 'input-group-btn', formTaskError ? 'input-error' : '']">
-                        <input type="text" id="add-task-name" placeholder="Adicionar tarefa..." v-model="addNewTaskName"
-                            autocomplete="off" />
-                        <button type="button" class="btn" title="Adicionar tarefa através de áudio"
-                            @click="toggleSpeechRecognition('addTask')">
-                            <i :class="['fa-solid', isListening ? 'fa-stop' : 'fa-microphone']"></i>
-                        </button>
-                    </div>
-                    <p class="text text--error" v-if="formTaskError">
-                        {{ formTaskError }}
-                    </p>
-                </div>
+                <RecognitionInput label="Nome da tarefa" placeholder="Adicionar tarefa..." v-model:modelValue="taskName"
+                    :errorMessage="taskNameError" enableVoiceRecognition inputId="add-task-name"
+                    @update="updateTaskName" />
 
                 <div class="form-group">
                     <label class="text" for="add-task-date">Data de entrega (opcional)</label>
-                    <input type="date" v-model="addNewTaskDate" id="add-task-date" />
+                    <input type="date" v-model="taskDate" id="add-task-date" />
                 </div>
 
-                <div class="form-group">
-                    <label class="text" for="add-task-comment">Comentários (opcional)</label>
-                    <input type="text" id="add-task-comment" />
-                </div>
+                <MdEditor label="Comentários (opcional)" v-model:modelValue="taskComment" />
 
                 <div class="form-group">
                     <label class="text" for="edit-task-priority">Prioridade</label>
                     <div class="select">
-                        <select id="edit-task-priority" v-model="addNewTaskPriority">
+                        <select id="edit-task-priority" v-model="taskPriority">
                             <option value="1">Baixa</option>
                             <option value="2">Média</option>
                             <option value="3">Alta</option>

@@ -6,9 +6,12 @@ import { DOC_NAME, PAGE_TITLES, TASK_PRIORITIES } from '../utils/variables';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthUser } from '../composables/useAuthUser';
-import { formatDate, getPriorityClass, getPriorityIcon, getPriorityText } from '../utils/functions';
 import TaskNav from '../components/TaskNav.vue';
 import AddTaskForm from '../components/AddTaskForm.vue';
+import EditTaskForm from '../components/EditTaskForm.vue';
+import { useTaskStore } from '../stores/taskStore';
+
+const taskStore = useTaskStore();
 
 const props = defineProps({
     db: {
@@ -147,12 +150,12 @@ const closeTopicsMenu = () => {
     isMenuTopicsActive.value = false;
 }
 
-const closeAddTaskModal = () => {
-    isAddTaskModalActive.value = false;
-}
-
 const openAddTaskModal = () => {
     isAddTaskModalActive.value = true;
+}
+
+const closeAddTaskModal = () => {
+    isAddTaskModalActive.value = false;
 }
 
 onMounted(() => {
@@ -234,7 +237,8 @@ provide("selectedTopic", selectedTopic);
         </div>
     </div>
 
-    <AddTaskForm :isActive="isAddTaskModalActive" @close="closeAddTaskModal" />
+    <AddTaskForm :isActive="isAddTaskModalActive" @close="closeAddTaskModal" :topic="selectedTopic" />
+    <EditTaskForm @close="taskStore.closeEditTaskModal" :topic="selectedTopic" />
 </template>
 
 <style scoped>

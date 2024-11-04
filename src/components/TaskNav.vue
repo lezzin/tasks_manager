@@ -5,6 +5,9 @@ import { db } from '../libs/firebase';
 import { formatDate, getPriorityClass, getPriorityIcon, getPriorityText } from '../utils/functions';
 import { DOC_NAME, TASK_KANBAN_STATUSES } from '../utils/variables';
 import { useToast } from '../composables/useToast';
+import { useTaskStore } from '../stores/taskStore';
+
+const taskStore = useTaskStore();
 
 const { user } = useAuthUser();
 const { showToast } = useToast();
@@ -107,9 +110,12 @@ const deleteTask = async (topicName, taskId) => {
                     @click="openTaskComment(task.comment)" v-if="task.comment">
                     <span class="fa-solid fa-comment"></span>
                 </button>
-                <button class="btn btn--rounded btn--primary" title="Editar tarefa" @click="openEditTask(task)">
+
+                <button class="btn btn--rounded btn--primary" title="Editar tarefa"
+                    @click="taskStore.openEditTaskModal(task)">
                     <span class="fa-solid fa-pen"></span>
                 </button>
+
                 <button class="btn btn--rounded btn--danger" title="Excluir tarefa"
                     @click="deleteTask(props.topic.name, task.id)">
                     <span class="fa-solid fa-trash"></span>
