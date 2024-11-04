@@ -1,11 +1,14 @@
 <script setup>
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { useAuthStore } from '../stores/authStore';
-import { db } from '../libs/firebase';
 import { DOC_NAME, TASK_PRIORITIES } from '../utils/variables';
-import { ref, watch } from 'vue';
 import { filterField } from '../utils/functions';
+import { db } from '../libs/firebase';
+
+import { ref, watch } from 'vue';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+
 import { useToast } from '../composables/useToast';
+import { useAuthStore } from '../stores/authStore';
+
 import RecognitionInput from './RecognitionInput.vue';
 import MdEditor from './MdEditor.vue';
 
@@ -24,7 +27,7 @@ const props = defineProps({
         type: Boolean,
         required: true
     }
-})
+});
 
 const { user } = useAuthStore();
 const { showToast } = useToast();
@@ -37,7 +40,7 @@ const taskComment = ref("");
 
 const setTaskData = () => {
     taskName.value = props.task?.name || "";
-    taskPriority.value = props.task?.priority || 1;
+    taskPriority.value = props.task?.priority || TASK_PRIORITIES.low;
     taskDate.value = props.task?.delivery_date || null;
     taskComment.value = props.task?.comment || "";
 };
@@ -61,7 +64,7 @@ const editTask = async () => {
 
     const docRef = doc(db, DOC_NAME, user.uid);
 
-    if (!props.topic.name) {
+    if (!props.topic?.name) {
         showToast("error", "Tópico da tarefa não encontrado.");
         return;
     }
@@ -76,18 +79,17 @@ const editTask = async () => {
     const selectedTopicData = userData.topics[props.topic.name];
 
     if (selectedTopicData && selectedTopicData.tasks) {
-        const updatedTasks = selectedTopicData.tasks.map((t) => {
-            if (t.id === props.task.id) {
-                return {
+        const updatedTasks = selectedTopicData.tasks.map((t) =>
+            t.id === props.task.id
+                ? {
                     ...t,
                     name: filterField(taskName.value),
                     priority: taskPriority.value,
                     delivery_date: taskDate.value,
                     comment: taskComment.value,
-                };
-            }
-            return t;
-        });
+                }
+                : t
+        );
 
         await updateDoc(docRef, {
             [`topics.${props.topic.name}.tasks`]: updatedTasks,
@@ -104,10 +106,10 @@ const closeEditTaskModal = () => {
     taskName.value = "";
     taskNameError.value = "";
     taskPriority.value = TASK_PRIORITIES.low;
-    taskDate.value = "";
+    taskDate.value = null;
     taskComment.value = "";
     emit("close");
-}
+};
 </script>
 
 <template>

@@ -1,14 +1,18 @@
 <script setup>
-import { ref, reactive, onMounted, inject } from 'vue';
-import { marked } from 'marked';
-import { doc, getDoc } from 'firebase/firestore';
-import { saveAs } from 'file-saver';
 import { DOC_NAME, PAGE_TITLES, TASK_PRIORITIES } from '../utils/variables.js';
 import { formatDate, getPriorityClass, getPriorityText, getPriorityIcon } from '../utils/functions.js';
-import { useToast } from '../composables/useToast.js';
+
+import { ref, reactive, onMounted, inject } from 'vue';
+import { doc, getDoc } from 'firebase/firestore';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '../stores/authStore';
+
 import domtoimage from "dom-to-image-more";
+import { saveAs } from 'file-saver';
+import { marked } from 'marked';
+
+import { useToast } from '../composables/useToast.js';
+import { useAuthStore } from '../stores/authStore';
+
 
 const { showToast } = useToast();
 const { user } = useAuthStore();

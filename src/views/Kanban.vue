@@ -1,10 +1,10 @@
 <script setup>
-import { ref, reactive, onMounted, inject } from 'vue';
 import { DOC_NAME, PAGE_TITLES, TASK_KANBAN_STATUSES } from '../utils/variables.js';
-import { formatDate, getPriorityClass, getPriorityText, getPriorityIcon, } from '../utils/functions.js';
+import { formatDate, getPriorityClass, getPriorityText, getPriorityIcon } from '../utils/functions.js';
+import { ref, reactive, onMounted, inject } from 'vue';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { useAuthStore } from '../stores/authStore';
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '../stores/authStore';
 
 const props = defineProps(['db']);
 
@@ -41,21 +41,16 @@ const getUserTasks = (topics) => {
 
 const getAllUserTasks = async () => {
     try {
-        const docRef = doc(props.db, DOC_NAME, user.uid);
-        const docSnap = await getDoc(docRef);
-        const userData = docSnap.data();
-
+        const userData = await fetchUserData();
         if (!userData?.topics || Object.keys(userData.topics).length === 0) {
             loadedTasks.value = true;
             return;
         }
 
         const userTasks = getUserTasks(userData.topics);
-
         tasksLength.value = userTasks.length;
-        tasks.todo = userTasks.filter((task) => task.kanbanStatus === TASK_KANBAN_STATUSES.todo || !task.kanbanStatus);
-        tasks.doing = userTasks.filter((task) => task.kanbanStatus === TASK_KANBAN_STATUSES.doing);
-        tasks.completed = userTasks.filter((task) => task.kanbanStatus === TASK_KANBAN_STATUSES.completed);
+
+        organizeTasksByStatus(userTasks);
     } catch (error) {
         showToast("error", `Erro ao resgatar tarefas: ${error.message}`);
     } finally {
@@ -63,30 +58,32 @@ const getAllUserTasks = async () => {
     }
 };
 
+const fetchUserData = async () => {
+    const docRef = doc(props.db, DOC_NAME, user.uid);
+    const docSnap = await getDoc(docRef);
+    return docSnap.data();
+};
+
+const organizeTasksByStatus = (userTasks) => {
+    tasks.todo = userTasks.filter((task) => task.kanbanStatus === TASK_KANBAN_STATUSES.todo || !task.kanbanStatus);
+    tasks.doing = userTasks.filter((task) => task.kanbanStatus === TASK_KANBAN_STATUSES.doing);
+    tasks.completed = userTasks.filter((task) => task.kanbanStatus === TASK_KANBAN_STATUSES.completed);
+};
+
 const handleDragEvents = (event, action, task = null) => {
     if (action === "start") {
         draggedTask.value = task;
         event.target.classList.add("dragging");
-        return;
-    }
-
-    if (action === "end") {
+    } else if (action === "end") {
         event.target.classList.remove("dragging");
         draggedTask.value = null;
     }
 };
 
 const onDrop = (column) => {
-    if (!draggedTask.value) return;
-
-    if (typeof draggedTask.value === "object" && draggedTask.value !== null) {
-        if (draggedTask.value.kanbanStatus !== column) {
-            changeTaskColumn(draggedTask.value, column);
-        }
-    } else {
-        console.error("Dragged task is not a valid object:", draggedTask.value);
+    if (draggedTask.value && draggedTask.value.kanbanStatus !== column) {
+        changeTaskColumn(draggedTask.value, column);
     }
-
     draggedTask.value = null;
     activeColumn.value = null;
 };
@@ -103,38 +100,25 @@ const onDragOver = (event) => {
 };
 
 const moveTask = (task, direction) => {
-    const currentColumn = task.kanbanStatus;
-    let newColumn;
-
-    if (direction === "prev") {
-        newColumn = getPreviousColumn(currentColumn);
-    } else if (direction === "next") {
-        newColumn = getNextColumn(currentColumn);
-    }
-
+    const newColumn = getNewColumn(task.kanbanStatus, direction);
     if (newColumn) {
         changeTaskColumn(task, newColumn);
     }
 };
 
-const getPreviousColumn = (currentColumn) => {
+const getNewColumn = (currentColumn, direction) => {
     const columns = ["todo", "doing", "completed"];
     const currentIndex = columns.indexOf(currentColumn);
-    return currentIndex > 0 ? columns[currentIndex - 1] : null;
+    return direction === "prev" && currentIndex > 0 ? columns[currentIndex - 1] :
+        direction === "next" && currentIndex < columns.length - 1 ? columns[currentIndex + 1] : null;
 };
 
-const getNextColumn = (currentColumn) => {
-    const columns = ["todo", "doing", "completed"];
-    const currentIndex = columns.indexOf(currentColumn);
-    return currentIndex < columns.length - 1 ? columns[currentIndex + 1] : null;
+const isFirstColumn = (kanbanStatus) => {
+    return kanbanStatus === 'todo';
 };
 
-const isFirstColumn = (currentColumn) => {
-    return currentColumn === "todo";
-};
-
-const isLastColumn = (currentColumn) => {
-    return currentColumn === "completed";
+const isLastColumn = (kanbanStatus) => {
+    return kanbanStatus === 'completed';
 };
 
 const changeTaskColumn = (task, newColumn) => {
@@ -148,35 +132,29 @@ const changeTaskColumn = (task, newColumn) => {
 
 const updateTaskStatus = async (taskToUpdate, newKanbanStatus) => {
     try {
-        const docRef = doc(props.db, DOC_NAME, user.uid);
-        const docSnap = await getDoc(docRef);
-        const userData = docSnap.exists() ? docSnap.data() : null;
-
-        if (userData && userData.topics) {
-            const selectedTopicId = taskToUpdate.topic_id;
+        const userData = await fetchUserData();
+        if (userData?.topics) {
             const selectedTopicData = Object.values(userData.topics).find(
-                (topic) => topic.id === selectedTopicId
+                (topic) => topic.id === taskToUpdate.topic_id
             );
-            const selectedTopicName = selectedTopicData.name;
 
-            if (selectedTopicData && selectedTopicData.tasks) {
-                taskToUpdate.kanbanStatus = newKanbanStatus;
-                taskToUpdate.status = newKanbanStatus === TASK_KANBAN_STATUSES.completed;
-
+            if (selectedTopicData?.tasks) {
                 const updatedTasks = selectedTopicData.tasks.map((task) => {
-                    if (taskToUpdate.id == task.id) {
+                    if (taskToUpdate.id === task.id) {
+                        taskToUpdate.kanban = newKanbanStatus;
+                        taskToUpdate.status = newKanbanStatus === TASK_KANBAN_STATUSES.completed;
+
                         return {
                             ...task,
                             kanbanStatus: newKanbanStatus,
-                            status: newKanbanStatus === TASK_KANBAN_STATUSES.completed,
+                            status: newKanbanStatus === TASK_KANBAN_STATUSES.completed
                         };
                     }
-
                     return task;
                 });
 
-                await updateDoc(docRef, {
-                    [`topics.${selectedTopicName}.${DOC_NAME}`]: updatedTasks,
+                await updateDoc(doc(props.db, DOC_NAME, user.uid), {
+                    [`topics.${selectedTopicData.name}.${DOC_NAME}`]: updatedTasks,
                 });
             }
         }
@@ -204,13 +182,13 @@ onMounted(() => {
             </div>
 
             <div class="kanban">
-                <div class="kanban__column" :class="{ 'drag-over': activeColumn === kanbanStatus }"
-                    v-for="kanbanStatus in ['todo', 'doing', 'completed']" :key="kanbanStatus"
-                    @drop="onDrop(kanbanStatus)" @dragover="onDragOver"
-                    @dragenter="event => onDragEnter(event, kanbanStatus)" :data-status="kanbanStatus">
+                <div class="kanban__column" v-for="kanbanStatus in ['todo', 'doing', 'completed']" :key="kanbanStatus"
+                    :class="{ 'drag-over': activeColumn === kanbanStatus }" @drop="onDrop(kanbanStatus)"
+                    @dragover="onDragOver" @dragenter="event => onDragEnter(event, kanbanStatus)"
+                    :data-status="kanbanStatus">
                     <h2 class="subtitle">
-                        {{ kanbanStatus === 'todo' ? 'Para fazer' : kanbanStatus === 'doing'
-                            ? 'Fazendo' : 'Concluído' }}
+                        {{ kanbanStatus === 'todo' ? 'Para fazer' : kanbanStatus === 'doing' ? 'Fazendo' : 'Concluído'
+                        }}
                     </h2>
 
                     <div class="kanban__tasks">

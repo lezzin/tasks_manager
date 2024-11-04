@@ -16,7 +16,6 @@ const props = defineProps({
 const closeShowingComment = () => {
     emit("close");
 }
-
 </script>
 
 <template>

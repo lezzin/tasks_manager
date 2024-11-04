@@ -1,13 +1,16 @@
 <script setup>
-import { inject, onMounted, provide, reactive, ref, watch } from 'vue';
-import AddTopicForm from '../components/AddTopicForm.vue';
-import TopicNav from '../components/TopicNav.vue';
 import { DOC_NAME, PAGE_TITLES, TASK_PRIORITIES } from '../utils/variables';
+
+import { inject, onMounted, provide, reactive, ref, computed, watch } from 'vue';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { useRoute, useRouter } from 'vue-router';
+
 import { useAuthStore } from '../stores/authStore';
+
 import TaskNav from '../components/TaskNav.vue';
 import AddTaskForm from '../components/AddTaskForm.vue';
+import AddTopicForm from '../components/AddTopicForm.vue';
+import TopicNav from '../components/TopicNav.vue';
 
 const props = defineProps({
     db: {
@@ -21,7 +24,7 @@ const isMenuTopicsActive = inject('isMenuTopicsActive');
 const isAddTaskModalActive = ref(false);
 
 const selectedTopic = ref(null);
-const defaultTasks = ref(null);
+const defaultTasks = ref([]);
 
 const { user } = useAuthStore();
 const topics = reactive({ data: [] });
@@ -31,31 +34,20 @@ const router = useRouter();
 const filterTask = ref("all");
 const searchTask = ref("");
 
-const searchTaskByName = () => {
-    filterTask.value = "all";
-    const searchTerm = searchTask.value.trim().toLowerCase();
-    selectedTopic.value.tasks = defaultTasks.value.filter((task) =>
-        task.name.toLowerCase().includes(searchTerm)
-    );
-    sortTasksByPriority();
-};
+const filteredTasks = computed(() => {
+    let tasks = defaultTasks.value;
 
-const searchTaskByStatus = () => {
-    searchTask.value = "";
-    const selectedFilter = filterTask.value;
-
-    if (selectedFilter == "all") {
-        selectedTopic.value.tasks = defaultTasks.value;
-    } else {
-        const taskIsCompleted = selectedFilter == TASK_PRIORITIES.completed;
-        selectedTopic.value.tasks = defaultTasks.value.filter((task) => task.status == taskIsCompleted);
+    if (searchTask.value.trim()) {
+        const searchTerm = searchTask.value.trim().toLowerCase();
+        tasks = tasks.filter(task => task.name.toLowerCase().includes(searchTerm));
     }
 
-    sortTasksByPriority();
-}
+    if (filterTask.value !== "all") {
+        const taskIsCompleted = filterTask.value === TASK_PRIORITIES.completed;
+        tasks = tasks.filter(task => task.status === taskIsCompleted);
+    }
 
-const sortTasksByPriority = () => {
-    selectedTopic.value.tasks = selectedTopic.value.tasks.sort((taskA, taskB) => {
+    return tasks.sort((taskA, taskB) => {
         const priorityA = taskA.priority;
         const priorityB = taskB.priority;
         const statusA = taskA.status;
@@ -65,13 +57,9 @@ const sortTasksByPriority = () => {
             return statusA ? -1 : 1;
         }
 
-        if (priorityA !== priorityB) {
-            return priorityB - priorityA;
-        }
-
-        return 0;
+        return priorityB - priorityA;
     });
-}
+});
 
 const loadTopic = (id) => {
     selectedTopic.value = null;
@@ -94,10 +82,8 @@ const loadTopic = (id) => {
     }
 
     selectedTopic.value = topic;
-    defaultTasks.value = topic.tasks;
+    defaultTasks.value = topic.tasks || [];
     document.title = PAGE_TITLES.home.topic(topic.name);
-
-    sortTasksByPriority();
 }
 
 const loadTopics = () => {
@@ -120,7 +106,7 @@ const loadTopics = () => {
                     return {
                         id: topic.id,
                         name: topic.name,
-                        tasks: topic.tasks,
+                        tasks: topic.tasks || [],
                         tasks_length: topic.tasks?.length ?? 0,
                         created_at: topic.created_at,
                     };
@@ -157,7 +143,7 @@ const closeAddTaskModal = () => {
 onMounted(() => {
     inject('showTopicNavBtn').value = true;
     loadTopics();
-})
+});
 
 watch(() => route.params.id, (newId) => {
     loadTopic(newId);
@@ -170,13 +156,11 @@ provide("selectedTopic", selectedTopic);
     <div class="home-wrapper" v-if="loadedTopics">
         <aside :class="['home-aside', isMenuTopicsActive && 'home-aside--active']">
             <AddTopicForm />
-
             <span class="divider"></span>
-
             <TopicNav :data="topics.data" @close="closeTopicsMenu" />
         </aside>
 
-        <div :class="['container', defaultTasks ? 'task-container' : '']" v-if="selectedTopic">
+        <div :class="['container', defaultTasks.length > 0 ? 'task-container' : '']" v-if="selectedTopic">
             <div id="add-task-container">
                 <button @click="openAddTaskModal" title="Abrir modal de nova tarefa"
                     class="btn btn--rounded btn--outline-primary">
@@ -184,9 +168,9 @@ provide("selectedTopic", selectedTopic);
                 </button>
             </div>
 
-            <div v-if="defaultTasks">
+            <div v-if="defaultTasks.length > 0">
                 <div class="task-container__header">
-                    <form onsubmit="return false">
+                    <form @submit.prevent>
                         <div class="form-group">
                             <label for="search-task" class="text">Pesquisar</label>
                             <div class="input-group">
@@ -198,16 +182,14 @@ provide("selectedTopic", selectedTopic);
                             </div>
                         </div>
                     </form>
-                    <form onsubmit="return false">
+                    <form @submit.prevent>
                         <div class="form-group">
                             <label for="filter-task" class="text">Filtrar</label>
                             <div class="select">
                                 <select id="filter-task" @change="searchTaskByStatus" v-model="filterTask">
                                     <option value="all">Todas</option>
                                     <option value="completed">Concluídas</option>
-                                    <option value="not-completed">
-                                        Não concluídas
-                                    </option>
+                                    <option value="not-completed">Não concluídas</option>
                                 </select>
                             </div>
                         </div>
@@ -216,7 +198,7 @@ provide("selectedTopic", selectedTopic);
 
                 <span class="divider"></span>
 
-                <TaskNav :topic="selectedTopic" />
+                <TaskNav :topic="selectedTopic"/>
             </div>
             <div v-else class="image-centered">
                 <img src="/src/assets/img/task_empty_lg.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia"

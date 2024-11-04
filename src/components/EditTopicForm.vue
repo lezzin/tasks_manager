@@ -1,16 +1,16 @@
 <script setup>
-import { ref, watch } from 'vue';
 import { filterField } from '../utils/functions';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db } from '../libs/firebase';
 import { DOC_NAME } from '../utils/variables';
+import { db } from '../libs/firebase';
+
+import { ref, watch } from 'vue';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+
 import { useToast } from '../composables/useToast';
 import { useAuthStore } from '../stores/authStore';
 
 const { showToast } = useToast();
-const authStore = useAuthStore();
 const { user } = useAuthStore();
-
 const emit = defineEmits(["close"]);
 
 const props = defineProps({
@@ -22,12 +22,7 @@ const props = defineProps({
         type: Boolean,
         required: true
     }
-})
-
-const getUserData = async (docRef) => {
-    const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? docSnap.data() : null;
-};
+});
 
 const oldName = ref(null);
 const name = ref("");
@@ -39,6 +34,11 @@ const setTopicData = () => {
 };
 
 watch(() => props.topic, setTopicData, { immediate: true });
+
+const fetchUserData = async (docRef) => {
+    const docSnap = await getDoc(docRef);
+    return docSnap.exists() ? docSnap.data() : null;
+};
 
 const editTopic = async () => {
     nameError.value = "";
@@ -55,14 +55,13 @@ const editTopic = async () => {
         return;
     }
 
-    const docRef = doc(db, DOC_NAME, user.uid);
-    const userData = await getUserData(docRef);
-
-    const selectedTopicData = userData.topics[oldName.value];
-    if (formattedTopicName == oldName.value) {
+    if (formattedTopicName === oldName.value) {
         closeEditTopicModal();
         return;
     }
+
+    const docRef = doc(db, DOC_NAME, user.uid);
+    const userData = await fetchUserData(docRef);
 
     if (userData.topics[formattedTopicName]) {
         nameError.value = "Esse tópico já existe";
@@ -72,20 +71,22 @@ const editTopic = async () => {
     const updatedTopics = {
         ...userData.topics,
         [formattedTopicName]: {
-            ...selectedTopicData,
+            ...userData.topics[oldName.value],
             name: formattedTopicName,
         },
     };
     delete updatedTopics[oldName.value];
 
     await updateDoc(docRef, { topics: updatedTopics });
-    closeEditTopicModal();
     showToast("success", "Tópico atualizado com sucesso");
-}
+    closeEditTopicModal();
+};
 
 const closeEditTopicModal = () => {
+    name.value = "";
+    nameError.value = "";
     emit("close");
-}
+};
 </script>
 
 <template>

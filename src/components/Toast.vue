@@ -1,7 +1,8 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted, onBeforeUnmount } from 'vue';
+import { TOAST_TIMEOUT } from '../utils/variables';
 
-const emit = defineEmits(["close"]);
+const emit = defineEmits(['close']);
 
 const props = defineProps({
     data: {
@@ -26,26 +27,40 @@ const toastClass = computed(() => {
     ].join(' ').trim();
 });
 
+let timeoutId;
+
+onMounted(() => {
+    if (props.data.type !== 'error') {
+        timeoutId = setTimeout(() => {
+            closeToast();
+        }, TOAST_TIMEOUT);
+    }
+});
+
+onBeforeUnmount(() => {
+    clearTimeout(timeoutId);
+});
+
 function closeToast() {
     emit('close');
 }
 </script>
 
 <template>
-    <div :class="toastClass">
+    <div :class="toastClass" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast__banner"></div>
 
         <div class="toast__content">
             <div class="toast__icon">
-                <i :class="iconClass"></i>
+                <i :class="iconClass" aria-hidden="true"></i>
             </div>
 
             <div>
-                <p class="toast__title"> {{ title }} </p>
+                <p class="toast__title">{{ title }}</p>
                 <p class="toast__text">{{ props.data.text }}</p>
             </div>
 
-            <button class="btn" @click="closeToast" title="Fechar mensagem">
+            <button class="btn" @click="closeToast" title="Fechar mensagem" aria-label="Fechar mensagem">
                 <i class="fa-solid fa-times"></i>
             </button>
         </div>

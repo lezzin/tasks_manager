@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import { Editor } from '@toast-ui/editor';
 
@@ -19,7 +19,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update']);
-const editorId = `id-${Math.random().toString(36).substr(2, 9)}`;
+const editorContainer = ref(null);
 let editorInstance = null;
 
 const updateContent = () => {
@@ -29,21 +29,24 @@ const updateContent = () => {
 };
 
 onMounted(() => {
-    editorInstance = new Editor({
-        el: document.querySelector(`#${editorId}`),
-        initialEditType: 'markdown',
-        previewStyle: 'vertical',
-        height: '400px',
-        initialValue: props.modelValue,
-        events: {
-            change: updateContent
-        }
-    });
+    if (!editorInstance) {
+        editorInstance = new Editor({
+            el: editorContainer.value,
+            initialEditType: 'markdown',
+            previewStyle: 'vertical',
+            height: '400px',
+            initialValue: props.modelValue,
+            events: {
+                change: updateContent
+            }
+        });
+    }
 });
 
 onBeforeUnmount(() => {
     if (editorInstance) {
         editorInstance.destroy();
+        editorInstance = null;
     }
 });
 
@@ -56,8 +59,8 @@ watch(() => props.modelValue, (newValue) => {
 
 <template>
     <div class="form-group">
-        <label class="text" :for="editorId">{{ label }}</label>
-        <div :id="editorId"></div>
+        <label class="text">{{ label }}</label>
+        <div ref="editorContainer"></div>
         <p class="text text--error" v-if="errorMessage">{{ errorMessage }}</p>
     </div>
 </template>

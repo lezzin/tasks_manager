@@ -1,11 +1,14 @@
 <script setup>
+import { DOC_NAME } from '../utils/variables';
+import { db } from '../libs/firebase';
+
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { inject, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
+import { inject, ref } from 'vue';
+
 import { useAuthStore } from '../stores/authStore';
 import { useToast } from '../composables/useToast';
-import { db } from '../libs/firebase';
-import { DOC_NAME } from '../utils/variables';
+
 import EditTopicForm from './EditTopicForm.vue';
 
 const emit = defineEmits(['close']);
@@ -48,7 +51,7 @@ const deleteTopic = async (topicName) => {
     await updateDoc(docRef, { topics: userData.topics });
     showToast("success", "Tópico excluído com sucesso");
     selectedTopic.value = null;
-    if (router.currentRoute !== "/") router.push("/");
+    if (router.currentRoute.value.fullPath !== '/') router.push("/");
 };
 
 const deleteAllTopics = async () => {
@@ -88,7 +91,7 @@ const closeEditTopicModal = () => {
             <div class="topic" v-for="topic in data" :key="topic.id"
                 :class="{ active: selectedTopic && topic.name === selectedTopic.name }">
                 <RouterLink @click.native="closeTopicsMenu" :to="'/topic/' + topic.id" class="topic__link btn"
-                    role="button" :title="'Acessar tópico ' + topic.name">
+                    role="button" :title="'Acessar tópico ' + topic.name" aria-label="Acessar tópico">
                     <div>
                         <p class="text">{{ topic.name }}</p>
                         <p class="text text--small text--muted">
@@ -98,10 +101,12 @@ const closeEditTopicModal = () => {
                 </RouterLink>
 
                 <div class="topic__actions">
-                    <button class="btn btn--rounded" title="Editar tópico" @click="openEditTopicModal(topic.name)">
+                    <button class="btn btn--rounded" title="Editar tópico" @click="openEditTopicModal(topic.name)"
+                        aria-label="Editar tópico">
                         <i class="fa-solid fa-pen"></i>
                     </button>
-                    <button class="btn btn--rounded" title="Excluir tópico" @click="deleteTopic(topic.name)">
+                    <button class="btn btn--rounded" title="Excluir tópico" @click="deleteTopic(topic.name)"
+                        aria-label="Excluir tópico">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>
@@ -118,16 +123,17 @@ const closeEditTopicModal = () => {
         </RouterLink>
 
         <RouterLink to="/general" class="btn btn--outline-primary btn--icon btn--block-small"
-            title="Visualização geral"><i class="fa-solid fa-eye"></i>
+            title="Visualização geral">
+            <i class="fa-solid fa-eye"></i>
             Visão geral das tarefas
         </RouterLink>
 
         <button class="btn btn--icon btn--block-small btn--outline-danger" title="Excluir todos os tópicos"
-            @click="deleteAllTopics">
+            @click="deleteAllTopics" aria-label="Excluir todos os tópicos">
             <i class="fa-solid fa-trash"></i> Excluir todos os tópicos
         </button>
 
-        <a title="Acessar GitHub" href="https://lezzin.github.io" target="_blank">
+        <a title="Acessar GitHub" href="https://lezzin.github.io" target="_blank" aria-label="Acessar GitHub">
             <i class="fab fa-github"></i> Criado por Leandro Adrian da Silva
         </a>
     </div>

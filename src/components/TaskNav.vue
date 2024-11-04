@@ -1,14 +1,17 @@
 <script setup>
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { useAuthStore } from '../stores/authStore';
-import { db } from '../libs/firebase';
 import { formatDate, getPriorityClass, getPriorityIcon, getPriorityText } from '../utils/functions';
 import { DOC_NAME, TASK_KANBAN_STATUSES } from '../utils/variables';
+import { db } from '../libs/firebase';
+
 import { useToast } from '../composables/useToast';
+import { useAuthStore } from '../stores/authStore';
+
+import { doc, updateDoc } from 'firebase/firestore';
+import { marked } from 'marked';
 import { ref } from 'vue';
+
 import EditTaskForm from './EditTaskForm.vue';
 import CommentModal from './CommentModal.vue';
-import { marked } from 'marked';
 
 const { user } = useAuthStore();
 const { showToast } = useToast();
@@ -20,25 +23,24 @@ const props = defineProps({
     }
 });
 
+const isEditTaskModalActive = ref(false);
+const editingTask = ref(null);
+
+const isCommentModalActive = ref(false);
+const selectedComment = ref(null);
+
 const changeTaskStatus = async (taskId) => {
     const docRef = doc(db, DOC_NAME, user.uid);
-
-    if (props.topic.tasks) {
-        const updatedTasks = props.topic.tasks.map((task) => {
-            const newStatus = !task.status;
-
-            if (task.id == taskId) {
-                return {
-                    ...task,
-                    status: newStatus,
-                    kanbanStatus: newStatus ? TASK_KANBAN_STATUSES.completed : TASK_KANBAN_STATUSES.todo,
-                };
-            }
-            return task;
-        });
+    const taskToUpdate = props.topic.tasks.find(task => task.id === taskId);
+    if (taskToUpdate) {
+        const newStatus = !taskToUpdate.status;
 
         await updateDoc(docRef, {
-            [`topics.${props.topic.name}.${DOC_NAME}`]: updatedTasks,
+            [`topics.${props.topic.name}.${DOC_NAME}`]: props.topic.tasks.map((task) =>
+                task.id === taskId
+                    ? { ...task, status: newStatus, kanbanStatus: newStatus ? TASK_KANBAN_STATUSES.completed : TASK_KANBAN_STATUSES.todo }
+                    : task
+            ),
         });
 
         showToast("success", "Status de conclusão alterado com sucesso");
@@ -46,16 +48,9 @@ const changeTaskStatus = async (taskId) => {
 };
 
 const deleteTask = async (taskId) => {
-    if (!confirm("Tem certeza que deseja excluir essa tarefa? Essa ação não poderá ser desfeita!"))
-        return;
+    if (!confirm("Tem certeza que deseja excluir essa tarefa? Essa ação não poderá ser desfeita!")) return;
 
     const docRef = doc(db, DOC_NAME, user.uid);
-
-    if (!props.topic) {
-        showToast("error", "Tópico não encontrado");
-        return;
-    }
-
     const updatedTasks = props.topic.tasks.filter((task) => task.id !== taskId);
 
     await updateDoc(docRef, {
@@ -65,44 +60,37 @@ const deleteTask = async (taskId) => {
     showToast("success", "Tarefa excluída com sucesso");
 };
 
-const isEditTaskModalActive = ref(false);
-const editingTask = ref(null);
-
 const openEditTaskModal = (task) => {
     isEditTaskModalActive.value = true;
     editingTask.value = task;
-}
+};
 
 const closeEditTaskModal = () => {
     isEditTaskModalActive.value = false;
     editingTask.value = null;
-}
-
-const isCommentModalActive = ref(false);
-const selectedComment = ref(null);
+};
 
 const openTaskComment = (comment) => {
     isCommentModalActive.value = true;
     selectedComment.value = marked(comment);
-}
+};
 
 const closeCommentModal = () => {
     isCommentModalActive.value = false;
-}
+};
 </script>
 
 <template>
     <div class="task-nav">
-        <div :class="`task ${task.status && 'completed'}`" v-for="task in props.topic.tasks">
+        <div :class="`task ${task.status ? 'completed' : ''}`" v-for="task in props.topic.tasks" :key="task.id">
             <div class="task__content">
-                <button :class="`btn btn--bordered btn--rounded ${task.status && 'btn--primary'}`"
+                <button :class="`btn btn--bordered btn--rounded ${task.status ? 'btn--primary' : ''}`"
                     :title="`Marcar tarefa como ${task.status ? 'não concluída' : 'concluída'}`"
                     @click="changeTaskStatus(task.id)">
                     <i class="fa-solid fa-check"></i>
                 </button>
                 <div class="task__information">
                     <p class="text">{{ task.name }}</p>
-
                     <p class="task__information__bottom">
                         <span :class="['tag', getPriorityClass(task.priority)]">
                             <i :class="getPriorityIcon(task.priority)"></i>
@@ -124,11 +112,9 @@ const closeCommentModal = () => {
                     @click="openTaskComment(task.comment)" v-if="task.comment">
                     <span class="fa-solid fa-comment"></span>
                 </button>
-
                 <button class="btn btn--rounded btn--primary" title="Editar tarefa" @click="openEditTaskModal(task)">
                     <span class="fa-solid fa-pen"></span>
                 </button>
-
                 <button class="btn btn--rounded btn--danger" title="Excluir tarefa" @click="deleteTask(task.id)">
                     <span class="fa-solid fa-trash"></span>
                 </button>
@@ -141,7 +127,6 @@ const closeCommentModal = () => {
 
     <EditTaskForm :isActive="isEditTaskModalActive" @close="closeEditTaskModal" :topic="props.topic"
         :task="editingTask" />
-
     <CommentModal :isActive="isCommentModalActive" @close="closeCommentModal" :comment="selectedComment" />
 </template>
 
@@ -162,18 +147,6 @@ const closeCommentModal = () => {
         border-radius: var(--radius);
         background-color: var(--bg-primary);
         transition: box-shadow 0.3s ease;
-
-        &.priority-high:not(.completed) .task__content>button {
-            background-color: var(--task-priority-medium);
-        }
-
-        &.priority-medium :not(.completed) .task__content>button {
-            background-color: var(--task-priority-low);
-        }
-
-        .task:hover {
-            box-shadow: var(--shadow-md);
-        }
 
         .task__content {
             display: flex;

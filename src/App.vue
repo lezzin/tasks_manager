@@ -1,36 +1,37 @@
 <script setup>
-import { RouterLink, RouterView, useRouter } from 'vue-router';
-import Toast from './components/Toast.vue';
-import { useToast } from './composables/useToast';
-import { provide, ref } from 'vue';
-import { useAuthStore } from './stores/authStore';
 import { auth, db } from './libs/firebase';
 import { DOC_NAME } from './utils/variables';
-import { deleteDoc } from 'firebase/firestore';
+
+import { ref, provide } from 'vue';
+import { RouterLink, RouterView, useRouter } from 'vue-router';
+import { storeToRefs } from 'pinia';
 import { deleteUser, signOut } from 'firebase/auth';
-import { storeToRefs } from 'pinia'
+import { deleteDoc, doc } from 'firebase/firestore';
+
+import Toast from './components/Toast.vue';
+import { useToast } from './composables/useToast';
+import { useAuthStore } from './stores/authStore';
 
 const { toast, closeToast, showToast } = useToast();
 
 const authStore = useAuthStore();
 const { user } = storeToRefs(authStore);
-
 const router = useRouter();
+
 const isMenuTopicsActive = ref(false);
+const isAccountDropdownActive = ref(false);
+const showTopicNavBtn = ref(false);
+
+provide("isMenuTopicsActive", isMenuTopicsActive);
+provide("showTopicNavBtn", showTopicNavBtn);
 
 const toggleTopicsMenu = () => {
     isMenuTopicsActive.value = !isMenuTopicsActive.value;
-}
+};
 
-provide("isMenuTopicsActive", isMenuTopicsActive);
-
-const isAccountDropdownActive = ref(false);
 const toggleAccountDropdown = () => {
     isAccountDropdownActive.value = !isAccountDropdownActive.value;
-}
-
-const showTopicNavBtn = ref(false);
-provide("showTopicNavBtn", showTopicNavBtn);
+};
 
 const logoutUser = async () => {
     try {
@@ -45,12 +46,12 @@ const logoutUser = async () => {
 
         showToast("error", errors[code] ?? `Erro ao sair: ${message}`);
     }
-}
+};
 
 const removeUser = async () => {
     if (!user || !confirm("Deseja realmente excluir esse usuário?")) return;
 
-    const docRef = doc(db, DOC_NAME, user.uid);
+    const docRef = doc(db, DOC_NAME, user.value.uid);
 
     try {
         await deleteDoc(docRef);
@@ -66,7 +67,7 @@ const removeUser = async () => {
 
         showToast("error", errors[code] ?? message);
     }
-}
+};
 </script>
 
 <template>

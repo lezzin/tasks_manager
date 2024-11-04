@@ -29,21 +29,23 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update']);
-
 const localValue = ref(props.modelValue);
-
 const isListening = ref(false);
 const recognition = ref(null);
 
+watch(() => props.modelValue, (newValue) => {
+    localValue.value = newValue;
+});
+
 const toggleSpeechRecognition = () => {
-    if (!isListening.value) {
-        startSpeechRecognition();
-    } else {
-        stopSpeechRecognition();
-    }
-}
+    isListening.value ? stopSpeechRecognition() : startSpeechRecognition();
+};
 
 const startSpeechRecognition = () => {
+    if (!window.webkitSpeechRecognition) {
+        console.warn("Reconhecimento de voz não suportado neste navegador.");
+        return;
+    }
     isListening.value = true;
     recognition.value = new window.webkitSpeechRecognition();
     recognition.value.lang = "pt-BR";
@@ -51,11 +53,12 @@ const startSpeechRecognition = () => {
 
     recognition.value.onresult = (event) => {
         localValue.value = event.results[0][0].transcript;
+        emit("update", localValue.value);
         stopSpeechRecognition();
-        updateTaskName();
     };
 
     recognition.value.onerror = (_event) => {
+        console.error("Erro no reconhecimento de voz.");
         stopSpeechRecognition();
     };
 
@@ -64,11 +67,7 @@ const startSpeechRecognition = () => {
     };
 
     recognition.value.start();
-}
-
-const updateTaskName = () => {
-    emit("update", localValue.value, '');
-}
+};
 
 const stopSpeechRecognition = () => {
     if (recognition.value) {
@@ -76,14 +75,15 @@ const stopSpeechRecognition = () => {
         recognition.value = null;
     }
     isListening.value = false;
-}
+};
 </script>
 
 <template>
     <div class="form-group">
         <label class="text" :for="inputId">{{ label }}</label>
         <div :class="['input-group', 'input-group-btn', errorMessage ? 'input-error' : '']">
-            <input type="text" :id="inputId" :placeholder="placeholder" v-model="localValue" @input="updateTaskName" />
+            <input type="text" :id="inputId" :placeholder="placeholder" v-model="localValue"
+                @input="() => emit('update', localValue)" />
             <button v-if="enableVoiceRecognition" type="button" class="btn" title="Adicionar através de áudio"
                 @click="toggleSpeechRecognition">
                 <i :class="['fa-solid', isListening ? 'fa-stop' : 'fa-microphone']"></i>

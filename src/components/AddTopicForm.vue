@@ -1,83 +1,75 @@
-<script>
+<script setup>
 import { ref, watch } from 'vue';
+
 import { currentTime, filterField } from '../utils/functions';
-import { db } from '../libs/firebase';
 import { DOC_NAME } from '../utils/variables';
-import { useAuthStore } from '../stores/authStore';
+import { db } from '../libs/firebase';
+
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { useToast } from '../composables/useToast';
+import { useAuthStore } from '../stores/authStore';
 
-export default {
-    setup() {
-        const formTopicError = ref("");
-        const newTopic = ref("");
-        const { user } = useAuthStore();
-        const { showToast } = useToast();
+const formTopicError = ref("");
+const newTopic = ref("");
 
-        const getUserData = async (docRef) => {
-            const docSnap = await getDoc(docRef);
-            return docSnap.exists() ? docSnap.data() : null;
-        };
+const { user } = useAuthStore();
+const { showToast } = useToast();
 
-        const addTopic = async () => {
-            formTopicError.value = "";
+const getUserData = async (docRef) => {
+    const docSnap = await getDoc(docRef);
+    return docSnap.exists() ? docSnap.data() : null;
+};
 
-            if (!newTopic.value) {
-                formTopicError.value = "Preencha o campo";
-                return;
-            }
+const addTopic = async () => {
+    formTopicError.value = "";
 
-            const formattedTopicName = filterField(newTopic.value);
-
-            if (formattedTopicName.length <= 3) {
-                formTopicError.value = "Insira pelo menos 4 letras!";
-                return;
-            }
-
-            const docRef = doc(db, DOC_NAME, user.uid);
-            const userData = await getUserData(docRef);
-
-            if (userData && userData.topics && userData.topics[formattedTopicName]) {
-                formTopicError.value = "Esse tópico já existe";
-                return;
-            }
-
-            await setDoc(docRef, {}, { merge: true });
-            await updateDoc(docRef, {
-                [`topics.${formattedTopicName}`]: {
-                    id: Date.now().toString(26),
-                    name: formattedTopicName,
-                    tasks: [],
-                    created_at: currentTime(),
-                },
-            });
-
-            showToast("success", "Tópico criado com sucesso");
-            newTopic.value = "";
-        }
-
-        watch(newTopic, () => formTopicError.value = "");
-
-        return {
-            addTopic,
-            formTopicError,
-            newTopic
-        }
+    if (!newTopic.value) {
+        formTopicError.value = "Preencha o campo";
+        return;
     }
-}
+
+    const formattedTopicName = filterField(newTopic.value);
+
+    if (formattedTopicName.length <= 3) {
+        formTopicError.value = "Insira pelo menos 4 letras!";
+        return;
+    }
+
+    const docRef = doc(db, DOC_NAME, user.uid);
+    const userData = await getUserData(docRef);
+
+    if (userData && userData.topics && userData.topics[formattedTopicName]) {
+        formTopicError.value = "Esse tópico já existe";
+        return;
+    }
+
+    await setDoc(docRef, {}, { merge: true });
+    await updateDoc(docRef, {
+        [`topics.${formattedTopicName}`]: {
+            id: Date.now().toString(26),
+            name: formattedTopicName,
+            tasks: [],
+            created_at: currentTime(),
+        },
+    });
+
+    showToast("success", "Tópico criado com sucesso");
+    newTopic.value = "";
+};
+
+watch(newTopic, () => (formTopicError.value = ""));
 </script>
 
 <template>
-    <form @submit.prevent="addTopic">
+    <form @submit.prevent="addTopic" class="add-topic-form">
         <div class="form-group">
             <div :class="['input-group', formTopicError ? 'input-error' : '']">
                 <input type="text" placeholder="Adicionar novo tópico" v-model="newTopic" />
-
                 <button class="btn" title="Adicionar novo tópico">
                     <i class="fa-solid fa-plus"></i>
                 </button>
             </div>
-            <p class="text text--error" v-if="formTopicError">
+            <p v-if="formTopicError" class="text text--error">
                 {{ formTopicError }}
             </p>
         </div>
@@ -85,11 +77,15 @@ export default {
 </template>
 
 <style scoped>
-form {
+.add-topic-form {
     width: 100%;
+}
 
-    input {
-        box-shadow: 0 0.25rem 1rem var(--details-color-light);
-    }
+.input-group input {
+    box-shadow: 0 0.25rem 1rem var(--details-color-light);
+}
+
+.input-error input {
+    border-color: var(--error-color);
 }
 </style>

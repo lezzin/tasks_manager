@@ -1,37 +1,31 @@
 <script setup>
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { useAuthStore } from '../stores/authStore';
-import { db } from '../libs/firebase';
-import { DOC_NAME, TASK_KANBAN_STATUSES, TASK_PRIORITIES } from '../utils/variables';
 import { ref } from 'vue';
-import { currentTime, filterField } from '../utils/functions';
-import { useToast } from '../composables/useToast';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+
 import RecognitionInput from './RecognitionInput.vue';
 import MdEditor from './MdEditor.vue';
 
-const { user } = useAuthStore();
-const { showToast } = useToast();
-
-const emit = defineEmits(["close"]);
+import { useAuthStore } from '../stores/authStore';
+import { db } from '../libs/firebase';
+import { DOC_NAME, TASK_KANBAN_STATUSES, TASK_PRIORITIES } from '../utils/variables';
+import { currentTime, filterField } from '../utils/functions';
+import { useToast } from '../composables/useToast';
 
 const props = defineProps({
     topic: {
         type: Object,
-        required: false
+        required: false,
     },
     isActive: {
         type: Boolean,
-        required: true
-    }
+        required: true,
+    },
 });
 
-const closeAddingTask = () => {
-    taskName.value = "";
-    taskDate.value = "";
-    taskComment.value = "";
-    taskPriority.value = TASK_PRIORITIES.low;
-    emit("close");
-}
+const emit = defineEmits(["close"]);
+
+const { user } = useAuthStore();
+const { showToast } = useToast();
 
 const taskName = ref("");
 const taskNameError = ref("");
@@ -39,10 +33,18 @@ const taskPriority = ref(TASK_PRIORITIES.low);
 const taskDate = ref("");
 const taskComment = ref("");
 
+const closeAddingTask = () => {
+    taskName.value = "";
+    taskDate.value = "";
+    taskComment.value = "";
+    taskPriority.value = TASK_PRIORITIES.low;
+    emit("close");
+};
+
 const updateTaskName = (value) => {
     taskName.value = value;
-    taskNameError.value = ''
-}
+    taskNameError.value = "";
+};
 
 const updateTaskComment = (value) => {
     taskComment.value = value;
@@ -68,14 +70,16 @@ const addTask = async () => {
         kanbanStatus: TASK_KANBAN_STATUSES.todo,
         topic_id: id,
     };
+
     const updatedTasks = [...props.topic.tasks, taskData];
 
     await updateDoc(docRef, {
         [`topics.${name}.${DOC_NAME}`]: updatedTasks,
     });
+
     showToast("success", "Tarefa adicionada com sucesso");
     closeAddingTask();
-}
+};
 </script>
 
 <template>
@@ -89,16 +93,26 @@ const addTask = async () => {
             </div>
 
             <form @submit.prevent="addTask">
-                <RecognitionInput label="Nome da tarefa" placeholder="Adicionar tarefa..." v-model:modelValue="taskName"
-                    :errorMessage="taskNameError" enableVoiceRecognition inputId="add-task-name"
-                    @update="updateTaskName" />
+                <RecognitionInput
+                    label="Nome da tarefa"
+                    placeholder="Adicionar tarefa..."
+                    v-model:modelValue="taskName"
+                    :errorMessage="taskNameError"
+                    enableVoiceRecognition
+                    inputId="add-task-name"
+                    @update="updateTaskName"
+                />
 
                 <div class="form-group">
                     <label class="text" for="add-task-date">Data de entrega (opcional)</label>
                     <input type="date" v-model="taskDate" id="add-task-date" />
                 </div>
 
-                <MdEditor label="Comentários (opcional)" v-model:modelValue="taskComment" @update="updateTaskComment" />
+                <MdEditor
+                    label="Comentários (opcional)"
+                    v-model:modelValue="taskComment"
+                    @update="updateTaskComment"
+                />
 
                 <div class="form-group">
                     <label class="text" for="edit-task-priority">Prioridade</label>
@@ -111,7 +125,11 @@ const addTask = async () => {
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn--primary btn--block" title="Concluir adição da tarefa">
+                <button
+                    type="submit"
+                    class="btn btn--primary btn--block"
+                    title="Concluir adição da tarefa"
+                >
                     Adicionar tarefa
                 </button>
             </form>
