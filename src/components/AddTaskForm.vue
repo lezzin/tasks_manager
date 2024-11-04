@@ -1,6 +1,6 @@
 <script setup>
-import { ref } from 'vue';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { inject, ref } from 'vue';
+import { doc, updateDoc } from 'firebase/firestore';
 
 import RecognitionInput from './RecognitionInput.vue';
 import MdEditor from './MdEditor.vue';
@@ -27,6 +27,9 @@ const emit = defineEmits(["close"]);
 const { user } = useAuthStore();
 const { showToast } = useToast();
 
+const filterTask = inject("filterTask");
+const searchTask = inject("searchTask");
+
 const taskName = ref("");
 const taskNameError = ref("");
 const taskPriority = ref(TASK_PRIORITIES.low);
@@ -38,6 +41,10 @@ const closeAddingTask = () => {
     taskDate.value = "";
     taskComment.value = "";
     taskPriority.value = TASK_PRIORITIES.low;
+
+    filterTask.value = "all";
+    searchTask.value = "";
+
     emit("close");
 };
 

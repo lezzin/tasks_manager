@@ -13,7 +13,6 @@ import { marked } from 'marked';
 import { useToast } from '../composables/useToast.js';
 import { useAuthStore } from '../stores/authStore';
 
-
 const { showToast } = useToast();
 const { user } = useAuthStore();
 const router = useRouter();

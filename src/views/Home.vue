@@ -61,6 +61,18 @@ const filteredTasks = computed(() => {
     });
 });
 
+watch(searchTask, (newValue) => {
+    if (newValue.trim()) {
+        filterTask.value = "all";
+    }
+});
+
+watch(filterTask, (newValue) => {
+    if (newValue !== "all") {
+        searchTask.value = "";
+    }
+});
+
 const loadTopic = (id) => {
     selectedTopic.value = null;
 
@@ -97,6 +109,7 @@ const loadTopics = () => {
 
             if (!topicsExists) {
                 topics.data = null;
+                isMenuTopicsActive.value = true;
                 return;
             }
 
@@ -150,6 +163,8 @@ watch(() => route.params.id, (newId) => {
 });
 
 provide("selectedTopic", selectedTopic);
+provide("searchTask", searchTask);
+provide("filterTask", filterTask);
 </script>
 
 <template id="home-page">
@@ -198,7 +213,7 @@ provide("selectedTopic", selectedTopic);
 
                 <span class="divider"></span>
 
-                <TaskNav :topic="selectedTopic"/>
+                <TaskNav :topic="selectedTopic.name" :tasks="filteredTasks" />
             </div>
             <div v-else class="image-centered">
                 <img src="/src/assets/img/task_empty_lg.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia"

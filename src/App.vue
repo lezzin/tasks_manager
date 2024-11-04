@@ -36,6 +36,8 @@ const toggleAccountDropdown = () => {
 const logoutUser = async () => {
     try {
         await signOut(auth);
+        router.push("/login");
+        isAccountDropdownActive.value = false;
     } catch ({ code, message }) {
         const errors = {
             "auth/network-request-failed":

@@ -8,7 +8,7 @@ import { useAuthStore } from '../stores/authStore';
 
 import { doc, updateDoc } from 'firebase/firestore';
 import { marked } from 'marked';
-import { ref } from 'vue';
+import { inject, ref } from 'vue';
 
 import EditTaskForm from './EditTaskForm.vue';
 import CommentModal from './CommentModal.vue';
@@ -16,8 +16,15 @@ import CommentModal from './CommentModal.vue';
 const { user } = useAuthStore();
 const { showToast } = useToast();
 
+const filterTask = inject("filterTask");
+const searchTask = inject("searchTask");
+
 const props = defineProps({
     topic: {
+        type: String,
+        required: true
+    },
+    tasks: {
         type: Object,
         required: true
     }
@@ -31,12 +38,12 @@ const selectedComment = ref(null);
 
 const changeTaskStatus = async (taskId) => {
     const docRef = doc(db, DOC_NAME, user.uid);
-    const taskToUpdate = props.topic.tasks.find(task => task.id === taskId);
+    const taskToUpdate = props.tasks.find(task => task.id === taskId);
     if (taskToUpdate) {
         const newStatus = !taskToUpdate.status;
 
         await updateDoc(docRef, {
-            [`topics.${props.topic.name}.${DOC_NAME}`]: props.topic.tasks.map((task) =>
+            [`topics.${props.topic}.${DOC_NAME}`]: props.tasks.map((task) =>
                 task.id === taskId
                     ? { ...task, status: newStatus, kanbanStatus: newStatus ? TASK_KANBAN_STATUSES.completed : TASK_KANBAN_STATUSES.todo }
                     : task
@@ -44,6 +51,8 @@ const changeTaskStatus = async (taskId) => {
         });
 
         showToast("success", "Status de conclusão alterado com sucesso");
+        filterTask.value = "all";
+        searchTask.value = "";
     }
 };
 
@@ -51,10 +60,10 @@ const deleteTask = async (taskId) => {
     if (!confirm("Tem certeza que deseja excluir essa tarefa? Essa ação não poderá ser desfeita!")) return;
 
     const docRef = doc(db, DOC_NAME, user.uid);
-    const updatedTasks = props.topic.tasks.filter((task) => task.id !== taskId);
+    const updatedTasks = props.tasks.filter((task) => task.id !== taskId);
 
     await updateDoc(docRef, {
-        [`topics.${props.topic.name}.${DOC_NAME}`]: updatedTasks,
+        [`topics.${props.topic}.${DOC_NAME}`]: updatedTasks,
     });
 
     showToast("success", "Tarefa excluída com sucesso");
@@ -82,7 +91,7 @@ const closeCommentModal = () => {
 
 <template>
     <div class="task-nav">
-        <div :class="`task ${task.status ? 'completed' : ''}`" v-for="task in props.topic.tasks" :key="task.id">
+        <div :class="`task ${task.status ? 'completed' : ''}`" v-for="task in props.tasks" :key="task.id">
             <div class="task__content">
                 <button :class="`btn btn--bordered btn--rounded ${task.status ? 'btn--primary' : ''}`"
                     :title="`Marcar tarefa como ${task.status ? 'não concluída' : 'concluída'}`"
@@ -120,7 +129,7 @@ const closeCommentModal = () => {
                 </button>
             </div>
         </div>
-        <p class="text text--center" v-if="props.topic.tasks.length === 0">
+        <p class="text text--center" v-if="props.tasks.length === 0">
             Nenhuma tarefa para esse filtro
         </p>
     </div>

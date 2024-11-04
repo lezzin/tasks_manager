@@ -20,7 +20,7 @@ const router = useRouter();
 const props = defineProps({
     data: {
         type: Array,
-        required: true
+        default: []
     }
 });
 
@@ -85,10 +85,10 @@ const closeEditTopicModal = () => {
 </script>
 
 <template>
-    <div v-if="data.length">
+    <div v-if="props.data?.length">
         <h2 class="title">Seus tópicos</h2>
         <div class="topics-nav">
-            <div class="topic" v-for="topic in data" :key="topic.id"
+            <div class="topic" v-for="topic in props.data" :key="topic.id"
                 :class="{ active: selectedTopic && topic.name === selectedTopic.name }">
                 <RouterLink @click.native="closeTopicsMenu" :to="'/topic/' + topic.id" class="topic__link btn"
                     role="button" :title="'Acessar tópico ' + topic.name" aria-label="Acessar tópico">
@@ -114,7 +114,7 @@ const closeEditTopicModal = () => {
         </div>
     </div>
 
-    <div class="home-aside__footer" v-if="data.length">
+    <div class="home-aside__footer" v-if="props.data?.length">
         <span class="divider"></span>
 
         <RouterLink to="/kanban" class="btn btn--outline-primary btn--icon btn--block-small" title="Acessar Kanban">

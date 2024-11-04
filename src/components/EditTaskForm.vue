@@ -16,7 +16,7 @@ const emit = defineEmits(["close"]);
 
 const props = defineProps({
     topic: {
-        type: Object,
+        type: String,
         required: false
     },
     task: {
@@ -64,7 +64,7 @@ const editTask = async () => {
 
     const docRef = doc(db, DOC_NAME, user.uid);
 
-    if (!props.topic?.name) {
+    if (!props?.topic) {
         showToast("error", "Tópico da tarefa não encontrado.");
         return;
     }
@@ -76,7 +76,7 @@ const editTask = async () => {
     }
 
     const userData = docSnap.data();
-    const selectedTopicData = userData.topics[props.topic.name];
+    const selectedTopicData = userData.topics[props.topic];
 
     if (selectedTopicData && selectedTopicData.tasks) {
         const updatedTasks = selectedTopicData.tasks.map((t) =>
@@ -92,7 +92,7 @@ const editTask = async () => {
         );
 
         await updateDoc(docRef, {
-            [`topics.${props.topic.name}.tasks`]: updatedTasks,
+            [`topics.${props.topic}.tasks`]: updatedTasks,
         });
 
         showToast("success", "Tarefa alterada com sucesso");
