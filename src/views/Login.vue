@@ -7,10 +7,13 @@ import { signInWithPopup } from 'firebase/auth';
 
 import { useToast } from '../composables/useToast.js';
 import { useAuthStore } from '../stores/authStore.js';
+import { useLoadingStore } from '../stores/loadingStore.js';
 
 const { provider, auth } = defineProps(['provider', 'auth']);
 const { showToast } = useToast();
 const { user } = useAuthStore();
+const loadingStore = useLoadingStore();
+
 const router = useRouter();
 const route = useRoute();
 
@@ -47,6 +50,7 @@ onMounted(() => {
     }
     document.title = PAGE_TITLES.login;
     route.meta.showTopicNavBtn = false;
+    loadingStore.hideLoader();
 });
 
 watchEffect(() => {

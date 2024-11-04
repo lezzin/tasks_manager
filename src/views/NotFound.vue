@@ -1,3 +1,14 @@
+<script setup>
+import { onMounted } from 'vue';
+import { useLoadingStore } from '../stores/loadingStore.js';
+
+const loadingStore = useLoadingStore();
+
+onMounted(() => {
+    loadingStore.hideLoader();
+})
+</script>
+
 <template>
     <div class="container image-centered">
         <img src="/src/assets/img/not_found_lg.png" alt="Homem segurando uma lupa e frase de página não encontrada"

@@ -11,11 +11,13 @@ import { deleteDoc, doc } from 'firebase/firestore';
 import Toast from './components/Toast.vue';
 import { useToast } from './composables/useToast';
 import { useAuthStore } from './stores/authStore';
+import { useLoadingStore } from './stores/loadingStore';
 
-const { toast, closeToast, showToast } = useToast();
-
+const loadingStore = useLoadingStore();
 const authStore = useAuthStore();
+const { toast, closeToast, showToast } = useToast();
 const { user } = storeToRefs(authStore);
+
 const router = useRouter();
 
 const isMenuTopicsActive = ref(false);
@@ -59,6 +61,7 @@ const removeUser = async () => {
         await deleteDoc(docRef);
         await deleteUser(auth.currentUser);
         router.push("/login");
+        isAccountDropdownActive.value = false;
     } catch ({ code, message }) {
         const errors = {
             "auth/requires-recent-login":
@@ -73,6 +76,10 @@ const removeUser = async () => {
 </script>
 
 <template>
+    <div class="loader" v-if="loadingStore.isLoading">
+        <div class="loader__spinner"></div>
+    </div>
+
     <header class="header-wrapper">
         <div class="header container">
             <div class="header__logo">

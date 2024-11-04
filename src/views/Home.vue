@@ -11,6 +11,7 @@ import TaskNav from '../components/TaskNav.vue';
 import AddTaskForm from '../components/AddTaskForm.vue';
 import AddTopicForm from '../components/AddTopicForm.vue';
 import TopicNav from '../components/TopicNav.vue';
+import { useLoadingStore } from '../stores/loadingStore';
 
 const props = defineProps({
     db: {
@@ -19,7 +20,6 @@ const props = defineProps({
     }
 });
 
-const loadedTopics = ref(false);
 const isMenuTopicsActive = inject('isMenuTopicsActive');
 const isAddTaskModalActive = ref(false);
 
@@ -27,6 +27,8 @@ const selectedTopic = ref(null);
 const defaultTasks = ref([]);
 
 const { user } = useAuthStore();
+const loadingStore = useLoadingStore();
+
 const topics = reactive({ data: [] });
 const route = useRoute();
 const router = useRouter();
@@ -100,6 +102,7 @@ const loadTopic = (id) => {
 
 const loadTopics = () => {
     const docRef = doc(props.db, DOC_NAME, user.uid);
+    loadingStore.showLoader();
 
     onSnapshot(
         docRef,
@@ -138,7 +141,7 @@ const loadTopics = () => {
         }
     );
 
-    loadedTopics.value = true;
+    loadingStore.hideLoader();
 }
 
 const closeTopicsMenu = () => {
@@ -168,7 +171,7 @@ provide("filterTask", filterTask);
 </script>
 
 <template id="home-page">
-    <div class="home-wrapper" v-if="loadedTopics">
+    <div class="home-wrapper">
         <aside :class="['home-aside', isMenuTopicsActive && 'home-aside--active']">
             <AddTopicForm />
             <span class="divider"></span>

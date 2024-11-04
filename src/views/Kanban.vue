@@ -3,8 +3,9 @@ import { DOC_NAME, PAGE_TITLES, TASK_KANBAN_STATUSES } from '../utils/variables.
 import { formatDate, getPriorityClass, getPriorityText, getPriorityIcon } from '../utils/functions.js';
 import { ref, reactive, onMounted, inject } from 'vue';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { useRouter } from 'vue-router';
+import { RouterLink, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
+import { useLoadingStore } from '../stores/loadingStore.js';
 
 const props = defineProps(['db']);
 
@@ -16,9 +17,9 @@ const tasks = reactive({
 const draggedTask = ref(null);
 const activeColumn = ref(null);
 const tasksLength = ref(0);
-const loadedTasks = ref(false);
 
 const { user } = useAuthStore();
+const loadingStore = useLoadingStore();
 const router = useRouter();
 
 const sendBack = () => {
@@ -40,10 +41,11 @@ const getUserTasks = (topics) => {
 };
 
 const getAllUserTasks = async () => {
+    loadingStore.showLoader();
+
     try {
         const userData = await fetchUserData();
         if (!userData?.topics || Object.keys(userData.topics).length === 0) {
-            loadedTasks.value = true;
             return;
         }
 
@@ -54,7 +56,7 @@ const getAllUserTasks = async () => {
     } catch (error) {
         showToast("error", `Erro ao resgatar tarefas: ${error.message}`);
     } finally {
-        loadedTasks.value = true;
+        loadingStore.hideLoader();
     }
 };
 
@@ -171,66 +173,63 @@ onMounted(() => {
 </script>
 
 <template>
-    <div v-if="loadedTasks" id="kanban-page-container">
-        <div class="kanban-wrapper container" v-if="tasksLength > 0">
-            <div class="kanban-wrapper__header">
-                <h2 class="title">Visualize as suas tarefas em formato Kanban</h2>
-                <button @click="sendBack" class="btn btn--outline-primary btn--icon" title="Voltar para o início">
-                    <i class="fa-solid fa-arrow-left"></i>
-                    Voltar para o início
-                </button>
-            </div>
+    <div class="kanban-wrapper container" v-if="tasksLength > 0">
+        <div class="kanban-wrapper__header">
+            <h2 class="title">Visualize as suas tarefas em formato Kanban</h2>
+            <button @click="sendBack" class="btn btn--outline-primary btn--icon" title="Voltar para o início">
+                <i class="fa-solid fa-arrow-left"></i>
+                Voltar para o início
+            </button>
+        </div>
 
-            <div class="kanban">
-                <div class="kanban__column" v-for="kanbanStatus in ['todo', 'doing', 'completed']" :key="kanbanStatus"
-                    :class="{ 'drag-over': activeColumn === kanbanStatus }" @drop="onDrop(kanbanStatus)"
-                    @dragover="onDragOver" @dragenter="event => onDragEnter(event, kanbanStatus)"
-                    :data-status="kanbanStatus">
-                    <h2 class="subtitle">
-                        {{ kanbanStatus === 'todo' ? 'Para fazer' : kanbanStatus === 'doing' ? 'Fazendo' : 'Concluído'
-                        }}
-                    </h2>
+        <div class="kanban">
+            <div class="kanban__column" v-for="kanbanStatus in ['todo', 'doing', 'completed']" :key="kanbanStatus"
+                :class="{ 'drag-over': activeColumn === kanbanStatus }" @drop="onDrop(kanbanStatus)"
+                @dragover="onDragOver" @dragenter="event => onDragEnter(event, kanbanStatus)"
+                :data-status="kanbanStatus">
+                <h2 class="subtitle">
+                    {{ kanbanStatus === 'todo' ? 'Para fazer' : kanbanStatus === 'doing' ? 'Fazendo' : 'Concluído'
+                    }}
+                </h2>
 
-                    <div class="kanban__tasks">
-                        <div class="task task--empty" v-if="tasks[kanbanStatus].length === 0">
-                            <i class="fa-solid fa-box-open"></i>
-                            <p class="text text--bold">Nenhuma tarefa na coluna</p>
-                        </div>
-                        <div v-else v-for="task in tasks[kanbanStatus]" :key="task.id"
-                            :class="['task', task.status && 'completed']" draggable="true"
-                            @dragstart="handleDragEvents($event, 'start', task)"
-                            @dragend="handleDragEvents($event, 'end')">
-                            <router-link class="text text--bold truncate" :to="'/topic/' + task.topic_id"
-                                style="--line-clamp: 1">
-                                {{ task.name }}
-                            </router-link>
+                <div class="kanban__tasks">
+                    <div class="task task--empty" v-if="tasks[kanbanStatus].length === 0">
+                        <i class="fa-solid fa-box-open"></i>
+                        <p class="text text--bold">Nenhuma tarefa na coluna</p>
+                    </div>
+                    <div v-else v-for="task in tasks[kanbanStatus]" :key="task.id"
+                        :class="['task', task.status && 'completed']" draggable="true"
+                        @dragstart="handleDragEvents($event, 'start', task)" @dragend="handleDragEvents($event, 'end')">
+                        <RouterLink class="text text--bold truncate" :to="'/topic/' + task.topic_id"
+                            style="--line-clamp: 1">
+                            {{ task.name }}
+                        </RouterLink>
 
-                            <span :class="['tag', getPriorityClass(task.priority)]">
-                                <i :class="getPriorityIcon(task.priority)"></i>
-                                {{ getPriorityText(task.priority) }}
+                        <span :class="['tag', getPriorityClass(task.priority)]">
+                            <i :class="getPriorityIcon(task.priority)"></i>
+                            {{ getPriorityText(task.priority) }}
+                        </span>
+
+                        <div class="task__information">
+                            <span class="text text--icon text--small text--muted">
+                                <i class="fa-regular fa-clock"></i>
+                                Criado em: {{ task.created_at }}
                             </span>
+                            <span class="text text--icon text--small text--muted" v-if="task.delivery_date">
+                                <i class="fa-regular fa-bell"></i>
+                                Entrega para: {{ formatDate(task.delivery_date) }}
+                            </span>
+                        </div>
 
-                            <div class="task__information">
-                                <span class="text text--icon text--small text--muted">
-                                    <i class="fa-regular fa-clock"></i>
-                                    Criado em: {{ task.created_at }}
-                                </span>
-                                <span class="text text--icon text--small text--muted" v-if="task.delivery_date">
-                                    <i class="fa-regular fa-bell"></i>
-                                    Entrega para: {{ formatDate(task.delivery_date) }}
-                                </span>
-                            </div>
-
-                            <div class="task__navigation">
-                                <button type="button" class="btn btn--outline-primary" @click="moveTask(task, 'prev')"
-                                    :disabled="isFirstColumn(kanbanStatus)">
-                                    ← Anterior
-                                </button>
-                                <button type="button" class="btn btn--outline-primary" @click="moveTask(task, 'next')"
-                                    :disabled="isLastColumn(kanbanStatus)">
-                                    Próximo →
-                                </button>
-                            </div>
+                        <div class="task__navigation">
+                            <button type="button" class="btn btn--outline-primary" @click="moveTask(task, 'prev')"
+                                :disabled="isFirstColumn(kanbanStatus)">
+                                ← Anterior
+                            </button>
+                            <button type="button" class="btn btn--outline-primary" @click="moveTask(task, 'next')"
+                                :disabled="isLastColumn(kanbanStatus)">
+                                Próximo →
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -238,139 +237,137 @@ onMounted(() => {
         </div>
     </div>
     <div class="container" v-else>
-        <router-link to="/" title="Voltar para o início">
+        <RouterLink to="/" title="Voltar para o início">
             <img src="/src/assets/img/task_empty_lg.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia"
                 class="large-screen" loading="lazy" />
             <img src="/src/assets/img/task_empty_sm.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia"
                 class="small-screen" width="640" height="640" loading="lazy" />
-        </router-link>
+        </RouterLink>
     </div>
 </template>
 
 <style scoped>
-#kanban-page-container {
-    .kanban-wrapper {
-        overflow-x: auto;
+.kanban-wrapper {
+    overflow-x: auto;
 
-        display: grid;
-        grid-template-rows: 10vh 80vh;
+    display: grid;
+    grid-template-rows: 10vh 80vh;
 
-        .kanban-wrapper__header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
+    .kanban-wrapper__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
 
-            button {
-                padding: 0.5rem 1rem;
-            }
+        button {
+            padding: 0.5rem 1rem;
         }
+    }
 
-        .kanban {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(300px, 1fr));
-            padding-bottom: calc(var(--padding) * 2);
-            gap: 1rem;
+    .kanban {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(300px, 1fr));
+        padding-bottom: calc(var(--padding) * 2);
+        gap: 1rem;
 
-            .kanban__column {
-                border: 1px dashed transparent;
-                overflow-y: auto;
-                height: 100%;
+        .kanban__column {
+            border: 1px dashed transparent;
+            overflow-y: auto;
+            height: 100%;
 
-                &.drag-over {
-                    position: relative;
-                    border-color: var(--border-color);
-                    border-radius: var(--radius);
+            &.drag-over {
+                position: relative;
+                border-color: var(--border-color);
+                border-radius: var(--radius);
 
-                    &::after {
-                        content: "";
-                        position: absolute;
-                        inset: 0;
-                        pointer-events: none;
-                        background: rgb(0 0 0 / 0.075);
-                        z-index: 2;
-                    }
+                &::after {
+                    content: "";
+                    position: absolute;
+                    inset: 0;
+                    pointer-events: none;
+                    background: rgb(0 0 0 / 0.075);
+                    z-index: 2;
                 }
+            }
 
-                >.subtitle {
-                    margin-bottom: 0.6rem;
-                    padding-left: var(--padding);
-                    position: sticky;
-                    top: 0;
-                    padding: var(--padding);
-                    background-color: var(--bg-secondary);
-                    z-index: 1;
-                }
+            >.subtitle {
+                margin-bottom: 0.6rem;
+                padding-left: var(--padding);
+                position: sticky;
+                top: 0;
+                padding: var(--padding);
+                background-color: var(--bg-secondary);
+                z-index: 1;
+            }
 
-                .kanban__tasks {
-                    border: 1px solid transparent;
-                    border-radius: var(--radius);
+            .kanban__tasks {
+                border: 1px solid transparent;
+                border-radius: var(--radius);
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                padding-inline: var(--padding);
+
+                .task {
                     display: flex;
                     flex-direction: column;
+                    align-items: flex-start;
                     gap: 1rem;
-                    padding-inline: var(--padding);
+                    border: 1px solid var(--border-color);
+                    padding: 1.4rem var(--padding);
+                    border-radius: var(--radius);
+                    background-color: transparent;
+                    transition: all 0.3s ease;
+                    cursor: move;
 
-                    .task {
+                    &.dragging {
+                        border-style: dashed;
+                        transform: scale(1.05);
+                    }
+
+                    &:not(.task--empty) {
+                        box-shadow: var(--shadow-sm);
+                    }
+
+                    &.task--empty {
+                        cursor: not-allowed;
+                        align-items: center;
+                        justify-content: center;
+                        border-style: dashed;
+                        font-size: 1.8rem;
+                        gap: 0.5rem;
+                    }
+
+                    a.text {
+                        text-decoration: none;
+                    }
+
+                    .tag {
+                        border-radius: calc(var(--radius) * 2);
+                    }
+
+                    .task__information {
                         display: flex;
                         flex-direction: column;
-                        align-items: flex-start;
-                        gap: 1rem;
-                        border: 1px solid var(--border-color);
-                        padding: 1.4rem var(--padding);
-                        border-radius: var(--radius);
-                        background-color: transparent;
-                        transition: all 0.3s ease;
-                        cursor: move;
+                        margin-top: 1.5rem;
+                        gap: 0.5rem;
+                    }
 
-                        &.dragging {
-                            border-style: dashed;
-                            transform: scale(1.05);
-                        }
+                    .task__navigation {
+                        display: none;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-top: 1.5rem;
+                        gap: 0.5rem;
+                        width: 100%;
 
-                        &:not(.task--empty) {
-                            box-shadow: var(--shadow-sm);
-                        }
-
-                        &.task--empty {
-                            cursor: not-allowed;
-                            align-items: center;
-                            justify-content: center;
-                            border-style: dashed;
-                            font-size: 1.8rem;
-                            gap: 0.5rem;
-                        }
-
-                        a.text {
-                            text-decoration: none;
-                        }
-
-                        .tag {
-                            border-radius: calc(var(--radius) * 2);
-                        }
-
-                        .task__information {
+                        @media (width<=768px) {
                             display: flex;
-                            flex-direction: column;
-                            margin-top: 1.5rem;
-                            gap: 0.5rem;
                         }
 
-                        .task__navigation {
-                            display: none;
-                            justify-content: space-between;
-                            align-items: center;
-                            margin-top: 1.5rem;
-                            gap: 0.5rem;
-                            width: 100%;
-
-                            @media (width<=768px) {
-                                display: flex;
-                            }
-
-                            .btn {
-                                font-size: 1.4rem;
-                                padding: 0.4rem 0.8rem;
-                            }
+                        .btn {
+                            font-size: 1.4rem;
+                            padding: 0.4rem 0.8rem;
                         }
                     }
                 }

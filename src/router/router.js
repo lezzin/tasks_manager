@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from "vue-router";
 import { onAuthStateChanged } from "firebase/auth";
 import { db, auth, provider } from "../libs/firebase.js";
 
-// Função auxiliar para obter o usuário atual autenticado
 const getCurrentUser = () => {
     return new Promise((resolve, reject) => {
         const removeListener = onAuthStateChanged(
