@@ -31,7 +31,7 @@ export function getPriorityClass(priority) {
         {
             [TASK_PRIORITIES.high]: "priority-high",
             [TASK_PRIORITIES.medium]: "priority-medium",
-            [TASK_PRIORITIES.small]: "priority-low",
+            [TASK_PRIORITIES.low]: "priority-low",
         }[priority] ?? ""
     );
 }
@@ -41,7 +41,7 @@ export function getPriorityText(priority) {
         {
             [TASK_PRIORITIES.high]: "Alta prioridade",
             [TASK_PRIORITIES.medium]: "Média prioridade",
-            [TASK_PRIORITIES.small]: "Baixa prioridade",
+            [TASK_PRIORITIES.low]: "Baixa prioridade",
         }[priority] || ""
     );
 }
@@ -53,7 +53,7 @@ export function getPriorityIcon(priority) {
         {
             [TASK_PRIORITIES.high]: icon("arrow-up"),
             [TASK_PRIORITIES.medium]: icon("arrow-right"),
-            [TASK_PRIORITIES.small]: icon("arrow-down"),
+            [TASK_PRIORITIES.low]: icon("arrow-down"),
             [TASK_PRIORITIES.completed]: icon("check-circle"),
         }[priority] || ""
     );

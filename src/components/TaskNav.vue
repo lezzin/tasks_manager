@@ -5,17 +5,13 @@ import { db } from '../libs/firebase';
 import { formatDate, getPriorityClass, getPriorityIcon, getPriorityText } from '../utils/functions';
 import { DOC_NAME, TASK_KANBAN_STATUSES } from '../utils/variables';
 import { useToast } from '../composables/useToast';
-import { useTaskStore } from '../stores/taskStore';
-
-const taskStore = useTaskStore();
+import { ref } from 'vue';
+import EditTaskForm from './EditTaskForm.vue';
+import CommentModal from './CommentModal.vue';
+import { marked } from 'marked';
 
 const { user } = useAuthUser();
 const { showToast } = useToast();
-
-const getUserData = async (docRef) => {
-    const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? docSnap.data() : null;
-};
 
 const props = defineProps({
     topic: {
@@ -26,55 +22,73 @@ const props = defineProps({
 
 const changeTaskStatus = async (taskId) => {
     const docRef = doc(db, DOC_NAME, user.value.uid);
-    const userData = await getUserData(docRef);
 
-    if (userData && userData.topics) {
-        const selectedTopicData = userData.topics[props.topic.name];
+    if (props.topic.tasks) {
+        const updatedTasks = props.topic.tasks.map((task) => {
+            const newStatus = !task.status;
 
-        if (selectedTopicData && selectedTopicData.tasks) {
-            const updatedTasks = selectedTopicData.tasks.map((task) => {
-                const newStatus = !task.status;
+            if (task.id == taskId) {
+                return {
+                    ...task,
+                    status: newStatus,
+                    kanbanStatus: newStatus ? TASK_KANBAN_STATUSES.completed : TASK_KANBAN_STATUSES.todo,
+                };
+            }
+            return task;
+        });
 
-                if (task.id == taskId) {
-                    return {
-                        ...task,
-                        status: newStatus,
-                        kanbanStatus: newStatus ? TASK_KANBAN_STATUSES.completed : TASK_KANBAN_STATUSES.todo,
-                    };
-                }
-                return task;
-            });
+        await updateDoc(docRef, {
+            [`topics.${props.topic.name}.${DOC_NAME}`]: updatedTasks,
+        });
 
-            await updateDoc(docRef, {
-                [`topics.${props.topic.name}.${DOC_NAME}`]: updatedTasks,
-            });
-
-            showToast("success", "Status de conclusão alterado com sucesso");
-        }
+        showToast("success", "Status de conclusão alterado com sucesso");
     }
 };
 
-const deleteTask = async (topicName, taskId) => {
+const deleteTask = async (taskId) => {
     if (!confirm("Tem certeza que deseja excluir essa tarefa? Essa ação não poderá ser desfeita!"))
         return;
 
     const docRef = doc(db, DOC_NAME, user.value.uid);
-    const userData = await getUserData(docRef);
 
-    if (!userData || !userData.topics || !userData.topics[topicName]) {
+    if (!props.topic) {
         showToast("error", "Tópico não encontrado");
         return;
     }
 
-    const selectedTopic = userData.topics[topicName];
-    const updatedTasks = selectedTopic.tasks.filter((task) => task.id !== taskId);
+    const updatedTasks = props.topic.tasks.filter((task) => task.id !== taskId);
 
     await updateDoc(docRef, {
-        [`topics.${topicName}.${DOC_NAME}`]: updatedTasks,
+        [`topics.${props.topic.name}.${DOC_NAME}`]: updatedTasks,
     });
 
     showToast("success", "Tarefa excluída com sucesso");
 };
+
+const isEditTaskModalActive = ref(false);
+const editingTask = ref(null);
+
+const openEditTaskModal = (task) => {
+    isEditTaskModalActive.value = true;
+    editingTask.value = task;
+}
+
+const closeEditTaskModal = () => {
+    isEditTaskModalActive.value = false;
+    editingTask.value = null;
+}
+
+const isCommentModalActive = ref(false);
+const selectedComment = ref(null);
+
+const openTaskComment = (comment) => {
+    isCommentModalActive.value = true;
+    selectedComment.value = marked(comment);
+}
+
+const closeCommentModal = () => {
+    isCommentModalActive.value = false;
+}
 </script>
 
 <template>
@@ -111,13 +125,11 @@ const deleteTask = async (topicName, taskId) => {
                     <span class="fa-solid fa-comment"></span>
                 </button>
 
-                <button class="btn btn--rounded btn--primary" title="Editar tarefa"
-                    @click="taskStore.openEditTaskModal(task)">
+                <button class="btn btn--rounded btn--primary" title="Editar tarefa" @click="openEditTaskModal(task)">
                     <span class="fa-solid fa-pen"></span>
                 </button>
 
-                <button class="btn btn--rounded btn--danger" title="Excluir tarefa"
-                    @click="deleteTask(props.topic.name, task.id)">
+                <button class="btn btn--rounded btn--danger" title="Excluir tarefa" @click="deleteTask(task.id)">
                     <span class="fa-solid fa-trash"></span>
                 </button>
             </div>
@@ -126,6 +138,11 @@ const deleteTask = async (topicName, taskId) => {
             Nenhuma tarefa para esse filtro
         </p>
     </div>
+
+    <EditTaskForm :isActive="isEditTaskModalActive" @close="closeEditTaskModal" :topic="props.topic"
+        :task="editingTask" />
+
+    <CommentModal :isActive="isCommentModalActive" @close="closeCommentModal" :comment="selectedComment" />
 </template>
 
 <style scoped>

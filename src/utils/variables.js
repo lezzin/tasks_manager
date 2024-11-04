@@ -15,7 +15,7 @@ const PAGE_TITLES = {
 const TASK_PRIORITIES = {
     high: 3,
     medium: 2,
-    small: 1,
+    low: 1,
     completed: "completed",
 };
 
@@ -25,7 +25,6 @@ const TASK_KANBAN_STATUSES = {
     completed: "completed",
 };
 
-// Milisegundos
 const TOAST_TIMEOUT = 5000;
 
 export { TASK_PRIORITIES, TASK_KANBAN_STATUSES, TOAST_TIMEOUT, PAGE_TITLES, DOC_NAME };

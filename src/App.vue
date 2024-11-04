@@ -1,5 +1,5 @@
 <script setup>
-import { RouterView } from 'vue-router';
+import { RouterLink, RouterView } from 'vue-router';
 import Toast from './components/Toast.vue';
 import { useToast } from './composables/useToast';
 import { provide, ref } from 'vue';
@@ -26,12 +26,12 @@ provide("showTopicNavBtn", showTopicNavBtn);
                     <i class="fa-solid fa-bars"></i>
                 </button>
 
-                <router-link to="/" title="Acessar página incial" class="logo">
+                <RouterLink to="/" title="Acessar página incial" class="logo">
                     <img src="./assets/img/logo_lg.svg" alt="TaskFlow - logo do website" width="148" height="37"
                         loading="lazy" v-if="!showTopicNavBtn" />
                     <img src="./assets/img/logo_sm.svg" alt="TaskFlow - logo do website" width="118" height="37"
                         loading="lazy" v-if="showTopicNavBtn" />
-                </router-link>
+                </RouterLink>
             </div>
 
             <button class="account btn btn--bordered" @click.stop="toggleUserDropdown" title="Abrir/fechar dropdown"

@@ -1,6 +1,8 @@
 <script setup>
 import { computed } from 'vue';
 
+const emit = defineEmits("[close]");
+
 const props = defineProps({
     data: {
         type: Object,

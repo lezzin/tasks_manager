@@ -1,11 +1,12 @@
 <script setup>
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { inject } from 'vue';
+import { inject, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 import { useAuthUser } from '../composables/useAuthUser';
 import { useToast } from '../composables/useToast';
 import { db } from '../libs/firebase';
 import { DOC_NAME } from '../utils/variables';
+import EditTopicForm from './EditTopicForm.vue';
 
 const emit = defineEmits(['close']);
 
@@ -28,11 +29,7 @@ const getUserData = async (docRef) => {
 };
 
 const closeTopicsMenu = () => {
-    emit("close"); 
-};
-
-const openEditTopic = (topicName) => {
-    console.log(topicName);
+    emit("close");
 };
 
 const deleteTopic = async (topicName) => {
@@ -70,6 +67,18 @@ const deleteAllTopics = async () => {
     showToast("success", "Todos os tópicos foram excluídos com sucesso.");
     selectedTopic.value = null;
 }
+
+const isEditTopicModalActive = ref(false);
+const editingTopic = ref(null);
+
+const openEditTopicModal = (topicName) => {
+    isEditTopicModalActive.value = true;
+    editingTopic.value = topicName;
+}
+
+const closeEditTopicModal = () => {
+    isEditTopicModalActive.value = false;
+}
 </script>
 
 <template>
@@ -89,7 +98,7 @@ const deleteAllTopics = async () => {
                 </RouterLink>
 
                 <div class="topic__actions">
-                    <button class="btn btn--rounded" title="Editar tópico" @click="openEditTopic(topic.name)">
+                    <button class="btn btn--rounded" title="Editar tópico" @click="openEditTopicModal(topic.name)">
                         <i class="fa-solid fa-pen"></i>
                     </button>
                     <button class="btn btn--rounded" title="Excluir tópico" @click="deleteTopic(topic.name)">
@@ -123,6 +132,8 @@ const deleteAllTopics = async () => {
         </a>
     </div>
     <p class="text text--center" v-else>Nenhum tópico cadastrado</p>
+
+    <EditTopicForm :isActive="isEditTopicModalActive" :topic="editingTopic" @close="closeEditTopicModal" />
 </template>
 
 <style scoped>

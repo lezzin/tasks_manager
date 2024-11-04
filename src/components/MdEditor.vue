@@ -1,11 +1,3 @@
-<template>
-    <div class="form-group">
-        <label class="text" :for="editorId">{{ label }}</label>
-        <textarea :id="editorId" @input="updateContent"></textarea>
-        <p class="text text--error" v-if="errorMessage">{{ errorMessage }}</p>
-    </div>
-</template>
-
 <script setup>
 import { ref, watch, onMounted, defineProps, defineEmits } from 'vue';
 
@@ -25,28 +17,32 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:modelValue']);
-const editorId = `markdown-editor-${Math.random().toString(36).substring(2, 15)}`;
-const simpleMDE = ref(null);
+let simpleMDE = null;
 
 const updateContent = () => {
-    emit('update:modelValue', simpleMDE.value.value());
+    emit('update:modelValue', simpleMDE.value());
 };
 
 watch(() => props.modelValue, (newVal) => {
-    if (simpleMDE.value) {
-        simpleMDE.value.value(newVal);
-    }
+    simpleMDE.value(newVal);
 });
 
 onMounted(() => {
-    simpleMDE.value = new SimpleMDE({
-        element: document.querySelector(`#${editorId}`),
+    simpleMDE = new SimpleMDE({
+        element: document.querySelector('#markdown-editor'),
         spellChecker: false,
-        toolbar: ["bold", "italic", "|", "unordered-list", "ordered-list", "|", "link", "image", "|", "preview", "side-by-side", "fullscreen"],
     });
 
-    if(props.modelValue) {
-        simpleMDE.value.value(props.modelValue);
+    if (props.modelValue) {
+        simpleMDE.value(props.modelValue);
     }
 });
 </script>
+
+<template>
+    <div class="form-group">
+        <label class="text" for="markdown-editor">{{ label }}</label>
+        <textarea id="markdown-editor" @input="updateContent"></textarea>
+        <p class="text text--error" v-if="errorMessage">{{ errorMessage }}</p>
+    </div>
+</template>

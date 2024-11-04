@@ -1,5 +1,26 @@
+<script setup>
+
+const emit = defineEmits(["close"]);
+
+const props = defineProps({
+    isActive: {
+        type: Boolean,
+        required: true
+    },
+    comment: {
+        type: String,
+        required: false
+    }
+})
+
+const closeShowingComment = () => {
+    emit("close");
+}
+
+</script>
+
 <template>
-    <aside :class="['modal', showingComment && 'active']">
+    <aside :class="['modal', props.isActive && 'active']">
         <div class="modal__dialog">
             <div class="modal__header">
                 <h2 class="modal__title">Comentários da tarefa</h2>
@@ -8,7 +29,7 @@
                 </button>
             </div>
 
-            <div class="markdown-content markdown-content--normal" v-html="selectedComment"></div>
+            <div class="markdown-content markdown-content--normal" v-html="props.comment"></div>
         </div>
     </aside>
 </template>

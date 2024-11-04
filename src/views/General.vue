@@ -76,7 +76,7 @@ const updatePriorityCounter = () => {
     priorityCount.completed = allUserTasks.value.filter((task) => task.status).length;
     priorityCount.high = allUserTasks.value.filter((task) => task.priority === TASK_PRIORITIES.high).length;
     priorityCount.medium = allUserTasks.value.filter((task) => task.priority === TASK_PRIORITIES.medium).length;
-    priorityCount.small = allUserTasks.value.filter((task) => task.priority === TASK_PRIORITIES.small).length;
+    priorityCount.small = allUserTasks.value.filter((task) => task.priority === TASK_PRIORITIES.low).length;
 };
 
 const fetchUserTasks = async () => {

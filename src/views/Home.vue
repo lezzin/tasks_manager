@@ -8,10 +8,6 @@ import { useRoute, useRouter } from 'vue-router';
 import { useAuthUser } from '../composables/useAuthUser';
 import TaskNav from '../components/TaskNav.vue';
 import AddTaskForm from '../components/AddTaskForm.vue';
-import EditTaskForm from '../components/EditTaskForm.vue';
-import { useTaskStore } from '../stores/taskStore';
-
-const taskStore = useTaskStore();
 
 const props = defineProps({
     db: {
@@ -238,7 +234,6 @@ provide("selectedTopic", selectedTopic);
     </div>
 
     <AddTaskForm :isActive="isAddTaskModalActive" @close="closeAddTaskModal" :topic="selectedTopic" />
-    <EditTaskForm @close="taskStore.closeEditTaskModal" :topic="selectedTopic" />
 </template>
 
 <style scoped>

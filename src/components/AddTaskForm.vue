@@ -31,14 +31,9 @@ const closeAddingTask = () => {
 
 const taskName = ref("");
 const taskNameError = ref("");
-const taskPriority = ref(TASK_PRIORITIES.small);
+const taskPriority = ref(TASK_PRIORITIES.low);
 const taskDate = ref("");
 const taskComment = ref("");
-
-const getUserData = async (docRef) => {
-    const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? docSnap.data() : null;
-};
 
 const updateTaskName = (value) => {
     taskName.value = value;
@@ -53,34 +48,26 @@ const addTask = async () => {
 
     const { name, id } = props.topic;
     const docRef = doc(db, DOC_NAME, user.value.uid);
-    const userData = await getUserData(docRef);
 
-    if (userData && userData.topics) {
-        const topic = userData.topics[name];
+    const taskData = {
+        id: Date.now().toString(36),
+        name: filterField(taskName.value),
+        status: false,
+        created_at: currentTime(),
+        priority: taskPriority.value,
+        comment: taskComment.value ?? "",
+        delivery_date: taskDate.value,
+        kanbanStatus: TASK_KANBAN_STATUSES.todo,
+        topic_id: id,
+    };
+    const updatedTasks = [...props.topic.tasks, taskData];
 
-        if (topic) {
-            const taskData = {
-                id: Date.now().toString(36),
-                name: filterField(taskName.value),
-                status: false,
-                created_at: currentTime(),
-                priority: taskPriority.value,
-                comment: taskComment.value ?? "",
-                delivery_date: taskDate.value,
-                kanbanStatus: TASK_KANBAN_STATUSES.todo,
-                topic_id: id,
-            };
-            const updatedTasks = [...topic.tasks, taskData];
-
-            await updateDoc(docRef, {
-                [`topics.${name}.${DOC_NAME}`]: updatedTasks,
-            });
-            showToast("success", "Tarefa adicionada com sucesso");
-            closeAddingTask();
-        }
-    }
+    await updateDoc(docRef, {
+        [`topics.${name}.${DOC_NAME}`]: updatedTasks,
+    });
+    showToast("success", "Tarefa adicionada com sucesso");
+    closeAddingTask();
 }
-
 </script>
 
 <template>
