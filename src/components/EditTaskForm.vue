@@ -49,6 +49,10 @@ const updateTaskName = (value) => {
     taskNameError.value = '';
 };
 
+const updateTaskComment = (value) => {
+    taskComment.value = value;
+};
+
 const editTask = async () => {
     if (!taskName.value) {
         taskNameError.value = "Preencha o campo";
@@ -121,7 +125,7 @@ const closeEditTaskModal = () => {
                     <input type="date" id="edit-task-date" v-model="taskDate" />
                 </div>
 
-                <MdEditor label="Comentários (opcional)" v-model:modelValue="taskComment" />
+                <MdEditor label="Comentários (opcional)" v-model:modelValue="taskComment" @update="updateTaskComment" />
 
                 <div class="form-group">
                     <label class="text" for="edit-task-priority">Prioridade</label>

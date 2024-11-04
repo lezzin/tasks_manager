@@ -16,11 +16,11 @@ const props = defineProps({
     }
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update']);
 let simpleMDE = null;
 
 const updateContent = () => {
-    emit('update:modelValue', simpleMDE.value());
+    emit('update', simpleMDE.value());
 };
 
 watch(() => props.modelValue, (newVal) => {
