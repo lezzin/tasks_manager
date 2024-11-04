@@ -5,7 +5,7 @@ import TopicNav from '../components/TopicNav.vue';
 import { DOC_NAME, PAGE_TITLES, TASK_PRIORITIES } from '../utils/variables';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { useRoute, useRouter } from 'vue-router';
-import { useAuthUser } from '../composables/useAuthUser';
+import { useAuthStore } from '../stores/authStore';
 import TaskNav from '../components/TaskNav.vue';
 import AddTaskForm from '../components/AddTaskForm.vue';
 
@@ -23,8 +23,8 @@ const isAddTaskModalActive = ref(false);
 const selectedTopic = ref(null);
 const defaultTasks = ref(null);
 
+const { user } = useAuthStore();
 const topics = reactive({ data: [] });
-const { user } = useAuthUser();
 const route = useRoute();
 const router = useRouter();
 
@@ -101,7 +101,7 @@ const loadTopic = (id) => {
 }
 
 const loadTopics = () => {
-    const docRef = doc(props.db, DOC_NAME, user.value.uid);
+    const docRef = doc(props.db, DOC_NAME, user.uid);
 
     onSnapshot(
         docRef,

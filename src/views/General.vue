@@ -7,10 +7,10 @@ import { DOC_NAME, PAGE_TITLES, TASK_PRIORITIES } from '../utils/variables.js';
 import { formatDate, getPriorityClass, getPriorityText, getPriorityIcon } from '../utils/functions.js';
 import { useToast } from '../composables/useToast.js';
 import { useRouter } from 'vue-router';
-import { useAuthUser } from '../composables/useAuthUser.js';
+import { useAuthStore } from '../stores/authStore';
 
 const { showToast } = useToast();
-const { user } = useAuthUser();
+const { user } = useAuthStore();
 const router = useRouter();
 
 const props = defineProps(['db']);
@@ -81,7 +81,7 @@ const updatePriorityCounter = () => {
 
 const fetchUserTasks = async () => {
     try {
-        const docRef = doc(props.db, DOC_NAME, user.value.uid);
+        const docRef = doc(props.db, DOC_NAME, user.uid);
         const docSnap = await getDoc(docRef);
         const userData = docSnap.data();
 

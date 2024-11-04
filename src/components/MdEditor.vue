@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted, defineProps, defineEmits } from 'vue';
+import { onMounted, defineProps, defineEmits, watch } from 'vue';
 
 const props = defineProps({
     label: {
@@ -17,32 +17,40 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update']);
+const editorId = `id-${Math.random().toString(36).substr(2, 9)}`;
 let simpleMDE = null;
 
 const updateContent = () => {
-    emit('update', simpleMDE.value());
+    if (simpleMDE) {
+        emit('update', simpleMDE.value());
+    }
 };
-
-watch(() => props.modelValue, (newVal) => {
-    simpleMDE.value(newVal);
-});
 
 onMounted(() => {
     simpleMDE = new SimpleMDE({
-        element: document.querySelector('#markdown-editor'),
+        element: document.querySelector(`#${editorId}`),
         spellChecker: false,
+        placeholder: "Digite o comentário aqui..."
     });
 
     if (props.modelValue) {
         simpleMDE.value(props.modelValue);
+    }
+
+    simpleMDE.codemirror.on('change', updateContent);
+});
+
+watch(() => props.modelValue, (newValue) => {
+    if (simpleMDE && newValue !== simpleMDE.value()) {
+        simpleMDE.value(newValue);
     }
 });
 </script>
 
 <template>
     <div class="form-group">
-        <label class="text" for="markdown-editor">{{ label }}</label>
-        <textarea id="markdown-editor" @input="updateContent"></textarea>
+        <label class="text" :for="editorId">{{ label }}</label>
+        <textarea :id="editorId"></textarea>
         <p class="text text--error" v-if="errorMessage">{{ errorMessage }}</p>
     </div>
 </template>

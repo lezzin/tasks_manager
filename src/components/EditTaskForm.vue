@@ -1,8 +1,8 @@
 <script setup>
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { useAuthUser } from '../composables/useAuthUser';
+import { useAuthStore } from '../stores/authStore';
 import { db } from '../libs/firebase';
-import { DOC_NAME } from '../utils/variables';
+import { DOC_NAME, TASK_PRIORITIES } from '../utils/variables';
 import { ref, watch } from 'vue';
 import { filterField } from '../utils/functions';
 import { useToast } from '../composables/useToast';
@@ -26,12 +26,12 @@ const props = defineProps({
     }
 })
 
-const { user } = useAuthUser();
+const { user } = useAuthStore();
 const { showToast } = useToast();
 
 const taskName = ref("");
 const taskNameError = ref("");
-const taskPriority = ref(1);
+const taskPriority = ref(TASK_PRIORITIES.low);
 const taskDate = ref(null);
 const taskComment = ref("");
 
@@ -59,7 +59,7 @@ const editTask = async () => {
         return;
     }
 
-    const docRef = doc(db, DOC_NAME, user.value.uid);
+    const docRef = doc(db, DOC_NAME, user.uid);
 
     if (!props.topic.name) {
         showToast("error", "Tópico da tarefa não encontrado.");
@@ -101,12 +101,17 @@ const editTask = async () => {
 };
 
 const closeEditTaskModal = () => {
+    taskName.value = "";
+    taskNameError.value = "";
+    taskPriority.value = TASK_PRIORITIES.low;
+    taskDate.value = "";
+    taskComment.value = "";
     emit("close");
 }
 </script>
 
 <template>
-    <aside :class="['modal', isActive && 'active']">
+    <aside class="modal" v-if="props.isActive">
         <div class="modal__dialog">
             <div class="modal__header">
                 <h2 class="modal__title">Editar tarefa</h2>

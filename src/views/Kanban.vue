@@ -3,7 +3,7 @@ import { ref, reactive, onMounted, inject } from 'vue';
 import { DOC_NAME, PAGE_TITLES, TASK_KANBAN_STATUSES } from '../utils/variables.js';
 import { formatDate, getPriorityClass, getPriorityText, getPriorityIcon, } from '../utils/functions.js';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { useAuthUser } from '../composables/useAuthUser.js';
+import { useAuthStore } from '../stores/authStore';
 import { useRouter } from 'vue-router';
 
 const props = defineProps(['db']);
@@ -18,7 +18,7 @@ const activeColumn = ref(null);
 const tasksLength = ref(0);
 const loadedTasks = ref(false);
 
-const { user } = useAuthUser();
+const { user } = useAuthStore();
 const router = useRouter();
 
 const sendBack = () => {
@@ -41,7 +41,7 @@ const getUserTasks = (topics) => {
 
 const getAllUserTasks = async () => {
     try {
-        const docRef = doc(props.db, DOC_NAME, user.value.uid);
+        const docRef = doc(props.db, DOC_NAME, user.uid);
         const docSnap = await getDoc(docRef);
         const userData = docSnap.data();
 
@@ -148,7 +148,7 @@ const changeTaskColumn = (task, newColumn) => {
 
 const updateTaskStatus = async (taskToUpdate, newKanbanStatus) => {
     try {
-        const docRef = doc(props.db, DOC_NAME, user.value.uid);
+        const docRef = doc(props.db, DOC_NAME, user.uid);
         const docSnap = await getDoc(docRef);
         const userData = docSnap.exists() ? docSnap.data() : null;
 

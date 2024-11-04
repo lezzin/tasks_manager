@@ -1,6 +1,6 @@
 <script setup>
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { useAuthUser } from '../composables/useAuthUser';
+import { useAuthStore } from '../stores/authStore';
 import { db } from '../libs/firebase';
 import { DOC_NAME, TASK_KANBAN_STATUSES, TASK_PRIORITIES } from '../utils/variables';
 import { ref } from 'vue';
@@ -9,7 +9,7 @@ import { useToast } from '../composables/useToast';
 import RecognitionInput from './RecognitionInput.vue';
 import MdEditor from './MdEditor.vue';
 
-const { user } = useAuthUser();
+const { user } = useAuthStore();
 const { showToast } = useToast();
 
 const emit = defineEmits(["close"]);
@@ -26,6 +26,10 @@ const props = defineProps({
 });
 
 const closeAddingTask = () => {
+    taskName.value = "";
+    taskDate.value = "";
+    taskComment.value = "";
+    taskPriority.value = TASK_PRIORITIES.low;
     emit("close");
 }
 
@@ -40,6 +44,10 @@ const updateTaskName = (value) => {
     taskNameError.value = ''
 }
 
+const updateTaskComment = (value) => {
+    taskComment.value = value;
+};
+
 const addTask = async () => {
     if (!taskName.value) {
         taskNameError.value = "Preencha o campo";
@@ -47,7 +55,7 @@ const addTask = async () => {
     }
 
     const { name, id } = props.topic;
-    const docRef = doc(db, DOC_NAME, user.value.uid);
+    const docRef = doc(db, DOC_NAME, user.uid);
 
     const taskData = {
         id: Date.now().toString(36),
@@ -71,7 +79,7 @@ const addTask = async () => {
 </script>
 
 <template>
-    <aside :class="['modal', isActive && 'active']">
+    <aside class="modal" v-if="props.isActive">
         <div class="modal__dialog">
             <div class="modal__header">
                 <h2 class="modal__title">Adicionar tarefa</h2>
@@ -90,7 +98,7 @@ const addTask = async () => {
                     <input type="date" v-model="taskDate" id="add-task-date" />
                 </div>
 
-                <MdEditor label="Comentários (opcional)" v-model:modelValue="taskComment" />
+                <MdEditor label="Comentários (opcional)" v-model:modelValue="taskComment" @update="updateTaskComment" />
 
                 <div class="form-group">
                     <label class="text" for="edit-task-priority">Prioridade</label>

@@ -1,6 +1,6 @@
 <script setup>
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { useAuthUser } from '../composables/useAuthUser';
+import { useAuthStore } from '../stores/authStore';
 import { db } from '../libs/firebase';
 import { formatDate, getPriorityClass, getPriorityIcon, getPriorityText } from '../utils/functions';
 import { DOC_NAME, TASK_KANBAN_STATUSES } from '../utils/variables';
@@ -10,7 +10,7 @@ import EditTaskForm from './EditTaskForm.vue';
 import CommentModal from './CommentModal.vue';
 import { marked } from 'marked';
 
-const { user } = useAuthUser();
+const { user } = useAuthStore();
 const { showToast } = useToast();
 
 const props = defineProps({
@@ -21,7 +21,7 @@ const props = defineProps({
 });
 
 const changeTaskStatus = async (taskId) => {
-    const docRef = doc(db, DOC_NAME, user.value.uid);
+    const docRef = doc(db, DOC_NAME, user.uid);
 
     if (props.topic.tasks) {
         const updatedTasks = props.topic.tasks.map((task) => {
@@ -49,7 +49,7 @@ const deleteTask = async (taskId) => {
     if (!confirm("Tem certeza que deseja excluir essa tarefa? Essa ação não poderá ser desfeita!"))
         return;
 
-    const docRef = doc(db, DOC_NAME, user.value.uid);
+    const docRef = doc(db, DOC_NAME, user.uid);
 
     if (!props.topic) {
         showToast("error", "Tópico não encontrado");

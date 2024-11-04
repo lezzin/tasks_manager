@@ -1,22 +1,20 @@
 <script setup>
-import { ref, watchEffect, onMounted } from 'vue';
+import { watchEffect, onMounted } from 'vue';
 import { useToast } from '../composables/useToast.js';
 import { PAGE_TITLES } from '../utils/variables.js';
 import { signInWithPopup } from 'firebase/auth';
 import { useRouter, useRoute } from 'vue-router';
-import { useAuthUser } from '../composables/useAuthUser.js';
+import { useAuthStore } from '../stores/authStore.js';
 
 const { provider, auth } = defineProps(['provider', 'auth']);
 const { showToast } = useToast();
+const { user } = useAuthStore();
 const router = useRouter();
 const route = useRoute();
 
-const authUser = useAuthUser();
-
 async function loginGoogle() {
     try {
-        const { user: loggedUser } = await signInWithPopup(auth, provider);
-        authUser.user = loggedUser;
+        await signInWithPopup(auth, provider);
         router.push('/');
     } catch ({ code, message }) {
         const errors = {
@@ -36,7 +34,7 @@ async function loginGoogle() {
 }
 
 onMounted(() => {
-    if (authUser.user) {
+    if (user) {
         router.push('/');
     }
     document.title = PAGE_TITLES.login;
@@ -44,7 +42,7 @@ onMounted(() => {
 });
 
 watchEffect(() => {
-    if (authUser.user) {
+    if (user) {
         router.push('/');
     }
 });

@@ -2,7 +2,7 @@
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { inject, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
-import { useAuthUser } from '../composables/useAuthUser';
+import { useAuthStore } from '../stores/authStore';
 import { useToast } from '../composables/useToast';
 import { db } from '../libs/firebase';
 import { DOC_NAME } from '../utils/variables';
@@ -10,7 +10,7 @@ import EditTopicForm from './EditTopicForm.vue';
 
 const emit = defineEmits(['close']);
 
-const { user } = useAuthUser();
+const { user } = useAuthStore();
 const { showToast } = useToast();
 const router = useRouter();
 
@@ -36,7 +36,7 @@ const deleteTopic = async (topicName) => {
     if (!confirm("Tem certeza que deseja excluir esse tópico? Essa ação não poderá ser desfeita!"))
         return;
 
-    const docRef = doc(db, DOC_NAME, user.value.uid);
+    const docRef = doc(db, DOC_NAME, user.uid);
     const userData = await getUserData(docRef);
 
     if (!userData || !userData.topics || !userData.topics[topicName]) {
@@ -55,7 +55,7 @@ const deleteAllTopics = async () => {
     if (!confirm("Tem certeza que deseja excluir TODOS os seus tópicos? Essa ação não poderá ser desfeita!"))
         return;
 
-    const docRef = doc(db, DOC_NAME, user.value.uid);
+    const docRef = doc(db, DOC_NAME, user.uid);
     const userData = await getUserData(docRef);
 
     if (!userData || !userData.topics || Object.keys(userData.topics).length === 0) {

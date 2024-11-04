@@ -20,7 +20,7 @@ const closeShowingComment = () => {
 </script>
 
 <template>
-    <aside :class="['modal', props.isActive && 'active']">
+    <aside class="modal" v-if="props.isActive">
         <div class="modal__dialog">
             <div class="modal__header">
                 <h2 class="modal__title">Comentários da tarefa</h2>

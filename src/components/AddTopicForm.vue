@@ -3,7 +3,7 @@ import { ref, watch } from 'vue';
 import { currentTime, filterField } from '../utils/functions';
 import { db } from '../libs/firebase';
 import { DOC_NAME } from '../utils/variables';
-import { useAuthUser } from '../composables/useAuthUser';
+import { useAuthStore } from '../stores/authStore';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { useToast } from '../composables/useToast';
 
@@ -11,7 +11,7 @@ export default {
     setup() {
         const formTopicError = ref("");
         const newTopic = ref("");
-        const { user } = useAuthUser();
+        const { user } = useAuthStore();
         const { showToast } = useToast();
 
         const getUserData = async (docRef) => {
@@ -34,7 +34,7 @@ export default {
                 return;
             }
 
-            const docRef = doc(db, DOC_NAME, user.value.uid);
+            const docRef = doc(db, DOC_NAME, user.uid);
             const userData = await getUserData(docRef);
 
             if (userData && userData.topics && userData.topics[formattedTopicName]) {

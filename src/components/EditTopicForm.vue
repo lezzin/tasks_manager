@@ -5,10 +5,11 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../libs/firebase';
 import { DOC_NAME } from '../utils/variables';
 import { useToast } from '../composables/useToast';
-import { useAuthUser } from '../composables/useAuthUser';
+import { useAuthStore } from '../stores/authStore';
 
 const { showToast } = useToast();
-const { user } = useAuthUser();
+const authStore = useAuthStore();
+const { user } = useAuthStore();
 
 const emit = defineEmits(["close"]);
 
@@ -54,7 +55,7 @@ const editTopic = async () => {
         return;
     }
 
-    const docRef = doc(db, DOC_NAME, user.value.uid);
+    const docRef = doc(db, DOC_NAME, user.uid);
     const userData = await getUserData(docRef);
 
     const selectedTopicData = userData.topics[oldName.value];
@@ -88,7 +89,7 @@ const closeEditTopicModal = () => {
 </script>
 
 <template>
-    <aside :class="['modal', props.isActive && 'active']">
+    <aside class="modal" v-if="props.isActive">
         <div class="modal__dialog">
             <div class="modal__header">
                 <h2 class="modal__title">Editar tópico</h2>

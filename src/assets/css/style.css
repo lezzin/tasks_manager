@@ -299,18 +299,6 @@ body {
     display: grid;
     place-items: center;
     z-index: 999;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity calc(var(--screen-transition) * 0.5) ease-in-out;
-
-    &.active {
-        pointer-events: all;
-        opacity: 1;
-
-        .modal__dialog {
-            transform: scale(1);
-        }
-    }
 
     .modal__dialog {
         background-color: var(--bg-primary);
