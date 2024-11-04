@@ -61,7 +61,7 @@ watchEffect(() => {
         <form style="--form-width: 450px" @submit.prevent="loginGoogle">
             <img src="/src/assets/img/login_lg.png" alt="Uma pessoa escrevendo em um caderno" class="large-screen"
                 width="1200" height="800" loading="lazy" />
-            <img src="./assets/img/login_sm.png" alt="Uma pessoa escrevendo em um caderno" class="small-screen"
+            <img src="/src/assets/img/login_sm.png" alt="Uma pessoa escrevendo em um caderno" class="small-screen"
                 width="640" height="640" loading="lazy" />
 
             <button class="btn btn--block btn--icon btn--primary" title="Entrar com o Google" :disabled="loading"

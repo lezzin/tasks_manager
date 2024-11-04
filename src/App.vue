@@ -82,9 +82,9 @@ const removeUser = async () => {
                 </button>
 
                 <RouterLink to="/" title="Acessar página incial" class="logo">
-                    <img src="./assets/img/logo_lg.svg" alt="TaskFlow - logo do website" width="148" height="37"
+                    <img src="/src/assets/img/logo_lg.svg" alt="TaskFlow - logo do website" width="148" height="37"
                         loading="lazy" v-if="!showTopicNavBtn" />
-                    <img src="./assets/img/logo_sm.svg" alt="TaskFlow - logo do website" width="118" height="37"
+                    <img src="/src/assets/img/logo_sm.svg" alt="TaskFlow - logo do website" width="118" height="37"
                         loading="lazy" v-if="showTopicNavBtn" />
                 </RouterLink>
             </div>
