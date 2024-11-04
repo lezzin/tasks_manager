@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onBeforeUnmount, defineProps, defineEmits, watch } from 'vue';
+import { onMounted, onBeforeUnmount, watch } from 'vue';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import { Editor } from '@toast-ui/editor';
 
