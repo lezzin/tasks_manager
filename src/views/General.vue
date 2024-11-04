@@ -8,6 +8,7 @@ import { formatDate, getPriorityClass, getPriorityText, getPriorityIcon } from '
 import { useToast } from '../composables/useToast.js';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
+import domtoimage from "dom-to-image-more";
 
 const { showToast } = useToast();
 const { user } = useAuthStore();

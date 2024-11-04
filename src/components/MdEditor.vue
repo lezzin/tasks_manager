@@ -1,5 +1,7 @@
 <script setup>
-import { onMounted, defineProps, defineEmits, watch } from 'vue';
+import { onMounted, onBeforeUnmount, defineProps, defineEmits, watch } from 'vue';
+import '@toast-ui/editor/dist/toastui-editor.css';
+import { Editor } from '@toast-ui/editor';
 
 const props = defineProps({
     label: {
@@ -18,31 +20,36 @@ const props = defineProps({
 
 const emit = defineEmits(['update']);
 const editorId = `id-${Math.random().toString(36).substr(2, 9)}`;
-let simpleMDE = null;
+let editorInstance = null;
 
 const updateContent = () => {
-    if (simpleMDE) {
-        emit('update', simpleMDE.value());
+    if (editorInstance) {
+        emit('update', editorInstance.getMarkdown());
     }
 };
 
 onMounted(() => {
-    simpleMDE = new SimpleMDE({
-        element: document.querySelector(`#${editorId}`),
-        spellChecker: false,
-        placeholder: "Digite o comentário aqui..."
+    editorInstance = new Editor({
+        el: document.querySelector(`#${editorId}`),
+        initialEditType: 'markdown',
+        previewStyle: 'vertical',
+        height: '400px',
+        initialValue: props.modelValue,
+        events: {
+            change: updateContent
+        }
     });
+});
 
-    if (props.modelValue) {
-        simpleMDE.value(props.modelValue);
+onBeforeUnmount(() => {
+    if (editorInstance) {
+        editorInstance.destroy();
     }
-
-    simpleMDE.codemirror.on('change', updateContent);
 });
 
 watch(() => props.modelValue, (newValue) => {
-    if (simpleMDE && newValue !== simpleMDE.value()) {
-        simpleMDE.value(newValue);
+    if (editorInstance && newValue !== editorInstance.getMarkdown()) {
+        editorInstance.setMarkdown(newValue);
     }
 });
 </script>
@@ -50,7 +57,7 @@ watch(() => props.modelValue, (newValue) => {
 <template>
     <div class="form-group">
         <label class="text" :for="editorId">{{ label }}</label>
-        <textarea :id="editorId"></textarea>
+        <div :id="editorId"></div>
         <p class="text text--error" v-if="errorMessage">{{ errorMessage }}</p>
     </div>
 </template>
