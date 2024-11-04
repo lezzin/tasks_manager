@@ -206,7 +206,8 @@ body {
     }
 
     &.btn--icon i {
-        margin-right: .3rem;
+        margin-right: .5rem;
+        transform: translateY(-.2rem);
     }
 
     i {
