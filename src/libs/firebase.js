@@ -1,10 +1,7 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-import {
-    getAuth,
-    GoogleAuthProvider,
-} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-analytics.js";
+import { initializeApp } from "firebase/app";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAA8sGugdiII_XCpl1esli27fVMwNCbSTk",
@@ -18,8 +15,8 @@ const firebaseConfig = {
 
 const provider = new GoogleAuthProvider();
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 getAnalytics(app);
 
