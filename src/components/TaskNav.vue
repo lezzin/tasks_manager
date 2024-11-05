@@ -1,23 +1,23 @@
 <script setup>
-import { formatDate, getPriorityClass, getPriorityIcon, getPriorityText } from '../utils/functions';
 import { DOC_NAME, TASK_KANBAN_STATUSES } from '../utils/variables';
+import { getPriorityClass, getPriorityIcon, getPriorityText } from '../utils/priorityUtils';
+import { formatDate, } from '../utils/dateUtils';
 import { db } from '../libs/firebase';
 
 import { useToast } from '../composables/useToast';
 import { useAuthStore } from '../stores/authStore';
+import { useModal } from '../composables/useModal';
 
 import { doc, updateDoc } from 'firebase/firestore';
 import { marked } from 'marked';
-import { inject, ref } from 'vue';
+import { inject, markRaw, ref } from 'vue';
 
 import EditTaskForm from './EditTaskForm.vue';
 import CommentModal from './CommentModal.vue';
 
+const modal = useModal();
 const { user } = useAuthStore();
 const { showToast } = useToast();
-
-const filterTask = inject("filterTask");
-const searchTask = inject("searchTask");
 
 const props = defineProps({
     topic: {
@@ -30,11 +30,11 @@ const props = defineProps({
     }
 });
 
-const isEditTaskModalActive = ref(false);
 const editingTask = ref(null);
-
-const isCommentModalActive = ref(false);
 const selectedComment = ref(null);
+
+const filterTask = inject("filterTask");
+const searchTask = inject("searchTask");
 
 const changeTaskStatus = async (taskId) => {
     const docRef = doc(db, DOC_NAME, user.uid);
@@ -70,22 +70,15 @@ const deleteTask = async (taskId) => {
 };
 
 const openEditTaskModal = (task) => {
-    isEditTaskModalActive.value = true;
     editingTask.value = task;
-};
-
-const closeEditTaskModal = () => {
-    isEditTaskModalActive.value = false;
-    editingTask.value = null;
+    modal.component.value = markRaw(EditTaskForm);
+    modal.showModal();
 };
 
 const openTaskComment = (comment) => {
-    isCommentModalActive.value = true;
     selectedComment.value = marked(comment);
-};
-
-const closeCommentModal = () => {
-    isCommentModalActive.value = false;
+    modal.component.value = markRaw(CommentModal);
+    modal.showModal();
 };
 </script>
 
@@ -134,9 +127,13 @@ const closeCommentModal = () => {
         </p>
     </div>
 
-    <EditTaskForm :isActive="isEditTaskModalActive" @close="closeEditTaskModal" :topic="props.topic"
-        :task="editingTask" />
-    <CommentModal :isActive="isCommentModalActive" @close="closeCommentModal" :comment="selectedComment" />
+
+    <Teleport to="#modal">
+        <Transition>
+            <component :is="modal.component.value" v-if="modal.show.value" @close="modal.hideModal"
+                v-bind="{ topic: props.topic, task: editingTask, comment: selectedComment }" />
+        </Transition>
+    </Teleport>
 </template>
 
 <style scoped>

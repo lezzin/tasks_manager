@@ -1,6 +1,7 @@
 <script setup>
 import { DOC_NAME, PAGE_TITLES, TASK_PRIORITIES } from '../utils/variables.js';
-import { formatDate, getPriorityClass, getPriorityText, getPriorityIcon } from '../utils/functions.js';
+import { getPriorityClass, getPriorityText, getPriorityIcon } from '../utils/priorityUtils.js';
+import { formatDate } from '../utils/dateUtils.js';
 
 import { ref, reactive, onMounted, inject } from 'vue';
 import { doc, getDoc } from 'firebase/firestore';
@@ -20,7 +21,9 @@ const loadingStore = useLoadingStore();
 const router = useRouter();
 
 const props = defineProps(['db']);
+
 const allUserTasks = ref([]);
+const container = ref(null);
 const priorityCount = reactive({
     completed: 0,
     high: 0,
@@ -33,9 +36,7 @@ const sendBack = () => {
 };
 
 const downloadAsPDF = () => {
-    const container = document.getElementById("pdf-container");
-
-    domtoimage.toBlob(container)
+    domtoimage.toBlob(container.value)
         .then(function (blob) {
             saveAs(blob, `${Date.now()}.png`);
         })
@@ -125,7 +126,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="task-view container" v-if="allUserTasks.length > 0" id="pdf-container">
+    <div class="task-view container" v-if="allUserTasks.length > 0" ref="container">
         <div class="task-view__header">
             <h2 class="title">Visualize as suas tarefas de uma maneira geral</h2>
             <div class="task-view__header-buttons">

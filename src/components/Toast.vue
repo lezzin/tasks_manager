@@ -66,3 +66,82 @@ function closeToast() {
         </div>
     </div>
 </template>
+
+<style scoped>
+.toast {
+    --__toast-bg: transparent;
+
+    position: absolute;
+    top: 1rem;
+    right: 0;
+    display: grid;
+    grid-template-columns: 1.5rem 1fr;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    background-color: var(--bg-primary);
+    border-radius: var(--radius);
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-100%);
+    pointer-events: none;
+    transition: all var(--screen-transition) ease-in-out;
+
+    &.toast--active {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    &.toast--success {
+        --__toast-bg: var(--details-color);
+    }
+
+    &.toast--error {
+        --__toast-bg: : var(--danger-color);
+    }
+
+    .toast__banner,
+    .toast__icon {
+        background: var(--__toast-bg);
+    }
+
+    .toast__icon {
+        font-size: 1.8rem;
+    }
+
+    .toast__content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 2rem;
+        padding: 1rem 1.5rem;
+
+        .toast__icon {
+            display: grid;
+            place-items: center;
+            width: 2.4rem;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            color: var(--bg-primary);
+        }
+
+        .toast__title {
+            font-size: 1.6rem;
+            font-weight: 600;
+        }
+
+        .toast__text {
+            font-size: 1.4rem;
+        }
+
+        .btn {
+            align-self: flex-start;
+            margin-left: 1rem;
+
+            i {
+                font-size: 1.4rem;
+            }
+        }
+    }
+}
+</style>

@@ -1,5 +1,5 @@
 <script setup>
-import { filterField } from '../utils/functions';
+import { filterField } from '../utils/stringUtils';
 import { DOC_NAME } from '../utils/variables';
 import { db } from '../libs/firebase';
 
@@ -17,10 +17,6 @@ const props = defineProps({
     topic: {
         type: String,
         required: false
-    },
-    isActive: {
-        type: Boolean,
-        required: true
     }
 });
 
@@ -90,7 +86,7 @@ const closeEditTopicModal = () => {
 </script>
 
 <template>
-    <aside class="modal" v-if="props.isActive">
+    <aside class="modal">
         <div class="modal__dialog">
             <div class="modal__header">
                 <h2 class="modal__title">Editar tópico</h2>

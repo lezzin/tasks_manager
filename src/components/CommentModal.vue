@@ -3,10 +3,6 @@
 const emit = defineEmits(["close"]);
 
 const props = defineProps({
-    isActive: {
-        type: Boolean,
-        required: true
-    },
     comment: {
         type: String,
         required: false
@@ -19,7 +15,7 @@ const closeShowingComment = () => {
 </script>
 
 <template>
-    <aside class="modal" v-if="props.isActive">
+    <aside class="modal">
         <div class="modal__dialog">
             <div class="modal__header">
                 <h2 class="modal__title">Comentários da tarefa</h2>

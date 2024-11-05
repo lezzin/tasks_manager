@@ -1,9 +1,12 @@
 <script setup>
 import { DOC_NAME, PAGE_TITLES, TASK_KANBAN_STATUSES } from '../utils/variables.js';
-import { formatDate, getPriorityClass, getPriorityText, getPriorityIcon } from '../utils/functions.js';
+import { getPriorityClass, getPriorityText, getPriorityIcon } from '../utils/priorityUtils.js';
+import { formatDate } from '../utils/dateUtils.js';
+
 import { ref, reactive, onMounted, inject } from 'vue';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { RouterLink, useRouter } from 'vue-router';
+
 import { useAuthStore } from '../stores/authStore';
 import { useLoadingStore } from '../stores/loadingStore.js';
 

@@ -1,6 +1,6 @@
 <script setup>
 import { DOC_NAME, TASK_PRIORITIES } from '../utils/variables';
-import { filterField } from '../utils/functions';
+import { filterField } from '../utils/stringUtils';
 import { db } from '../libs/firebase';
 
 import { ref, watch } from 'vue';
@@ -23,10 +23,6 @@ const props = defineProps({
         type: Object,
         required: false
     },
-    isActive: {
-        type: Boolean,
-        required: true
-    }
 });
 
 const { user } = useAuthStore();
@@ -113,7 +109,7 @@ const closeEditTaskModal = () => {
 </script>
 
 <template>
-    <aside class="modal" v-if="props.isActive">
+    <aside class="modal">
         <div class="modal__dialog">
             <div class="modal__header">
                 <h2 class="modal__title">Editar tarefa</h2>

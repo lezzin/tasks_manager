@@ -1,11 +1,12 @@
 <script setup>
 import { DOC_NAME, PAGE_TITLES, TASK_PRIORITIES } from '../utils/variables';
 
-import { inject, onMounted, provide, reactive, ref, computed, watch } from 'vue';
+import { inject, onMounted, provide, reactive, ref, computed, watch, markRaw } from 'vue';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { useRoute, useRouter } from 'vue-router';
 
 import { useAuthStore } from '../stores/authStore';
+import { useModal } from '../composables/useModal';
 
 import TaskNav from '../components/TaskNav.vue';
 import AddTaskForm from '../components/AddTaskForm.vue';
@@ -21,11 +22,11 @@ const props = defineProps({
 });
 
 const isMenuTopicsActive = inject('isMenuTopicsActive');
-const isAddTaskModalActive = ref(false);
 
 const selectedTopic = ref(null);
 const defaultTasks = ref([]);
 
+const modal = useModal();
 const { user } = useAuthStore();
 const loadingStore = useLoadingStore();
 
@@ -149,11 +150,8 @@ const closeTopicsMenu = () => {
 }
 
 const openAddTaskModal = () => {
-    isAddTaskModalActive.value = true;
-}
-
-const closeAddTaskModal = () => {
-    isAddTaskModalActive.value = false;
+    modal.component.value = markRaw(AddTaskForm);
+    modal.showModal();
 }
 
 onMounted(() => {
@@ -170,7 +168,7 @@ provide("searchTask", searchTask);
 provide("filterTask", filterTask);
 </script>
 
-<template id="home-page">
+<template>
     <div class="home-wrapper">
         <aside :class="['home-aside', isMenuTopicsActive && 'home-aside--active']">
             <AddTopicForm />
@@ -233,7 +231,11 @@ provide("filterTask", filterTask);
         </div>
     </div>
 
-    <AddTaskForm :isActive="isAddTaskModalActive" @close="closeAddTaskModal" :topic="selectedTopic" />
+    <Teleport to="#modal">
+        <Transition>
+            <AddTaskForm v-if="modal.show.value" @close="modal.hideModal" :topic="selectedTopic" />
+        </Transition>
+    </Teleport>
 </template>
 
 <style scoped>
@@ -247,14 +249,11 @@ provide("filterTask", filterTask);
         max-width: calc(1080px - (var(--padding) * 2));
         width: 100%;
         bottom: calc(var(--padding) * 2);
+        right: calc(var(--padding) * 2);
         z-index: 99;
 
         display: flex;
         justify-content: flex-end;
-
-        @media (width<=768px) {
-            right: calc(var(--padding) * 2);
-        }
 
         button {
             height: 5rem;

@@ -7,12 +7,16 @@ const toast = reactive({
     text: ''
 });
 
+let timeout;
+
 function showToast(type = 'success', message) {
     toast.type = type;
     toast.text = message;
     toast.show = true;
 
-    setTimeout(() => {
+    if (timeout) clearTimeout(timeout);
+
+    timeout = setTimeout(() => {
         toast.show = false;
     }, TOAST_TIMEOUT);
 }

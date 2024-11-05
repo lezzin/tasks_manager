@@ -1,11 +1,12 @@
 <script setup>
-import { ref, watch } from 'vue';
-
-import { currentTime, filterField } from '../utils/functions';
+import { currentTime } from '../utils/dateUtils';
+import { filterField } from '../utils/stringUtils';
 import { DOC_NAME } from '../utils/variables';
 import { db } from '../libs/firebase';
 
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { ref, watch } from 'vue';
+
 import { useToast } from '../composables/useToast';
 import { useAuthStore } from '../stores/authStore';
 

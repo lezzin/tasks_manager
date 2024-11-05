@@ -4,10 +4,11 @@ import { db } from '../libs/firebase';
 
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { RouterLink, useRouter } from 'vue-router';
-import { inject, ref } from 'vue';
+import { inject, markRaw, ref, Teleport } from 'vue';
 
 import { useAuthStore } from '../stores/authStore';
 import { useToast } from '../composables/useToast';
+import { useModal } from '../composables/useModal';
 
 import EditTopicForm from './EditTopicForm.vue';
 
@@ -16,6 +17,7 @@ const emit = defineEmits(['close']);
 const { user } = useAuthStore();
 const { showToast } = useToast();
 const router = useRouter();
+const modal = useModal();
 
 const props = defineProps({
     data: {
@@ -71,16 +73,12 @@ const deleteAllTopics = async () => {
     selectedTopic.value = null;
 }
 
-const isEditTopicModalActive = ref(false);
 const editingTopic = ref(null);
 
 const openEditTopicModal = (topicName) => {
-    isEditTopicModalActive.value = true;
     editingTopic.value = topicName;
-}
-
-const closeEditTopicModal = () => {
-    isEditTopicModalActive.value = false;
+    modal.component.value = markRaw(EditTopicForm);
+    modal.showModal();
 }
 </script>
 
@@ -139,7 +137,11 @@ const closeEditTopicModal = () => {
     </div>
     <p class="text text--center" v-else>Nenhum tópico cadastrado</p>
 
-    <EditTopicForm :isActive="isEditTopicModalActive" :topic="editingTopic" @close="closeEditTopicModal" />
+    <Teleport to="#modal">
+        <Transition>
+            <EditTopicForm v-if="modal.show.value" @close="modal.hideModal" :topic="editingTopic" />
+        </Transition>
+    </Teleport>
 </template>
 
 <style scoped>

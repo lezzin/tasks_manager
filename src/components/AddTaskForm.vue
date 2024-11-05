@@ -1,25 +1,23 @@
 <script setup>
+import { db } from '../libs/firebase';
+import { DOC_NAME, TASK_KANBAN_STATUSES, TASK_PRIORITIES } from '../utils/variables';
+import { currentTime } from '../utils/dateUtils';
+import { filterField } from '../utils/stringUtils';
+
 import { inject, ref } from 'vue';
 import { doc, updateDoc } from 'firebase/firestore';
 
 import RecognitionInput from './RecognitionInput.vue';
 import MdEditor from './MdEditor.vue';
 
-import { useAuthStore } from '../stores/authStore';
-import { db } from '../libs/firebase';
-import { DOC_NAME, TASK_KANBAN_STATUSES, TASK_PRIORITIES } from '../utils/variables';
-import { currentTime, filterField } from '../utils/functions';
 import { useToast } from '../composables/useToast';
+import { useAuthStore } from '../stores/authStore';
 
 const props = defineProps({
     topic: {
         type: Object,
         required: false,
-    },
-    isActive: {
-        type: Boolean,
-        required: true,
-    },
+    }
 });
 
 const emit = defineEmits(["close"]);
@@ -90,7 +88,7 @@ const addTask = async () => {
 </script>
 
 <template>
-    <aside class="modal" v-if="props.isActive">
+    <aside class="modal">
         <div class="modal__dialog">
             <div class="modal__header">
                 <h2 class="modal__title">Adicionar tarefa</h2>
@@ -100,26 +98,16 @@ const addTask = async () => {
             </div>
 
             <form @submit.prevent="addTask">
-                <RecognitionInput
-                    label="Nome da tarefa"
-                    placeholder="Adicionar tarefa..."
-                    v-model:modelValue="taskName"
-                    :errorMessage="taskNameError"
-                    enableVoiceRecognition
-                    inputId="add-task-name"
-                    @update="updateTaskName"
-                />
+                <RecognitionInput label="Nome da tarefa" placeholder="Adicionar tarefa..." v-model:modelValue="taskName"
+                    :errorMessage="taskNameError" enableVoiceRecognition inputId="add-task-name"
+                    @update="updateTaskName" />
 
                 <div class="form-group">
                     <label class="text" for="add-task-date">Data de entrega (opcional)</label>
                     <input type="date" v-model="taskDate" id="add-task-date" />
                 </div>
 
-                <MdEditor
-                    label="Comentários (opcional)"
-                    v-model:modelValue="taskComment"
-                    @update="updateTaskComment"
-                />
+                <MdEditor label="Comentários (opcional)" v-model:modelValue="taskComment" @update="updateTaskComment" />
 
                 <div class="form-group">
                     <label class="text" for="edit-task-priority">Prioridade</label>
@@ -132,11 +120,7 @@ const addTask = async () => {
                     </div>
                 </div>
 
-                <button
-                    type="submit"
-                    class="btn btn--primary btn--block"
-                    title="Concluir adição da tarefa"
-                >
+                <button type="submit" class="btn btn--primary btn--block" title="Concluir adição da tarefa">
                     Adicionar tarefa
                 </button>
             </form>
