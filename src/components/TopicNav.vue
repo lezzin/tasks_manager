@@ -137,6 +137,7 @@ const openEditTopicModal = (topicName) => {
             <i class="fab fa-github"></i> Criado por Leandro Adrian da Silva
         </a>
     </div>
+
     <p class="text text--center" v-else>Nenhum tópico cadastrado</p>
 
     <Teleport to="#modal">

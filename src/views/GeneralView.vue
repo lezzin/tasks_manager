@@ -5,7 +5,7 @@ import { formatDate } from '../utils/dateUtils.js';
 
 import { ref, reactive, onMounted, inject } from 'vue';
 import { doc, getDoc } from 'firebase/firestore';
-import { useRouter } from 'vue-router';
+import { RouterLink, useRouter } from 'vue-router';
 
 import domtoimage from "dom-to-image-more";
 import { saveAs } from 'file-saver';
@@ -23,6 +23,7 @@ const router = useRouter();
 
 const props = defineProps(['db']);
 
+const showTopicNavBtn = inject('showTopicNavBtn');
 const allUserTasks = ref([]);
 const container = ref(null);
 const priorityCount = reactive({
@@ -118,9 +119,13 @@ const getUserTasks = (topics) => {
         });
 };
 
+const closeTopicNav = () => {
+    showTopicNavBtn.value = false;
+}
+
 onMounted(() => {
     document.title = PAGE_TITLES.general;
-    inject('showTopicNavBtn').value = false;
+    showTopicNavBtn.value = false;
 
     fetchUserTasks();
 });
@@ -128,62 +133,69 @@ onMounted(() => {
 
 <template>
     <div class="task-view container" v-if="allUserTasks.length > 0" ref="container">
-        <div class="task-view__header">
+        <header class="task-view__header" role="banner">
             <h2 class="title">Visualize as suas tarefas de uma maneira geral</h2>
             <div class="task-view__header-buttons">
-                <button type="button" @click="downloadAsPDF" class="btn btn--block btn--primary btn--icon"
-                    title="Baixar em PDF">
-                    <i class="fa-solid fa-download"></i>
-                    Baixar tarefas
+                <button type="button" @click="downloadAsPDF" class="btn btn--primary btn--only-icon"
+                    title="Baixar em PDF" aria-label="Baixar todas as tarefas em PDF">
+                    <i class="fa-solid fa-download" aria-hidden="true"></i>
+                    <span class="sr-only">Baixar tarefas</span>
                 </button>
-                <button @click="sendBack()" class="btn btn--outline-primary btn--only-icon"
-                    title="Voltar para o início">
-                    <i class="fa-solid fa-arrow-left"></i>
+                <button @click="sendBack()" class="btn btn--outline-primary btn--only-icon" title="Voltar para o início"
+                    aria-label="Voltar para o início">
+                    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                    <span class="sr-only">Voltar</span>
                 </button>
             </div>
-        </div>
+        </header>
 
-        <div class="legend">
+        <section class="legend" aria-labelledby="task-legend">
+            <h3 id="task-legend" class="sr-only">Legenda de prioridade de tarefas</h3>
             <div class="legend__item completed" @mouseover="focusTasksByPriority('completed')"
-                @mouseleave="removeFocusFromTasks">
+                @mouseleave="removeFocusFromTasks" aria-label="Tarefas concluídas: {{ priorityCount.completed }}"
+                tabindex="0">
                 <p class="text text--small">
-                    <i :class="getPriorityIcon('completed')"></i>
+                    <i :class="getPriorityIcon('completed')" aria-hidden="true"></i>
                     Concluídas ({{ priorityCount.completed }})
                 </p>
             </div>
-
             <div class="legend__item priority-high" @mouseover="focusTasksByPriority('3')"
-                @mouseleave="removeFocusFromTasks">
+                @mouseleave="removeFocusFromTasks" :aria-label="`Tarefas de alta prioridade: ${priorityCount.high}`"
+                tabindex="0">
                 <p class="text text--small">
-                    <i :class="getPriorityIcon('3')"></i>
+                    <i :class="getPriorityIcon('3')" aria-hidden="true"></i>
                     Alta prioridade ({{ priorityCount.high }})
                 </p>
             </div>
-
             <div class="legend__item priority-medium" @mouseover="focusTasksByPriority('2')"
-                @mouseleave="removeFocusFromTasks">
+                @mouseleave="removeFocusFromTasks" :aria-label="`Tarefas de média prioridade: ${priorityCount.medium}`"
+                tabindex="0">
                 <p class="text text--small">
-                    <i :class="getPriorityIcon('2')"></i>
+                    <i :class="getPriorityIcon('2')" aria-hidden="true"></i>
                     Média prioridade ({{ priorityCount.medium }})
                 </p>
             </div>
-
             <div class="legend__item priority-low" @mouseover="focusTasksByPriority('1')"
-                @mouseleave="removeFocusFromTasks">
+                @mouseleave="removeFocusFromTasks" :aria-label="`Tarefas de baixa prioridade: ${priorityCount.small}`"
+                tabindex="0">
                 <p class="text text--small">
-                    <i :class="getPriorityIcon('1')"></i>
+                    <i :class="getPriorityIcon('1')" aria-hidden="true"></i>
                     Baixa prioridade ({{ priorityCount.small }})
                 </p>
             </div>
-        </div>
+        </section>
 
-        <span class="divider"></span>
+        <span class="divider" role="separator" aria-hidden="true"></span>
 
-        <div class="grid">
-            <router-link
-                :class="['grid__item', 'task', task.status && 'completed', { 'task--hovering': task.isHovering, 'task--focused': task.isFocused }]"
-                v-for="task in allUserTasks" :key="task.id" role="button" :to="'/topic/' + task.topic_id"
-                title="Acessar tópico">
+        <div class="grid" role="list" aria-label="Lista de tarefas">
+            <RouterLink @click="closeTopicNav" :class="[
+                'grid__item',
+                'task',
+                task.status && 'completed',
+                { 'task--hovering': task.isHovering, 'task--focused': task.isFocused }
+            ]" v-for="task in allUserTasks" :key="task.id" role="listitem" :to="'/topic/' + task.topic_id"
+                title="Acessar tópico {{ task.topic_name }}"
+                aria-label="Tarefa: {{ task.name }}, status: {{ task.status ? 'Concluída' : 'Pendente' }}, prioridade: {{ getPriorityText(task.priority) }}">
                 <div class="grid__item-header">
                     <p class="grid__item-title text text--small text--muted">
                         {{ task.topic_name }}
@@ -192,16 +204,16 @@ onMounted(() => {
                         <p class="grid__item-name text">{{ task.name }}</p>
 
                         <div class="grid__item-info--small">
-                            <span :class="['tag', getPriorityClass(task.priority)]">
-                                <i :class="getPriorityIcon(task.priority)"></i>
+                            <span :class="['tag', getPriorityClass(task.priority)]" aria-hidden="true">
+                                <i :class="getPriorityIcon(task.priority)" aria-hidden="true"></i>
                                 {{ getPriorityText(task.priority) }}
                             </span>
                             <p class="text text--icon text--small">
-                                <i class="fa-regular fa-clock"></i> Criado em: {{ task.created_at }}
+                                <i class="fa-regular fa-clock" aria-hidden="true"></i> Criado em: {{ task.created_at }}
                             </p>
                             <p class="text text--icon text--small" v-if="task.delivery_date">
-                                <i class="fa-regular fa-bell"></i> Entrega para: {{ formatDate(task.delivery_date)
-                                }}
+                                <i class="fa-regular fa-bell" aria-hidden="true"></i> Entrega para: {{
+                                    formatDate(task.delivery_date) }}
                             </p>
                         </div>
                     </div>
@@ -213,17 +225,18 @@ onMounted(() => {
                         </p>
 
                         <div class="markdown-content markdown-content--small truncate"
-                            v-html="formatComment(task.comment)"></div>
+                            v-html="formatComment(task.comment)" aria-label="Comentário sobre a tarefa"></div>
                     </div>
                 </div>
-            </router-link>
+            </RouterLink>
         </div>
     </div>
+
     <div class="container" v-else>
-        <router-link to="/" title="Voltar para o início">
+        <RouterLink to="/" title="Voltar para o início">
             <ResponsiveImage small="task_empty_sm.png" lg="task_empty_lg.png"
                 alt="Frase tarefas vazias e uma imagem de uma caixa vazia" />
-        </router-link>
+        </RouterLink>
     </div>
 </template>
 

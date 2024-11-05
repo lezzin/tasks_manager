@@ -109,12 +109,13 @@ const closeEditTaskModal = () => {
 </script>
 
 <template>
-    <aside class="modal">
+    <aside class="modal" role="dialog" aria-modal="true" aria-labelledby="edit-task-title">
         <div class="modal__dialog">
             <div class="modal__header">
-                <h2 class="modal__title">Editar tarefa</h2>
-                <button class="btn" @click="closeEditTaskModal" title="Fechar modal">
-                    <i class="fa-solid fa-times"></i>
+                <h2 id="edit-task-title" class="modal__title">Editar tarefa</h2>
+                <button class="btn" @click="closeEditTaskModal" title="Fechar modal"
+                    aria-label="Fechar modal de edição de tarefa">
+                    <i class="fa-solid fa-times" aria-hidden="true"></i>
                 </button>
             </div>
 
@@ -128,12 +129,14 @@ const closeEditTaskModal = () => {
                     <input type="date" id="edit-task-date" v-model="taskDate" />
                 </div>
 
-                <MdEditor label="Comentários (opcional)" v-model:modelValue="taskComment" @update="updateTaskComment" />
+                <MdEditor label="Comentários (opcional)" v-model:modelValue="taskComment" @update="updateTaskComment"
+                    aria-label="Comentários sobre a tarefa" />
 
                 <div class="form-group">
                     <label class="text" for="edit-task-priority">Prioridade</label>
                     <div class="select">
-                        <select id="edit-task-priority" v-model="taskPriority">
+                        <select id="edit-task-priority" v-model="taskPriority"
+                            aria-label="Selecionar prioridade da tarefa">
                             <option value="1">Baixa</option>
                             <option value="2">Média</option>
                             <option value="3">Alta</option>
@@ -141,8 +144,9 @@ const closeEditTaskModal = () => {
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn--primary btn--block" title="Concluir edição da tarefa">
-                    <i class="fa-solid fa-check"></i> Concluir edição
+                <button type="submit" class="btn btn--primary btn--block" title="Concluir edição da tarefa"
+                    aria-label="Salvar edição da tarefa">
+                    <i class="fa-solid fa-check" aria-hidden="true"></i> Concluir edição
                 </button>
             </form>
         </div>

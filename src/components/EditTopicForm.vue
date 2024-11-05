@@ -86,26 +86,31 @@ const closeEditTopicModal = () => {
 </script>
 
 <template>
-    <aside class="modal">
+    <aside class="modal" role="dialog" aria-modal="true" aria-labelledby="edit-topic-modal-title">
         <div class="modal__dialog">
             <div class="modal__header">
-                <h2 class="modal__title">Editar tópico</h2>
-                <button class="btn" @click="closeEditTopicModal" title="Fechar modal">
-                    <i class="fa-solid fa-times"></i>
+                <h2 id="edit-topic-modal-title" class="modal__title">Editar tópico</h2>
+                <button class="btn" @click="closeEditTopicModal" title="Fechar modal"
+                    aria-label="Fechar edição de tópico">
+                    <i class="fa-solid fa-times" aria-hidden="true"></i>
                 </button>
             </div>
 
-            <form @submit.prevent="editTopic">
+            <form @submit.prevent="editTopic" aria-describedby="edit-topic-instructions">
+                <p id="edit-topic-instructions" class="sr-only">Modifique o nome do tópico e confirme a edição.</p>
+
                 <div :class="['form-group', nameError ? 'input-error' : '']">
                     <label class="text" for="edit-topic-name">Nome</label>
-                    <input type="text" id="edit-topic-name" v-model="name" :class="{ 'input-error': nameError }" />
-                    <p class="text text--error" v-if="nameError">
+                    <input type="text" id="edit-topic-name" v-model="name" :class="{ 'input-error': nameError }"
+                        aria-describedby="edit-topic-error" />
+                    <p id="edit-topic-error" class="text text--error" v-if="nameError">
                         {{ nameError }}
                     </p>
                 </div>
 
-                <button type="submit" class="btn btn--primary btn--block" title="Concluir edição do tópico">
-                    <i class="fa-solid fa-check"></i> Concluir edição
+                <button type="submit" class="btn btn--primary btn--block" title="Concluir edição do tópico"
+                    aria-label="Confirmar edição do tópico">
+                    <i class="fa-solid fa-check" aria-hidden="true"></i> Concluir edição
                 </button>
             </form>
         </div>

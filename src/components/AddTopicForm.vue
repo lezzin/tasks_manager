@@ -62,15 +62,20 @@ watch(newTopic, () => (formTopicError.value = ""));
 </script>
 
 <template>
-    <form @submit.prevent="addTopic" class="add-topic-form">
+    <form @submit.prevent="addTopic" class="add-topic-form" aria-labelledby="add-topic-title">
+        <h2 id="add-topic-title" class="sr-only">Adicionar Novo Tópico</h2>
+
         <div class="form-group">
             <div :class="['input-group', formTopicError ? 'input-error' : '']">
-                <input type="text" placeholder="Adicionar novo tópico" v-model="newTopic" />
-                <button class="btn" title="Adicionar novo tópico">
-                    <i class="fa-solid fa-plus"></i>
+                <label for="new-topic" class="sr-only">Nome do novo tópico</label>
+                <input type="text" id="new-topic" placeholder="Adicionar novo tópico" v-model="newTopic"
+                    :aria-invalid="!!formTopicError" aria-describedby="topic-error" />
+                <button class="btn" title="Adicionar novo tópico" aria-label="Adicionar novo tópico">
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
                 </button>
             </div>
-            <p v-if="formTopicError" class="text text--error">
+
+            <p v-if="formTopicError" id="topic-error" class="text text--error" role="alert">
                 {{ formTopicError }}
             </p>
         </div>

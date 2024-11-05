@@ -11,8 +11,10 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="container image-centered">
-        <ResponsiveImage small="not_found_sm.png" lg="not_found_lg.png"
-            alt="Homem segurando uma lupa e frase de página não encontrada" />
+    <div class="container image-centered" role="alert" aria-live="assertive">
+        <RouterLink to="/" title="Voltar para o início">
+            <ResponsiveImage small="not_found_sm.png" lg="not_found_lg.png"
+                alt="Homem segurando uma lupa e frase de página não encontrada" />
+        </RouterLink>
     </div>
 </template>

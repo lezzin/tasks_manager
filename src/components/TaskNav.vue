@@ -88,7 +88,7 @@ const openTaskComment = (comment) => {
             <div class="task__content">
                 <button :class="`btn btn--bordered btn--rounded ${task.status ? 'btn--primary' : ''}`"
                     :title="`Marcar tarefa como ${task.status ? 'não concluída' : 'concluída'}`"
-                    @click="changeTaskStatus(task.id)">
+                    @click="changeTaskStatus(task.id)" aria-label="Marcar tarefa como concluída">
                     <i class="fa-solid fa-check"></i>
                 </button>
                 <div class="task__information">
@@ -100,7 +100,7 @@ const openTaskComment = (comment) => {
                         </span>
                         <span class="text text--icon text--small text--muted">
                             <i class="fa-regular fa-clock"></i>
-                            Criado em: {{ task.created_at }}
+                            Criado em: {{ formatDate(task.created_at) }}
                         </span>
                         <span class="text text--icon text--small text--muted" v-if="task.delivery_date">
                             <i class="fa-regular fa-bell"></i>
@@ -111,13 +111,16 @@ const openTaskComment = (comment) => {
             </div>
             <div class="task__action">
                 <button class="btn btn--rounded btn--primary" title="Visualizar comentários da tarefa"
-                    @click="openTaskComment(task.comment)" v-if="task.comment">
+                    @click="openTaskComment(task.comment)" v-if="task.comment"
+                    aria-label="Visualizar comentários da tarefa">
                     <span class="fa-solid fa-comment"></span>
                 </button>
-                <button class="btn btn--rounded btn--primary" title="Editar tarefa" @click="openEditTaskModal(task)">
+                <button class="btn btn--rounded btn--primary" title="Editar tarefa" @click="openEditTaskModal(task)"
+                    aria-label="Editar tarefa">
                     <span class="fa-solid fa-pen"></span>
                 </button>
-                <button class="btn btn--rounded btn--danger" title="Excluir tarefa" @click="deleteTask(task.id)">
+                <button class="btn btn--rounded btn--danger" title="Excluir tarefa" @click="deleteTask(task.id)"
+                    aria-label="Excluir tarefa">
                     <span class="fa-solid fa-trash"></span>
                 </button>
             </div>
@@ -126,7 +129,6 @@ const openTaskComment = (comment) => {
             Nenhuma tarefa para esse filtro
         </p>
     </div>
-
 
     <Teleport to="#modal">
         <Transition>

@@ -6,8 +6,8 @@ const loadingStore = useLoadingStore();
 </script>
 
 <template>
-    <div class="loader" v-if="loadingStore.isLoading">
-        <div class="loader__spinner"></div>
+    <div class="loader" v-if="loadingStore.isLoading" role="alert" aria-live="polite" aria-busy="true">
+        <div class="loader__spinner" aria-hidden="true"></div>
     </div>
 </template>
 

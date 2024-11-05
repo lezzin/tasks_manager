@@ -88,23 +88,25 @@ const addTask = async () => {
 </script>
 
 <template>
-    <aside class="modal">
+    <aside class="modal" aria-labelledby="modal-add-task-title" role="dialog" aria-modal="true">
         <div class="modal__dialog">
             <div class="modal__header">
-                <h2 class="modal__title">Adicionar tarefa</h2>
-                <button class="btn" @click="closeAddingTask" title="Fechar modal">
-                    <i class="fa-solid fa-times"></i>
+                <h2 id="modal-add-task-title" class="modal__title">Adicionar tarefa</h2>
+                <button class="btn" @click="closeAddingTask" aria-label="Fechar modal de adicionar tarefa"
+                    title="Fechar modal">
+                    <i class="fa-solid fa-times" aria-hidden="true"></i>
                 </button>
             </div>
 
-            <form @submit.prevent="addTask">
+            <form @submit.prevent="addTask" aria-describedby="modal-add-task-title">
                 <RecognitionInput label="Nome da tarefa" placeholder="Adicionar tarefa..." v-model:modelValue="taskName"
                     :errorMessage="taskNameError" enableVoiceRecognition inputId="add-task-name"
                     @update="updateTaskName" />
 
                 <div class="form-group">
                     <label class="text" for="add-task-date">Data de entrega (opcional)</label>
-                    <input type="date" v-model="taskDate" id="add-task-date" />
+                    <input type="date" v-model="taskDate" id="add-task-date" aria-describedby="add-task-date-help" />
+                    <small id="add-task-date-help" class="sr-only">Selecione uma data, se houver.</small>
                 </div>
 
                 <MdEditor label="Comentários (opcional)" v-model:modelValue="taskComment" @update="updateTaskComment" />
@@ -112,7 +114,7 @@ const addTask = async () => {
                 <div class="form-group">
                     <label class="text" for="edit-task-priority">Prioridade</label>
                     <div class="select">
-                        <select id="edit-task-priority" v-model="taskPriority">
+                        <select id="edit-task-priority" v-model="taskPriority" aria-label="Selecionar prioridade">
                             <option value="1">Baixa</option>
                             <option value="2">Média</option>
                             <option value="3">Alta</option>
@@ -120,7 +122,8 @@ const addTask = async () => {
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn--primary btn--block" title="Concluir adição da tarefa">
+                <button type="submit" class="btn btn--primary btn--block" title="Concluir adição da tarefa"
+                    aria-label="Adicionar tarefa">
                     Adicionar tarefa
                 </button>
             </form>

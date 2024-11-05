@@ -171,6 +171,16 @@ const updateTaskStatus = async (taskToUpdate, newKanbanStatus) => {
     }
 };
 
+const getStatusLabel = (status) => {
+    const statuses = {
+        todo: "Para fazer",
+        doing: "Em andamento",
+        completed: "Concluído"
+    }
+
+    return statuses[status];
+}
+
 onMounted(() => {
     document.title = PAGE_TITLES.kanban;
     inject('showTopicNavBtn').value = false;
@@ -180,61 +190,66 @@ onMounted(() => {
 
 <template>
     <div class="kanban-wrapper container" v-if="tasksLength > 0">
-        <div class="kanban-wrapper__header">
+        <header class="kanban-wrapper__header" role="banner">
             <h2 class="title">Visualize as suas tarefas em formato Kanban</h2>
-            <button @click="sendBack" class="btn btn--outline-primary btn--icon" title="Voltar para o início">
-                <i class="fa-solid fa-arrow-left"></i>
-                Voltar para o início
+            <button @click="sendBack" class="btn btn--outline-primary btn--icon" title="Voltar para o início"
+                aria-label="Voltar para a página inicial">
+                <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                <span>Voltar para o início</span>
             </button>
-        </div>
+        </header>
 
-        <div class="kanban">
+        <section class="kanban" aria-labelledby="kanban-board">
+            <h2 id="kanban-board" class="sr-only">Quadro Kanban de tarefas</h2>
+
             <div class="kanban__column" v-for="kanbanStatus in ['todo', 'doing', 'completed']" :key="kanbanStatus"
                 :class="{ 'drag-over': activeColumn === kanbanStatus }" @drop="onDrop(kanbanStatus)"
                 @dragover="onDragOver" @dragenter="event => onDragEnter(event, kanbanStatus)"
-                :data-status="kanbanStatus">
-                <h2 class="subtitle">
-                    {{ kanbanStatus === 'todo' ? 'Para fazer' : kanbanStatus === 'doing' ? 'Em andamento' : 'Concluído'
-                    }}
-                </h2>
+                :data-status="kanbanStatus" role="region" :aria-label="getStatusLabel(kanbanStatus)">
+                <h3 class="subtitle">
+                    {{ getStatusLabel(kanbanStatus) }}
+                </h3>
 
-                <div class="kanban__tasks">
-                    <div class="task task--empty" v-if="tasks[kanbanStatus].length === 0">
-                        <i class="fa-solid fa-box-open"></i>
+                <div class="kanban__tasks" role="list">
+                    <div class="task task--empty" v-if="tasks[kanbanStatus].length === 0" aria-hidden="true">
+                        <i class="fa-solid fa-box-open" aria-hidden="true"></i>
                         <p class="text text--bold">Nenhuma tarefa na coluna</p>
                     </div>
                     <div v-else v-for="task in tasks[kanbanStatus]" :key="task.id"
                         :class="['task', task.status && 'completed']" draggable="true"
-                        @dragstart="handleDragEvents($event, 'start', task)" @dragend="handleDragEvents($event, 'end')">
-
-                        <p class="text text--small text--muted">
+                        @dragstart="handleDragEvents($event, 'start', task)" @dragend="handleDragEvents($event, 'end')"
+                        role="listitem" :aria-labelledby="'task-' + task.id">
+                        <p id="task-topic-{{ task.id }}" class="text text--small text--muted">
                             {{ task.topic_name }}
                         </p>
 
                         <RouterLink class="text text--bold truncate" :to="'/topic/' + task.topic_id"
-                            style="--line-clamp: 1">
-                            {{ task.name }}
+                            style="--line-clamp: 1" :aria-labelledby="'task-' + task.id">
+                            <span :id="'task-' + task.id">{{ task.name }}</span>
                         </RouterLink>
 
-                        <span :class="['tag', getPriorityClass(task.priority)]">
-                            <i :class="getPriorityIcon(task.priority)"></i>
+                        <span :class="['tag', getPriorityClass(task.priority)]"
+                            :aria-label="getPriorityText(task.priority)">
+                            <i :class="getPriorityIcon(task.priority)" aria-hidden="true"></i>
                             {{ getPriorityText(task.priority) }}
                         </span>
 
                         <div class="task__navigation">
                             <button type="button" class="btn btn--outline-primary" @click="moveTask(task, 'prev')"
-                                :disabled="isFirstColumn(kanbanStatus)">
+                                :disabled="isFirstColumn(kanbanStatus)" :aria-disabled="isFirstColumn(kanbanStatus)"
+                                aria-label="Mover tarefa para a coluna anterior">
                                 ← Anterior
                             </button>
                             <button type="button" class="btn btn--outline-primary" @click="moveTask(task, 'next')"
-                                :disabled="isLastColumn(kanbanStatus)">
+                                :disabled="isLastColumn(kanbanStatus)" :aria-disabled="isLastColumn(kanbanStatus)"
+                                aria-label="Mover tarefa para a próxima coluna">
                                 Próximo →
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     </div>
     <div class="container" v-else>
         <RouterLink to="/" title="Voltar para o início">

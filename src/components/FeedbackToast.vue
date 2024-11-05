@@ -47,8 +47,8 @@ function closeToast() {
 </script>
 
 <template>
-    <div :class="toastClass" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast__banner"></div>
+    <div :class="toastClass" role="alert" aria-live="assertive" aria-atomic="true" tabindex="0">
+        <div class="toast__banner" aria-hidden="true"></div>
 
         <div class="toast__content">
             <div class="toast__icon">
@@ -61,7 +61,7 @@ function closeToast() {
             </div>
 
             <button class="btn" @click="closeToast" title="Fechar mensagem" aria-label="Fechar mensagem">
-                <i class="fa-solid fa-times"></i>
+                <i class="fa-solid fa-times" aria-hidden="true"></i>
             </button>
         </div>
     </div>

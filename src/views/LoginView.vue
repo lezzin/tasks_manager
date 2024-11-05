@@ -22,6 +22,7 @@ const loading = ref(false);
 
 async function loginGoogle() {
     loading.value = true;
+
     try {
         await signInWithPopup(auth, provider);
         router.push('/');
@@ -62,12 +63,15 @@ watchEffect(() => {
 
 <template>
     <div class="form-wrapper">
-        <form style="--form-width: 450px" @submit.prevent="loginGoogle">
+        <form style="--form-width: 450px" @submit.prevent="loginGoogle" role="form" aria-labelledby="login-heading">
+            <h2 id="login-heading" class="sr-only">Formulário de Login com Google</h2>
+
             <ResponsiveImage small="login_sm.png" lg="login_lg.png" alt="Uma pessoa escrevendo em um caderno" />
 
-            <button class="btn btn--block btn--icon btn--primary" title="Entrar com o Google" :disabled="loading"
-                aria-label="Entrar com o Google">
-                <i class="fa-brands fa-google"></i>
+            <button class="btn btn--block btn--icon btn--primary"
+                :title="loading ? 'Entrando...' : 'Entrar com o Google'" :disabled="loading"
+                aria-label="Entrar com o Google" aria-live="polite" aria-busy="loading">
+                <i class="fa-brands fa-google" aria-hidden="true"></i>
                 <span v-if="loading">Carregando...</span>
                 <span v-else>Entrar com o Google</span>
             </button>

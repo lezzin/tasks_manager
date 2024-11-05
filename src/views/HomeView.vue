@@ -158,6 +158,7 @@ const openAddTaskModal = () => {
 }
 
 onMounted(() => {
+    isMenuTopicsActive.value = false;
     inject('showTopicNavBtn').value = true;
     loadTopics();
 });
@@ -173,58 +174,68 @@ provide("filterTask", filterTask);
 
 <template>
     <div class="home-wrapper">
-        <aside :class="['home-aside', isMenuTopicsActive && 'home-aside--active']">
+        <nav :class="['home-aside', isMenuTopicsActive && 'home-aside--active']" aria-label="Navegação de tópicos">
             <AddTopicForm />
-            <span class="divider"></span>
+            <span class="divider" role="separator" aria-hidden="true"></span>
             <TopicNav :data="topics.data" @close="closeTopicsMenu" />
-        </aside>
+        </nav>
 
-        <div :class="['container', defaultTasks.length > 0 ? 'task-container' : '']" v-if="selectedTopic">
+        <section :class="['container', defaultTasks.length > 0 ? 'task-container' : '']" v-if="selectedTopic">
             <div id="add-task-container">
                 <button @click="openAddTaskModal" title="Abrir modal de nova tarefa"
-                    class="btn btn--rounded btn--outline-primary">
-                    <i class="fa-solid fa-plus"></i>
+                    class="btn btn--rounded btn--outline-primary" aria-haspopup="dialog" aria-controls="add-task-modal">
+                    <span class="sr-only">Adicionar nova tarefa</span>
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
                 </button>
             </div>
 
             <div v-if="defaultTasks.length > 0">
-                <div class="task-container__header">
-                    <form @submit.prevent>
+                <header class="task-container__header" role="banner">
+                    <form @submit.prevent aria-labelledby="search-task-label">
                         <div class="form-group">
-                            <label for="search-task" class="text">Pesquisar</label>
+                            <label for="search-task" id="search-task-label" class="text">Pesquisar</label>
                             <div class="input-group">
                                 <input type="text" @input="searchTaskByName" id="search-task"
-                                    placeholder="Descrição da tarefa" v-model="searchTask" autocomplete="off" />
+                                    placeholder="Descrição da tarefa" v-model="searchTask" autocomplete="off"
+                                    aria-describedby="search-task-help" />
+                                <span id="search-task-help" class="sr-only">Digite a descrição da tarefa para
+                                    buscar</span>
                                 <button type="submit" class="btn" title="Pesquisar tarefa">
-                                    <i class="fa-solid fa-search"></i>
+                                    <i class="fa-solid fa-search" aria-hidden="true"></i>
+                                    <span class="sr-only">Pesquisar</span>
                                 </button>
                             </div>
                         </div>
                     </form>
-                    <form @submit.prevent>
+
+                    <form @submit.prevent aria-labelledby="filter-task-label">
                         <div class="form-group">
-                            <label for="filter-task" class="text">Filtrar</label>
+                            <label for="filter-task" id="filter-task-label" class="text">Filtrar</label>
                             <div class="select">
-                                <select id="filter-task" @change="searchTaskByStatus" v-model="filterTask">
+                                <select id="filter-task" @change="searchTaskByStatus" v-model="filterTask"
+                                    aria-describedby="filter-task-help">
                                     <option value="all">Todas</option>
                                     <option value="completed">Concluídas</option>
                                     <option value="not-completed">Não concluídas</option>
                                 </select>
+                                <span id="filter-task-help" class="sr-only">Escolha um filtro para as tarefas</span>
                             </div>
                         </div>
                     </form>
-                </div>
+                </header>
 
-                <span class="divider"></span>
+                <span class="divider" role="separator" aria-hidden="true"></span>
 
-                <TaskNav :topic="selectedTopic.name" :tasks="filteredTasks" />
+                <section aria-label="Lista de tarefas filtradas">
+                    <TaskNav :topic="selectedTopic.name" :tasks="filteredTasks" />
+                </section>
             </div>
-            <div v-else class="image-centered">
+            <div v-else class="image-centered" aria-live="polite" aria-atomic="true">
                 <ResponsiveImage small="task_empty_sm.png" lg="task_empty_lg.png"
                     alt="Frase tarefas vazias e uma imagem de uma caixa vazia" />
             </div>
-        </div>
-        <div v-else class="container image-centered">
+        </section>
+        <div v-else class="container image-centered" aria-live="polite" aria-atomic="true">
             <ResponsiveImage small="topic_unselected_sm.png" lg="topic_unselected_lg.png"
                 alt="Uma pessoa escrevendo em um diário suas tarefas pessoais" />
         </div>
@@ -232,7 +243,7 @@ provide("filterTask", filterTask);
 
     <Teleport to="#modal">
         <Transition>
-            <AddTaskForm v-if="modal.show.value" @close="modal.hideModal" :topic="selectedTopic" />
+            <AddTaskForm v-if="modal.show.value" @close="modal.hideModal" :topic="selectedTopic" id="add-task-modal" />
         </Transition>
     </Teleport>
 </template>
