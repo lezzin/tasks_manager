@@ -6,10 +6,11 @@ import { ref, reactive, onMounted, inject } from 'vue';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { RouterLink, useRouter } from 'vue-router';
 
-import { useAuthStore } from '../stores/authStore';
+import { useToast } from '../composables/useToast.js';
+import { useAuthStore } from '../stores/authStore.js';
 import { useLoadingStore } from '../stores/loadingStore.js';
 
-import Image from '../components/Image.vue';
+import ResponsiveImage from '../components/ResponsiveImage.vue';
 
 const props = defineProps(['db']);
 
@@ -22,6 +23,7 @@ const draggedTask = ref(null);
 const activeColumn = ref(null);
 const tasksLength = ref(0);
 
+const { showToast } = useToast();
 const { user } = useAuthStore();
 const loadingStore = useLoadingStore();
 const router = useRouter();
@@ -236,7 +238,7 @@ onMounted(() => {
     </div>
     <div class="container" v-else>
         <RouterLink to="/" title="Voltar para o início">
-            <Image small="task_empty_sm.png" lg="task_empty_lg.png"
+            <ResponsiveImage small="task_empty_sm.png" lg="task_empty_lg.png"
                 alt="Frase tarefas vazias e uma imagem de uma caixa vazia" />
         </RouterLink>
     </div>

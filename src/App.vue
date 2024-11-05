@@ -4,15 +4,15 @@ import { DOC_NAME } from './utils/variables';
 
 import { ref, provide } from 'vue';
 import { RouterLink, RouterView, useRouter } from 'vue-router';
-import { storeToRefs } from 'pinia';
+import { storeToRefs } from "pinia";
 import { deleteUser, signOut } from 'firebase/auth';
 import { deleteDoc, doc } from 'firebase/firestore';
 
-import Toast from './components/Toast.vue';
+import FeedbackToast from './components/FeedbackToast.vue';
 import { useToast } from './composables/useToast';
 import { useAuthStore } from './stores/authStore';
 
-import Loader from './components/Loader.vue';
+import LoaderContainer from './components/LoaderContainer.vue';
 
 const authStore = useAuthStore();
 const { toast, closeToast, showToast } = useToast();
@@ -76,7 +76,7 @@ const removeUser = async () => {
 </script>
 
 <template>
-    <Loader />
+    <LoaderContainer />
 
     <header class="header-wrapper">
         <div class="header container">
@@ -116,7 +116,7 @@ const removeUser = async () => {
                 </div>
             </div>
 
-            <Toast :data="toast" @close="closeToast" />
+            <FeedbackToast :data="toast" @close="closeToast" />
         </div>
     </header>
 

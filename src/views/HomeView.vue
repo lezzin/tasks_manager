@@ -7,13 +7,14 @@ import { useRoute, useRouter } from 'vue-router';
 
 import { useAuthStore } from '../stores/authStore';
 import { useModal } from '../composables/useModal';
+import { useToast } from '../composables/useToast';
 
 import TaskNav from '../components/TaskNav.vue';
 import AddTaskForm from '../components/AddTaskForm.vue';
 import AddTopicForm from '../components/AddTopicForm.vue';
 import TopicNav from '../components/TopicNav.vue';
 import { useLoadingStore } from '../stores/loadingStore';
-import Image from '../components/Image.vue';
+import ResponsiveImage from '../components/ResponsiveImage.vue';
 
 const props = defineProps({
     db: {
@@ -28,6 +29,7 @@ const selectedTopic = ref(null);
 const defaultTasks = ref([]);
 
 const modal = useModal();
+const { showToast } = useToast();
 const { user } = useAuthStore();
 const loadingStore = useLoadingStore();
 
@@ -218,12 +220,12 @@ provide("filterTask", filterTask);
                 <TaskNav :topic="selectedTopic.name" :tasks="filteredTasks" />
             </div>
             <div v-else class="image-centered">
-                <Image small="task_empty_sm.png" lg="task_empty_lg.png"
+                <ResponsiveImage small="task_empty_sm.png" lg="task_empty_lg.png"
                     alt="Frase tarefas vazias e uma imagem de uma caixa vazia" />
             </div>
         </div>
         <div v-else class="container image-centered">
-            <Image small="topic_unselected_sm.png" lg="topic_unselected_lg.png"
+            <ResponsiveImage small="topic_unselected_sm.png" lg="topic_unselected_lg.png"
                 alt="Uma pessoa escrevendo em um diário suas tarefas pessoais" />
         </div>
     </div>
@@ -246,11 +248,14 @@ provide("filterTask", filterTask);
         max-width: calc(1080px - (var(--padding) * 2));
         width: 100%;
         bottom: calc(var(--padding) * 2);
-        right: calc(var(--padding) * 2);
         z-index: 99;
 
         display: flex;
         justify-content: flex-end;
+
+        @media(max-width: 768px) {
+            right: calc(var(--padding) * 2);
+        }
 
         button {
             height: 5rem;

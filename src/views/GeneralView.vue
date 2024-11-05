@@ -12,9 +12,9 @@ import { saveAs } from 'file-saver';
 import { marked } from 'marked';
 
 import { useToast } from '../composables/useToast.js';
-import { useAuthStore } from '../stores/authStore';
+import { useAuthStore } from '../stores/authStore.js';
 import { useLoadingStore } from '../stores/loadingStore.js';
-import Image from '../components/Image.vue';
+import ResponsiveImage from '../components/ResponsiveImage.vue';
 
 const { showToast } = useToast();
 const { user } = useAuthStore();
@@ -221,7 +221,7 @@ onMounted(() => {
     </div>
     <div class="container" v-else>
         <router-link to="/" title="Voltar para o início">
-            <Image small="task_empty_sm.png" lg="task_empty_lg.png"
+            <ResponsiveImage small="task_empty_sm.png" lg="task_empty_lg.png"
                 alt="Frase tarefas vazias e uma imagem de uma caixa vazia" />
         </router-link>
     </div>

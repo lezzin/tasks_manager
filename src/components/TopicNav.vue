@@ -4,7 +4,7 @@ import { db } from '../libs/firebase';
 
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { RouterLink, useRouter } from 'vue-router';
-import { inject, markRaw, ref, Teleport } from 'vue';
+import { inject, markRaw, ref } from 'vue';
 
 import { useAuthStore } from '../stores/authStore';
 import { useToast } from '../composables/useToast';
@@ -22,7 +22,9 @@ const modal = useModal();
 const props = defineProps({
     data: {
         type: Array,
-        default: []
+        default() {
+            return []
+        }
     }
 });
 
@@ -88,8 +90,8 @@ const openEditTopicModal = (topicName) => {
         <div class="topics-nav">
             <div class="topic" v-for="topic in props.data" :key="topic.id"
                 :class="{ active: selectedTopic && topic.name === selectedTopic.name }">
-                <RouterLink @click.native="closeTopicsMenu" :to="'/topic/' + topic.id" class="topic__link btn"
-                    role="button" :title="'Acessar tópico ' + topic.name" aria-label="Acessar tópico">
+                <RouterLink @click="closeTopicsMenu" :to="'/topic/' + topic.id" class="topic__link btn" role="button"
+                    :title="'Acessar tópico ' + topic.name" aria-label="Acessar tópico">
                     <div>
                         <p class="text">{{ topic.name }}</p>
                         <p class="text text--small text--muted">

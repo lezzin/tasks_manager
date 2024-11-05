@@ -18,7 +18,7 @@ const getCurrentUser = () => {
 const routes = [
     {
         path: "/login",
-        component: () => import('../views/Login.vue'),
+        component: () => import('../views/LoginView.vue'),
         props: {
             provider: provider,
             auth: auth,
@@ -29,7 +29,7 @@ const routes = [
     },
     {
         path: "/",
-        component: () => import('../views/Home.vue'),
+        component: () => import('../views/HomeView.vue'),
         props: { db: db },
         meta: {
             requiresAuth: true,
@@ -37,7 +37,7 @@ const routes = [
     },
     {
         path: "/topic/:id",
-        component: () => import('../views/Home.vue'),
+        component: () => import('../views/HomeView.vue'),
         props: { db: db },
         meta: {
             requiresAuth: true,
@@ -45,7 +45,7 @@ const routes = [
     },
     {
         path: "/general",
-        component: () => import('../views/General.vue'),
+        component: () => import('../views/GeneralView.vue'),
         props: {
             db: db,
         },
@@ -55,7 +55,7 @@ const routes = [
     },
     {
         path: "/kanban",
-        component: () => import('../views/Kanban.vue'),
+        component: () => import('../views/KanbanView.vue'),
         props: {
             db: db,
         },
@@ -65,7 +65,7 @@ const routes = [
     },
     {
         path: "/:pathMatch(.*)*",
-        component: () => import('../views/NotFound.vue'),
+        component: () => import('../views/NotFoundView.vue'),
         meta: {
             requiresAuth: false,
         },

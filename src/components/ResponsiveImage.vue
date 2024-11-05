@@ -1,6 +1,4 @@
 <script setup>
-import { defineProps } from 'vue';
-
 const props = defineProps({
     small: { type: String, required: true },
     lg: { type: String, required: true },
