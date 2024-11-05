@@ -1,7 +1,6 @@
 <script setup>
 import { DOC_NAME, PAGE_TITLES, TASK_KANBAN_STATUSES } from '../utils/variables.js';
 import { getPriorityClass, getPriorityText, getPriorityIcon } from '../utils/priorityUtils.js';
-import { formatDate } from '../utils/dateUtils.js';
 
 import { ref, reactive, onMounted, inject } from 'vue';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
@@ -9,6 +8,8 @@ import { RouterLink, useRouter } from 'vue-router';
 
 import { useAuthStore } from '../stores/authStore';
 import { useLoadingStore } from '../stores/loadingStore.js';
+
+import Image from '../components/Image.vue';
 
 const props = defineProps(['db']);
 
@@ -191,7 +192,7 @@ onMounted(() => {
                 @dragover="onDragOver" @dragenter="event => onDragEnter(event, kanbanStatus)"
                 :data-status="kanbanStatus">
                 <h2 class="subtitle">
-                    {{ kanbanStatus === 'todo' ? 'Para fazer' : kanbanStatus === 'doing' ? 'Fazendo' : 'Concluído'
+                    {{ kanbanStatus === 'todo' ? 'Para fazer' : kanbanStatus === 'doing' ? 'Em andamento' : 'Concluído'
                     }}
                 </h2>
 
@@ -203,6 +204,11 @@ onMounted(() => {
                     <div v-else v-for="task in tasks[kanbanStatus]" :key="task.id"
                         :class="['task', task.status && 'completed']" draggable="true"
                         @dragstart="handleDragEvents($event, 'start', task)" @dragend="handleDragEvents($event, 'end')">
+
+                        <p class="text text--small text--muted">
+                            {{ task.topic_name }}
+                        </p>
+
                         <RouterLink class="text text--bold truncate" :to="'/topic/' + task.topic_id"
                             style="--line-clamp: 1">
                             {{ task.name }}
@@ -212,17 +218,6 @@ onMounted(() => {
                             <i :class="getPriorityIcon(task.priority)"></i>
                             {{ getPriorityText(task.priority) }}
                         </span>
-
-                        <div class="task__information">
-                            <span class="text text--icon text--small text--muted">
-                                <i class="fa-regular fa-clock"></i>
-                                Criado em: {{ task.created_at }}
-                            </span>
-                            <span class="text text--icon text--small text--muted" v-if="task.delivery_date">
-                                <i class="fa-regular fa-bell"></i>
-                                Entrega para: {{ formatDate(task.delivery_date) }}
-                            </span>
-                        </div>
 
                         <div class="task__navigation">
                             <button type="button" class="btn btn--outline-primary" @click="moveTask(task, 'prev')"
@@ -241,25 +236,21 @@ onMounted(() => {
     </div>
     <div class="container" v-else>
         <RouterLink to="/" title="Voltar para o início">
-            <img src="/src/assets/img/task_empty_lg.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia"
-                class="large-screen" loading="lazy" />
-            <img src="/src/assets/img/task_empty_sm.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia"
-                class="small-screen" width="640" height="640" loading="lazy" />
+            <Image small="task_empty_sm.png" lg="task_empty_lg.png"
+                alt="Frase tarefas vazias e uma imagem de uma caixa vazia" />
         </RouterLink>
     </div>
 </template>
 
 <style scoped>
 .kanban-wrapper {
-    overflow-x: auto;
-
-    display: grid;
-    grid-template-rows: 10vh 80vh;
+    padding: var(--padding) 0;
 
     .kanban-wrapper__header {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        margin-bottom: var(--padding);
         width: 100%;
 
         button {
@@ -270,37 +261,25 @@ onMounted(() => {
     .kanban {
         display: grid;
         grid-template-columns: repeat(3, minmax(300px, 1fr));
-        padding-bottom: calc(var(--padding) * 2);
         gap: 1rem;
 
         .kanban__column {
             border: 1px dashed transparent;
-            overflow-y: auto;
-            height: 100%;
 
-            &.drag-over {
-                position: relative;
-                border-color: var(--border-color);
-                border-radius: var(--radius);
-
-                &::after {
-                    content: "";
-                    position: absolute;
-                    inset: 0;
-                    pointer-events: none;
-                    background: rgb(0 0 0 / 0.075);
-                    z-index: 2;
-                }
+            &.drag-over>.subtitle {
+                border-bottom-color: var(--details-color);
             }
 
             >.subtitle {
+                border-bottom: 3px solid transparent;
                 margin-bottom: 0.6rem;
-                padding-left: var(--padding);
                 position: sticky;
-                top: 0;
-                padding: var(--padding);
+                font-size: 1.4rem;
+                top: calc(10vh - 1px);
+                padding: 1rem var(--padding);
                 background-color: var(--bg-secondary);
                 z-index: 1;
+                transition: border-bottom-color var(--screen-transition) ease;
             }
 
             .kanban__tasks {
@@ -325,7 +304,7 @@ onMounted(() => {
 
                     &.dragging {
                         border-style: dashed;
-                        transform: scale(1.05);
+                        opacity: .6;
                     }
 
                     &:not(.task--empty) {
@@ -339,6 +318,7 @@ onMounted(() => {
                         border-style: dashed;
                         font-size: 1.8rem;
                         gap: 0.5rem;
+                        padding: 3.1879rem 0;
                     }
 
                     a.text {
@@ -347,13 +327,6 @@ onMounted(() => {
 
                     .tag {
                         border-radius: calc(var(--radius) * 2);
-                    }
-
-                    .task__information {
-                        display: flex;
-                        flex-direction: column;
-                        margin-top: 1.5rem;
-                        gap: 0.5rem;
                     }
 
                     .task__navigation {

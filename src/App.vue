@@ -11,9 +11,9 @@ import { deleteDoc, doc } from 'firebase/firestore';
 import Toast from './components/Toast.vue';
 import { useToast } from './composables/useToast';
 import { useAuthStore } from './stores/authStore';
-import { useLoadingStore } from './stores/loadingStore';
 
-const loadingStore = useLoadingStore();
+import Loader from './components/Loader.vue';
+
 const authStore = useAuthStore();
 const { toast, closeToast, showToast } = useToast();
 const { user } = storeToRefs(authStore);
@@ -76,9 +76,7 @@ const removeUser = async () => {
 </script>
 
 <template>
-    <div class="loader" v-if="loadingStore.isLoading">
-        <div class="loader__spinner"></div>
-    </div>
+    <Loader />
 
     <header class="header-wrapper">
         <div class="header container">
@@ -89,10 +87,8 @@ const removeUser = async () => {
                 </button>
 
                 <RouterLink to="/" title="Acessar página incial" class="logo">
-                    <img src="/src/assets/img/logo_lg.svg" alt="TaskFlow - logo do website" width="148" height="37"
-                        loading="lazy" v-if="!showTopicNavBtn" />
-                    <img src="/src/assets/img/logo_sm.svg" alt="TaskFlow - logo do website" width="118" height="37"
-                        loading="lazy" v-if="showTopicNavBtn" />
+                    <img :src="`/src/assets/img/${showTopicNavBtn ? 'logo_sm.svg' : 'logo_lg.svg'}`"
+                        alt="TaskFlow - logo do website" width="148" height="37" loading="lazy" />
                 </RouterLink>
             </div>
 

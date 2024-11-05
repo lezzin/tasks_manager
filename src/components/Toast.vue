@@ -82,12 +82,12 @@ function closeToast() {
     border-radius: var(--radius);
     overflow: hidden;
     opacity: 0;
-    transform: translateY(-100%);
+    transform: translateX(10%);
     pointer-events: none;
     transition: all var(--screen-transition) ease-in-out;
 
     &.toast--active {
-        transform: translateY(0);
+        transform: translateX(0);
         opacity: 1;
         pointer-events: all;
     }

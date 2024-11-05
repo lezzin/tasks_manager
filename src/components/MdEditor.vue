@@ -15,6 +15,10 @@ const props = defineProps({
     errorMessage: {
         type: String,
         default: ''
+    },
+    placeholder: {
+        type: String,
+        default: 'Digite aqui o comentário...'
     }
 });
 
@@ -36,9 +40,10 @@ onMounted(() => {
             previewStyle: 'vertical',
             height: '400px',
             initialValue: props.modelValue,
+            placeholder: props.placeholder,
             events: {
                 change: updateContent
-            }
+            },
         });
     }
 });

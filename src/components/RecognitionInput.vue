@@ -1,5 +1,8 @@
 <script setup>
 import { ref, watch } from 'vue';
+import { useToast } from '../composables/useToast.js';
+
+const { showToast } = useToast();
 
 const props = defineProps({
     inputId: {
@@ -43,9 +46,10 @@ const toggleSpeechRecognition = () => {
 
 const startSpeechRecognition = () => {
     if (!window.webkitSpeechRecognition) {
-        console.warn("Reconhecimento de voz não suportado neste navegador.");
+        showToast("error", "Reconhecimento de voz não suportado neste navegador.");
         return;
     }
+
     isListening.value = true;
     recognition.value = new window.webkitSpeechRecognition();
     recognition.value.lang = "pt-BR";

@@ -13,6 +13,7 @@ import AddTaskForm from '../components/AddTaskForm.vue';
 import AddTopicForm from '../components/AddTopicForm.vue';
 import TopicNav from '../components/TopicNav.vue';
 import { useLoadingStore } from '../stores/loadingStore';
+import Image from '../components/Image.vue';
 
 const props = defineProps({
     db: {
@@ -217,17 +218,13 @@ provide("filterTask", filterTask);
                 <TaskNav :topic="selectedTopic.name" :tasks="filteredTasks" />
             </div>
             <div v-else class="image-centered">
-                <img src="/src/assets/img/task_empty_lg.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia"
-                    class="large-screen" loading="lazy" />
-                <img src="/src/assets/img/task_empty_sm.png" alt="Frase tarefas vazias e uma imagem de uma caixa vazia"
-                    class="small-screen" loading="lazy" />
+                <Image small="task_empty_sm.png" lg="task_empty_lg.png"
+                    alt="Frase tarefas vazias e uma imagem de uma caixa vazia" />
             </div>
         </div>
-        <div class="container image-centered" v-else>
-            <img src="/src/assets/img/topic_unselected_lg.png"
-                alt="Uma pessoa escrevendo em um diário suas tarefas pessoais" class="large-screen" loading="lazy" />
-            <img src="/src/assets/img/topic_unselected_sm.png"
-                alt="Uma pessoa escrevendo em um diário suas tarefas pessoais" class="small-screen" loading="lazy" />
+        <div v-else class="container image-centered">
+            <Image small="topic_unselected_sm.png" lg="topic_unselected_lg.png"
+                alt="Uma pessoa escrevendo em um diário suas tarefas pessoais" />
         </div>
     </div>
 

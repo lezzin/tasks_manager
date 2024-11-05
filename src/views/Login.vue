@@ -8,6 +8,7 @@ import { signInWithPopup } from 'firebase/auth';
 import { useToast } from '../composables/useToast.js';
 import { useAuthStore } from '../stores/authStore.js';
 import { useLoadingStore } from '../stores/loadingStore.js';
+import Image from '../components/Image.vue';
 
 const { provider, auth } = defineProps(['provider', 'auth']);
 const { showToast } = useToast();
@@ -37,7 +38,6 @@ async function loginGoogle() {
             'auth/web-storage-unsupported': 'O navegador não é compatível com armazenamento da Web necessário para autenticação.',
         };
 
-        console.error(`Authentication error [${code}]: ${message}`);
         showToast('error', errors[code] ?? message);
     } finally {
         loading.value = false;
@@ -63,10 +63,7 @@ watchEffect(() => {
 <template>
     <div class="form-wrapper">
         <form style="--form-width: 450px" @submit.prevent="loginGoogle">
-            <img src="/src/assets/img/login_lg.png" alt="Uma pessoa escrevendo em um caderno" class="large-screen"
-                width="1200" height="800" loading="lazy" />
-            <img src="/src/assets/img/login_sm.png" alt="Uma pessoa escrevendo em um caderno" class="small-screen"
-                width="640" height="640" loading="lazy" />
+            <Image small="login_sm.png" lg="login_lg.png" alt="Uma pessoa escrevendo em um caderno" />
 
             <button class="btn btn--block btn--icon btn--primary" title="Entrar com o Google" :disabled="loading"
                 aria-label="Entrar com o Google">
