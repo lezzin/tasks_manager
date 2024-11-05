@@ -14,13 +14,13 @@ const props = defineProps({
     },
 });
 
-const IMAGES_PATH = './src/assets/img';
+const smallImage = new URL(`../assets/img/${props.small}`, import.meta.url).href;
+const lgImage = new URL(`../assets/img/${props.lg}`, import.meta.url).href;
 </script>
 
 <template>
     <picture>
-        <source :srcset="`${IMAGES_PATH}/${props.small} 600w, ${IMAGES_PATH}/${props.lg} 1000w`" type="image/png" />
-        <img :src="`${IMAGES_PATH}/${props.lg}`" sizes="(max-width: 768px) 100vw, (min-width: 769px) 50vw"
-            :alt="props.alt" loading="lazy" />
+        <source :srcset="`${smallImage} 600w, ${lgImage} 1000w`" type="image/png" />
+        <img :src="lgImage" sizes="(max-width: 768px) 100vw, (min-width: 769px) 50vw" :alt="props.alt" loading="lazy" />
     </picture>
 </template>
