@@ -66,7 +66,7 @@ const removeUser = async () => {
     } catch ({ code, message }) {
         const errors = {
             "auth/requires-recent-login":
-                "Para excluir sua conta, faça login novamente e tente novamente.",
+                "Para excluir sua conta, faça login e tente novamente.",
             "auth/network-request-failed":
                 "Falha na conexão de rede. Verifique sua conexão e tente novamente.",
         };

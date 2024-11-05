@@ -1,7 +1,7 @@
 <script setup>
 import { db } from '../libs/firebase';
 import { DOC_NAME, TASK_KANBAN_STATUSES, TASK_PRIORITIES } from '../utils/variables';
-import { currentTime } from '../utils/dateUtils';
+import { createTime, currentTime } from '../utils/dateUtils';
 import { filterField } from '../utils/stringUtils';
 
 import { inject, ref } from 'vue';
@@ -71,7 +71,7 @@ const addTask = async () => {
         created_at: currentTime(),
         priority: taskPriority.value,
         comment: taskComment.value ?? "",
-        delivery_date: taskDate.value,
+        delivery_date: createTime(taskDate.value),
         kanbanStatus: TASK_KANBAN_STATUSES.todo,
         topic_id: id,
     };

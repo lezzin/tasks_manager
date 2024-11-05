@@ -1,7 +1,6 @@
 <script setup>
 import { DOC_NAME, PAGE_TITLES, TASK_PRIORITIES } from '../utils/variables.js';
 import { getPriorityClass, getPriorityText, getPriorityIcon } from '../utils/priorityUtils.js';
-import { formatDate } from '../utils/dateUtils.js';
 
 import { ref, reactive, onMounted, inject } from 'vue';
 import { doc, getDoc } from 'firebase/firestore';
@@ -209,11 +208,12 @@ onMounted(() => {
                                 {{ getPriorityText(task.priority) }}
                             </span>
                             <p class="text text--icon text--small">
-                                <i class="fa-regular fa-clock" aria-hidden="true"></i> Criado em: {{ task.created_at }}
+                                <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                                Criado em: {{ task.created_at }}
                             </p>
                             <p class="text text--icon text--small" v-if="task.delivery_date">
-                                <i class="fa-regular fa-bell" aria-hidden="true"></i> Entrega para: {{
-                                    formatDate(task.delivery_date) }}
+                                <i class="fa-regular fa-bell" aria-hidden="true"></i>
+                                Entrega para: {{ task.delivery_date }}
                             </p>
                         </div>
                     </div>

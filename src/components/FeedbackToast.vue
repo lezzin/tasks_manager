@@ -16,7 +16,7 @@ const title = computed(() => {
 });
 
 const iconClass = computed(() => {
-    return `fa-solid ${props.data.type === 'error' ? 'fa-xmark' : 'fa-check'}`;
+    return `fa-solid ${props.data.type === 'error' ? 'fa-exclamation-circle' : 'fa-check'}`;
 });
 
 const toastClass = computed(() => {
@@ -97,7 +97,7 @@ function closeToast() {
     }
 
     &.toast--error {
-        --__toast-bg: : var(--danger-color);
+        --__toast-bg: var(--danger-color);
     }
 
     .toast__banner,

@@ -1,7 +1,6 @@
 <script setup>
 import { DOC_NAME, TASK_KANBAN_STATUSES } from '../utils/variables';
 import { getPriorityClass, getPriorityIcon, getPriorityText } from '../utils/priorityUtils';
-import { formatDate, } from '../utils/dateUtils';
 import { db } from '../libs/firebase';
 
 import { useToast } from '../composables/useToast';
@@ -100,11 +99,11 @@ const openTaskComment = (comment) => {
                         </span>
                         <span class="text text--icon text--small text--muted">
                             <i class="fa-regular fa-clock"></i>
-                            Criado em: {{ formatDate(task.created_at) }}
+                            Criado em: {{ task.created_at }}
                         </span>
                         <span class="text text--icon text--small text--muted" v-if="task.delivery_date">
                             <i class="fa-regular fa-bell"></i>
-                            Entrega para: {{ formatDate(task.delivery_date) }}
+                            Entrega para: {{ task.delivery_date }}
                         </span>
                     </p>
                 </div>
