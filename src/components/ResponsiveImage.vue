@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { baseUrl } from '../utils/urlUtils';
 
 const props = defineProps({
     small: {
@@ -15,9 +16,6 @@ const props = defineProps({
         default: ""
     },
 });
-
-const smallImage = new URL(`../assets/img/${props.small}`, import.meta.url).href;
-const lgImage = new URL(`../assets/img/${props.lg}`, import.meta.url).href;
 
 const isSmallScreen = ref(window.innerWidth < 768);
 
@@ -35,10 +33,6 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <picture>
-        <source v-if="isSmallScreen" :srcset="`${smallImage} 600w`" type="image/png" />
-        <source v-else :srcset="`${lgImage} 1000w`" type="image/png" />
-        <img v-if="isSmallScreen" :src="smallImage" :alt="props.alt" loading="lazy" />
-        <img v-else :src="lgImage" :alt="props.alt" loading="lazy" />
-    </picture>
+    <img v-if="isSmallScreen" :src="baseUrl(props.small)" :alt="props.alt" loading="lazy" />
+    <img v-else :src="baseUrl(props.lg)" :alt="props.alt" loading="lazy" />
 </template>

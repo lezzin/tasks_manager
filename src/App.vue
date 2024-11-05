@@ -13,6 +13,7 @@ import { useToast } from './composables/useToast';
 import { useAuthStore } from './stores/authStore';
 
 import LoaderContainer from './components/LoaderContainer.vue';
+import { baseUrl } from './utils/urlUtils';
 
 const authStore = useAuthStore();
 const { toast, closeToast, showToast } = useToast();
@@ -87,10 +88,10 @@ const removeUser = async () => {
                 </button>
 
                 <RouterLink to="/" title="Acessar página inicial" class="logo">
-                    <img v-if="showTopicNavBtn" src="src/assets/img/logo_sm.svg" alt="TaskFlow - logo do website"
+                    <img v-if="showTopicNavBtn" :src="baseUrl('logo_sm.svg')" alt="TaskFlow - logo do website"
                         width="148" height="37" loading="lazy" />
-                    <img v-else src="src/assets/img/logo_lg.svg" alt="TaskFlow - logo do website" width="176"
-                        height="37" loading="lazy" />
+                    <img v-else :src="baseUrl('logo_lg.svg')" alt="TaskFlow - logo do website" width="176" height="37"
+                        loading="lazy" />
                 </RouterLink>
             </div>
 
