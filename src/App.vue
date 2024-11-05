@@ -86,8 +86,8 @@ const removeUser = async () => {
                     <i class="fa-solid fa-bars"></i>
                 </button>
 
-                <RouterLink to="/" title="Acessar página incial" class="logo">
-                    <img :src="`/src/assets/img/${showTopicNavBtn ? 'logo_sm.svg' : 'logo_lg.svg'}`"
+                <RouterLink to="/" title="Acessar página inicial" class="logo">
+                    <img :src="new URL(`../assets/img/${showTopicNavBtn ? 'logo_sm.svg' : 'logo_lg.svg'}`, import.meta.url).href"
                         alt="TaskFlow - logo do website" width="148" height="37" loading="lazy" />
                 </RouterLink>
             </div>
