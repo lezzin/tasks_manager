@@ -28,14 +28,7 @@ const loadingStore = useLoadingStore();
     inset: 0;
     display: grid;
     place-items: center;
-    opacity: 1;
-    transition: opacity .3s ease-out;
     z-index: 999;
-
-    &.hidden {
-        opacity: 0;
-        pointer-events: none;
-    }
 
     .loader__spinner {
         border-radius: 50%;
