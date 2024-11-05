@@ -87,8 +87,10 @@ const removeUser = async () => {
                 </button>
 
                 <RouterLink to="/" title="Acessar página inicial" class="logo">
-                    <img :src="new URL(`../assets/img/${showTopicNavBtn ? 'logo_sm.svg' : 'logo_lg.svg'}`, import.meta.url).href"
-                        alt="TaskFlow - logo do website" width="148" height="37" loading="lazy" />
+                    <img v-if="showTopicNavBtn" :src="`/src/assets/img/logo_sm.svg`" alt="TaskFlow - logo do website"
+                        width="148" height="37" loading="lazy" />
+                    <img v-else :src="`/src/assets/img/logo_lg.svg`" alt="TaskFlow - logo do website" width="176"
+                        height="37" loading="lazy" />
                 </RouterLink>
             </div>
 
