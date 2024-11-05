@@ -14,7 +14,7 @@ const props = defineProps({
     },
 });
 
-const IMAGES_PATH = '/src/assets/img';
+const IMAGES_PATH = './src/assets/img';
 </script>
 
 <template>
