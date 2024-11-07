@@ -1,6 +1,6 @@
 <script setup>
 import { filterField } from '../utils/stringUtils';
-import { DOC_NAME } from '../utils/variables';
+import { DOC_NAME, TOPIC_MAX_LENGTH, TOPIC_MIN_LENGTH } from '../utils/variables';
 import { db } from '../libs/firebase';
 
 import { ref, watch } from 'vue';
@@ -46,8 +46,13 @@ const editTopic = async () => {
 
     const formattedTopicName = filterField(name.value);
 
-    if (formattedTopicName.length <= 3) {
-        nameError.value = "Insira pelo menos 4 letras!";
+    if (formattedTopicName.length < TOPIC_MIN_LENGTH) {
+        formTopicError.value = `Insira pelo menos ${TOPIC_MIN_LENGTH} letras!`;
+        return;
+    }
+
+    if (formattedTopicName.length > TOPIC_MAX_LENGTH) {
+        nameError.value = `Você atingiu o limite de caracteres! (${formattedTopicName.length} de ${TOPIC_MAX_LENGTH})`;
         return;
     }
 

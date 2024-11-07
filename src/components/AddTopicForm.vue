@@ -1,7 +1,7 @@
 <script setup>
 import { currentTime } from '../utils/dateUtils';
 import { filterField } from '../utils/stringUtils';
-import { DOC_NAME } from '../utils/variables';
+import { DOC_NAME, TOPIC_MAX_LENGTH, TOPIC_MIN_LENGTH } from '../utils/variables';
 import { db } from '../libs/firebase';
 
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
@@ -10,8 +10,8 @@ import { onMounted, ref, watch } from 'vue';
 import { useToast } from '../composables/useToast';
 import { useAuthStore } from '../stores/authStore';
 
-const formTopicError = ref("");
-const newTopic = ref("");
+const nameError = ref("");
+const name = ref("");
 
 const { user } = useAuthStore();
 const { showToast } = useToast();
@@ -22,17 +22,22 @@ const getUserData = async (docRef) => {
 };
 
 const addTopic = async () => {
-    formTopicError.value = "";
+    nameError.value = "";
 
-    if (!newTopic.value) {
-        formTopicError.value = "Preencha o campo";
+    if (!name.value) {
+        nameError.value = "Preencha o campo";
         return;
     }
 
-    const formattedTopicName = filterField(newTopic.value);
+    const formattedTopicName = filterField(name.value);
 
-    if (formattedTopicName.length <= 3) {
-        formTopicError.value = "Insira pelo menos 4 letras!";
+    if (formattedTopicName.length < TOPIC_MIN_LENGTH) {
+        nameError.value = `Insira pelo menos ${TOPIC_MIN_LENGTH} letras!`;
+        return;
+    }
+
+    if (formattedTopicName.length > TOPIC_MAX_LENGTH) {
+        nameError.value = `Você atingiu o limite de caracteres! (${formattedTopicName.length} de ${TOPIC_MAX_LENGTH})`;
         return;
     }
 
@@ -40,7 +45,7 @@ const addTopic = async () => {
     const userData = await getUserData(docRef);
 
     if (userData && userData.topics && userData.topics[formattedTopicName]) {
-        formTopicError.value = "Esse tópico já existe";
+        nameError.value = "Esse tópico já existe";
         return;
     }
 
@@ -55,10 +60,10 @@ const addTopic = async () => {
     });
 
     showToast("success", "Tópico criado com sucesso");
-    newTopic.value = "";
+    name.value = "";
 };
 
-watch(newTopic, () => (formTopicError.value = ""));
+watch(name, () => (nameError.value = ""));
 </script>
 
 <template>
@@ -66,17 +71,17 @@ watch(newTopic, () => (formTopicError.value = ""));
         <h2 id="add-topic-title" class="sr-only">Adicionar Novo Tópico</h2>
 
         <div class="form-group">
-            <div :class="['input-group', formTopicError ? 'input-error' : '']">
+            <div :class="['input-group', nameError ? 'input-error' : '']">
                 <label for="new-topic" class="sr-only">Nome do novo tópico</label>
-                <input type="text" id="new-topic" placeholder="Adicionar novo tópico" v-model="newTopic"
-                    :aria-invalid="!!formTopicError" aria-describedby="topic-error" />
+                <input type="text" id="new-topic" placeholder="Adicionar novo tópico" v-model="name"
+                    :aria-invalid="!!nameError" aria-describedby="topic-error" />
                 <button class="btn" title="Adicionar novo tópico" aria-label="Adicionar novo tópico">
                     <i class="fa-solid fa-plus" aria-hidden="true"></i>
                 </button>
             </div>
 
-            <p v-if="formTopicError" id="topic-error" class="text text--error" role="alert">
-                {{ formTopicError }}
+            <p v-if="nameError" id="topic-error" class="text text--error" role="alert">
+                {{ nameError }}
             </p>
         </div>
     </form>
