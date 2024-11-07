@@ -90,8 +90,4 @@ watch(newTopic, () => (formTopicError.value = ""));
 .input-group input {
     box-shadow: 0 0.25rem 1rem var(--details-color-light);
 }
-
-.input-error input {
-    border-color: var(--error-color);
-}
 </style>
