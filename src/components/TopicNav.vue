@@ -4,7 +4,7 @@ import { db } from '../libs/firebase';
 
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { RouterLink, useRouter } from 'vue-router';
-import { inject, markRaw, ref } from 'vue';
+import { inject, markRaw, onMounted, ref } from 'vue';
 
 import { useAuthStore } from '../stores/authStore';
 import { useToast } from '../composables/useToast';
@@ -122,16 +122,15 @@ const openEditTopicModal = (topicName) => {
             Acessar Kanban
         </RouterLink>
 
+        <RouterLink to="/pomodoro" class="btn btn--outline-primary btn--icon btn--block-small" title="Acessar Pomodoro">
+            <i class="fa-solid fa-clock"></i>
+            Acessar Pomodoro
+        </RouterLink>
+
         <RouterLink to="/general" class="btn btn--outline-primary btn--icon btn--block-small"
             title="Visualização geral">
             <i class="fa-solid fa-eye"></i>
             Visão geral das tarefas
-        </RouterLink>
-
-        <RouterLink to="/pomodoro" class="btn btn--outline-primary btn--icon btn--block-small"
-            title="Visualização geral">
-            <i class="fa-solid fa-clock"></i>
-            Acessar Pomodoro
         </RouterLink>
 
         <button class="btn btn--icon btn--block-small btn--outline-danger" title="Excluir todos os tópicos"
