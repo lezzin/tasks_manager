@@ -2,7 +2,7 @@
 import { useLoadingStore } from '../stores/loadingStore';
 import { useToast } from '../composables/useToast';
 
-import { inject, onMounted, reactive, ref, watch } from 'vue';
+import { inject, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 import PomodoroTasks from '../components/PomodoroTasks.vue';
@@ -33,7 +33,7 @@ const timer = reactive({
 const canShakeButton = ref(false);
 let shakeTimeout;
 
-function warnUser() {
+const warnUser = () => {
     if (shakeTimeout) clearTimeout(shakeTimeout);
     canShakeButton.value = true;
     shakeTimeout = setTimeout(() => canShakeButton.value = false, 2000);
@@ -41,7 +41,7 @@ function warnUser() {
 
 let timerInterval;
 
-function startPomodoro() {
+const startPomodoro = () => {
     if (!hasSelectedTask.value) {
         warnUser();
         showToast("error", "Selecione uma tarefa antes!");
@@ -56,7 +56,7 @@ function startPomodoro() {
     timerInterval = setInterval(runTimer, TIME_CONSTANTS.ONE_SECOND);
 }
 
-function runTimer() {
+const runTimer = () => {
     if (timer.seconds === 0) {
         if (timer.minutes === 0) {
             handleCycleEnd();
@@ -69,23 +69,23 @@ function runTimer() {
     }
 }
 
-function pausePomodoro() {
+const pausePomodoro = () => {
     if (timerInterval) clearInterval(timerInterval);
     timer.paused = true;
 }
 
-function stopPomodoro() {
+const stopPomodoro = () => {
     if (!confirm("Tem certeza que deseja parar o timer?")) return;
 
     clearTimer();
     resetTimer();
 }
 
-function handleCycleEnd() {
+const handleCycleEnd = () => {
     timer.onBreak ? startWorkCycle() : prepareNextCycle();
 }
 
-function prepareNextCycle() {
+const prepareNextCycle = () => {
     timer.cycleCount++;
 
     if (timer.cycleCount % TIME_CONSTANTS.CYCLES_BEFORE_LONG_BREAK === 0) {
@@ -96,52 +96,59 @@ function prepareNextCycle() {
     startShortBreak();
 }
 
-function startWorkCycle() {
+const startWorkCycle = () => {
     timer.onBreak = false;
     setTimer(TIME_CONSTANTS.WORK.minutes, TIME_CONSTANTS.WORK.seconds);
 }
 
-function startShortBreak() {
+const startShortBreak = () => {
     timer.onBreak = true;
     setTimer(TIME_CONSTANTS.SHORT_BREAK.minutes, TIME_CONSTANTS.SHORT_BREAK.seconds);
 }
 
-function startLongBreak() {
+const startLongBreak = () => {
     timer.onBreak = true;
     setTimer(TIME_CONSTANTS.LONG_BREAK.minutes, TIME_CONSTANTS.LONG_BREAK.seconds);
 }
 
-function resetTimer() {
+const resetTimer = () => {
     timer.minutes = TIME_CONSTANTS.WORK.minutes;
     timer.seconds = TIME_CONSTANTS.WORK.seconds;
     timer.cycleCount = 0;
     timer.onBreak = false;
 }
 
-function setTimer(minutes, seconds) {
+const setTimer = (minutes, seconds) => {
     timer.minutes = minutes;
     timer.seconds = seconds;
 }
 
-function clearTimer() {
+const clearTimer = () => {
     clearInterval(timerInterval);
     timer.active = false;
     timer.paused = false;
 }
 
-function selectTask(taskSelected) {
+const selectTask = (taskSelected) => {
     hasSelectedTask.value = Boolean(taskSelected);
 }
 
-function formatTime(time) {
+const formatTime = (time) => {
     return time < 10 ? '0' + time : time;
 }
 
-function goBack() {
+const goBack = () => {
     router.back();
 }
 
-function goToPomodoro() {
+const goToHelp = () => {
+    window.scroll({
+        top: document.querySelector("#s-help").getBoundingClientRect().top + window.scrollY,
+        behavior: "smooth"
+    })
+}
+
+const goToPomodoro = () => {
     window.scroll({
         top: 0,
         behavior: "smooth"
@@ -150,9 +157,20 @@ function goToPomodoro() {
     warnUser();
 }
 
+const parallaxOffset = ref(0);
+
+function handleScroll() {
+    parallaxOffset.value = window.scrollY * 0.5;
+}
+
 onMounted(() => {
     inject('showTopicNavBtn').value = false;
     loadingStore.hideLoader();
+    window.addEventListener("scroll", handleScroll);
+});
+
+onBeforeUnmount(() => {
+    window.removeEventListener("scroll", handleScroll);
 });
 
 watch(hasSelectedTask, () => {
@@ -165,12 +183,18 @@ watch(hasSelectedTask, () => {
 
 <template>
     <section class="pomodoro-wrapper" id="s-pomodoro">
-        <div class="container">
-            <button @click="goBack" class="btn-back btn btn--outline-primary btn--icon " title="Voltar para o início"
-                aria-label="Voltar para a página inicial">
-                <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
-                <span>Voltar para a página inicial</span>
-            </button>
+        <div class="container" :style="{ transform: `translateY(${parallaxOffset}px)` }">
+            <div class="pomodore__absolute">
+                <button type="button" @click="goBack" class="btn-back btn btn--outline-primary btn--icon "
+                    title="Voltar para o início" aria-label="Voltar para a página inicial">
+                    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                    <span>Voltar para a página inicial</span>
+                </button>
+                <button type="button" class="btn btn--only-icon btn--outline-primary" title="Acessar ajuda"
+                    @click="goToHelp">
+                    <i class="fa-regular fa-circle-question"></i>
+                </button>
+            </div>
 
             <div class="pomodoro">
                 <div class="pomodoro__cycle-info">
@@ -207,7 +231,7 @@ watch(hasSelectedTask, () => {
         </div>
     </section>
 
-    <section class="information-wrapper container">
+    <section class="information-wrapper container" id="s-help">
         <div class="information">
             <article class="information-block">
                 <h2 class="title">O que é o método Pomodoro?</h2>
@@ -246,6 +270,8 @@ watch(hasSelectedTask, () => {
     background: var(--details-color-light);
     background: -webkit-linear-gradient(to right, var(--details-color-light-2), var(--details-color-light));
     background: linear-gradient(to right, var(--details-color-light-2), var(--details-color-light));
+    perspective: 1000px;
+    overflow: hidden;
 }
 
 .pomodoro-wrapper .container {
@@ -253,14 +279,26 @@ watch(hasSelectedTask, () => {
     display: grid;
     place-items: center;
     min-height: 90vh;
+    transform-style: preserve-3d;
+    transition: transform 0.1s ease-out;
 }
 
-.btn-back {
+.pomodore__absolute {
     position: absolute;
     top: 1.5rem;
     right: 50%;
     transform: translateX(50%);
-    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pomodore__absolute button {
+    padding: 0.64rem 1rem;
+}
+
+.pomodore__absolute .btn--only-icon i {
+    font-size: 1.6rem;
 }
 
 .pomodoro {

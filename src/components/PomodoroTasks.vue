@@ -123,12 +123,14 @@ onMounted(() => {
                 <i :class="dropdownOpen ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down'"></i>
             </div>
 
-            <div v-if="dropdownOpen" class="dropdown-content">
-                <div class="dropdown-item" @click="selectTask(null)">---</div>
-                <div class="dropdown-item" v-for="task in tasks.data" :key="task.id" @click="selectTask(task)">
-                    {{ task.name }}
+            <Transition>
+                <div v-if="dropdownOpen" class="dropdown-content">
+                    <div class="dropdown-item" @click="selectTask(null)">---</div>
+                    <div class="dropdown-item" v-for="task in tasks.data" :key="task.id" @click="selectTask(task)">
+                        {{ task.name }}
+                    </div>
                 </div>
-            </div>
+            </Transition>
         </div>
 
         <div v-if="selectedTask.value?.id" class="task">

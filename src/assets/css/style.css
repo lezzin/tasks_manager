@@ -176,11 +176,10 @@ body {
 
     &.btn--icon i {
         margin-right: .5rem;
-        transform: translateY(-.2rem);
+        transform: translateY(-0.1rem);
     }
 
     i {
-        margin-bottom: 0.05rem;
         font-size: 1.2rem;
 
         @media(width <=768px) {
@@ -237,6 +236,10 @@ body {
         padding: 0;
         height: 3.6rem;
         aspect-ratio: 1;
+    }
+
+    .btn--only-icon i {
+        transform: translateY(-0.25rem);
     }
 
     &.btn--rounded {
