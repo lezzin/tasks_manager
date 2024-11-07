@@ -11,6 +11,7 @@ import { useAuthStore } from '../stores/authStore';
 
 import RecognitionInput from './RecognitionInput.vue';
 import MdEditor from './MdEditor.vue';
+import { createTime } from '../utils/dateUtils';
 
 const emit = defineEmits(["close"]);
 
@@ -81,7 +82,7 @@ const editTask = async () => {
                     ...t,
                     name: filterField(taskName.value),
                     priority: taskPriority.value,
-                    delivery_date: taskDate.value,
+                    delivery_date: createTime(taskDate.value),
                     comment: taskComment.value,
                 }
                 : t

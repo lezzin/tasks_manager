@@ -11,6 +11,7 @@
     --border-color: #ccc;
     --danger-color: #f83f3f;
     --danger-color-light: #faebeb;
+    --warning-color: #f2c94c;
     --task-completed: #d9f2e9;
     --task-priority-high: #eb5757;
     --task-priority-medium: #f2c94c;
@@ -218,6 +219,11 @@ body {
         border: 1px solid var(--danger-color);
         background-color: var(--danger-color-light);
         color: var(--danger-color);
+    }
+
+    &.btn--warning {
+        color: var(--font-primary-light);
+        background-color: var(--warning-color);
     }
 
     &.btn--only-icon,

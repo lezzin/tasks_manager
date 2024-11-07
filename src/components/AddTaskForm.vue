@@ -73,7 +73,7 @@ const addTask = async () => {
         comment: taskComment.value ?? "",
         delivery_date: createTime(taskDate.value),
         kanbanStatus: TASK_KANBAN_STATUSES.todo,
-        topic_id: id,
+        topic: { id, name },
     };
 
     const updatedTasks = [...props.topic.tasks, taskData];

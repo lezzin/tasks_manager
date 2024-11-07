@@ -4,12 +4,15 @@ const options = {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    hour12: false
 }
 
 export function currentTime() {
-    return new Date().toLocaleDateString("pt-BR", options);
+    return new Date().toLocaleString("pt-BR", options);
 }
 
 export function createTime(date) {
-    return new Date(date).toLocaleDateString("pt-BR", options);
+    if (!date) return null;
+    const dateObject = new Date(date);
+    return dateObject.toLocaleString("pt-BR", options);
 }

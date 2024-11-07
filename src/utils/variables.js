@@ -10,6 +10,7 @@ const PAGE_TITLES = {
     },
     general: `${PROJECT_TITLE} | Visão geral`,
     kanban: `${PROJECT_TITLE} | Kanban`,
+    pomodoro: `${PROJECT_TITLE} | Pomodoro`,
 };
 
 const TASK_PRIORITIES = {

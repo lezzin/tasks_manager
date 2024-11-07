@@ -64,6 +64,13 @@ const routes = [
         },
     },
     {
+        path: "/pomodoro",
+        component: () => import('../views/PomodoroView.vue'),
+        meta: {
+            requiresAuth: true,
+        },
+    },
+    {
         path: "/:pathMatch(.*)*",
         component: () => import('../views/NotFoundView.vue'),
         meta: {

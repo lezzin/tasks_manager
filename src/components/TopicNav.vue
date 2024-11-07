@@ -128,6 +128,12 @@ const openEditTopicModal = (topicName) => {
             Visão geral das tarefas
         </RouterLink>
 
+        <RouterLink to="/pomodoro" class="btn btn--outline-primary btn--icon btn--block-small"
+            title="Visualização geral">
+            <i class="fa-solid fa-clock"></i>
+            Acessar Pomodoro
+        </RouterLink>
+
         <button class="btn btn--icon btn--block-small btn--outline-danger" title="Excluir todos os tópicos"
             @click="deleteAllTopics" aria-label="Excluir todos os tópicos">
             <i class="fa-solid fa-trash"></i> Excluir todos os tópicos
