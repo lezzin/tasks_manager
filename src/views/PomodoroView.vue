@@ -36,7 +36,7 @@ let shakeTimeout;
 function warnUser() {
     if (shakeTimeout) clearTimeout(shakeTimeout);
     canShakeButton.value = true;
-    shakeTimeout = setTimeout(() => canShakeButton.value = false, 1500);
+    shakeTimeout = setTimeout(() => canShakeButton.value = false, 2000);
 }
 
 let timerInterval;
@@ -87,11 +87,13 @@ function handleCycleEnd() {
 
 function prepareNextCycle() {
     timer.cycleCount++;
+
     if (timer.cycleCount % TIME_CONSTANTS.CYCLES_BEFORE_LONG_BREAK === 0) {
         startLongBreak();
-    } else {
-        startShortBreak();
+        return;
     }
+
+    startShortBreak();
 }
 
 function startWorkCycle() {
@@ -144,6 +146,8 @@ function goToPomodoro() {
         top: 0,
         behavior: "smooth"
     })
+
+    warnUser();
 }
 
 onMounted(() => {
@@ -162,22 +166,22 @@ watch(hasSelectedTask, () => {
 <template>
     <section class="pomodoro-wrapper" id="s-pomodoro">
         <div class="container">
-            <button @click="goBack" class="btn btn--outline-primary btn--icon" title="Voltar para o início"
+            <button @click="goBack" class="btn-back btn btn--outline-primary btn--icon " title="Voltar para o início"
                 aria-label="Voltar para a página inicial">
                 <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
                 <span>Voltar para a página inicial</span>
             </button>
 
             <div class="pomodoro">
-                <div class="pomodoro-cycle-info">
+                <div class="pomodoro__cycle-info">
                     Ciclo: {{ timer.cycleCount }} | {{ timer.onBreak ? 'Intervalo' : 'Trabalho' }}
                 </div>
 
-                <span class="pomodoro-timer">
+                <span class="pomodoro__timer">
                     {{ formatTime(timer.minutes) }}:{{ formatTime(timer.seconds) }}
                 </span>
 
-                <div class="pomodoro-buttons">
+                <div class="pomodoro__buttons">
                     <button class="btn btn--primary btn--icon" @click="startPomodoro"
                         v-if="!timer.active && !timer.paused">
                         <i class="fa-solid fa-play"></i>
@@ -245,7 +249,6 @@ watch(hasSelectedTask, () => {
     background: var(--details-color-light);
     background: -webkit-linear-gradient(to right, var(--details-color-light-2), var(--details-color-light));
     background: linear-gradient(to right, var(--details-color-light-2), var(--details-color-light));
-    margin-top: 10vh;
 }
 
 .pomodoro-wrapper .container {
@@ -253,16 +256,13 @@ watch(hasSelectedTask, () => {
     display: grid;
     place-items: center;
     min-height: 90vh;
-
-    @media(max-width: 768px) {
-        padding: 10vh 0;
-    }
 }
 
-.pomodoro-wrapper .container>button {
+.btn-back {
     position: absolute;
-    right: 1.5rem;
     top: 1.5rem;
+    right: 50%;
+    transform: translateX(50%);
     padding: 0.5rem 1rem;
 }
 
@@ -274,27 +274,27 @@ watch(hasSelectedTask, () => {
     width: 100%;
 }
 
-.pomodoro-timer {
-    font-size: 12rem;
+.pomodoro__timer {
+    font-size: clamp(8rem, 20vw, 12rem);
     font-weight: 500;
     margin-bottom: 2rem;
 }
 
-.pomodoro-buttons {
+.pomodoro__buttons {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 1rem;
 }
 
-.pomodoro-buttons button {
+.pomodoro__buttons button {
     padding: .8rem 2rem;
     text-transform: uppercase;
     font-size: 1.8rem;
     margin-bottom: 5rem;
 }
 
-.pomodoro-cycle-info {
+.pomodoro__cycle-info {
     font-size: 1.6rem;
     font-weight: 500;
 }

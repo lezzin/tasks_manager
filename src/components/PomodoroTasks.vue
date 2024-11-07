@@ -135,6 +135,9 @@ onMounted(() => {
                 </div>
             </div>
         </div>
+        <div v-else class="task task--empty">
+            <p class="text">Sua tarefa aparecerá aqui...</p>
+        </div>
     </div>
 </template>
 
@@ -144,7 +147,8 @@ onMounted(() => {
     align-items: center;
     flex-direction: column;
     max-width: 500px;
-    width: 100%;
+    width: 90%;
+    color: var(--font-primary);
 }
 
 .task-dropdown {
@@ -199,19 +203,27 @@ onMounted(() => {
     border-radius: var(--radius);
     background-color: var(--bg-primary);
     transition: box-shadow 0.3s ease;
-    color: var(--font-primary);
     width: 100%;
+}
 
-    .task__content {
+.task--empty {
+    background: var(--bg-secondary);
+    padding: 2.2rem var(--padding);
+    border-style: dashed;
+    justify-content: center;
+    opacity: .8;
+    cursor: default;
+}
+
+.task__content {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+
+    .task__information {
         display: flex;
-        align-items: center;
-        gap: 2rem;
-
-        .task__information {
-            display: flex;
-            align-items: flex-start;
-            flex-direction: column;
-        }
+        align-items: flex-start;
+        flex-direction: column;
     }
 }
 
