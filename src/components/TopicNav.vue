@@ -92,12 +92,10 @@ const openEditTopicModal = (topicName) => {
                 :class="{ active: selectedTopic && topic.name === selectedTopic.name }">
                 <RouterLink @click="closeTopicsMenu" :to="'/topic/' + topic.id" class="topic__link btn" role="button"
                     :title="'Acessar tópico ' + topic.name" aria-label="Acessar tópico">
-                    <div>
-                        <p class="text">{{ topic.name }}</p>
-                        <p class="text text--small text--muted">
-                            {{ `${topic.tasks_length} ${topic.tasks_length === 1 ? 'tarefa' : 'tarefas'}` }}
-                        </p>
-                    </div>
+                    <p class="text">{{ topic.name }}</p>
+                    <p class="text text--small text--muted">
+                        {{ `${topic.tasks_length} ${topic.tasks_length === 1 ? 'tarefa' : 'tarefas'}` }}
+                    </p>
                 </RouterLink>
 
                 <div class="topic__actions">
@@ -203,6 +201,7 @@ const openEditTopicModal = (topicName) => {
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            width: min-content;
 
             .btn {
                 border: 1px solid transparent;
