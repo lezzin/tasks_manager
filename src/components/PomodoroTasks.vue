@@ -3,12 +3,16 @@ import { DOC_NAME, PAGE_TITLES, TASK_KANBAN_STATUSES } from '../utils/variables'
 import { db } from '../libs/firebase';
 
 import { getDoc, doc, updateDoc } from 'firebase/firestore';
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref, markRaw } from 'vue';
 import { useRouter } from 'vue-router';
+import { marked } from 'marked';
 
 import { useAuthStore } from '../stores/authStore';
 import { useLoadingStore } from '../stores/loadingStore';
 import { useToast } from '../composables/useToast';
+import { useModal } from '../composables/useModal';
+
+import CommentModal from '../components/CommentModal.vue';
 
 const emit = defineEmits(["update"]);
 
@@ -22,11 +26,13 @@ const props = defineProps({
 const loadingStore = useLoadingStore();
 const { showToast } = useToast();
 const { user } = useAuthStore();
+const modal = useModal();
 const router = useRouter();
 
 const tasks = reactive({ data: [] });
 const dropdownOpen = ref(false);
 const selectedTask = reactive({ value: null });
+const selectedComment = ref("");
 
 const loadTasks = async () => {
     const docRef = doc(db, DOC_NAME, user.uid);
@@ -95,6 +101,12 @@ const selectTask = (task) => {
     emit("update", task);
 };
 
+const openTaskComment = (comment) => {
+    selectedComment.value = marked(comment);
+    modal.component.value = markRaw(CommentModal);
+    modal.showModal();
+};
+
 onMounted(() => {
     document.title = PAGE_TITLES.pomodoro;
     loadTasks();
@@ -134,10 +146,24 @@ onMounted(() => {
                     <p class="text truncate" style="--line-clamp: 1">{{ selectedTask.value?.name }}</p>
                 </div>
             </div>
+
+            <button @click="openTaskComment(selectedTask.value?.comment)" title="Abrir modal de comentário"
+                class="btn btn--rounded btn--outline-primary" aria-haspopup="dialog" aria-controls="comment-modal"
+                v-if="selectedTask.value?.comment">
+                <span class="sr-only">Visualizar comentário da tarefa</span>
+                <i class="fa-solid fa-comment" aria-hidden="true"></i>
+            </button>
         </div>
         <div v-else class="task alert">
             <p class="text">Sua tarefa aparecerá aqui...</p>
         </div>
+
+        <Teleport to="#modal">
+            <Transition>
+                <CommentModal v-if="modal.show.value" @close="modal.hideModal" :comment="selectedComment"
+                    id="comment-modal" />
+            </Transition>
+        </Teleport>
     </div>
     <div v-else class="alert">
         <p class="text text--icon">

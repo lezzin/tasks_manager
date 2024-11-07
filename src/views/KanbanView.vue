@@ -282,6 +282,7 @@ onMounted(() => {
 
         .kanban__column {
             border: 1px dashed transparent;
+            min-height: 70dvh;
 
             &.drag-over>.subtitle {
                 border-bottom-color: var(--details-color);
