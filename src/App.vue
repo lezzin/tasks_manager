@@ -1,19 +1,19 @@
 <script setup>
 import { auth, db } from './libs/firebase';
 import { DOC_NAME } from './utils/variables';
+import { baseUrl } from './utils/urlUtils';
 
-import { ref, provide } from 'vue';
 import { RouterLink, RouterView, useRouter } from 'vue-router';
-import { storeToRefs } from "pinia";
 import { deleteUser, signOut } from 'firebase/auth';
 import { deleteDoc, doc } from 'firebase/firestore';
+import { storeToRefs } from "pinia";
+import { ref, provide } from 'vue';
 
-import FeedbackToast from './components/FeedbackToast.vue';
 import { useToast } from './composables/useToast';
 import { useAuthStore } from './stores/authStore';
 
 import LoaderContainer from './components/LoaderContainer.vue';
-import { baseUrl } from './utils/urlUtils';
+import FeedbackToast from './components/FeedbackToast.vue';
 
 const authStore = useAuthStore();
 const { toast, closeToast, showToast } = useToast();
