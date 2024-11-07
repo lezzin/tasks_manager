@@ -164,98 +164,89 @@ watch(hasSelectedTask, () => {
 </script>
 
 <template>
-    <section class="pomodoro-wrapper" id="s-pomodoro">
-        <div class="container">
-            <button @click="goBack" class="btn-back btn btn--outline-primary btn--icon " title="Voltar para o início"
-                aria-label="Voltar para a página inicial">
-                <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
-                <span>Voltar para a página inicial</span>
-            </button>
+    <section class="pomodoro-wrapper container" id="s-pomodoro">
+        <button @click="goBack" class="btn-back btn btn--outline-primary btn--icon " title="Voltar para o início"
+            aria-label="Voltar para a página inicial">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+            <span>Voltar para a página inicial</span>
+        </button>
 
-            <div class="pomodoro">
-                <div class="pomodoro__cycle-info">
-                    Ciclo: {{ timer.cycleCount }} | {{ timer.onBreak ? 'Intervalo' : 'Trabalho' }}
-                </div>
-
-                <span class="pomodoro__timer">
-                    {{ formatTime(timer.minutes) }}:{{ formatTime(timer.seconds) }}
-                </span>
-
-                <div class="pomodoro__buttons">
-                    <button class="btn btn--primary btn--icon" @click="startPomodoro"
-                        v-if="!timer.active && !timer.paused">
-                        <i class="fa-solid fa-play"></i>
-                        Iniciar
-                    </button>
-                    <button class="btn btn--warning btn--icon" @click="pausePomodoro"
-                        v-if="timer.active && !timer.paused">
-                        <i class="fa-solid fa-pause"></i>
-                        Pausar
-                    </button>
-                    <button class="btn btn--primary btn--icon" @click="startPomodoro" v-if="timer.paused">
-                        <i class="fa-solid fa-play"></i>
-                        Continuar
-                    </button>
-                    <button class="btn btn--danger btn--icon" @click="stopPomodoro" v-if="timer.active">
-                        <i class="fa-regular fa-circle-stop"></i>
-                        Parar
-                    </button>
-                </div>
-
-                <PomodoroTasks @update="selectTask" :canShake="canShakeButton" />
+        <div class="pomodoro">
+            <div class="pomodoro__cycle-info">
+                Ciclo: {{ timer.cycleCount }} | {{ timer.onBreak ? 'Intervalo' : 'Trabalho' }}
             </div>
+
+            <span class="pomodoro__timer">
+                {{ formatTime(timer.minutes) }}:{{ formatTime(timer.seconds) }}
+            </span>
+
+            <div class="pomodoro__buttons">
+                <button class="btn btn--primary btn--icon" @click="startPomodoro" v-if="!timer.active && !timer.paused">
+                    <i class="fa-solid fa-play"></i>
+                    Iniciar
+                </button>
+                <button class="btn btn--warning btn--icon" @click="pausePomodoro" v-if="timer.active && !timer.paused">
+                    <i class="fa-solid fa-pause"></i>
+                    Pausar
+                </button>
+                <button class="btn btn--primary btn--icon" @click="startPomodoro" v-if="timer.paused">
+                    <i class="fa-solid fa-play"></i>
+                    Continuar
+                </button>
+                <button class="btn btn--danger btn--icon" @click="stopPomodoro" v-if="timer.active">
+                    <i class="fa-regular fa-circle-stop"></i>
+                    Parar
+                </button>
+            </div>
+
+            <PomodoroTasks @update="selectTask" :canShake="canShakeButton" />
         </div>
     </section>
 
-    <section class="information-wrapper">
-        <div class="container">
-            <div class="information">
-                <article class="information-block">
-                    <h2 class="title">O que é o método Pomodoro?</h2>
-                    <p class="text">
-                        O método Pomodoro é uma técnica de gerenciamento de tempo desenvolvida para melhorar a
-                        produtividade. Criado pelo italiano Francesco Cirillo nos anos 1980, ele se baseia em dividir o
-                        tempo de trabalho em ciclos curtos e focados, seguidos de intervalos de descanso.
-                    </p>
-                </article>
+    <section class="information-wrapper container">
+        <div class="information">
+            <article class="information-block">
+                <h2 class="title">O que é o método Pomodoro?</h2>
+                <p class="text">
+                    O método Pomodoro é uma técnica de gerenciamento de tempo desenvolvida para melhorar a
+                    produtividade. Criado pelo italiano Francesco Cirillo nos anos 1980, ele se baseia em dividir o
+                    tempo de trabalho em ciclos curtos e focados, seguidos de intervalos de descanso.
+                </p>
+            </article>
 
-                <article class="information-block">
-                    <h3 class="subtitle">Como funciona:</h3>
+            <article class="information-block">
+                <h3 class="subtitle">Como funciona:</h3>
 
-                    <ol class="steps text">
-                        <li>Escolha uma tarefa para trabalhar.</li>
-                        <li>Ajuste um timer para 25 minutos (esse período é chamado de "Pomodoro").</li>
-                        <li>Trabalhe na tarefa até o timer tocar, sem interrupções.</li>
-                        <li>Após os 25 minutos, faça uma pausa curta de 5 minutos.</li>
-                        <li>Após completar quatro pomodoros, faça uma pausa mais longa, de 15 a 30 minutos.</li>
-                    </ol>
+                <ol class="steps text">
+                    <li>Escolha uma tarefa para trabalhar.</li>
+                    <li>Ajuste um timer para 25 minutos (esse período é chamado de "Pomodoro").</li>
+                    <li>Trabalhe na tarefa até o timer tocar, sem interrupções.</li>
+                    <li>Após os 25 minutos, faça uma pausa curta de 5 minutos.</li>
+                    <li>Após completar quatro pomodoros, faça uma pausa mais longa, de 15 a 30 minutos.</li>
+                </ol>
 
-                    <p class="text">
-                        Esse método ajuda a manter o foco e reduzir a procrastinação, criando uma sensação de urgência
-                        para
-                        completar as tarefas dentro de um tempo definido.
-                    </p>
+                <p class="text">
+                    Esse método ajuda a manter o foco e reduzir a procrastinação, criando uma sensação de urgência
+                    para
+                    completar as tarefas dentro de um tempo definido.
+                </p>
 
-                    <button class="btn btn--outline-primary" @click="goToPomodoro">Começar agora!</button>
-                </article>
-            </div>
+                <button class="btn btn--outline-primary" @click="goToPomodoro">Começar agora!</button>
+            </article>
         </div>
     </section>
 </template>
 
 <style scoped>
 .pomodoro-wrapper {
-    color: var(--details-color);
-    background: var(--details-color-light);
-    background: -webkit-linear-gradient(to right, var(--details-color-light-2), var(--details-color-light));
-    background: linear-gradient(to right, var(--details-color-light-2), var(--details-color-light));
-}
-
-.pomodoro-wrapper .container {
     position: relative;
     display: grid;
     place-items: center;
     min-height: 90vh;
+    color: var(--details-color);
+    background: var(--details-color-light);
+    background: -webkit-linear-gradient(to right, var(--details-color-light-2), var(--details-color-light));
+    background: linear-gradient(to right, var(--details-color-light-2), var(--details-color-light));
 }
 
 .btn-back {
@@ -302,12 +293,9 @@ watch(hasSelectedTask, () => {
 .information-wrapper {
     display: grid;
     place-items: center;
-    height: 90vh;
-    padding: calc(var(--padding) * 2) var(--padding);
-}
-
-.information-wrapper>.container {
     max-width: 720px;
+    min-height: 90vh;
+    padding: calc(var(--padding) * 2) var(--padding);
 }
 
 .information {
