@@ -2,64 +2,53 @@
 import { computed, onMounted, onBeforeUnmount } from 'vue';
 import { TOAST_TIMEOUT } from '../utils/variables';
 
-const emit = defineEmits(['close']);
-
 const props = defineProps({
     data: {
         type: Object,
-        required: true
-    }
+        required: true,
+    },
 });
 
-const title = computed(() => {
-    return props.data.type === 'error' ? 'Erro' : 'Sucesso';
-});
+const emit = defineEmits(['close']);
 
-const iconClass = computed(() => {
-    return `fa-solid ${props.data.type === 'error' ? 'fa-exclamation-circle' : 'fa-check'}`;
-});
+const TOAST_TITLES = {
+    error: "Oops!",
+    success: "Sucesso",
+};
 
-const toastClass = computed(() => {
-    return [
-        'toast',
-        props.data.show ? 'toast--active' : '',
-        props.data.type ? `toast--${props.data.type}` : ''
-    ].join(' ').trim();
-});
+const TOAST_ICONS = {
+    error: "fa-solid fa-exclamation-circle",
+    success: "fa-solid fa-check",
+};
+
+const title = computed(() => TOAST_TITLES[props.data.type]);
+const iconClass = computed(() => TOAST_ICONS[props.data.type]);
+const toastClass = computed(() => `toast ${props.data.show && 'toast--active'} toast--${props.data.type}`);
 
 let timeoutId;
 
 onMounted(() => {
-    if (props.data.type !== 'error') {
-        timeoutId = setTimeout(() => {
-            closeToast();
-        }, TOAST_TIMEOUT);
-    }
+    timeoutId = setTimeout(() => closeToast(), TOAST_TIMEOUT);
 });
 
-onBeforeUnmount(() => {
-    clearTimeout(timeoutId);
-});
+onBeforeUnmount(() => clearTimeout(timeoutId));
 
 function closeToast() {
-    emit('close');
+    emit("close");
 }
 </script>
 
 <template>
     <div :class="toastClass" role="alert" aria-live="assertive" aria-atomic="true" tabindex="0">
         <div class="toast__banner" aria-hidden="true"></div>
-
         <div class="toast__content">
             <div class="toast__icon">
                 <i :class="iconClass" aria-hidden="true"></i>
             </div>
-
             <div>
                 <p class="toast__title">{{ title }}</p>
                 <p class="toast__text">{{ props.data.text }}</p>
             </div>
-
             <button class="btn" @click="closeToast" title="Fechar mensagem" aria-label="Fechar mensagem">
                 <i class="fa-solid fa-times" aria-hidden="true"></i>
             </button>
