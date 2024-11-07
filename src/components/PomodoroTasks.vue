@@ -145,7 +145,9 @@ onMounted(() => {
                     <p class="text text--small text--muted truncate" style="--line-clamp: 1">
                         {{ selectedTask.value?.topic.name }}
                     </p>
-                    <p class="text truncate" style="--line-clamp: 1">{{ selectedTask.value?.name }}</p>
+                    <p class="text truncate" style="--line-clamp: 1">
+                        {{ selectedTask.value?.name }}
+                    </p>
                 </div>
             </div>
 

@@ -5,7 +5,7 @@ import { DOC_NAME } from '../utils/variables';
 import { db } from '../libs/firebase';
 
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 import { useToast } from '../composables/useToast';
 import { useAuthStore } from '../stores/authStore';

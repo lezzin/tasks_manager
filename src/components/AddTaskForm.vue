@@ -64,7 +64,7 @@ const addTask = async () => {
     const { name, id } = props.topic;
     const docRef = doc(db, DOC_NAME, user.uid);
 
-    const taskData = {
+    const newTask = {
         id: Date.now().toString(36),
         name: filterField(taskName.value),
         status: false,
@@ -76,7 +76,7 @@ const addTask = async () => {
         topic: { id, name },
     };
 
-    const updatedTasks = [...props.topic.tasks, taskData];
+    const updatedTasks = [...props.topic.tasks, newTask];
 
     await updateDoc(docRef, {
         [`topics.${name}.${DOC_NAME}`]: updatedTasks,
