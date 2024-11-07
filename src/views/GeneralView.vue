@@ -14,6 +14,7 @@ import { useToast } from '../composables/useToast.js';
 import { useAuthStore } from '../stores/authStore.js';
 import { useLoadingStore } from '../stores/loadingStore.js';
 import ResponsiveImage from '../components/ResponsiveImage.vue';
+import { formatDate } from '../utils/dateUtils.js';
 
 const { showToast } = useToast();
 const { user } = useAuthStore();
@@ -211,7 +212,7 @@ onMounted(() => {
                             </p>
                             <p class="text text--icon text--small" v-if="task.delivery_date">
                                 <i class="fa-regular fa-bell" aria-hidden="true"></i>
-                                Entrega para: {{ task.delivery_date }}
+                                Entrega para: {{ formatDate(task.delivery_date) }}
                             </p>
                         </div>
                     </div>

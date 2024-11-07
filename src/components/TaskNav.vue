@@ -13,6 +13,7 @@ import { inject, markRaw, ref } from 'vue';
 
 import EditTaskForm from './EditTaskForm.vue';
 import CommentModal from './CommentModal.vue';
+import { formatDate } from '../utils/dateUtils';
 
 const modal = useModal();
 const { user } = useAuthStore();
@@ -103,7 +104,7 @@ const openTaskComment = (comment) => {
                         </span>
                         <span class="text text--icon text--small text--muted" v-if="task.delivery_date">
                             <i class="fa-regular fa-bell"></i>
-                            Entrega para: {{ task.delivery_date }}
+                            Entrega para: {{ formatDate(task.delivery_date) }}
                         </span>
                     </p>
                 </div>
