@@ -69,10 +69,8 @@ const formatComment = (comment) => {
     });
 };
 
-const createTaskObject = ({ name, id }, task) => {
+const createTaskObject = (task) => {
     return {
-        topic_name: name,
-        topic_id: id,
         ...task,
         isHovering: false,
         isFocused: false,
@@ -80,7 +78,7 @@ const createTaskObject = ({ name, id }, task) => {
 };
 
 const updatePriorityCounter = () => {
-    priorityCount.completed = allUserTasks.value.filter((task) => task.status).length;
+    priorityCount.completed = allUserTasks.value.filter((task) => !!task.status).length;
     priorityCount.high = allUserTasks.value.filter((task) => task.priority === TASK_PRIORITIES.high).length;
     priorityCount.medium = allUserTasks.value.filter((task) => task.priority === TASK_PRIORITIES.medium).length;
     priorityCount.small = allUserTasks.value.filter((task) => task.priority === TASK_PRIORITIES.low).length;
@@ -111,7 +109,7 @@ const fetchUserTasks = async () => {
 const getUserTasks = (topics) => {
     return Object.values(topics)
         .filter((topic) => topic.tasks?.length > 0)
-        .flatMap((topic) => topic.tasks.map((task) => createTaskObject(topic, task)))
+        .flatMap((topic) => topic.tasks.map((task) => createTaskObject(task)))
         .sort((taskA, taskB) => {
             if (taskA.status !== taskB.status) return taskA.status ? -1 : 1;
             return taskB.priority - taskA.priority;
@@ -150,35 +148,35 @@ onMounted(() => {
 
         <section class="legend" aria-labelledby="task-legend">
             <h3 id="task-legend" class="sr-only">Legenda de prioridade de tarefas</h3>
-            <div class="legend__item completed" @mouseover="focusTasksByPriority('completed')"
+            <div class="legend__item completed" @mouseover="focusTasksByPriority(TASK_PRIORITIES.completed)"
                 @mouseleave="removeFocusFromTasks" aria-label="Tarefas concluídas: {{ priorityCount.completed }}"
                 tabindex="0">
                 <p class="text text--small">
-                    <i :class="getPriorityIcon('completed')" aria-hidden="true"></i>
+                    <i :class="getPriorityIcon(TASK_PRIORITIES.completed)" aria-hidden="true"></i>
                     Concluídas ({{ priorityCount.completed }})
                 </p>
             </div>
-            <div class="legend__item priority-high" @mouseover="focusTasksByPriority('3')"
+            <div class="legend__item priority-high" @mouseover="focusTasksByPriority(TASK_PRIORITIES.high)"
                 @mouseleave="removeFocusFromTasks" :aria-label="`Tarefas de alta prioridade: ${priorityCount.high}`"
                 tabindex="0">
                 <p class="text text--small">
-                    <i :class="getPriorityIcon('3')" aria-hidden="true"></i>
+                    <i :class="getPriorityIcon(TASK_PRIORITIES.high)" aria-hidden="true"></i>
                     Alta prioridade ({{ priorityCount.high }})
                 </p>
             </div>
-            <div class="legend__item priority-medium" @mouseover="focusTasksByPriority('2')"
+            <div class="legend__item priority-medium" @mouseover="focusTasksByPriority(TASK_PRIORITIES.medium)"
                 @mouseleave="removeFocusFromTasks" :aria-label="`Tarefas de média prioridade: ${priorityCount.medium}`"
                 tabindex="0">
                 <p class="text text--small">
-                    <i :class="getPriorityIcon('2')" aria-hidden="true"></i>
+                    <i :class="getPriorityIcon(TASK_PRIORITIES.medium)" aria-hidden="true"></i>
                     Média prioridade ({{ priorityCount.medium }})
                 </p>
             </div>
-            <div class="legend__item priority-low" @mouseover="focusTasksByPriority('1')"
+            <div class="legend__item priority-low" @mouseover="focusTasksByPriority(TASK_PRIORITIES.low)"
                 @mouseleave="removeFocusFromTasks" :aria-label="`Tarefas de baixa prioridade: ${priorityCount.small}`"
                 tabindex="0">
                 <p class="text text--small">
-                    <i :class="getPriorityIcon('1')" aria-hidden="true"></i>
+                    <i :class="getPriorityIcon(TASK_PRIORITIES.low)" aria-hidden="true"></i>
                     Baixa prioridade ({{ priorityCount.small }})
                 </p>
             </div>
@@ -190,14 +188,14 @@ onMounted(() => {
             <RouterLink @click="closeTopicNav" :class="[
                 'grid__item',
                 'task',
-                task.status && 'completed',
+                task.status && TASK_PRIORITIES.completed,
                 { 'task--hovering': task.isHovering, 'task--focused': task.isFocused }
-            ]" v-for="task in allUserTasks" :key="task.id" role="listitem" :to="'/topic/' + task.topic_id"
-                title="Acessar tópico {{ task.topic_name }}"
+            ]" v-for="task in allUserTasks" :key="task.id" role="listitem" :to="'/topic/' + task.topic.id"
+                title="Acessar tópico {{ task.topic.name }}"
                 aria-label="Tarefa: {{ task.name }}, status: {{ task.status ? 'Concluída' : 'Pendente' }}, prioridade: {{ getPriorityText(task.priority) }}">
                 <div class="grid__item-header">
                     <p class="grid__item-title text text--small text--muted">
-                        {{ task.topic_name }}
+                        {{ task.topic.name }}
                     </p>
                     <div class="grid__item-info">
                         <p class="grid__item-name text">{{ task.name }}</p>

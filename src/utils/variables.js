@@ -14,9 +14,9 @@ const PAGE_TITLES = {
 };
 
 const TASK_PRIORITIES = {
-    high: 3,
-    medium: 2,
-    low: 1,
+    high: "3",
+    medium: "2",
+    low: "1",
     completed: "completed",
 };
 
