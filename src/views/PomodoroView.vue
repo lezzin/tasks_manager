@@ -34,9 +34,11 @@ const canShakeButton = ref(false);
 let shakeTimeout;
 
 const warnUser = () => {
-    if (shakeTimeout) clearTimeout(shakeTimeout);
+    if (canShakeButton.value) return;
+
     canShakeButton.value = true;
-    shakeTimeout = setTimeout(() => canShakeButton.value = false, 2000);
+    if (shakeTimeout) clearTimeout(shakeTimeout);
+    shakeTimeout = setTimeout(() => canShakeButton.value = false, 1500);
 }
 
 let timerInterval;
