@@ -102,7 +102,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="task-wrapper">
+    <div class="task-wrapper" v-if="tasks.data.length > 0">
         <div class="task-dropdown">
             <div class="dropdown-header" @click="dropdownOpen = !dropdownOpen" :class="{ shake: props.canShake }">
                 <span class="truncate" style="--line-clamp: 1">
@@ -135,10 +135,17 @@ onMounted(() => {
                 </div>
             </div>
         </div>
-        <div v-else class="task task--empty">
+        <div v-else class="task alert">
             <p class="text">Sua tarefa aparecerá aqui...</p>
         </div>
     </div>
+    <div v-else class="alert">
+        <p class="text text--icon">
+            <i class="fa-solid fa-exclamation-circle"></i>
+            <span> Crie uma nova tarefa para começar a utilizar o Pomodoro</span>
+        </p>
+    </div>
+
 </template>
 
 <style scoped>
@@ -148,12 +155,12 @@ onMounted(() => {
     flex-direction: column;
     max-width: 500px;
     width: 90%;
-    color: var(--font-primary);
 }
 
 .task-dropdown {
     position: relative;
     font-size: 1.6rem;
+    color: var(--font-primary);
     width: 100%;
 }
 
@@ -206,13 +213,18 @@ onMounted(() => {
     width: 100%;
 }
 
-.task--empty {
-    background: var(--bg-secondary);
-    padding: 2.2rem var(--padding);
+.task.alert {
     border-style: dashed;
+    padding: 2.2rem var(--padding);
+}
+
+.alert {
+    border-radius: var(--radius);
+    background: var(--bg-secondary);
+    padding: var(--padding);
     justify-content: center;
-    opacity: .8;
     cursor: default;
+    opacity: .8;
 }
 
 .task__content {
