@@ -76,7 +76,7 @@ const addTask = async (topic, newName, comment, priority, deliveryDate, userId) 
         status: false,
         created_at: currentTime(),
         priority,
-        comment: comment ?? "",
+        comment: String(comment).trim() ?? "",
         delivery_date: deliveryDate,
         kanbanStatus: TASK_KANBAN_STATUSES.todo,
         topic: { id: topic.id, name: topic.name },
@@ -95,7 +95,7 @@ const editTask = async (taskToUpdate, newName, newComment, newPriority, newDeliv
         name: filterField(newName),
         priority: newPriority,
         delivery_date: newDeliveryDate,
-        comment: newComment,
+        comment: String(newComment).trim() ?? "",
     };
 
     const userTasks = await getUserTasks(userId);
