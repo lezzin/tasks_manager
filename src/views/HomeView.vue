@@ -6,15 +6,15 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { useRoute, useRouter } from 'vue-router';
 
 import { useAuthStore } from '../stores/authStore';
+import { useLoadingStore } from '../stores/loadingStore';
 import { useModal } from '../composables/useModal';
 import { useToast } from '../composables/useToast';
 
-import TaskNav from '../components/TaskNav.vue';
-import AddTaskForm from '../components/AddTaskForm.vue';
-import AddTopicForm from '../components/AddTopicForm.vue';
-import TopicNav from '../components/TopicNav.vue';
-import { useLoadingStore } from '../stores/loadingStore';
-import ResponsiveImage from '../components/ResponsiveImage.vue';
+import TaskNavigation from '../components/task/TaskNavigation.vue';
+import TaskFormAdd from '../components/forms/TaskFormAdd.vue';
+import TopicFormAdd from '../components/forms/TopicFormAdd.vue';
+import TopicNavigation from '../components/topic/TopicNavigation.vue';
+import ImageResponsive from '../components/shared/ImageResponsive.vue';
 
 const props = defineProps({
     db: {
@@ -101,6 +101,7 @@ const loadTopic = (id) => {
 
     selectedTopic.value = topic;
     defaultTasks.value = topic.tasks || [];
+
     document.title = PAGE_TITLES.home.topic(topic.name);
 }
 
@@ -153,7 +154,7 @@ const closeTopicsMenu = () => {
 }
 
 const openAddTaskModal = () => {
-    modal.component.value = markRaw(AddTaskForm);
+    modal.component.value = markRaw(TaskFormAdd);
     modal.showModal();
 }
 
@@ -175,9 +176,9 @@ provide("filterTask", filterTask);
 <template>
     <div class="home-wrapper">
         <nav :class="['home-aside', isMenuTopicsActive && 'home-aside--active']" aria-label="Navegação de tópicos">
-            <AddTopicForm />
+            <TopicFormAdd />
             <span class="divider" role="separator" aria-hidden="true"></span>
-            <TopicNav :data="topics.data" @close="closeTopicsMenu" />
+            <TopicNavigation :data="topics.data" @close="closeTopicsMenu" />
         </nav>
 
         <section :class="['container', defaultTasks.length > 0 ? 'task-container' : '']" v-if="selectedTopic">
@@ -227,23 +228,23 @@ provide("filterTask", filterTask);
                 <span class="divider" role="separator" aria-hidden="true"></span>
 
                 <section aria-label="Lista de tarefas filtradas">
-                    <TaskNav :topic="selectedTopic.name" :tasks="filteredTasks" />
+                    <TaskNavigation :topic="selectedTopic.name" :tasks="filteredTasks" />
                 </section>
             </div>
             <div v-else class="image-centered" aria-live="polite" aria-atomic="true">
-                <ResponsiveImage small="task_empty_sm.png" lg="task_empty_lg.png"
+                <ImageResponsive small="task_empty_sm.png" lg="task_empty_lg.png"
                     alt="Frase tarefas vazias e uma imagem de uma caixa vazia" />
             </div>
         </section>
         <div v-else class="container image-centered" aria-live="polite" aria-atomic="true">
-            <ResponsiveImage small="topic_unselected_sm.png" lg="topic_unselected_lg.png"
+            <ImageResponsive small="topic_unselected_sm.png" lg="topic_unselected_lg.png"
                 alt="Uma pessoa escrevendo em um diário suas tarefas pessoais" />
         </div>
     </div>
 
     <Teleport to="#modal">
         <Transition>
-            <AddTaskForm v-if="modal.show.value" @close="modal.hideModal" :topic="selectedTopic" id="add-task-modal" />
+            <TaskFormAdd v-if="modal.show.value" @close="modal.hideModal" :topic="selectedTopic" id="add-task-modal" />
         </Transition>
     </Teleport>
 </template>

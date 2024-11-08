@@ -13,7 +13,7 @@ import { marked } from 'marked';
 import { useToast } from '../composables/useToast.js';
 import { useAuthStore } from '../stores/authStore.js';
 import { useLoadingStore } from '../stores/loadingStore.js';
-import ResponsiveImage from '../components/ResponsiveImage.vue';
+import ImageResponsive from '../components/shared/ImageResponsive.vue';
 import { formatDate } from '../utils/dateUtils.js';
 
 const { showToast } = useToast();
@@ -233,7 +233,7 @@ onMounted(() => {
 
     <div class="container" v-else>
         <RouterLink to="/" title="Voltar para o início">
-            <ResponsiveImage small="task_empty_sm.png" lg="task_empty_lg.png"
+            <ImageResponsive small="task_empty_sm.png" lg="task_empty_lg.png"
                 alt="Frase tarefas vazias e uma imagem de uma caixa vazia" />
         </RouterLink>
     </div>

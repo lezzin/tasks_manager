@@ -1,18 +1,18 @@
 <script setup>
-import { DOC_NAME, PAGE_TITLES, TASK_KANBAN_STATUSES } from '../utils/variables';
-import { db } from '../libs/firebase';
+import { PAGE_TITLES, TASK_KANBAN_STATUSES } from '../../utils/variables';
 
-import { getDoc, doc, updateDoc } from 'firebase/firestore';
 import { onMounted, reactive, ref, markRaw } from 'vue';
 import { useRouter } from 'vue-router';
 import { marked } from 'marked';
 
-import { useAuthStore } from '../stores/authStore';
-import { useLoadingStore } from '../stores/loadingStore';
-import { useToast } from '../composables/useToast';
-import { useModal } from '../composables/useModal';
+import { useAuthStore } from '../../stores/authStore';
+import { useLoadingStore } from '../../stores/loadingStore';
+import { useToast } from '../../composables/useToast';
+import { useModal } from '../../composables/useModal';
+import { useTask } from '../../composables/useTask';
 
-import CommentModal from '../components/CommentModal.vue';
+import CommentModal from '../modals/CommentModal.vue';
+import Task from '../task/TaskItem.vue';
 
 const emit = defineEmits(["update"]);
 
@@ -27,6 +27,7 @@ const loadingStore = useLoadingStore();
 const { showToast } = useToast();
 const { user } = useAuthStore();
 const modal = useModal();
+const taskComposable = useTask();
 const router = useRouter();
 
 const tasks = reactive({ data: [] });
@@ -35,68 +36,47 @@ const selectedTask = reactive({ value: null });
 const selectedComment = ref("");
 
 const loadTasks = async () => {
-    const docRef = doc(db, DOC_NAME, user.uid);
     loadingStore.showLoader();
 
     try {
-        const docSnap = await getDoc(docRef);
-
-        if (!docSnap.exists()) {
-            showToast("danger", "Documento não encontrado.");
-            router.back("/");
-            return;
-        }
-
-        const userData = docSnap.data();
-        const topicsExists = userData && userData.topics && Object.keys(userData.topics).length > 0;
-
-        if (!topicsExists) {
-            showToast("danger", "Adicione uma tarefa para utilizar o Método.");
-            router.back("/");
-            return;
-        }
-
-        tasks.data = extractUniqueTasks(userData.topics);
-
+        tasks.data = await taskComposable.getUserTasks(user.uid);
     } catch (error) {
-        showToast("danger", "Erro ao obter documento: " + error.message);
-    }
+        showToast("danger", error.message);
 
-    loadingStore.hideLoader();
+        if (error.code === "topic-not-found" || error.code === "doc-not-found") {
+            router.push("/");
+        }
+    } finally {
+        loadingStore.hideLoader();
+    }
 };
 
-const extractUniqueTasks = (userTopics) => {
-    return (
-        Object.values(userTopics)
-            .flatMap(topic => topic.tasks || [])
-            .filter((task, index, self) => index === self.findIndex((t) => t.id === task.id)));
-}
-
 const changeTaskStatus = async (taskToUpdate) => {
-    const docRef = doc(db, DOC_NAME, user.uid);
-    const newStatus = !taskToUpdate.status;
-
     try {
-        const updatedTasks = tasks.data.map(task => task.id === taskToUpdate.id
-            ? { ...task, status: newStatus, kanbanStatus: newStatus ? TASK_KANBAN_STATUSES.completed : TASK_KANBAN_STATUSES.todo }
-            : task
-        );
-
-        await updateDoc(docRef, {
-            [`topics.${taskToUpdate.topic.name}.${DOC_NAME}`]: updatedTasks
-        });
-
+        const newStatus = await taskComposable.changeStatus(tasks.data, taskToUpdate, user.uid);
+        taskToUpdate.status = newStatus;
+        taskToUpdate.kanbanStatus = newStatus ? TASK_KANBAN_STATUSES.completed : TASK_KANBAN_STATUSES.todo;
         showToast("success", "Status de conclusão alterado com sucesso");
     } catch (error) {
-        showToast("danger", "Erro ao alterar tarefa: " + error.message);
+        showToast("danger", "Erro ao alterar status da tarefa.");
     }
-
-    taskToUpdate.status = newStatus;
-    taskToUpdate.kanbanStatus = newStatus ? TASK_KANBAN_STATUSES.completed : TASK_KANBAN_STATUSES.todo;
 };
 
 const selectTask = (task) => {
-    selectedTask.value = task;
+    if (task) {
+        const taskDataToUse = {
+            id: task.id,
+            name: task.name,
+            comment: task.comment,
+            status: task.status,
+            topic: task.topic,
+        }
+
+        selectedTask.value = taskDataToUse;
+    } else {
+        selectedTask.value = null;
+    }
+
     dropdownOpen.value = false;
     emit("update", task);
 };
@@ -133,31 +113,10 @@ onMounted(() => {
             </Transition>
         </div>
 
-        <div v-if="selectedTask.value?.id" class="task">
-            <div class="task__content">
-                <button :class="`btn btn--bordered btn--rounded ${selectedTask.value?.status ? 'btn--primary' : ''}`"
-                    :title="`Marcar tarefa como ${selectedTask.value?.status ? 'não concluída' : 'concluída'}`"
-                    @click="changeTaskStatus(selectedTask.value)" aria-label="Marcar tarefa como concluída">
-                    <i class="fa-solid fa-check"></i>
-                </button>
+        <Task v-if="selectedTask.value?.id" :key="selectedTask.value.id" :task="selectedTask.value"
+            @changeStatus="changeTaskStatus" @openComment="openTaskComment" :showPriorities="false" :showEdit="false"
+            :showDelete="false" />
 
-                <div class="task__information">
-                    <p class="text text--small text--muted truncate" style="--line-clamp: 1">
-                        {{ selectedTask.value?.topic.name }}
-                    </p>
-                    <p class="text truncate" style="--line-clamp: 1">
-                        {{ selectedTask.value?.name }}
-                    </p>
-                </div>
-            </div>
-
-            <button @click="openTaskComment(selectedTask.value?.comment)" title="Abrir modal de comentário"
-                class="btn btn--rounded btn--outline-primary" aria-haspopup="dialog" aria-controls="comment-modal"
-                v-if="selectedTask.value?.comment">
-                <span class="sr-only">Visualizar comentário da tarefa</span>
-                <i class="fa-solid fa-comment" aria-hidden="true"></i>
-            </button>
-        </div>
         <div v-else class="task alert">
             <p class="text">Sua tarefa aparecerá aqui...</p>
         </div>

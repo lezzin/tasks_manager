@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, onBeforeUnmount } from 'vue';
-import { TOAST_TIMEOUT } from '../utils/variables';
+import { TOAST_TIMEOUT } from '../../utils/variables';
 
 const props = defineProps({
     data: {

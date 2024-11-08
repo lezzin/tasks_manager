@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { baseUrl } from '../utils/urlUtils';
+import { baseUrl } from '../../utils/urlUtils';
 
 const props = defineProps({
     small: {

@@ -1,14 +1,14 @@
 <script setup>
-import { currentTime } from '../utils/dateUtils';
-import { filterField } from '../utils/stringUtils';
-import { DOC_NAME, TOPIC_MAX_LENGTH, TOPIC_MIN_LENGTH } from '../utils/variables';
-import { db } from '../libs/firebase';
+import { currentTime } from '../../utils/dateUtils';
+import { filterField } from '../../utils/stringUtils';
+import { DOC_NAME, TOPIC_MAX_LENGTH, TOPIC_MIN_LENGTH } from '../../utils/variables';
+import { db } from '../../libs/firebase';
 
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { onMounted, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 
-import { useToast } from '../composables/useToast';
-import { useAuthStore } from '../stores/authStore';
+import { useToast } from '../../composables/useToast';
+import { useAuthStore } from '../../stores/authStore';
 
 const nameError = ref("");
 const name = ref("");

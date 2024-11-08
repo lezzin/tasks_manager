@@ -1,13 +1,13 @@
 <script setup>
-import { filterField } from '../utils/stringUtils';
-import { DOC_NAME, TOPIC_MAX_LENGTH, TOPIC_MIN_LENGTH } from '../utils/variables';
-import { db } from '../libs/firebase';
+import { filterField } from '../../utils/stringUtils';
+import { DOC_NAME, TOPIC_MAX_LENGTH, TOPIC_MIN_LENGTH } from '../../utils/variables';
+import { db } from '../../libs/firebase';
 
 import { ref, watch } from 'vue';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
-import { useToast } from '../composables/useToast';
-import { useAuthStore } from '../stores/authStore';
+import { useToast } from '../../composables/useToast';
+import { useAuthStore } from '../../stores/authStore';
 
 const { showToast } = useToast();
 const { user } = useAuthStore();

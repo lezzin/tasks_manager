@@ -12,8 +12,8 @@ import { ref, provide } from 'vue';
 import { useToast } from './composables/useToast';
 import { useAuthStore } from './stores/authStore';
 
-import LoaderContainer from './components/LoaderContainer.vue';
-import FeedbackToast from './components/FeedbackToast.vue';
+import LoaderContainer from './components/shared/LoaderContainer.vue';
+import ToastFeedback from './components/shared/ToastFeedback.vue';
 
 const authStore = useAuthStore();
 const { toast, closeToast, showToast } = useToast();
@@ -119,7 +119,7 @@ const removeUser = async () => {
                 </div>
             </div>
 
-            <FeedbackToast :data="toast" @close="closeToast" />
+            <ToastFeedback :data="toast" @close="closeToast" />
         </div>
     </header>
 

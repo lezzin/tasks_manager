@@ -8,7 +8,7 @@ import { signInWithPopup } from 'firebase/auth';
 import { useToast } from '../composables/useToast.js';
 import { useAuthStore } from '../stores/authStore.js';
 import { useLoadingStore } from '../stores/loadingStore.js';
-import ResponsiveImage from '../components/ResponsiveImage.vue';
+import ImageResponsive from '../components/shared/ImageResponsive.vue';
 
 const { provider, auth } = defineProps(['provider', 'auth']);
 const { showToast } = useToast();
@@ -66,7 +66,7 @@ watchEffect(() => {
         <form style="--form-width: 450px" @submit.prevent="loginGoogle" role="form" aria-labelledby="login-heading">
             <h2 id="login-heading" class="sr-only">Formulário de Login com Google</h2>
 
-            <ResponsiveImage small="login_sm.png" lg="login_lg.png" alt="Uma pessoa escrevendo em um caderno" />
+            <ImageResponsive small="login_sm.png" lg="login_lg.png" alt="Uma pessoa escrevendo em um caderno" />
 
             <button class="btn btn--block btn--icon btn--primary"
                 :title="loading ? 'Entrando...' : 'Entrar com o Google'" :disabled="loading"

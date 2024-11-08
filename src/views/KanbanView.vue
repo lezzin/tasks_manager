@@ -1,16 +1,16 @@
 <script setup>
-import { DOC_NAME, PAGE_TITLES, TASK_KANBAN_STATUSES } from '../utils/variables.js';
+import { PAGE_TITLES, TASK_KANBAN_STATUSES } from '../utils/variables.js';
 import { getPriorityClass, getPriorityText, getPriorityIcon } from '../utils/priorityUtils.js';
 
 import { ref, reactive, onMounted, inject } from 'vue';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { RouterLink, useRouter } from 'vue-router';
 
 import { useToast } from '../composables/useToast.js';
+import { useTask } from '../composables/useTask.js';
 import { useAuthStore } from '../stores/authStore.js';
 import { useLoadingStore } from '../stores/loadingStore.js';
 
-import ResponsiveImage from '../components/ResponsiveImage.vue';
+import ImageResponsive from '../components/shared/ImageResponsive.vue';
 
 const props = defineProps(['db']);
 
@@ -24,6 +24,7 @@ const activeColumn = ref(null);
 const tasksLength = ref(0);
 
 const { showToast } = useToast();
+const taskComposable = useTask();
 const { user } = useAuthStore();
 const loadingStore = useLoadingStore();
 const router = useRouter();
@@ -32,44 +33,18 @@ const sendBack = () => {
     router.back();
 };
 
-const createTaskObject = ({ name, id }, task) => {
-    return {
-        topic_name: name,
-        topic_id: id,
-        ...task,
-    };
-};
-
-const getUserTasks = (topics) => {
-    return Object.values(topics)
-        .filter((topic) => topic.tasks?.length > 0)
-        .flatMap((topic) => topic.tasks.map((task) => createTaskObject(topic, task)));
-};
-
-const getAllUserTasks = async () => {
+const loadTasks = async () => {
     loadingStore.showLoader();
 
     try {
-        const userData = await fetchUserData();
-        if (!userData?.topics || Object.keys(userData.topics).length === 0) {
-            return;
-        }
-
-        const userTasks = getUserTasks(userData.topics);
+        const userTasks = await taskComposable.getUserTasks(user.uid);
         tasksLength.value = userTasks.length;
-
         organizeTasksByStatus(userTasks);
     } catch (error) {
         showToast("danger", `Erro ao resgatar tarefas: ${error.message}`);
     } finally {
         loadingStore.hideLoader();
     }
-};
-
-const fetchUserData = async () => {
-    const docRef = doc(props.db, DOC_NAME, user.uid);
-    const docSnap = await getDoc(docRef);
-    return docSnap.data();
 };
 
 const organizeTasksByStatus = (userTasks) => {
@@ -140,34 +115,11 @@ const changeTaskColumn = (task, newColumn) => {
 
 const updateTaskStatus = async (taskToUpdate, newKanbanStatus) => {
     try {
-        const userData = await fetchUserData();
-        if (userData?.topics) {
-            const selectedTopicData = Object.values(userData.topics).find(
-                (topic) => topic.id === taskToUpdate.topic_id
-            );
-
-            if (selectedTopicData?.tasks) {
-                const updatedTasks = selectedTopicData.tasks.map((task) => {
-                    if (taskToUpdate.id === task.id) {
-                        taskToUpdate.kanban = newKanbanStatus;
-                        taskToUpdate.status = newKanbanStatus === TASK_KANBAN_STATUSES.completed;
-
-                        return {
-                            ...task,
-                            kanbanStatus: newKanbanStatus,
-                            status: newKanbanStatus === TASK_KANBAN_STATUSES.completed
-                        };
-                    }
-                    return task;
-                });
-
-                await updateDoc(doc(props.db, DOC_NAME, user.uid), {
-                    [`topics.${selectedTopicData.name}.${DOC_NAME}`]: updatedTasks,
-                });
-            }
-        }
+        taskComposable.changeKanbanStatus(taskToUpdate, newKanbanStatus, user.uid);
+        taskToUpdate.kanban = newKanbanStatus;
+        taskToUpdate.status = (newKanbanStatus === TASK_KANBAN_STATUSES.completed);
     } catch (error) {
-        showToast("danger", `Erro ao atualizar status da tarefa: ${error.message}`);
+        showToast("danger", `Erro ao atualizar Kanban: ${error.message}`);
     }
 };
 
@@ -184,7 +136,7 @@ const getStatusLabel = (status) => {
 onMounted(() => {
     document.title = PAGE_TITLES.kanban;
     inject('showTopicNavBtn').value = false;
-    getAllUserTasks();
+    loadTasks();
 });
 </script>
 
@@ -220,10 +172,10 @@ onMounted(() => {
                         @dragstart="handleDragEvents($event, 'start', task)" @dragend="handleDragEvents($event, 'end')"
                         role="listitem" :aria-labelledby="'task-' + task.id">
                         <p id="task-topic-{{ task.id }}" class="text text--small text--muted">
-                            {{ task.topic_name }}
+                            {{ task.topic.name }}
                         </p>
 
-                        <RouterLink class="text text--bold truncate" :to="'/topic/' + task.topic_id"
+                        <RouterLink class="text text--bold truncate" :to="'/topic/' + task.topic.id"
                             style="--line-clamp: 1" :aria-labelledby="'task-' + task.id">
                             <span :id="'task-' + task.id">{{ task.name }}</span>
                         </RouterLink>
@@ -253,7 +205,7 @@ onMounted(() => {
     </div>
     <div class="container" v-else>
         <RouterLink to="/" title="Voltar para o início">
-            <ResponsiveImage small="task_empty_sm.png" lg="task_empty_lg.png"
+            <ImageResponsive small="task_empty_sm.png" lg="task_empty_lg.png"
                 alt="Frase tarefas vazias e uma imagem de uma caixa vazia" />
         </RouterLink>
     </div>

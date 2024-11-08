@@ -1,16 +1,16 @@
 <script setup>
-import { DOC_NAME, TASK_PRIORITIES } from '../utils/variables';
-import { filterField } from '../utils/stringUtils';
-import { db } from '../libs/firebase';
+import { DOC_NAME, TASK_PRIORITIES } from '../../utils/variables';
+import { filterField } from '../../utils/stringUtils';
+import { db } from '../../libs/firebase';
 
 import { ref, watch } from 'vue';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
-import { useToast } from '../composables/useToast';
-import { useAuthStore } from '../stores/authStore';
+import { useToast } from '../../composables/useToast';
+import { useAuthStore } from '../../stores/authStore';
 
-import RecognitionInput from './RecognitionInput.vue';
-import MdEditor from './MdEditor.vue';
+import InputRecognition from '../utilities/InputRecognition.vue';
+import MarkdownEditor from '../utilities/MarkdownEditor.vue';
 
 const emit = defineEmits(["close"]);
 
@@ -65,7 +65,7 @@ const editTask = async () => {
     today.setHours(0, 0, 0, 0);
     taskDateValue.setHours(0, 0, 0, 0);
 
-    if (taskDateValue < today) {
+    if (taskDate.value && taskDateValue < today) {
         taskDateError.value = "Insira uma data futura ou atual.";
         return;
     }
@@ -134,7 +134,7 @@ watch(taskDate, () => (taskDateError.value = ""));
             </div>
 
             <form @submit.prevent="editTask">
-                <RecognitionInput label="Nome da tarefa" placeholder="Editar tarefa..." v-model:modelValue="taskName"
+                <InputRecognition label="Nome da tarefa" placeholder="Editar tarefa..." v-model:modelValue="taskName"
                     :errorMessage="taskNameError" enableVoiceRecognition inputId="edit-task-name"
                     @update="updateTaskName" />
 
@@ -144,8 +144,8 @@ watch(taskDate, () => (taskDateError.value = ""));
                     <p class="text text--error" v-if="taskDateError">{{ taskDateError }}</p>
                 </div>
 
-                <MdEditor label="Comentários (opcional)" v-model:modelValue="taskComment" @update="updateTaskComment"
-                    aria-label="Comentários sobre a tarefa" />
+                <MarkdownEditor label="Comentários (opcional)" v-model:modelValue="taskComment"
+                    @update="updateTaskComment" aria-label="Comentários sobre a tarefa" />
 
                 <div class="form-group">
                     <label class="text" for="edit-task-priority">Prioridade</label>

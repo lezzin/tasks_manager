@@ -1,5 +1,5 @@
 <script setup>
-import { useLoadingStore } from '../stores/loadingStore';
+import { useLoadingStore } from '../../stores/loadingStore';
 
 const loadingStore = useLoadingStore();
 

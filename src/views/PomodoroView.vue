@@ -5,7 +5,7 @@ import { useToast } from '../composables/useToast';
 import { inject, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
-import PomodoroTasks from '../components/PomodoroTasks.vue';
+import PomodoroTasks from '../components/task/PomodoroTasks.vue';
 
 const TIME_CONSTANTS = {
     ONE_SECOND: 1000,

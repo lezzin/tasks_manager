@@ -1,17 +1,17 @@
 <script setup>
-import { db } from '../libs/firebase';
-import { DOC_NAME, TASK_KANBAN_STATUSES, TASK_PRIORITIES } from '../utils/variables';
-import { currentTime } from '../utils/dateUtils';
-import { filterField } from '../utils/stringUtils';
+import { db } from '../../libs/firebase';
+import { DOC_NAME, TASK_KANBAN_STATUSES, TASK_PRIORITIES } from '../../utils/variables';
+import { currentTime } from '../../utils/dateUtils';
+import { filterField } from '../../utils/stringUtils';
 
 import { inject, ref, watch } from 'vue';
 import { doc, updateDoc } from 'firebase/firestore';
 
-import RecognitionInput from './RecognitionInput.vue';
-import MdEditor from './MdEditor.vue';
+import InputRecognition from '../utilities/InputRecognition.vue';
+import MarkdownEditor from '../utilities/MarkdownEditor.vue';
 
-import { useToast } from '../composables/useToast';
-import { useAuthStore } from '../stores/authStore';
+import { useToast } from '../../composables/useToast';
+import { useAuthStore } from '../../stores/authStore';
 
 const props = defineProps({
     topic: {
@@ -68,7 +68,7 @@ const addTask = async () => {
     today.setHours(0, 0, 0, 0);
     taskDateValue.setHours(0, 0, 0, 0);
 
-    if (taskDateValue < today) {
+    if (taskDate.value && taskDateValue < today) {
         taskDateError.value = "Insira uma data futura ou atual.";
         return;
     }
@@ -113,7 +113,7 @@ watch(taskDate, () => (taskDateError.value = ""));
             </div>
 
             <form @submit.prevent="addTask" aria-describedby="modal-add-task-title">
-                <RecognitionInput label="Nome da tarefa" placeholder="Adicionar tarefa..." v-model:modelValue="taskName"
+                <InputRecognition label="Nome da tarefa" placeholder="Adicionar tarefa..." v-model:modelValue="taskName"
                     :errorMessage="taskNameError" enableVoiceRecognition inputId="add-task-name"
                     @update="updateTaskName" />
 
@@ -124,7 +124,8 @@ watch(taskDate, () => (taskDateError.value = ""));
                     <p class="text text--error" v-if="taskDateError">{{ taskDateError }}</p>
                 </div>
 
-                <MdEditor label="Comentários (opcional)" v-model:modelValue="taskComment" @update="updateTaskComment" />
+                <MarkdownEditor label="Comentários (opcional)" v-model:modelValue="taskComment"
+                    @update="updateTaskComment" />
 
                 <div class="form-group">
                     <label class="text" for="edit-task-priority">Prioridade</label>

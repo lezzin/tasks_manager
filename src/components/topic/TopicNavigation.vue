@@ -1,16 +1,16 @@
 <script setup>
-import { DOC_NAME } from '../utils/variables';
-import { db } from '../libs/firebase';
+import { DOC_NAME } from '../../utils/variables';
+import { db } from '../../libs/firebase';
 
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { RouterLink, useRouter } from 'vue-router';
 import { inject, markRaw, onMounted, ref } from 'vue';
 
-import { useAuthStore } from '../stores/authStore';
-import { useToast } from '../composables/useToast';
-import { useModal } from '../composables/useModal';
+import { useAuthStore } from '../../stores/authStore';
+import { useToast } from '../../composables/useToast';
+import { useModal } from '../../composables/useModal';
 
-import EditTopicForm from './EditTopicForm.vue';
+import TopicFormEdit from '../forms/TopicFormEdit.vue';
 
 const emit = defineEmits(['close']);
 
@@ -79,7 +79,7 @@ const editingTopic = ref(null);
 
 const openEditTopicModal = (topicName) => {
     editingTopic.value = topicName;
-    modal.component.value = markRaw(EditTopicForm);
+    modal.component.value = markRaw(TopicFormEdit);
     modal.showModal();
 }
 </script>
@@ -145,7 +145,7 @@ const openEditTopicModal = (topicName) => {
 
     <Teleport to="#modal">
         <Transition>
-            <EditTopicForm v-if="modal.show.value" @close="modal.hideModal" :topic="editingTopic" />
+            <TopicFormEdit v-if="modal.show.value" @close="modal.hideModal" :topic="editingTopic" />
         </Transition>
     </Teleport>
 </template>
