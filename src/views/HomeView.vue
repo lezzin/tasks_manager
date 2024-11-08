@@ -250,83 +250,79 @@ provide("filterTask", filterTask);
 </template>
 
 <style scoped>
-.home-wrapper {
-    .container {
-        position: relative;
+.container {
+    position: relative;
+}
+
+#add-task-container {
+    position: fixed;
+    max-width: calc(1080px - var(--padding));
+    width: calc(100% - var(--padding));
+    bottom: calc(var(--padding) * 2);
+    z-index: 99;
+    display: flex;
+    justify-content: flex-end;
+
+    @media(max-width: 768px) {
+        right: calc(var(--padding) * 2);
     }
 
-    #add-task-container {
-        position: fixed;
-        max-width: calc(1080px - (var(--padding) * 2));
-        width: 100%;
-        bottom: calc(var(--padding) * 2);
-        z-index: 99;
-
-        display: flex;
-        justify-content: flex-end;
-
-        @media(max-width: 768px) {
-            right: calc(var(--padding) * 2);
-        }
-
-        button {
-            height: 5rem;
-            aspect-ratio: 1;
-            box-shadow: var(--shadow-md);
-
-            i {
-                font-size: 2rem;
-            }
-        }
-    }
-
-    .home-aside {
-        border-right: 1px solid var(--border-color);
+    button {
+        height: 5rem;
+        aspect-ratio: 1;
         box-shadow: var(--shadow-md);
-        background-color: var(--bg-primary);
-        padding: var(--padding);
-        overflow-y: auto;
+
+        i {
+            font-size: 2rem;
+        }
+    }
+}
+
+.home-aside {
+    border-right: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    background-color: var(--bg-primary);
+    padding: var(--padding);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: fixed;
+    width: 30vw;
+    inset: 10vh 0 0;
+    z-index: 999;
+    transform: translateX(-100%);
+    transition: transform var(--screen-transition) ease-in-out;
+
+    @media (width <=768px) {
+        width: 100vw;
+    }
+
+    &.home-aside--active {
+        transform: translateX(0);
+    }
+
+    .divider {
+        margin: 0.5rem 0 1rem;
+    }
+}
+
+.task-container {
+    padding: var(--padding) 0;
+
+    .task-container__header {
         display: flex;
-        flex-direction: column;
+        justify-content: space-between;
+        align-items: flex-end;
         gap: 1rem;
-        position: fixed;
-        width: 30vw;
-        inset: 10vh 0 0;
-        z-index: 999;
-        transform: translateX(-100%);
-        transition: transform var(--screen-transition) ease-in-out;
 
         @media (width <=768px) {
-            width: 100vw;
-        }
+            flex-wrap: wrap;
 
-        &.home-aside--active {
-            transform: translateX(0);
-        }
-
-        .divider {
-            margin: 0.5rem 0 1rem;
-        }
-    }
-
-    .task-container {
-        padding: var(--padding) 0;
-
-        .task-container__header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            gap: 1rem;
-
-            @media (width <=768px) {
-                flex-wrap: wrap;
-
-                form {
-                    width: 100%;
-                }
+            form {
+                width: 100%;
             }
         }
-
     }
 }
 </style>
