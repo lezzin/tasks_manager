@@ -159,20 +159,9 @@ const goToPomodoro = () => {
     warnUser();
 }
 
-const parallaxOffset = ref(0);
-
-function handleScroll() {
-    parallaxOffset.value = window.scrollY * 0.5;
-}
-
 onMounted(() => {
     inject('showTopicNavBtn').value = false;
     loadingStore.hideLoader();
-    window.addEventListener("scroll", handleScroll);
-});
-
-onBeforeUnmount(() => {
-    window.removeEventListener("scroll", handleScroll);
 });
 
 watch(hasSelectedTask, () => {
@@ -185,7 +174,7 @@ watch(hasSelectedTask, () => {
 
 <template>
     <section class="pomodoro-wrapper" id="s-pomodoro">
-        <div class="container" :style="{ transform: `translateY(${parallaxOffset}px)` }">
+        <div class="container">
             <div class="pomodore__absolute">
                 <button type="button" @click="goBack" class="btn-back btn btn--outline-primary btn--icon "
                     title="Voltar para o início" aria-label="Voltar para a página inicial">
@@ -272,8 +261,6 @@ watch(hasSelectedTask, () => {
     background: var(--details-color-light);
     background: -webkit-linear-gradient(to right, var(--details-color-light-2), var(--details-color-light));
     background: linear-gradient(to right, var(--details-color-light-2), var(--details-color-light));
-    perspective: 1000px;
-    overflow: hidden;
 }
 
 .pomodoro-wrapper .container {
@@ -281,8 +268,6 @@ watch(hasSelectedTask, () => {
     display: grid;
     place-items: center;
     min-height: 90vh;
-    transform-style: preserve-3d;
-    transition: transform 0.1s ease-out;
 }
 
 .pomodore__absolute {
