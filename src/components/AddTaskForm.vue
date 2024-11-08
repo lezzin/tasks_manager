@@ -4,7 +4,7 @@ import { DOC_NAME, TASK_KANBAN_STATUSES, TASK_PRIORITIES } from '../utils/variab
 import { currentTime } from '../utils/dateUtils';
 import { filterField } from '../utils/stringUtils';
 
-import { inject, ref } from 'vue';
+import { inject, ref, watch } from 'vue';
 import { doc, updateDoc } from 'firebase/firestore';
 
 import RecognitionInput from './RecognitionInput.vue';
@@ -32,6 +32,7 @@ const taskName = ref("");
 const taskNameError = ref("");
 const taskPriority = ref(TASK_PRIORITIES.low);
 const taskDate = ref("");
+const taskDateError = ref("");
 const taskComment = ref("");
 
 const closeAddingTask = () => {
@@ -61,6 +62,17 @@ const addTask = async () => {
         return;
     }
 
+    const taskDateValue = new Date(taskDate.value);
+    const today = new Date();
+
+    today.setHours(0, 0, 0, 0);
+    taskDateValue.setHours(0, 0, 0, 0);
+
+    if (taskDateValue < today) {
+        taskDateError.value = "Insira uma data futura ou atual.";
+        return;
+    }
+
     const { name, id } = props.topic;
     const docRef = doc(db, DOC_NAME, user.uid);
 
@@ -76,8 +88,6 @@ const addTask = async () => {
         topic: { id, name },
     };
 
-    console.log(taskDate.value);
-
     const updatedTasks = [...props.topic.tasks, newTask];
 
     await updateDoc(docRef, {
@@ -87,6 +97,8 @@ const addTask = async () => {
     showToast("success", "Tarefa adicionada com sucesso");
     closeAddingTask();
 };
+
+watch(taskDate, () => (taskDateError.value = ""));
 </script>
 
 <template>
@@ -105,10 +117,11 @@ const addTask = async () => {
                     :errorMessage="taskNameError" enableVoiceRecognition inputId="add-task-name"
                     @update="updateTaskName" />
 
-                <div class="form-group">
+                <div :class="['form-group', taskDateError ? 'input-error' : '']">
                     <label class="text" for="add-task-date">Data de entrega (opcional)</label>
                     <input type="date" v-model="taskDate" id="add-task-date" aria-describedby="add-task-date-help" />
                     <small id="add-task-date-help" class="sr-only">Selecione uma data, se houver.</small>
+                    <p class="text text--error" v-if="taskDateError">{{ taskDateError }}</p>
                 </div>
 
                 <MdEditor label="Comentários (opcional)" v-model:modelValue="taskComment" @update="updateTaskComment" />

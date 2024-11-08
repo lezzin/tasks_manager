@@ -32,6 +32,7 @@ const taskName = ref("");
 const taskNameError = ref("");
 const taskPriority = ref(TASK_PRIORITIES.low);
 const taskDate = ref(null);
+const taskDateError = ref(null);
 const taskComment = ref("");
 
 const setTaskData = () => {
@@ -55,6 +56,17 @@ const updateTaskComment = (value) => {
 const editTask = async () => {
     if (!taskName.value) {
         taskNameError.value = "Preencha o campo";
+        return;
+    }
+
+    const taskDateValue = new Date(taskDate.value);
+    const today = new Date();
+
+    today.setHours(0, 0, 0, 0);
+    taskDateValue.setHours(0, 0, 0, 0);
+
+    if (taskDateValue < today) {
+        taskDateError.value = "Insira uma data futura ou atual.";
         return;
     }
 
@@ -106,6 +118,8 @@ const closeEditTaskModal = () => {
     taskComment.value = "";
     emit("close");
 };
+
+watch(taskDate, () => (taskDateError.value = ""));
 </script>
 
 <template>
@@ -124,9 +138,10 @@ const closeEditTaskModal = () => {
                     :errorMessage="taskNameError" enableVoiceRecognition inputId="edit-task-name"
                     @update="updateTaskName" />
 
-                <div class="form-group">
+                <div :class="['form-group', taskDateError ? 'input-error' : '']">
                     <label class="text" for="edit-task-date">Data de entrega (opcional)</label>
                     <input type="date" id="edit-task-date" v-model="taskDate" />
+                    <p class="text text--error" v-if="taskDateError">{{ taskDateError }}</p>
                 </div>
 
                 <MdEditor label="Comentários (opcional)" v-model:modelValue="taskComment" @update="updateTaskComment"
