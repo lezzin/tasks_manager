@@ -115,7 +115,7 @@ const startLongBreak = () => {
 
 const resetTimer = () => {
     setTimer(TIME_CONSTANTS.WORK.minutes, TIME_CONSTANTS.WORK.seconds);
-    timer.cycleCount = 0;
+    timer.cycleCount = 1;
     timer.onBreak = false;
 };
 
