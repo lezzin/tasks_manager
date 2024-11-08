@@ -1,73 +1,38 @@
 <script setup>
-import { currentTime } from '../../utils/dateUtils';
-import { filterField } from '../../utils/stringUtils';
-import { DOC_NAME, TOPIC_MAX_LENGTH, TOPIC_MIN_LENGTH } from '../../utils/variables';
-import { db } from '../../libs/firebase';
-
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { ref, watch } from 'vue';
 
 import { useToast } from '../../composables/useToast';
+import { useTopic } from '../../composables/useTopic';
 import { useAuthStore } from '../../stores/authStore';
 
 const nameError = ref("");
 const name = ref("");
 
 const { user } = useAuthStore();
+const { addTopic } = useTopic();
 const { showToast } = useToast();
 
-const getUserData = async (docRef) => {
-    const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? docSnap.data() : null;
-};
+const handleAddTopic = async () => {
+    try {
+        await addTopic(name.value, user.uid);
+        showToast("success", "Tópico criado com sucesso");
+        name.value = "";
+    } catch (error) {
+        if (error.code == "name") {
+            nameError.value = error.message;
+            return;
+        }
 
-const addTopic = async () => {
-    nameError.value = "";
-
-    if (!name.value) {
-        nameError.value = "Preencha o campo";
-        return;
+        showToast("danger", "Erro desconhecido. Tente novamente mais tarde.");
+        console.error(error);
     }
-
-    const formattedTopicName = filterField(name.value);
-
-    if (formattedTopicName.length < TOPIC_MIN_LENGTH) {
-        nameError.value = `Insira pelo menos ${TOPIC_MIN_LENGTH} letras!`;
-        return;
-    }
-
-    if (formattedTopicName.length > TOPIC_MAX_LENGTH) {
-        nameError.value = `Você atingiu o limite de caracteres! (${formattedTopicName.length} de ${TOPIC_MAX_LENGTH})`;
-        return;
-    }
-
-    const docRef = doc(db, DOC_NAME, user.uid);
-    const userData = await getUserData(docRef);
-
-    if (userData && userData.topics && userData.topics[formattedTopicName]) {
-        nameError.value = "Esse tópico já existe";
-        return;
-    }
-
-    await setDoc(docRef, {}, { merge: true });
-    await updateDoc(docRef, {
-        [`topics.${formattedTopicName}`]: {
-            id: Date.now().toString(26),
-            name: formattedTopicName,
-            tasks: [],
-            created_at: currentTime(),
-        },
-    });
-
-    showToast("success", "Tópico criado com sucesso");
-    name.value = "";
 };
 
 watch(name, () => (nameError.value = ""));
 </script>
 
 <template>
-    <form @submit.prevent="addTopic" class="add-topic-form" aria-labelledby="add-topic-title">
+    <form @submit.prevent="handleAddTopic" class="add-topic-form" aria-labelledby="add-topic-title">
         <h2 id="add-topic-title" class="sr-only">Adicionar Novo Tópico</h2>
 
         <div class="form-group">
