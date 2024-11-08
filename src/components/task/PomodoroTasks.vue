@@ -23,12 +23,12 @@ const props = defineProps({
     }
 })
 
-const loadingStore = useLoadingStore();
+const { changeStatus, getUserTasks } = useTask();
 const { showToast } = useToast();
 const { user } = useAuthStore();
-const modal = useModal();
-const taskComposable = useTask();
+const loadingStore = useLoadingStore();
 const router = useRouter();
+const modal = useModal();
 
 const tasks = reactive({ data: [] });
 const dropdownOpen = ref(false);
@@ -39,7 +39,7 @@ const loadTasks = async () => {
     loadingStore.showLoader();
 
     try {
-        tasks.data = await taskComposable.getUserTasks(user.uid);
+        tasks.data = await getUserTasks(user.uid);
     } catch (error) {
         showToast("danger", error.message);
 
@@ -51,9 +51,9 @@ const loadTasks = async () => {
     }
 };
 
-const changeTaskStatus = async (taskToUpdate) => {
+const handleChangeTaskStatus = async (taskToUpdate) => {
     try {
-        const newStatus = await taskComposable.changeStatus(tasks.data, taskToUpdate, user.uid);
+        const newStatus = await changeStatus(tasks.data, taskToUpdate, user.uid);
         taskToUpdate.status = newStatus;
         taskToUpdate.kanbanStatus = newStatus ? TASK_KANBAN_STATUSES.completed : TASK_KANBAN_STATUSES.todo;
         showToast("success", "Status de conclusão alterado com sucesso");
@@ -114,8 +114,8 @@ onMounted(() => {
         </div>
 
         <Task v-if="selectedTask.value?.id" :key="selectedTask.value.id" :task="selectedTask.value"
-            @changeStatus="changeTaskStatus" @openComment="openTaskComment" :showPriorities="false" :showEdit="false"
-            :showDelete="false" />
+            @changeStatus="handleChangeTaskStatus" @openComment="openTaskComment" :showPriorities="false"
+            :showEdit="false" :showDelete="false" />
 
         <div v-else class="task alert">
             <p class="text">Sua tarefa aparecerá aqui...</p>

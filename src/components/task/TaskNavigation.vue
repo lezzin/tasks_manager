@@ -11,10 +11,10 @@ import TaskFormEdit from '../forms/TaskFormEdit.vue';
 import CommentModal from '../modals/CommentModal.vue';
 import TaskItem from './TaskItem.vue';
 
-const modal = useModal();
-const taskComposable = useTask();
 const { user } = useAuthStore();
+const { changeStatus, deleteTask } = useTask();
 const { showToast } = useToast();
+const modal = useModal();
 
 const props = defineProps({
     topic: {
@@ -33,9 +33,9 @@ const selectedComment = ref(null);
 const filterTask = inject("filterTask");
 const searchTask = inject("searchTask");
 
-const changeTaskStatus = async (taskToUpdate) => {
+const handleChangeTaskStatus = async (taskToUpdate) => {
     try {
-        await taskComposable.changeStatus(props.tasks, taskToUpdate, user.uid);
+        await changeStatus(props.tasks, taskToUpdate, user.uid);
         showToast("success", "Status de conclusão alterado com sucesso");
         filterTask.value = "all";
         searchTask.value = "";
@@ -44,11 +44,11 @@ const changeTaskStatus = async (taskToUpdate) => {
     }
 };
 
-const deleteTask = async (taskToDelete) => {
+const handleDeleteTask = async (taskToDelete) => {
     if (!confirm("Tem certeza que deseja excluir essa tarefa? Essa ação não poderá ser desfeita!")) return;
 
     try {
-        await taskComposable.deleteTask(props.tasks, taskToDelete, user.uid);
+        await deleteTask(props.tasks, taskToDelete, user.uid);
         showToast("success", "Tarefa excluída com sucesso!");
     } catch (error) {
         showToast("danger", "Erro ao excluir tarefa.");
@@ -70,8 +70,8 @@ const openTaskComment = (comment) => {
 
 <template>
     <div class="task-nav">
-        <TaskItem v-for="task in props.tasks" :key="task.id" :task="task" @changeStatus="changeTaskStatus"
-            @edit="openEditTaskModal" @openComment="openTaskComment" @delete="deleteTask" />
+        <TaskItem v-for="task in props.tasks" :key="task.id" :task="task" @changeStatus="handleChangeTaskStatus"
+            @edit="openEditTaskModal" @openComment="openTaskComment" @delete="handleDeleteTask" />
 
         <p class="text text--center" v-if="props.tasks.length === 0">
             Nenhuma tarefa para esse filtro

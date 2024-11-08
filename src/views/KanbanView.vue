@@ -24,7 +24,7 @@ const activeColumn = ref(null);
 const tasksLength = ref(0);
 
 const { showToast } = useToast();
-const taskComposable = useTask();
+const { getUserTasks, changeKanbanStatus } = useTask();
 const { user } = useAuthStore();
 const loadingStore = useLoadingStore();
 const router = useRouter();
@@ -33,7 +33,7 @@ const loadTasks = async () => {
     loadingStore.showLoader();
 
     try {
-        const userTasks = await taskComposable.getUserTasks(user.uid);
+        const userTasks = await getUserTasks(user.uid);
         tasksLength.value = userTasks.length;
         organizeTasksByStatus(userTasks);
     } catch (error) {
@@ -111,7 +111,7 @@ const changeTaskColumn = (task, newColumn) => {
 
 const updateTaskStatus = async (taskToUpdate, newKanbanStatus) => {
     try {
-        taskComposable.changeKanbanStatus(taskToUpdate, newKanbanStatus, user.uid);
+        changeKanbanStatus(taskToUpdate, newKanbanStatus, user.uid);
         taskToUpdate.kanban = newKanbanStatus;
         taskToUpdate.status = (newKanbanStatus === TASK_KANBAN_STATUSES.completed);
     } catch (error) {
