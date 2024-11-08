@@ -198,6 +198,7 @@ watch(hasSelectedTask, () => {
     font-weight: 600;
     color: var(--details-color-dark);
     margin-bottom: 2rem;
+    font-variant-numeric: tabular-nums;
 }
 
 .pomodoro__buttons {

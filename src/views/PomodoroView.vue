@@ -83,11 +83,7 @@ onMounted(() => {
 }
 
 .pomodoro__absolute button {
-    padding: 0.64rem 1rem;
-}
-
-.pomodoro__absolute .btn--only-icon i {
-    font-size: 1.6rem;
+    padding: 0.74rem 1rem;
 }
 
 .information-wrapper {

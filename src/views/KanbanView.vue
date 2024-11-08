@@ -141,11 +141,11 @@ onMounted(() => {
 <template>
     <div class="kanban-wrapper container" v-if="tasksLength > 0">
         <header class="kanban-wrapper__header" role="banner">
-            <h2 class="title">Visualize as suas tarefas em formato Kanban</h2>
+            <h2 class="title truncate" style="--line-clamp: 1">Kanban das suas tarefas</h2>
             <button @click="() => router.back()" class="btn btn--outline-primary btn--icon"
                 title="Voltar para a página anterior" aria-label="Voltar para a página anterior">
                 <fa icon="arrow-left" />
-                <span>Voltar para a página anterior</span>
+                <span class="sr-only">Voltar</span>
             </button>
         </header>
 
@@ -215,10 +215,31 @@ onMounted(() => {
 .kanban-wrapper {
     padding: var(--padding) 0;
 
+    ::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    @media (width<=768px) {
+        position: relative;
+
+        .kanban {
+            position: absolute;
+            inset: 10vh 0 0;
+            overflow-x: auto;
+            height: 79dvh;
+
+            .kanban__tasks {
+                padding-bottom: calc(var(--padding) * 2);
+            }
+        }
+    }
+
     .kanban-wrapper__header {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
         margin-bottom: var(--padding);
         width: 100%;
 
@@ -250,6 +271,10 @@ onMounted(() => {
                 background-color: var(--bg-secondary);
                 z-index: 1;
                 transition: border-bottom-color var(--screen-transition) ease;
+
+                @media (width<=768px) {
+                    top: 0;
+                }
             }
 
             .kanban__tasks {

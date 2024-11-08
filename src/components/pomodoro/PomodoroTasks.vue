@@ -207,7 +207,7 @@ onMounted(() => {
 
 .task.alert {
     border-style: dashed;
-    padding: 2.12rem var(--padding);
+    padding: 2.24rem var(--padding);
 }
 
 .alert {

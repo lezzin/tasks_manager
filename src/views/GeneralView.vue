@@ -222,6 +222,7 @@ onMounted(() => {
             flex-direction: column;
             padding-top: var(--padding);
             gap: 1rem;
+            height: auto;
         }
 
         .task-view__header-buttons {
