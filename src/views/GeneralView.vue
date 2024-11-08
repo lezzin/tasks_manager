@@ -1,9 +1,9 @@
 <script setup>
-import { DOC_NAME, PAGE_TITLES, TASK_PRIORITIES } from '../utils/variables.js';
+import { PAGE_TITLES, TASK_PRIORITIES } from '../utils/variables.js';
 import { getPriorityClass, getPriorityText, getPriorityIcon } from '../utils/priorityUtils.js';
+import { formatDate } from '../utils/dateUtils.js';
 
 import { ref, reactive, onMounted, inject } from 'vue';
-import { doc, getDoc } from 'firebase/firestore';
 import { RouterLink, useRouter } from 'vue-router';
 
 import domtoimage from "dom-to-image-more";
@@ -11,18 +11,21 @@ import { saveAs } from 'file-saver';
 import { marked } from 'marked';
 
 import { useToast } from '../composables/useToast.js';
+import { useTask } from '../composables/useTask.js';
 import { useAuthStore } from '../stores/authStore.js';
 import { useLoadingStore } from '../stores/loadingStore.js';
+
 import ImageResponsive from '../components/shared/ImageResponsive.vue';
-import { formatDate } from '../utils/dateUtils.js';
 
 const { showToast } = useToast();
+const { getUserTasks } = useTask();
 const { user } = useAuthStore();
 const loadingStore = useLoadingStore();
 const router = useRouter();
 
 const props = defineProps(['db']);
 
+const isDownloading = ref(false);
 const showTopicNavBtn = inject('showTopicNavBtn');
 const allUserTasks = ref([]);
 const container = ref(null);
@@ -34,13 +37,12 @@ const priorityCount = reactive({
 });
 
 const downloadAsPDF = () => {
+    isDownloading.value = true;
+
     domtoimage.toBlob(container.value)
-        .then(function (blob) {
-            saveAs(blob, `${Date.now()}.png`);
-        })
-        .catch((error) => {
-            showToast("danger", "Error capturing the container: " + error);
-        });
+        .then(blob => saveAs(blob, `${Date.now()}.png`))
+        .catch((error) => showToast("danger", "Error capturing the container: " + error))
+        .finally(() => (isDownloading.value = false));
 };
 
 const focusTasksByPriority = (priority) => {
@@ -66,14 +68,6 @@ const formatComment = (comment) => {
     });
 };
 
-const createTaskObject = (task) => {
-    return {
-        ...task,
-        isHovering: false,
-        isFocused: false,
-    };
-};
-
 const updatePriorityCounter = () => {
     priorityCount.completed = allUserTasks.value.filter((task) => !!task.status).length;
     priorityCount.high = allUserTasks.value.filter((task) => task.priority === TASK_PRIORITIES.high).length;
@@ -81,47 +75,23 @@ const updatePriorityCounter = () => {
     priorityCount.small = allUserTasks.value.filter((task) => task.priority === TASK_PRIORITIES.low).length;
 };
 
-const fetchUserTasks = async () => {
+const loadTasks = async () => {
     loadingStore.showLoader();
 
     try {
-        const docRef = doc(props.db, DOC_NAME, user.uid);
-        const docSnap = await getDoc(docRef);
-        const userData = docSnap.data();
-
-        if (!userData?.topics || Object.keys(userData.topics).length === 0) {
-            return;
-        }
-
-        allUserTasks.value = getUserTasks(userData.topics);
-
+        allUserTasks.value = await getUserTasks(user.uid);
         updatePriorityCounter();
     } catch (error) {
-        showToast("danger", `Erro ao obter tarefas: ${error}`);
+        showToast("danger", `Erro ao resgatar tarefas: ${error.message}`);
     } finally {
         loadingStore.hideLoader();
     }
 };
 
-const getUserTasks = (topics) => {
-    return Object.values(topics)
-        .filter((topic) => topic.tasks?.length > 0)
-        .flatMap((topic) => topic.tasks.map((task) => createTaskObject(task)))
-        .sort((taskA, taskB) => {
-            if (taskA.status !== taskB.status) return taskA.status ? -1 : 1;
-            return taskB.priority - taskA.priority;
-        });
-};
-
-const closeTopicNav = () => {
-    showTopicNavBtn.value = false;
-}
-
 onMounted(() => {
     document.title = PAGE_TITLES.general;
     showTopicNavBtn.value = false;
-
-    fetchUserTasks();
+    loadTasks();
 });
 </script>
 
@@ -129,7 +99,8 @@ onMounted(() => {
     <div class="task-view container" v-if="allUserTasks.length > 0" ref="container">
         <header class="task-view__header" role="banner">
             <h2 class="title">Visualize as suas tarefas de uma maneira geral</h2>
-            <div class="task-view__header-buttons">
+
+            <div class="task-view__header-buttons" v-if="!isDownloading">
                 <button type="button" @click="downloadAsPDF" class="btn btn--primary btn--only-icon"
                     title="Baixar em PDF" aria-label="Baixar todas as tarefas em PDF">
                     <i class="fa-solid fa-download" aria-hidden="true"></i>
@@ -182,7 +153,7 @@ onMounted(() => {
         <span class="divider" role="separator" aria-hidden="true"></span>
 
         <div class="grid" role="list" aria-label="Lista de tarefas">
-            <RouterLink @click="closeTopicNav" :class="[
+            <RouterLink :class="[
                 'grid__item',
                 'task',
                 task.status && TASK_PRIORITIES.completed,
@@ -238,12 +209,14 @@ onMounted(() => {
 <style scoped>
 .task-view {
     padding: var(--padding) var(--padding) calc(var(--padding) * 5);
+    background: var(--bg-secondary);
 
     .task-view__header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         text-align: center;
+        height: 4.876vh;
 
         @media (width <=768px) {
             flex-direction: column;
