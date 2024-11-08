@@ -1,16 +1,14 @@
 <script setup>
-import { DOC_NAME, TASK_PRIORITIES } from '../../utils/variables';
-import { filterField } from '../../utils/stringUtils';
-import { db } from '../../libs/firebase';
+import { TASK_PRIORITIES } from '../../utils/variables';
 
 import { ref, watch } from 'vue';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 import { useToast } from '../../composables/useToast';
 import { useAuthStore } from '../../stores/authStore';
 
 import InputRecognition from '../utilities/InputRecognition.vue';
 import MarkdownEditor from '../utilities/MarkdownEditor.vue';
+import { useTask } from '../../composables/useTask';
 
 const emit = defineEmits(["close"]);
 
@@ -26,6 +24,7 @@ const props = defineProps({
 });
 
 const { user } = useAuthStore();
+const { editTask } = useTask();
 const { showToast } = useToast();
 
 const taskName = ref("");
@@ -53,60 +52,20 @@ const updateTaskComment = (value) => {
     taskComment.value = value;
 };
 
-const editTask = async () => {
-    if (!taskName.value) {
-        taskNameError.value = "Preencha o campo";
-        return;
-    }
-
-    const taskDateValue = new Date(taskDate.value);
-    const today = new Date();
-
-    today.setHours(0, 0, 0, 0);
-    taskDateValue.setHours(0, 0, 0, 0);
-
-    if (taskDate.value && taskDateValue < today) {
-        taskDateError.value = "Insira uma data futura ou atual.";
-        return;
-    }
-
-    const docRef = doc(db, DOC_NAME, user.uid);
-
-    if (!props?.topic) {
-        showToast("danger", "Tópico da tarefa não encontrado.");
-        return;
-    }
-
-    const docSnap = await getDoc(docRef);
-    if (!docSnap.exists()) {
-        showToast("danger", "Dados do usuário não encontrados.");
-        return;
-    }
-
-    const userData = docSnap.data();
-    const selectedTopicData = userData.topics[props.topic];
-
-    if (selectedTopicData && selectedTopicData.tasks) {
-        const updatedTasks = selectedTopicData.tasks.map((t) =>
-            t.id === props.task.id
-                ? {
-                    ...t,
-                    name: filterField(taskName.value),
-                    priority: taskPriority.value,
-                    delivery_date: taskDate.value,
-                    comment: taskComment.value,
-                }
-                : t
-        );
-
-        await updateDoc(docRef, {
-            [`topics.${props.topic}.tasks`]: updatedTasks,
-        });
-
+const handleEditTask = async () => {
+    try {
+        await editTask(props.task, taskName.value, taskComment.value, taskPriority.value, taskDate.value, user.uid);
         showToast("success", "Tarefa alterada com sucesso");
         closeEditTaskModal();
-    } else {
-        showToast("danger", "Tarefa não encontrada.");
+    } catch (error) {
+        console.error(error);
+
+        const errors = {
+            "empty-name": () => (taskNameError.value = error.message),
+            "invalid-date": () => (taskDateError.value = error.message),
+        }
+
+        errors[error.code] ? errors[error.code]() : showToast("danger", "Erro desconhecido. Tente novamente mais tarde.");
     }
 };
 
@@ -133,7 +92,7 @@ watch(taskDate, () => (taskDateError.value = ""));
                 </button>
             </div>
 
-            <form @submit.prevent="editTask">
+            <form @submit.prevent="handleEditTask">
                 <InputRecognition label="Nome da tarefa" placeholder="Editar tarefa..." v-model:modelValue="taskName"
                     :errorMessage="taskNameError" enableVoiceRecognition inputId="edit-task-name"
                     @update="updateTaskName" />

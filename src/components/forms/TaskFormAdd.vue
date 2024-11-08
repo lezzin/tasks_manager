@@ -1,16 +1,13 @@
 <script setup>
-import { db } from '../../libs/firebase';
-import { DOC_NAME, TASK_KANBAN_STATUSES, TASK_PRIORITIES } from '../../utils/variables';
-import { currentTime } from '../../utils/dateUtils';
-import { filterField } from '../../utils/stringUtils';
+import { TASK_PRIORITIES } from '../../utils/variables';
 
 import { inject, ref, watch } from 'vue';
-import { doc, updateDoc } from 'firebase/firestore';
 
 import InputRecognition from '../utilities/InputRecognition.vue';
 import MarkdownEditor from '../utilities/MarkdownEditor.vue';
 
 import { useToast } from '../../composables/useToast';
+import { useTask } from '../../composables/useTask';
 import { useAuthStore } from '../../stores/authStore';
 
 const props = defineProps({
@@ -24,6 +21,7 @@ const emit = defineEmits(["close"]);
 
 const { user } = useAuthStore();
 const { showToast } = useToast();
+const { addTask } = useTask();
 
 const filterTask = inject("filterTask");
 const searchTask = inject("searchTask");
@@ -56,46 +54,19 @@ const updateTaskComment = (value) => {
     taskComment.value = value;
 };
 
-const addTask = async () => {
-    if (!taskName.value) {
-        taskNameError.value = "Preencha o campo";
-        return;
+const handleAddTask = async () => {
+    try {
+        await addTask(props.topic, taskName.value, taskComment.value, taskPriority.value, taskDate.value, user.uid);
+        closeAddingTask();
+        showToast("success", "Tarefa adicionada com sucesso.")
+    } catch (error) {
+        const errors = {
+            "empty-name": () => (taskNameError.value = error.message),
+            "invalid-date": () => (taskDateError.value = error.message),
+        }
+
+        errors[error.code] ? errors[error.code]() : showToast("danger", "Erro desconhecido. Tente novamente mais tarde.");
     }
-
-    const taskDateValue = new Date(taskDate.value);
-    const today = new Date();
-
-    today.setHours(0, 0, 0, 0);
-    taskDateValue.setHours(0, 0, 0, 0);
-
-    if (taskDate.value && taskDateValue < today) {
-        taskDateError.value = "Insira uma data futura ou atual.";
-        return;
-    }
-
-    const { name, id } = props.topic;
-    const docRef = doc(db, DOC_NAME, user.uid);
-
-    const newTask = {
-        id: Date.now().toString(36),
-        name: filterField(taskName.value),
-        status: false,
-        created_at: currentTime(),
-        priority: taskPriority.value,
-        comment: taskComment.value ?? "",
-        delivery_date: taskDate.value,
-        kanbanStatus: TASK_KANBAN_STATUSES.todo,
-        topic: { id, name },
-    };
-
-    const updatedTasks = [...props.topic.tasks, newTask];
-
-    await updateDoc(docRef, {
-        [`topics.${name}.${DOC_NAME}`]: updatedTasks,
-    });
-
-    showToast("success", "Tarefa adicionada com sucesso");
-    closeAddingTask();
 };
 
 watch(taskDate, () => (taskDateError.value = ""));
@@ -112,7 +83,7 @@ watch(taskDate, () => (taskDateError.value = ""));
                 </button>
             </div>
 
-            <form @submit.prevent="addTask" aria-describedby="modal-add-task-title">
+            <form @submit.prevent="handleAddTask" aria-describedby="modal-add-task-title">
                 <InputRecognition label="Nome da tarefa" placeholder="Adicionar tarefa..." v-model:modelValue="taskName"
                     :errorMessage="taskNameError" enableVoiceRecognition inputId="add-task-name"
                     @update="updateTaskName" />
