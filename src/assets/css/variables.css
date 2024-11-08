@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@100..900&display=swap');
+
 :root {
     --details-color: #389472;
     --details-color-light: #d9f2e9;
@@ -23,5 +25,5 @@
     --screen-transition: 0.3s;
     --shadow-md: 0 0.5rem 1rem #00000026;
     --shadow-sm: 0 0.125rem 0.25rem #00000013;
-    --font-family: Public Sans, system-ui, -apple-system, sans-serif;
+    --font-family: 'Public Sans', sans-serif;
 }
