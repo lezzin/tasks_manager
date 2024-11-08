@@ -37,15 +37,5 @@ const closeShowingComment = () => {
     overflow-y: auto;
     padding: var(--padding);
     word-break: break-all;
-
-    >* {
-        padding-top: 0;
-        margin-top: 0;
-
-        &:last-child {
-            padding-bottom: 0;
-            margin-bottom: 0;
-        }
-    }
 }
 </style>

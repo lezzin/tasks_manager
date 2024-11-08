@@ -75,8 +75,11 @@ select {
 img {
     max-width: 100%;
     height: auto;
+    vertical-align: middle;
+    font-style: italic;
     object-fit: cover;
     -webkit-user-drag: none;
+    shape-margin: 1rem;
 }
 
 body {
@@ -543,41 +546,6 @@ form {
     }
 }
 
-.editor-toolbar {
-    font-size: 1.6rem !important;
-}
-
-.editor-toolbar svg {
-    margin-inline: .45rem;
-}
-
-.CodeMirror-wrap {
-    font-size: 1.4rem !important;
-}
-
-.markdown-content * {
-    margin: revert;
-    padding: revert;
-}
-
-.markdown-content--normal {
-    font-size: 1.6rem !important;
-}
-
-.markdown-content--small {
-    font-size: 1.1rem !important;
-}
-
-.markdown-content--small :first-child {
-    margin-top: 0;
-    padding-top: 0;
-}
-
-.markdown-content--small :last-child {
-    margin-bottom: 0;
-    padding-bottom: 0;
-}
-
 .priority-high {
     background-color: var(--task-priority-high);
     color: var(--font-secondary);
@@ -607,6 +575,29 @@ form {
     display: grid;
     place-items: center;
     height: 90vh;
+}
+
+.markdown-content * {
+    margin: revert;
+    padding: revert;
+}
+
+.markdown-content--normal {
+    font-size: 1.6rem;
+}
+
+.markdown-content--small {
+    font-size: 1.1rem;
+}
+
+.markdown-content :first-child {
+    margin-top: 0;
+    padding-top: 0;
+}
+
+.markdown-content :last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
 }
 
 .v-enter-active,
