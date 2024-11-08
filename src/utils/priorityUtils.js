@@ -21,14 +21,12 @@ export function getPriorityText(priority) {
 }
 
 export function getPriorityIcon(priority) {
-    const icon = (className) => `fa-solid fa-${className}`;
-
     return (
         {
-            [TASK_PRIORITIES.high]: icon("arrow-up"),
-            [TASK_PRIORITIES.medium]: icon("arrow-right"),
-            [TASK_PRIORITIES.low]: icon("arrow-down"),
-            [TASK_PRIORITIES.completed]: icon("check-circle"),
+            [TASK_PRIORITIES.high]: "arrow-up",
+            [TASK_PRIORITIES.medium]: "arrow-right",
+            [TASK_PRIORITIES.low]: "arrow-down",
+            [TASK_PRIORITIES.completed]: "check-circle",
         }[priority] || ""
     );
 }
