@@ -56,7 +56,7 @@ const handleChangeTaskStatus = async (taskToUpdate) => {
         const newStatus = await changeStatus(tasks.data, taskToUpdate, user.uid);
         taskToUpdate.status = newStatus;
         taskToUpdate.kanbanStatus = newStatus ? TASK_KANBAN_STATUSES.completed : TASK_KANBAN_STATUSES.todo;
-        showToast("success", "Status de conclusão alterado com sucesso");
+        showToast("success", "Status de conclusão alterado com sucesso.");
     } catch (error) {
         showToast("danger", "Erro ao alterar status da tarefa.");
     }
@@ -101,7 +101,7 @@ onMounted(() => {
                 <span class="truncate" style="--line-clamp: 1">
                     {{ selectedTask.value?.name || "Selecione uma tarefa para começar!" }}
                 </span>
-                <i :class="dropdownOpen ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down'"></i>
+                <fa :icon="dropdownOpen ? 'chevron-up' : 'chevron-down'" />
             </button>
 
             <Transition>
@@ -132,7 +132,7 @@ onMounted(() => {
     </div>
     <div v-else class="alert">
         <p class="text text--icon">
-            <i class="fa-solid fa-exclamation-circle"></i>
+            <fa icon="exclamation-circle" />
             <span> Crie uma nova tarefa para começar a utilizar o Pomodoro</span>
         </p>
     </div>

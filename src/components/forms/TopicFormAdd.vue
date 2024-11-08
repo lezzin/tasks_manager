@@ -15,7 +15,7 @@ const { showToast } = useToast();
 const handleAddTopic = async () => {
     try {
         await addTopic(name.value, user.uid);
-        showToast("success", "Tópico criado com sucesso");
+        showToast("success", "Tópico criado com sucesso.");
         name.value = "";
     } catch (error) {
         if (error.code == "name") {
@@ -41,7 +41,7 @@ watch(name, () => (nameError.value = ""));
                 <input type="text" id="new-topic" placeholder="Adicionar novo tópico" v-model="name"
                     :aria-invalid="!!nameError" aria-describedby="topic-error" />
                 <button class="btn" title="Adicionar novo tópico" aria-label="Adicionar novo tópico">
-                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                    <fa icon="plus" />
                 </button>
             </div>
 
@@ -57,7 +57,7 @@ watch(name, () => (nameError.value = ""));
     width: 100%;
 }
 
-.input-group input {
-    box-shadow: 0 0.25rem 1rem var(--details-color-light);
+input {
+    box-shadow: 0 .5rem 1rem var(--details-color-light);
 }
 </style>

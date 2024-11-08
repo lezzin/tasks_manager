@@ -55,7 +55,7 @@ const updateTaskComment = (value) => {
 const handleEditTask = async () => {
     try {
         await editTask(props.task, taskName.value, taskComment.value, taskPriority.value, taskDate.value, user.uid);
-        showToast("success", "Tarefa alterada com sucesso");
+        showToast("success", "Tarefa alterada com sucesso.");
         closeEditTaskModal();
     } catch (error) {
         console.error(error);
@@ -88,7 +88,7 @@ watch(taskDate, () => (taskDateError.value = ""));
                 <h2 id="edit-task-title" class="modal__title">Editar tarefa</h2>
                 <button class="btn" @click="closeEditTaskModal" title="Fechar modal"
                     aria-label="Fechar modal de edição de tarefa">
-                    <i class="fa-solid fa-times" aria-hidden="true"></i>
+                    <fa icon="times" />
                 </button>
             </div>
 
@@ -120,7 +120,7 @@ watch(taskDate, () => (taskDateError.value = ""));
 
                 <button type="submit" class="btn btn--primary btn--block" title="Concluir edição da tarefa"
                     aria-label="Salvar edição da tarefa">
-                    <i class="fa-solid fa-check" aria-hidden="true"></i> Concluir edição
+                    <fa icon="check" /> Concluir edição
                 </button>
             </form>
         </div>

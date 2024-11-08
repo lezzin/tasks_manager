@@ -47,13 +47,13 @@ const deleteTopic = async (topicName) => {
     const userData = await getUserData(docRef);
 
     if (!userData || !userData.topics || !userData.topics[topicName]) {
-        showToast("danger", "Tópico não encontrado");
+        showToast("danger", "Tópico não encontrado.");
         return;
     }
 
     delete userData.topics[topicName];
     await updateDoc(docRef, { topics: userData.topics });
-    showToast("success", "Tópico excluído com sucesso");
+    showToast("success", "Tópico excluído com sucesso.");
     selectedTopic.value = null;
     if (router.currentRoute.value.fullPath !== '/') router.push("/");
 };
@@ -86,13 +86,13 @@ const openEditTopicModal = (topicName) => {
 
 <template>
     <div v-if="props.data?.length">
-        <h2 class="title">Seus tópicos</h2>
+        <h2 class="subtitle">Seus tópicos</h2>
         <div class="topics-nav">
             <div class="topic" v-for="topic in props.data" :key="topic.id"
                 :class="{ active: selectedTopic && topic.name === selectedTopic.name }">
                 <RouterLink @click="closeTopicsMenu" :to="'/topic/' + topic.id" class="topic__link btn" role="button"
                     :title="'Acessar tópico ' + topic.name" aria-label="Acessar tópico">
-                    <p class="text">{{ topic.name }}</p>
+                    <p class="text text--bold">{{ topic.name }}</p>
                     <p class="text text--small text--muted">
                         {{ `${topic.tasks_length} ${topic.tasks_length === 1 ? 'tarefa' : 'tarefas'}` }}
                     </p>
@@ -101,11 +101,11 @@ const openEditTopicModal = (topicName) => {
                 <div class="topic__actions">
                     <button class="btn btn--rounded" title="Editar tópico" @click="openEditTopicModal(topic.name)"
                         aria-label="Editar tópico">
-                        <i class="fa-solid fa-pen"></i>
+                        <fa icon="pen" />
                     </button>
                     <button class="btn btn--rounded" title="Excluir tópico" @click="deleteTopic(topic.name)"
                         aria-label="Excluir tópico">
-                        <i class="fa-solid fa-trash"></i>
+                        <fa icon="trash" />
                     </button>
                 </div>
             </div>
@@ -116,29 +116,26 @@ const openEditTopicModal = (topicName) => {
         <span class="divider"></span>
 
         <RouterLink to="/kanban" class="btn btn--outline-primary btn--icon btn--block-small" title="Acessar Kanban">
-            <i class="fa-solid fa-chart-simple"></i>
+            <fa icon="chart-simple" />
             Acessar Kanban
         </RouterLink>
 
         <RouterLink to="/pomodoro" class="btn btn--outline-primary btn--icon btn--block-small" title="Acessar Pomodoro">
-            <i class="fa-solid fa-clock"></i>
+            <fa icon="clock" />
             Acessar Pomodoro
         </RouterLink>
 
         <RouterLink to="/general" class="btn btn--outline-primary btn--icon btn--block-small"
             title="Visualização geral">
-            <i class="fa-solid fa-eye"></i>
+            <fa icon="eye" />
             Visão geral das tarefas
         </RouterLink>
 
         <button class="btn btn--icon btn--block-small btn--outline-danger" title="Excluir todos os tópicos"
             @click="deleteAllTopics" aria-label="Excluir todos os tópicos">
-            <i class="fa-solid fa-trash"></i> Excluir todos os tópicos
+            <fa icon="trash" />
+            Excluir todos os tópicos
         </button>
-
-        <a title="Acessar GitHub" href="https://lezzin.github.io" target="_blank" aria-label="Acessar GitHub">
-            <i class="fab fa-github"></i> Criado por Leandro Adrian da Silva
-        </a>
     </div>
 
     <p class="text text--center" v-else>Nenhum tópico cadastrado</p>
@@ -190,10 +187,6 @@ const openEditTopicModal = (topicName) => {
 
             &:hover {
                 filter: none;
-            }
-
-            .text:not(.text--muted) {
-                font-weight: 500;
             }
         }
 

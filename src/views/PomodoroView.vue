@@ -40,12 +40,12 @@ onMounted(() => {
             <div class="pomodoro__absolute">
                 <button type="button" @click="() => router.back()" class="btn-back btn btn--outline-primary btn--icon "
                     title="Voltar para a página anterior" aria-label="Voltar para a página anterior">
-                    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                    <fa icon="arrow-left" />
                     <span>Voltar</span>
                 </button>
                 <button type="button" class="btn btn--only-icon btn--outline-primary" title="Acessar ajuda"
                     @click="goToHelp">
-                    <i class="fa-regular fa-circle-question"></i>
+                    <fa icon="circle-question" />
                 </button>
             </div>
 

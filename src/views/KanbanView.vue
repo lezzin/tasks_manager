@@ -37,7 +37,8 @@ const loadTasks = async () => {
         tasksLength.value = userTasks.length;
         organizeTasksByStatus(userTasks);
     } catch (error) {
-        showToast("danger", `Erro ao resgatar tarefas: ${error.message}`);
+        console.error(error);
+        showToast("danger", `Erro ao obter tarefas. Tente novamente mais tarde.`);
     } finally {
         loadingStore.hideLoader();
     }
@@ -115,7 +116,8 @@ const updateTaskStatus = async (taskToUpdate, newKanbanStatus) => {
         taskToUpdate.kanban = newKanbanStatus;
         taskToUpdate.status = (newKanbanStatus === TASK_KANBAN_STATUSES.completed);
     } catch (error) {
-        showToast("danger", `Erro ao atualizar Kanban: ${error.message}`);
+        console.error(error);
+        showToast("danger", `Erro ao atualizar Kanban. Tente novamente mais tarde.`);
     }
 };
 
@@ -142,7 +144,7 @@ onMounted(() => {
             <h2 class="title">Visualize as suas tarefas em formato Kanban</h2>
             <button @click="() => router.back()" class="btn btn--outline-primary btn--icon"
                 title="Voltar para a página anterior" aria-label="Voltar para a página anterior">
-                <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                <fa icon="arrow-left" />
                 <span>Voltar para a página anterior</span>
             </button>
         </header>
@@ -160,7 +162,7 @@ onMounted(() => {
 
                 <div class="kanban__tasks" role="list">
                     <div class="task task--empty" v-if="tasks[kanbanStatus].length === 0" aria-hidden="true">
-                        <i class="fa-solid fa-box-open" aria-hidden="true"></i>
+                        <fa icon="box-open" />
                         <p class="text text--bold">Nenhuma tarefa na coluna</p>
                     </div>
                     <div v-else v-for="task in tasks[kanbanStatus]" :key="task.id"
@@ -178,7 +180,7 @@ onMounted(() => {
 
                         <span :class="['tag', getPriorityClass(task.priority)]"
                             :aria-label="getPriorityText(task.priority)">
-                            <i :class="getPriorityIcon(task.priority)" aria-hidden="true"></i>
+                            <fa :icon="getPriorityIcon(task.priority)" />
                             {{ getPriorityText(task.priority) }}
                         </span>
 
@@ -186,12 +188,14 @@ onMounted(() => {
                             <button type="button" class="btn btn--outline-primary" @click="moveTask(task, 'prev')"
                                 :disabled="isFirstColumn(kanbanStatus)" :aria-disabled="isFirstColumn(kanbanStatus)"
                                 aria-label="Mover tarefa para a coluna anterior">
-                                ← Anterior
+                                <fa icon="caret-left" />
+                                Anterior
                             </button>
                             <button type="button" class="btn btn--outline-primary" @click="moveTask(task, 'next')"
                                 :disabled="isLastColumn(kanbanStatus)" :aria-disabled="isLastColumn(kanbanStatus)"
                                 aria-label="Mover tarefa para a próxima coluna">
-                                Próximo →
+                                Próximo
+                                <fa icon="caret-right" />
                             </button>
                         </div>
                     </div>

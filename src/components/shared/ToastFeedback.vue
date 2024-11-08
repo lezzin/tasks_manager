@@ -18,9 +18,9 @@ const TOAST_TITLES = {
 };
 
 const TOAST_ICONS = {
-    warning: "fa-solid fa-exclamation",
-    danger: "fa-solid fa-xmark",
-    success: "fa-solid fa-check",
+    warning: "exclamation",
+    danger: "xmark",
+    success: "check",
 };
 
 const title = computed(() => TOAST_TITLES[props.data.type]);
@@ -45,14 +45,14 @@ function closeToast() {
         <div class="toast__banner" aria-hidden="true"></div>
         <div class="toast__content">
             <div class="toast__icon">
-                <i :class="iconClass" aria-hidden="true"></i>
+                <fa :icon="iconClass" />
             </div>
             <div>
                 <p class="toast__title">{{ title }}</p>
                 <p class="toast__text">{{ props.data.text }}</p>
             </div>
             <button class="btn" @click="closeToast" title="Fechar mensagem" aria-label="Fechar mensagem">
-                <i class="fa-solid fa-times" aria-hidden="true"></i>
+                <fa icon="times" />
             </button>
         </div>
     </div>

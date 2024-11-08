@@ -68,13 +68,23 @@ watchEffect(() => {
 
             <ImageResponsive small="login_sm.png" lg="login_lg.png" alt="Uma pessoa escrevendo em um caderno" />
 
-            <button class="btn btn--block btn--icon btn--primary"
-                :title="loading ? 'Entrando...' : 'Entrar com o Google'" :disabled="loading"
+            <button class="btn btn--block" :title="loading ? 'Entrando...' : 'Entrar com o Google'" :disabled="loading"
                 aria-label="Entrar com o Google" aria-live="polite" aria-busy="loading">
-                <i class="fa-brands fa-google" aria-hidden="true"></i>
+                <img src="/src/assets/img/google-logo.png" alt="Logo do Google" width="24" height="24">
                 <span v-if="loading">Carregando...</span>
                 <span v-else>Entrar com o Google</span>
             </button>
         </form>
     </div>
 </template>
+
+<style scoped>
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    gap: 1rem;
+}
+</style>

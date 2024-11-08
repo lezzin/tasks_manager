@@ -36,7 +36,7 @@ const searchTask = inject("searchTask");
 const handleChangeTaskStatus = async (taskToUpdate) => {
     try {
         await changeStatus(props.tasks, taskToUpdate, user.uid);
-        showToast("success", "Status de conclusão alterado com sucesso");
+        showToast("success", "Status de conclusão alterado com sucesso.");
         filterTask.value = "all";
         searchTask.value = "";
     } catch (error) {

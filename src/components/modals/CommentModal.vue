@@ -21,7 +21,7 @@ const closeShowingComment = () => {
                 <h2 id="comment-modal-title" class="modal__title">Comentários da tarefa</h2>
                 <button class="btn" @click="closeShowingComment" title="Fechar modal"
                     aria-label="Fechar visualização de comentários">
-                    <i class="fa-solid fa-times" aria-hidden="true"></i>
+                    <fa icon="times" />
                 </button>
             </div>
 

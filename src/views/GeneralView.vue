@@ -41,7 +41,7 @@ const downloadAsPDF = () => {
 
     domtoimage.toBlob(container.value)
         .then(blob => saveAs(blob, `${Date.now()}.png`))
-        .catch((error) => showToast("danger", "Error capturing the container: " + error))
+        .catch((error) => showToast("danger", "Erro ao baixar tarefas. Tente novamente mais tarde."))
         .finally(() => (isDownloading.value = false));
 };
 
@@ -82,7 +82,7 @@ const loadTasks = async () => {
         allUserTasks.value = await getUserTasks(user.uid);
         updatePriorityCounter();
     } catch (error) {
-        showToast("danger", `Erro ao resgatar tarefas: ${error.message}`);
+        showToast("danger", `Erro ao resgatar tarefas. Tente novamente mais tarde.`);
     } finally {
         loadingStore.hideLoader();
     }
@@ -103,12 +103,12 @@ onMounted(() => {
             <div class="task-view__header-buttons" v-if="!isDownloading">
                 <button type="button" @click="downloadAsPDF" class="btn btn--primary btn--only-icon"
                     title="Baixar em PDF" aria-label="Baixar todas as tarefas em PDF">
-                    <i class="fa-solid fa-download" aria-hidden="true"></i>
+                    <fa icon="download" />
                     <span class="sr-only">Baixar tarefas</span>
                 </button>
                 <button @click="() => router.back()" class="btn btn--outline-primary btn--only-icon"
                     title="Voltar para a página anterior" aria-label="Voltar para a página anterior">
-                    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                    <fa icon="arrow-left" />
                     <span class="sr-only">Voltar</span>
                 </button>
             </div>
@@ -120,7 +120,7 @@ onMounted(() => {
                 @mouseleave="removeFocusFromTasks" aria-label="Tarefas concluídas: {{ priorityCount.completed }}"
                 tabindex="0">
                 <p class="text text--small">
-                    <i :class="getPriorityIcon(TASK_PRIORITIES.completed)" aria-hidden="true"></i>
+                    <fa :icon="getPriorityIcon(TASK_PRIORITIES.completed)" />
                     Concluídas ({{ priorityCount.completed }})
                 </p>
             </div>
@@ -128,7 +128,7 @@ onMounted(() => {
                 @mouseleave="removeFocusFromTasks" :aria-label="`Tarefas de alta prioridade: ${priorityCount.high}`"
                 tabindex="0">
                 <p class="text text--small">
-                    <i :class="getPriorityIcon(TASK_PRIORITIES.high)" aria-hidden="true"></i>
+                    <fa :icon="getPriorityIcon(TASK_PRIORITIES.high)" />
                     Alta prioridade ({{ priorityCount.high }})
                 </p>
             </div>
@@ -136,7 +136,7 @@ onMounted(() => {
                 @mouseleave="removeFocusFromTasks" :aria-label="`Tarefas de média prioridade: ${priorityCount.medium}`"
                 tabindex="0">
                 <p class="text text--small">
-                    <i :class="getPriorityIcon(TASK_PRIORITIES.medium)" aria-hidden="true"></i>
+                    <fa :icon="getPriorityIcon(TASK_PRIORITIES.medium)" />
                     Média prioridade ({{ priorityCount.medium }})
                 </p>
             </div>
@@ -144,7 +144,7 @@ onMounted(() => {
                 @mouseleave="removeFocusFromTasks" :aria-label="`Tarefas de baixa prioridade: ${priorityCount.small}`"
                 tabindex="0">
                 <p class="text text--small">
-                    <i :class="getPriorityIcon(TASK_PRIORITIES.low)" aria-hidden="true"></i>
+                    <fa :icon="getPriorityIcon(TASK_PRIORITIES.low)" />
                     Baixa prioridade ({{ priorityCount.small }})
                 </p>
             </div>
@@ -174,11 +174,11 @@ onMounted(() => {
                                 {{ getPriorityText(task.priority) }}
                             </span>
                             <p class="text text--icon text--small">
-                                <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                                <fa icon="clock" />
                                 Criado em: {{ task.created_at }}
                             </p>
                             <p class="text text--icon text--small" v-if="task.delivery_date">
-                                <i class="fa-regular fa-bell" aria-hidden="true"></i>
+                                <fa icon="bell" />
                                 Entrega para: {{ formatDate(task.delivery_date) }}
                             </p>
                         </div>

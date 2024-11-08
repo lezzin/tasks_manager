@@ -142,7 +142,8 @@ const loadTopics = () => {
         },
         (error) => {
             if (!user.value) return;
-            showToast("danger", "Erro ao obter documento: " + error.message);
+            console.error(error);
+            showToast("danger", "Erro ao obter tópicos. Tente novamente mais tarde.");
         }
     );
 
@@ -186,7 +187,7 @@ provide("filterTask", filterTask);
                 <button @click="openAddTaskModal" title="Abrir modal de nova tarefa"
                     class="btn btn--rounded btn--outline-primary" aria-haspopup="dialog" aria-controls="add-task-modal">
                     <span class="sr-only">Adicionar nova tarefa</span>
-                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                    <fa icon="plus" />
                 </button>
             </div>
 
@@ -199,10 +200,12 @@ provide("filterTask", filterTask);
                                 <input type="text" @input="searchTaskByName" id="search-task"
                                     placeholder="Descrição da tarefa" v-model="searchTask" autocomplete="off"
                                     aria-describedby="search-task-help" />
-                                <span id="search-task-help" class="sr-only">Digite a descrição da tarefa para
-                                    buscar</span>
+                                <span id="search-task-help" class="sr-only">
+                                    Digite a descrição da tarefa para
+                                    buscar
+                                </span>
                                 <button type="submit" class="btn" title="Pesquisar tarefa">
-                                    <i class="fa-solid fa-search" aria-hidden="true"></i>
+                                    <fa icon="search" />
                                     <span class="sr-only">Pesquisar</span>
                                 </button>
                             </div>

@@ -40,7 +40,7 @@ let timerInterval;
 const startPomodoro = () => {
     if (!hasSelectedTask.value) {
         props.warn();
-        showToast("warning", "Selecione uma tarefa antes!");
+        showToast("warning", "Selecione uma tarefa antes.");
         return;
     }
 
@@ -160,24 +160,23 @@ watch(hasSelectedTask, () => {
 
         <div class="pomodoro__buttons">
             <button class="btn btn--primary btn--icon" @click="startPomodoro" v-if="timer.readyForNextCycle">
-                <i class="fa-solid fa-play"></i>
-                Iniciar Próximo Ciclo
+                <fa icon="play" /> Iniciar Próximo Ciclo
             </button>
+
             <button class="btn btn--primary btn--icon" @click="startPomodoro" v-if="!timer.active && !timer.paused">
-                <i class="fa-solid fa-play"></i>
-                Iniciar
+                <fa icon="play" /> Iniciar
             </button>
+
             <button class="btn btn--warning btn--icon" @click="pausePomodoro" v-if="timer.active && !timer.paused">
-                <i class="fa-solid fa-pause"></i>
-                Pausar
+                <fa icon="pause" /> Pausar
             </button>
+
             <button class="btn btn--primary btn--icon" @click="startPomodoro" v-if="timer.paused">
-                <i class="fa-solid fa-play"></i>
-                Continuar
+                <fa icon="play" /> Continuar
             </button>
+
             <button class="btn btn--danger btn--icon" @click="stopPomodoro" v-if="timer.active">
-                <i class="fa-regular fa-circle-stop"></i>
-                Parar
+                <fa icon="circle-stop" /> Parar
             </button>
         </div>
 

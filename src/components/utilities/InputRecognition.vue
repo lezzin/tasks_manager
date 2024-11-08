@@ -91,7 +91,7 @@ const stopSpeechRecognition = () => {
                 :aria-invalid="!!errorMessage" />
             <button v-if="enableVoiceRecognition" type="button" class="btn" title="Adicionar através de áudio"
                 @click="toggleSpeechRecognition">
-                <i :class="['fa-solid', isListening ? 'fa-stop' : 'fa-microphone']"></i>
+                <fa :icon="isListening ? 'stop' : 'microphone'" />
             </button>
         </div>
         <p class="text text--error" v-if="errorMessage">{{ errorMessage }}</p>

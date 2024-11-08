@@ -22,6 +22,7 @@ const { user } = storeToRefs(authStore);
 const router = useRouter();
 
 const isMenuTopicsActive = ref(false);
+const isButtonActive = ref(false);
 const isAccountDropdownActive = ref(false);
 const showTopicNavBtn = ref(false);
 
@@ -29,6 +30,7 @@ provide("isMenuTopicsActive", isMenuTopicsActive);
 provide("showTopicNavBtn", showTopicNavBtn);
 
 const toggleTopicsMenu = () => {
+    isButtonActive.value = !isButtonActive.value;
     isMenuTopicsActive.value = !isMenuTopicsActive.value;
 };
 
@@ -82,9 +84,9 @@ const removeUser = async () => {
     <header class="header-wrapper">
         <div class="header container">
             <div class="header__logo">
-                <button class="btn btn--only-icon btn--primary btn--mobile" @click="toggleTopicsMenu"
-                    v-if="showTopicNavBtn">
-                    <i class="fa-solid fa-bars"></i>
+                <button class="btn btn--only-icon btn--primary" @click="toggleTopicsMenu" v-if="showTopicNavBtn"
+                    title="Alternar menu de tópicos">
+                    <fa :icon="isButtonActive ? 'x' : 'bars'" />
                 </button>
 
                 <RouterLink to="/" title="Acessar página inicial" class="logo">
@@ -105,16 +107,18 @@ const removeUser = async () => {
                 <img class="account__avatar" :src="user.photoURL" alt="Foto de perfil do usuário" width="37" height="37"
                     :title="`Logado como: ${user.email}`" />
 
-                <span class="account__arrow"> <i class="fa-solid fa-caret-down"></i> </span>
+                <span class="account__arrow">
+                    <fa icon="caret-down" />
+                </span>
             </button>
 
             <div :class="['dropdown', isAccountDropdownActive && 'active']">
                 <div class="dropdown__menu">
                     <button class="btn btn--outline-danger btn--icon" @click="logoutUser" title="Sair da minha conta">
-                        <i class="fa-solid fa-right-from-bracket"></i> Sair da conta
+                        <fa icon="right-from-bracket" /> Sair da conta
                     </button>
                     <button class="btn btn--danger btn--icon" @click="removeUser" title="Excluir minha conta">
-                        <i class="fa-solid fa-right-from-bracket"></i> Excluir conta
+                        <fa icon="trash" /> Excluir conta
                     </button>
                 </div>
             </div>

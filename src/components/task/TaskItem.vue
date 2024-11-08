@@ -39,7 +39,7 @@ const deleteTask = (task) => emit("delete", task);
             <button :class="`btn btn--bordered btn--rounded ${props.task.status ? 'btn--primary' : ''}`"
                 :title="`Marcar tarefa como ${props.task.status ? 'não concluída' : 'concluída'}`"
                 @click="changeTaskStatus(props.task)" aria-label="Marcar tarefa como concluída">
-                <i class="fa-solid fa-check"></i>
+                <fa icon="check" />
             </button>
             <div class="task__information">
                 <p class="text">{{ props.task.name }}</p>
@@ -49,11 +49,11 @@ const deleteTask = (task) => emit("delete", task);
                         {{ getPriorityText(props.task.priority) }}
                     </span>
                     <span class="text text--icon text--small text--muted">
-                        <i class="fa-regular fa-clock"></i>
+                        <fa icon="clock" />
                         Criado em: {{ props.task.created_at }}
                     </span>
                     <span class="text text--icon text--small text--muted" v-if="props.task.delivery_date">
-                        <i class="fa-regular fa-bell"></i>
+                        <fa icon="bell" />
                         Entrega para: {{ formatDate(props.task.delivery_date) }}
                     </span>
                 </p>
@@ -63,15 +63,15 @@ const deleteTask = (task) => emit("delete", task);
             <button v-if="props.showComments && props.task.comment" class="btn btn--rounded btn--primary"
                 title="Visualizar comentários da tarefa" @click="openTaskComment(props.task.comment)"
                 aria-label="Visualizar comentários da tarefa">
-                <span class="fa-solid fa-comment"></span>
+                <fa icon="comment" />
             </button>
             <button v-if="props.showEdit" class="btn btn--rounded btn--primary" title="Editar tarefa"
                 @click="openEditTaskModal(props.task)" aria-label="Editar tarefa">
-                <span class="fa-solid fa-pen"></span>
+                <fa icon="pen" />
             </button>
             <button v-if="props.showDelete" class="btn btn--rounded btn--danger" title="Excluir tarefa"
                 @click="deleteTask(props.task)" aria-label="Excluir tarefa">
-                <span class="fa-solid fa-trash"></span>
+                <fa icon="trash" />
             </button>
         </div>
     </div>

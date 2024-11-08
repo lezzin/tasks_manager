@@ -79,7 +79,7 @@ watch(taskDate, () => (taskDateError.value = ""));
                 <h2 id="modal-add-task-title" class="modal__title">Adicionar tarefa</h2>
                 <button class="btn" @click="closeAddingTask" aria-label="Fechar modal de adicionar tarefa"
                     title="Fechar modal">
-                    <i class="fa-solid fa-times" aria-hidden="true"></i>
+                    <fa icon="times" />
                 </button>
             </div>
 

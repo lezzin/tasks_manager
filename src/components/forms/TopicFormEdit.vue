@@ -29,7 +29,7 @@ const setTopicData = () => {
 const handleEditTopic = async () => {
     try {
         await editTopic(name.value, oldName.value, user.uid);
-        showToast("success", "Tópico atualizado com sucesso");
+        showToast("success", "Tópico atualizado com sucesso.");
         closeEditTopicModal();
     } catch (error) {
         if (error.code == "name") {
@@ -63,7 +63,7 @@ watch(() => props.topic, setTopicData, { immediate: true });
                 <h2 id="edit-topic-modal-title" class="modal__title">Editar tópico</h2>
                 <button class="btn" @click="closeEditTopicModal" title="Fechar modal"
                     aria-label="Fechar edição de tópico">
-                    <i class="fa-solid fa-times" aria-hidden="true"></i>
+                    <fa icon="times" />
                 </button>
             </div>
 
@@ -81,7 +81,7 @@ watch(() => props.topic, setTopicData, { immediate: true });
 
                 <button type="submit" class="btn btn--primary btn--block" title="Concluir edição do tópico"
                     aria-label="Confirmar edição do tópico">
-                    <i class="fa-solid fa-check" aria-hidden="true"></i> Concluir edição
+                    <fa icon="check" /> Concluir edição
                 </button>
             </form>
         </div>
