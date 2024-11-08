@@ -96,19 +96,21 @@ onMounted(() => {
 <template>
     <div class="task-wrapper" v-if="tasks.data.length > 0">
         <div class="task-dropdown">
-            <div class="dropdown-header" @click="dropdownOpen = !dropdownOpen" :class="{ shake: props.canShake }">
+            <button type="button" class="dropdown-header" @click="dropdownOpen = !dropdownOpen"
+                :class="{ shake: props.canShake }">
                 <span class="truncate" style="--line-clamp: 1">
                     {{ selectedTask.value?.name || "Selecione uma tarefa para começar!" }}
                 </span>
                 <i :class="dropdownOpen ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down'"></i>
-            </div>
+            </button>
 
             <Transition>
                 <div v-if="dropdownOpen" class="dropdown-content">
-                    <div class="dropdown-item" @click="selectTask(null)">---</div>
-                    <div class="dropdown-item" v-for="task in tasks.data" :key="task.id" @click="selectTask(task)">
+                    <button type="button" class="btn dropdown-item" @click="selectTask(null)">---</button>
+                    <button type="button" class="btn dropdown-item" v-for="task in tasks.data" :key="task.id"
+                        @click="selectTask(task)">
                         {{ task.name }}
-                    </div>
+                    </button>
                 </div>
             </Transition>
         </div>
@@ -143,13 +145,13 @@ onMounted(() => {
     align-items: center;
     flex-direction: column;
     max-width: 500px;
+    color: var(--font-primary);
     width: 90%;
 }
 
 .task-dropdown {
     position: relative;
     font-size: 1.6rem;
-    color: var(--font-primary);
     width: 100%;
 }
 
@@ -158,6 +160,7 @@ onMounted(() => {
     justify-content: space-between;
     align-items: center;
     gap: 2rem;
+    width: 100%;
     padding: 1rem 1.6rem;
     border: 1px solid var(--border-color);
     background-color: var(--bg-primary);
@@ -179,12 +182,12 @@ onMounted(() => {
 }
 
 .dropdown-item {
+    width: 100%;
     padding: 1rem 1.6rem;
     cursor: pointer;
-}
-
-.dropdown-item:hover {
-    background-color: #f0f0f0;
+    background-color: inherit;
+    text-align: left;
+    border-radius: 0;
 }
 
 .task {
@@ -204,16 +207,16 @@ onMounted(() => {
 
 .task.alert {
     border-style: dashed;
-    padding: 2.2rem var(--padding);
+    padding: 2.12rem var(--padding);
 }
 
 .alert {
     border-radius: var(--radius);
-    background: var(--bg-secondary);
+    color: var(--font-primary-light);
     padding: var(--padding);
     justify-content: center;
     cursor: default;
-    opacity: .8;
+    opacity: .7;
 }
 
 .task__content {

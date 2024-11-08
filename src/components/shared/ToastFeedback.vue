@@ -63,7 +63,7 @@ function closeToast() {
     --__toast-bg: transparent;
 
     position: absolute;
-    top: 1rem;
+    top: 2rem;
     right: 0;
     display: grid;
     grid-template-columns: 1.5rem 1fr;
