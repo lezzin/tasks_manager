@@ -1,7 +1,7 @@
 <script setup>
 import { PAGE_TITLES, TASK_KANBAN_STATUSES } from '../../utils/variables';
 
-import { onMounted, reactive, ref, markRaw } from 'vue';
+import { onMounted, reactive, ref, markRaw, watch, nextTick, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { marked } from 'marked';
 
@@ -21,7 +21,7 @@ const props = defineProps({
         type: Boolean,
         required: true
     }
-})
+});
 
 const { changeStatus, getUserTasks } = useTask();
 const { showToast } = useToast();
@@ -32,23 +32,37 @@ const modal = useModal();
 
 const tasks = reactive({ data: [] });
 const dropdownOpen = ref(false);
+const dropdownDirection = ref('down');
+const dropdownRef = ref(null);
 const selectedTask = reactive({ value: null });
 const selectedComment = ref("");
 
 const loadTasks = async () => {
     loadingStore.showLoader();
-
     try {
         tasks.data = await getUserTasks(user.uid);
     } catch (error) {
         showToast("danger", error.message);
-
         if (error.code === "topic-not-found" || error.code === "doc-not-found") {
             router.push("/");
         }
     } finally {
         loadingStore.hideLoader();
     }
+};
+
+const adjustDropdownDirection = async () => {
+    if (!dropdownRef.value) return;
+
+    const dropdownRect = dropdownRef.value.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - dropdownRect.bottom;
+    const spaceAbove = dropdownRect.top;
+
+    dropdownDirection.value = spaceBelow < 250 && spaceAbove > spaceBelow ? 'up' : 'down';
+};
+
+const toggleDropdown = () => {
+    dropdownOpen.value = !dropdownOpen.value;
 };
 
 const handleChangeTaskStatus = async (taskToUpdate) => {
@@ -77,14 +91,25 @@ const openTaskComment = (comment) => {
 onMounted(() => {
     document.title = PAGE_TITLES.pomodoro;
     loadTasks();
+    window.addEventListener('resize', adjustDropdownDirection);
+});
+
+onBeforeUnmount(() => {
+    window.removeEventListener('resize', adjustDropdownDirection);
+})
+
+watch(dropdownOpen, async (isOpen) => {
+    if (isOpen) {
+        await nextTick();
+        adjustDropdownDirection();
+    }
 });
 </script>
 
 <template>
     <div class="task-wrapper" v-if="tasks.data.length > 0">
         <div class="task-dropdown">
-            <button type="button" class="dropdown-header" @click="dropdownOpen = !dropdownOpen"
-                :class="{ shake: props.canShake }">
+            <button type="button" class="dropdown-header" @click="toggleDropdown" :class="{ shake: props.canShake }">
                 <span class="truncate" style="--line-clamp: 1">
                     {{ selectedTask.value?.name || "Selecione uma tarefa para começar!" }}
                 </span>
@@ -92,11 +117,12 @@ onMounted(() => {
             </button>
 
             <Transition>
-                <div v-if="dropdownOpen" class="dropdown-content">
+                <div v-if="dropdownOpen" ref="dropdownRef" :class="['dropdown-content', dropdownDirection]">
                     <button type="button" class="btn dropdown-item" @click="selectTask(null)">---</button>
                     <button type="button" class="btn dropdown-item" v-for="task in tasks.data" :key="task.id"
                         @click="selectTask(task)">
-                        {{ task.name }}
+                        <p>{{ task.name }}</p>
+                        <p class="text text--smallest text--muted">{{ task.topic.name }}</p>
                     </button>
                 </div>
             </Transition>
@@ -123,7 +149,6 @@ onMounted(() => {
             <span> Crie uma nova tarefa para começar a utilizar o Pomodoro</span>
         </p>
     </div>
-
 </template>
 
 <style scoped>
@@ -157,15 +182,22 @@ onMounted(() => {
 
 .dropdown-content {
     position: absolute;
-    top: calc(100% + 0.5rem);
     left: 0;
     right: 0;
     border: 1px solid var(--border-color);
     background-color: var(--bg-secondary);
     border-radius: var(--radius);
-    max-height: 250px;
+    max-height: 200px;
     overflow-y: auto;
     z-index: 10;
+
+    &.down {
+        top: calc(100% + 0.5rem);
+    }
+
+    &.up {
+        bottom: calc(100% + 0.5rem);
+    }
 }
 
 .dropdown-item {
