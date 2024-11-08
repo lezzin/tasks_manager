@@ -311,10 +311,8 @@ body {
             align-items: center;
             gap: .5rem;
 
-            button {
-                i {
-                    font-size: 2.5rem;
-                }
+            button svg {
+                font-size: 2rem;
             }
 
             .logo {
