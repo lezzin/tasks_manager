@@ -39,7 +39,7 @@ async function loginGoogle() {
             'auth/web-storage-unsupported': 'O navegador não é compatível com armazenamento da Web necessário para autenticação.',
         };
 
-        showToast('error', errors[code] ?? message);
+        showToast("danger", errors[code] ?? message);
     } finally {
         loading.value = false;
     }

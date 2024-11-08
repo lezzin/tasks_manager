@@ -46,7 +46,7 @@ let timerInterval;
 const startPomodoro = () => {
     if (!hasSelectedTask.value) {
         warnUser();
-        showToast("error", "Selecione uma tarefa antes!");
+        showToast("warning", "Selecione uma tarefa antes!");
         return;
     }
 

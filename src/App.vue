@@ -49,7 +49,7 @@ const logoutUser = async () => {
             "auth/no-current-user": "Nenhum usuário autenticado no momento.",
         };
 
-        showToast("error", errors[code] ?? `Erro ao sair: ${message}`);
+        showToast("danger", errors[code] ?? `Erro ao sair: ${message}`);
     }
 };
 
@@ -71,7 +71,7 @@ const removeUser = async () => {
                 "Falha na conexão de rede. Verifique sua conexão e tente novamente.",
         };
 
-        showToast("error", errors[code] ?? message);
+        showToast("danger", errors[code] ?? message);
     }
 };
 </script>

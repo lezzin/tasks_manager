@@ -73,13 +73,13 @@ const editTask = async () => {
     const docRef = doc(db, DOC_NAME, user.uid);
 
     if (!props?.topic) {
-        showToast("error", "Tópico da tarefa não encontrado.");
+        showToast("danger", "Tópico da tarefa não encontrado.");
         return;
     }
 
     const docSnap = await getDoc(docRef);
     if (!docSnap.exists()) {
-        showToast("error", "Dados do usuário não encontrados.");
+        showToast("danger", "Dados do usuário não encontrados.");
         return;
     }
 
@@ -106,7 +106,7 @@ const editTask = async () => {
         showToast("success", "Tarefa alterada com sucesso");
         closeEditTaskModal();
     } else {
-        showToast("error", "Tarefa não encontrada.");
+        showToast("danger", "Tarefa não encontrada.");
     }
 };
 

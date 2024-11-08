@@ -43,7 +43,7 @@ const downloadAsPDF = () => {
             saveAs(blob, `${Date.now()}.png`);
         })
         .catch((error) => {
-            showToast("error", "Error capturing the container: " + error);
+            showToast("danger", "Error capturing the container: " + error);
         });
 };
 
@@ -101,7 +101,7 @@ const fetchUserTasks = async () => {
 
         updatePriorityCounter();
     } catch (error) {
-        showToast("error", `Erro ao obter tarefas: ${error}`);
+        showToast("danger", `Erro ao obter tarefas: ${error}`);
     } finally {
         loadingStore.hideLoader();
     }

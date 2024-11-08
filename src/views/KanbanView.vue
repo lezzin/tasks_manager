@@ -60,7 +60,7 @@ const getAllUserTasks = async () => {
 
         organizeTasksByStatus(userTasks);
     } catch (error) {
-        showToast("error", `Erro ao resgatar tarefas: ${error.message}`);
+        showToast("danger", `Erro ao resgatar tarefas: ${error.message}`);
     } finally {
         loadingStore.hideLoader();
     }
@@ -167,7 +167,7 @@ const updateTaskStatus = async (taskToUpdate, newKanbanStatus) => {
             }
         }
     } catch (error) {
-        showToast("error", `Erro ao atualizar status da tarefa: ${error.message}`);
+        showToast("danger", `Erro ao atualizar status da tarefa: ${error.message}`);
     }
 };
 

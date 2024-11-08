@@ -12,12 +12,14 @@ const props = defineProps({
 const emit = defineEmits(['close']);
 
 const TOAST_TITLES = {
-    error: "Oops!",
+    danger: "Oops!",
+    warning: "Cuidado!",
     success: "Sucesso",
 };
 
 const TOAST_ICONS = {
-    error: "fa-solid fa-exclamation-circle",
+    warning: "fa-solid fa-exclamation",
+    danger: "fa-solid fa-xmark",
     success: "fa-solid fa-check",
 };
 
@@ -81,11 +83,15 @@ function closeToast() {
         pointer-events: all;
     }
 
+    &.toast--warning {
+        --__toast-bg: var(--warning-color);
+    }
+
     &.toast--success {
         --__toast-bg: var(--details-color);
     }
 
-    &.toast--error {
+    &.toast--danger {
         --__toast-bg: var(--danger-color);
     }
 
@@ -95,7 +101,7 @@ function closeToast() {
     }
 
     .toast__icon {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
     }
 
     .toast__content {

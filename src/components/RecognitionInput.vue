@@ -46,7 +46,7 @@ const toggleSpeechRecognition = () => {
 
 const startSpeechRecognition = () => {
     if (!window.webkitSpeechRecognition) {
-        showToast("error", "Reconhecimento de voz não suportado neste navegador.");
+        showToast("danger", "Reconhecimento de voz não suportado neste navegador.");
         return;
     }
 

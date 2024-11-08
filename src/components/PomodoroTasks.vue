@@ -42,7 +42,7 @@ const loadTasks = async () => {
         const docSnap = await getDoc(docRef);
 
         if (!docSnap.exists()) {
-            showToast("error", "Documento não encontrado.");
+            showToast("danger", "Documento não encontrado.");
             router.back("/");
             return;
         }
@@ -51,7 +51,7 @@ const loadTasks = async () => {
         const topicsExists = userData && userData.topics && Object.keys(userData.topics).length > 0;
 
         if (!topicsExists) {
-            showToast("error", "Adicione uma tarefa para utilizar o Método.");
+            showToast("danger", "Adicione uma tarefa para utilizar o Método.");
             router.back("/");
             return;
         }
@@ -59,7 +59,7 @@ const loadTasks = async () => {
         tasks.data = extractUniqueTasks(userData.topics);
 
     } catch (error) {
-        showToast("error", "Erro ao obter documento: " + error.message);
+        showToast("danger", "Erro ao obter documento: " + error.message);
     }
 
     loadingStore.hideLoader();
@@ -88,7 +88,7 @@ const changeTaskStatus = async (taskToUpdate) => {
 
         showToast("success", "Status de conclusão alterado com sucesso");
     } catch (error) {
-        showToast("error", "Erro ao alterar tarefa: " + error.message);
+        showToast("danger", "Erro ao alterar tarefa: " + error.message);
     }
 
     taskToUpdate.status = newStatus;

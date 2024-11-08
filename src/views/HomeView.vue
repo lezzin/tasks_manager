@@ -141,7 +141,7 @@ const loadTopics = () => {
         },
         (error) => {
             if (!user.value) return;
-            showToast("error", "Erro ao obter documento: " + error.message);
+            showToast("danger", "Erro ao obter documento: " + error.message);
         }
     );
 
