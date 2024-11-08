@@ -32,8 +32,7 @@ const timer = reactive({
     active: false,
     paused: false,
     cycleCount: 1,
-    onBreak: false,
-    readyForNextCycle: false
+    onBreak: false
 });
 let timerInterval;
 
@@ -48,22 +47,24 @@ const startPomodoro = () => {
 
     timer.active = true;
     timer.paused = false;
-    timer.readyForNextCycle = false;
 
+    clearInterval(timerInterval);
     timerInterval = setInterval(runTimer, TIME_CONSTANTS.ONE_SECOND);
 };
 
 const runTimer = () => {
-    if (timer.seconds === 0) {
-        if (timer.minutes === 0) {
-            handleCycleEnd();
-        } else {
-            timer.minutes--;
-            timer.seconds = 59;
-        }
-    } else {
+    if (timer.seconds > 0) {
         timer.seconds--;
+        return;
     }
+
+    if (timer.minutes === 0) {
+        handleCycleEnd();
+        return;
+    }
+
+    timer.minutes--;
+    timer.seconds = 59;
 };
 
 const pausePomodoro = () => {
@@ -84,10 +85,6 @@ const handleCycleEnd = () => {
 
     clearInterval(timerInterval);
     timer.active = false;
-
-    setTimeout(() => {
-        timer.readyForNextCycle = true;
-    }, TIME_CONSTANTS.ONE_SECOND * TIME_CONSTANTS.PAUSE_PER_CYCLE_IN_MINUTES);
 };
 
 const prepareNextCycle = () => {
@@ -159,10 +156,6 @@ watch(hasSelectedTask, () => {
         </span>
 
         <div class="pomodoro__buttons">
-            <button class="btn btn--primary btn--icon" @click="startPomodoro" v-if="timer.readyForNextCycle">
-                <fa icon="play" /> Iniciar Próximo Ciclo
-            </button>
-
             <button class="btn btn--primary btn--icon" @click="startPomodoro" v-if="!timer.active && !timer.paused">
                 <fa icon="play" /> Iniciar
             </button>

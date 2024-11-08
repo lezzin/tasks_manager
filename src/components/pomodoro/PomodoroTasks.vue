@@ -53,7 +53,7 @@ const loadTasks = async () => {
 
 const handleChangeTaskStatus = async (taskToUpdate) => {
     try {
-        const newStatus = await changeStatus(tasks.data, taskToUpdate, user.uid);
+        const newStatus = await changeStatus(taskToUpdate, user.uid);
         taskToUpdate.status = newStatus;
         taskToUpdate.kanbanStatus = newStatus ? TASK_KANBAN_STATUSES.completed : TASK_KANBAN_STATUSES.todo;
         showToast("success", "Status de conclusão alterado com sucesso.");
@@ -63,20 +63,7 @@ const handleChangeTaskStatus = async (taskToUpdate) => {
 };
 
 const selectTask = (task) => {
-    if (task) {
-        const taskDataToUse = {
-            id: task.id,
-            name: task.name,
-            comment: task.comment,
-            status: task.status,
-            topic: task.topic,
-        }
-
-        selectedTask.value = taskDataToUse;
-    } else {
-        selectedTask.value = null;
-    }
-
+    selectedTask.value = task;
     dropdownOpen.value = false;
     emit("update", task);
 };
@@ -117,7 +104,7 @@ onMounted(() => {
 
         <Task v-if="selectedTask.value?.id" :key="selectedTask.value.id" :task="selectedTask.value"
             @changeStatus="handleChangeTaskStatus" @openComment="openTaskComment" :showPriorities="false"
-            :showEdit="false" :showDelete="false" />
+            :showEdit="false" :showDelete="false" :showCompletedStatus="false" />
 
         <div v-else class="task alert">
             <p class="text">Sua tarefa aparecerá aqui...</p>

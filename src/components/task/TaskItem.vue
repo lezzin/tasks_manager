@@ -24,6 +24,10 @@ const props = defineProps({
     showComments: {
         type: Boolean,
         default: true
+    },
+    showCompletedStatus: {
+        type: Boolean,
+        default: true
     }
 });
 
@@ -34,7 +38,7 @@ const deleteTask = (task) => emit("delete", task);
 </script>
 
 <template>
-    <div :class="`task ${props.task.status ? 'completed' : ''}`">
+    <div :class="`task ${props.task.status && props.showCompletedStatus ? 'completed' : ''}`">
         <div class="task__content">
             <button :class="`btn btn--bordered btn--rounded ${props.task.status ? 'btn--primary' : ''}`"
                 :title="`Marcar tarefa como ${props.task.status ? 'não concluída' : 'concluída'}`"
@@ -45,7 +49,7 @@ const deleteTask = (task) => emit("delete", task);
                 <p class="text">{{ props.task.name }}</p>
                 <p class="task__information__bottom" v-if="props.showPriorities">
                     <span :class="['tag', getPriorityClass(props.task.priority)]">
-                        <i :class="getPriorityIcon(props.task.priority)"></i>
+                        <fa :icon="getPriorityIcon(props.task.priority)" />
                         {{ getPriorityText(props.task.priority) }}
                     </span>
                     <span class="text text--icon text--small text--muted">

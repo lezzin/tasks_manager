@@ -53,6 +53,14 @@ const getUserTasks = async (userId) => {
     }
 };
 
+const getTopicByName = async (name, userId) => {
+    const docRef = doc(db, DOC_NAME, userId);
+    const docSnap = await getDoc(docRef);
+    const userData = docSnap.data();
+
+    return userData?.topics?.[name];
+}
+
 const updateTasks = async (userId, topicName, tasks) => {
     const docRef = doc(db, DOC_NAME, userId);
     await updateDoc(docRef, { [`topics.${topicName}.tasks`]: tasks });
@@ -95,7 +103,9 @@ const editTask = async (taskToUpdate, newName, newComment, newPriority, newDeliv
     await updateTasks(userId, taskToUpdate.topic.name, updatedTasks);
 };
 
-const changeStatus = async (allTasks, taskToUpdate, userId) => {
+const changeStatus = async (taskToUpdate, userId) => {
+    const { tasks } = await getTopicByName(taskToUpdate.topic.name, userId);
+
     const newStatus = !taskToUpdate.status;
     const updatedTask = {
         ...taskToUpdate,
@@ -103,7 +113,7 @@ const changeStatus = async (allTasks, taskToUpdate, userId) => {
         kanbanStatus: newStatus ? TASK_KANBAN_STATUSES.completed : TASK_KANBAN_STATUSES.todo,
     };
 
-    const updatedTasks = allTasks.map(task => task.id === taskToUpdate.id ? updatedTask : task);
+    const updatedTasks = tasks.map(task => task.id === taskToUpdate.id ? updatedTask : task);
     await updateTasks(userId, taskToUpdate.topic.name, updatedTasks);
 
     return newStatus;
