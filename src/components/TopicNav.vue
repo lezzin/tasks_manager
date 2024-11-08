@@ -47,7 +47,7 @@ const deleteTopic = async (topicName) => {
     const userData = await getUserData(docRef);
 
     if (!userData || !userData.topics || !userData.topics[topicName]) {
-        showToast("error", "Tópico não encontrado");
+        showToast("danger", "Tópico não encontrado");
         return;
     }
 
@@ -66,7 +66,7 @@ const deleteAllTopics = async () => {
     const userData = await getUserData(docRef);
 
     if (!userData || !userData.topics || Object.keys(userData.topics).length === 0) {
-        showToast("error", "Nenhum tópico encontrado para excluir.");
+        showToast("danger", "Nenhum tópico encontrado para excluir.");
         return;
     }
 
