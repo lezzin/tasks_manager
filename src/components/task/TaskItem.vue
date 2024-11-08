@@ -50,7 +50,7 @@ const deleteTask = (task) => emit("delete", task);
                     </span>
                     <span class="text text--icon text--small text--muted">
                         <i class="fa-regular fa-clock"></i>
-                        Criado em: {{ formatDate(props.task.created_at) }}
+                        Criado em: {{ props.task.created_at }}
                     </span>
                     <span class="text text--icon text--small text--muted" v-if="props.task.delivery_date">
                         <i class="fa-regular fa-bell"></i>
