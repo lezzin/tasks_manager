@@ -176,13 +176,7 @@ provide("filterTask", filterTask);
 
 <template>
     <div class="home-wrapper">
-        <nav :class="['home-aside', isMenuTopicsActive && 'home-aside--active']" aria-label="Navegação de tópicos">
-            <TopicFormAdd />
-            <span class="divider" role="separator" aria-hidden="true"></span>
-            <TopicNavigation :data="topics.data" @close="closeTopicsMenu" />
-        </nav>
-
-        <section :class="['container', defaultTasks.length > 0 ? 'task-container' : '']" v-if="selectedTopic">
+        <section :class="['container', defaultTasks.length > 0 && 'task-container']" v-if="selectedTopic">
             <div id="add-task-container">
                 <button @click="openAddTaskModal" title="Abrir modal de nova tarefa"
                     class="btn btn--rounded btn--outline-primary" aria-haspopup="dialog" aria-controls="add-task-modal">
@@ -249,10 +243,29 @@ provide("filterTask", filterTask);
         <Transition>
             <TaskFormAdd v-if="modal.show.value" @close="modal.hideModal" :topic="selectedTopic" id="add-task-modal" />
         </Transition>
+
+        <Transition name="slide">
+            <nav class="home-aside" aria-label="Navegação de tópicos" v-if="isMenuTopicsActive">
+                <TopicFormAdd />
+                <span class="divider" role="separator" aria-hidden="true"></span>
+                <TopicNavigation :data="topics.data" @close="closeTopicsMenu" />
+            </nav>
+        </Transition>
     </Teleport>
 </template>
 
 <style scoped>
+.slide-enter-active,
+.slide-leave-active {
+    transition: all var(--screen-transition) ease;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+    transform: translateX(-100%);
+    opacity: 0;
+}
+
 .container {
     position: relative;
 }
@@ -294,15 +307,9 @@ provide("filterTask", filterTask);
     width: 30vw;
     inset: 10vh 0 0;
     z-index: 999;
-    transform: translateX(-100%);
-    transition: transform var(--screen-transition) ease-in-out;
 
     @media (width <=768px) {
         width: 100vw;
-    }
-
-    &.home-aside--active {
-        transform: translateX(0);
     }
 
     .divider {

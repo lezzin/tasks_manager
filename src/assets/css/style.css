@@ -150,15 +150,6 @@ body {
 
     &.btn--icon svg {
         margin-right: .5rem;
-        transform: translateY(-0.1rem);
-    }
-
-    svg {
-        font-size: 1.2rem;
-
-        @media(width <=768px) {
-            font-size: 1.6rem;
-        }
     }
 
     &.btn--block,
@@ -210,10 +201,6 @@ body {
         padding: 0;
         height: 3.6rem;
         aspect-ratio: 1;
-    }
-
-    .btn--only-icon svg {
-        transform: translateY(-0.25rem);
     }
 
     &.btn--rounded {

@@ -22,7 +22,6 @@ const { user } = storeToRefs(authStore);
 const router = useRouter();
 
 const isMenuTopicsActive = ref(false);
-const isButtonActive = ref(false);
 const isAccountDropdownActive = ref(false);
 const showTopicNavBtn = ref(false);
 
@@ -30,7 +29,6 @@ provide("isMenuTopicsActive", isMenuTopicsActive);
 provide("showTopicNavBtn", showTopicNavBtn);
 
 const toggleTopicsMenu = () => {
-    isButtonActive.value = !isButtonActive.value;
     isMenuTopicsActive.value = !isMenuTopicsActive.value;
 };
 
@@ -86,7 +84,7 @@ const removeUser = async () => {
             <div class="header__logo">
                 <button class="btn btn--only-icon btn--primary" @click="toggleTopicsMenu" v-if="showTopicNavBtn"
                     title="Alternar menu de tópicos">
-                    <fa :icon="isButtonActive ? 'x' : 'bars'" />
+                    <fa :icon="isMenuTopicsActive ? 'x' : 'bars'" />
                 </button>
 
                 <RouterLink to="/" title="Acessar página inicial" class="logo">

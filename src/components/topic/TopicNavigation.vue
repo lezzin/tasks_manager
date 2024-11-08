@@ -112,30 +112,34 @@ const openEditTopicModal = (topicName) => {
         </div>
     </div>
 
-    <div class="home-aside__footer" v-if="props.data?.length">
+
+    <div class="footer" v-if="props.data?.length">
         <span class="divider"></span>
 
-        <RouterLink to="/kanban" class="btn btn--outline-primary btn--icon btn--block-small" title="Acessar Kanban">
-            <fa icon="chart-simple" />
-            Acessar Kanban
-        </RouterLink>
+        <div class="footer__buttons">
+            <RouterLink to="/kanban" class="btn btn--outline-primary btn--icon btn--block-small" title="Acessar Kanban">
+                <fa icon="chart-simple" />
+                Acessar Kanban
+            </RouterLink>
 
-        <RouterLink to="/pomodoro" class="btn btn--outline-primary btn--icon btn--block-small" title="Acessar Pomodoro">
-            <fa icon="clock" />
-            Acessar Pomodoro
-        </RouterLink>
+            <RouterLink to="/pomodoro" class="btn btn--outline-primary btn--icon btn--block-small"
+                title="Acessar Pomodoro">
+                <fa icon="clock" />
+                Acessar Pomodoro
+            </RouterLink>
 
-        <RouterLink to="/general" class="btn btn--outline-primary btn--icon btn--block-small"
-            title="Visualização geral">
-            <fa icon="eye" />
-            Visão geral das tarefas
-        </RouterLink>
+            <RouterLink to="/general" class="btn btn--outline-primary btn--icon btn--block-small"
+                title="Visualização geral">
+                <fa icon="eye" />
+                Visão geral das tarefas
+            </RouterLink>
 
-        <button class="btn btn--icon btn--block-small btn--outline-danger" title="Excluir todos os tópicos"
-            @click="deleteAllTopics" aria-label="Excluir todos os tópicos">
-            <fa icon="trash" />
-            Excluir todos os tópicos
-        </button>
+            <button class="btn btn--icon btn--block-small btn--outline-danger" title="Excluir todos os tópicos"
+                @click="deleteAllTopics" aria-label="Excluir todos os tópicos">
+                <fa icon="trash" />
+                Excluir todos os tópicos
+            </button>
+        </div>
     </div>
 
     <p class="text text--center" v-else>Nenhum tópico cadastrado</p>
@@ -208,9 +212,19 @@ const openEditTopicModal = (topicName) => {
     }
 }
 
-.home-aside__footer {
+.footer {
     margin-top: auto;
-    display: grid;
+}
+
+.footer__buttons {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
     gap: 0.6rem;
+}
+
+.footer__buttons>* {
+    flex: 1;
+    width: fit-content;
 }
 </style>
