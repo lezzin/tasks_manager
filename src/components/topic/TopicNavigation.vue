@@ -212,11 +212,5 @@ const openEditTopicModal = (topicName) => {
     margin-top: auto;
     display: grid;
     gap: 0.6rem;
-
-    a:last-of-type {
-        margin-top: 0.5rem;
-        text-align: center;
-        font-size: 1.2rem;
-    }
 }
 </style>
