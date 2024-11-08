@@ -29,10 +29,6 @@ const { user } = useAuthStore();
 const loadingStore = useLoadingStore();
 const router = useRouter();
 
-const sendBack = () => {
-    router.back();
-};
-
 const loadTasks = async () => {
     loadingStore.showLoader();
 
@@ -144,10 +140,10 @@ onMounted(() => {
     <div class="kanban-wrapper container" v-if="tasksLength > 0">
         <header class="kanban-wrapper__header" role="banner">
             <h2 class="title">Visualize as suas tarefas em formato Kanban</h2>
-            <button @click="sendBack" class="btn btn--outline-primary btn--icon" title="Voltar para o início"
-                aria-label="Voltar para a página inicial">
+            <button @click="() => router.back()" class="btn btn--outline-primary btn--icon"
+                title="Voltar para a página anterior" aria-label="Voltar para a página anterior">
                 <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
-                <span>Voltar para o início</span>
+                <span>Voltar para a página anterior</span>
             </button>
         </header>
 

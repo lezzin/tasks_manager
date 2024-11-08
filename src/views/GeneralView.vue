@@ -33,10 +33,6 @@ const priorityCount = reactive({
     small: 0,
 });
 
-const sendBack = () => {
-    router.back();
-};
-
 const downloadAsPDF = () => {
     domtoimage.toBlob(container.value)
         .then(function (blob) {
@@ -139,8 +135,8 @@ onMounted(() => {
                     <i class="fa-solid fa-download" aria-hidden="true"></i>
                     <span class="sr-only">Baixar tarefas</span>
                 </button>
-                <button @click="sendBack()" class="btn btn--outline-primary btn--only-icon" title="Voltar para o início"
-                    aria-label="Voltar para o início">
+                <button @click="() => router.back()" class="btn btn--outline-primary btn--only-icon"
+                    title="Voltar para a página anterior" aria-label="Voltar para a página anterior">
                     <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
                     <span class="sr-only">Voltar</span>
                 </button>

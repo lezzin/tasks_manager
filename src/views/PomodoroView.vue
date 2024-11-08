@@ -139,10 +139,6 @@ const formatTime = (time) => {
     return time < 10 ? '0' + time : time;
 }
 
-const goBack = () => {
-    router.back();
-}
-
 const goToHelp = () => {
     window.scroll({
         top: document.querySelector("#s-help").getBoundingClientRect().top + window.scrollY,
@@ -176,10 +172,10 @@ watch(hasSelectedTask, () => {
     <section class="pomodoro-wrapper" id="s-pomodoro">
         <div class="container">
             <div class="pomodore__absolute">
-                <button type="button" @click="goBack" class="btn-back btn btn--outline-primary btn--icon "
-                    title="Voltar para o início" aria-label="Voltar para a página inicial">
+                <button type="button" @click="() => router.back()" class="btn-back btn btn--outline-primary btn--icon "
+                    title="Voltar para a página anterior" aria-label="Voltar para a página anterior">
                     <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
-                    <span>Voltar para a página inicial</span>
+                    <span>Voltar</span>
                 </button>
                 <button type="button" class="btn btn--only-icon btn--outline-primary" title="Acessar ajuda"
                     @click="goToHelp">
