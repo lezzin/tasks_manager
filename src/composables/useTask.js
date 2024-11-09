@@ -40,11 +40,11 @@ const getUserTasks = async (userId) => {
         const docRef = doc(db, DOC_NAME, userId);
         const docSnap = await getDoc(docRef);
 
-        if (!docSnap.exists()) throw new Error("Documento não encontrado");
+        if (!docSnap.exists()) throwValidationError("Documento não encontrado.", "doc-not-found")
 
         const userData = docSnap.data();
         if (!userData.topics || Object.keys(userData.topics).length === 0)
-            throw new Error("Tópico não encontrado");
+            throwValidationError("Nenhum tópico encontrado.", "topic-not-found")
 
         return extractUniqueTasks(userData.topics);
     } catch (error) {

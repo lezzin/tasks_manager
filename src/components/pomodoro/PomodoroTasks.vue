@@ -1,7 +1,7 @@
 <script setup>
 import { PAGE_TITLES, TASK_KANBAN_STATUSES } from '../../utils/variables';
 
-import { onMounted, reactive, ref, markRaw, watch, nextTick, onBeforeUnmount } from 'vue';
+import { onMounted, reactive, ref, markRaw } from 'vue';
 import { useRouter } from 'vue-router';
 import { marked } from 'marked';
 
@@ -32,7 +32,6 @@ const modal = useModal();
 
 const tasks = reactive({ data: [] });
 const dropdownOpen = ref(false);
-const dropdownDirection = ref('down');
 const dropdownRef = ref(null);
 const selectedTask = reactive({ value: null });
 const selectedComment = ref("");
@@ -49,16 +48,6 @@ const loadTasks = async () => {
     } finally {
         loadingStore.hideLoader();
     }
-};
-
-const adjustDropdownDirection = async () => {
-    if (!dropdownRef.value) return;
-
-    const dropdownRect = dropdownRef.value.getBoundingClientRect();
-    const spaceBelow = window.innerHeight - dropdownRect.bottom;
-    const spaceAbove = dropdownRect.top;
-
-    dropdownDirection.value = spaceBelow < 250 && spaceAbove > spaceBelow ? 'up' : 'down';
 };
 
 const toggleDropdown = () => {
@@ -91,18 +80,6 @@ const openTaskComment = (comment) => {
 onMounted(() => {
     document.title = PAGE_TITLES.pomodoro;
     loadTasks();
-    window.addEventListener('resize', adjustDropdownDirection);
-});
-
-onBeforeUnmount(() => {
-    window.removeEventListener('resize', adjustDropdownDirection);
-})
-
-watch(dropdownOpen, async (isOpen) => {
-    if (isOpen) {
-        await nextTick();
-        adjustDropdownDirection();
-    }
 });
 </script>
 
@@ -110,14 +87,19 @@ watch(dropdownOpen, async (isOpen) => {
     <div class="task-wrapper" v-if="tasks.data.length > 0">
         <div class="task-dropdown">
             <button type="button" class="dropdown-header" @click="toggleDropdown" :class="{ shake: props.canShake }">
-                <span class="truncate" style="--line-clamp: 1">
-                    {{ selectedTask.value?.name || "Selecione uma tarefa para começar!" }}
+                <Task v-if="selectedTask.value?.id" :key="selectedTask.value.id" :task="selectedTask.value"
+                    @changeStatus="handleChangeTaskStatus" :showPriorities="false" :showEdit="false" :showDelete="false"
+                    :showCompletedStatus="false" :showComment="false" />
+
+                <span v-else class="task alert">
+                    Selecione uma tarefa para começar!
                 </span>
+
                 <fa :icon="dropdownOpen ? 'chevron-up' : 'chevron-down'" />
             </button>
 
             <Transition>
-                <div v-if="dropdownOpen" ref="dropdownRef" :class="['dropdown-content', dropdownDirection]">
+                <div v-if="dropdownOpen" ref="dropdownRef" class="dropdown-content">
                     <button type="button" class="btn dropdown-item" @click="selectTask(null)">---</button>
                     <button type="button" class="btn dropdown-item" v-for="task in tasks.data" :key="task.id"
                         @click="selectTask(task)">
@@ -126,14 +108,6 @@ watch(dropdownOpen, async (isOpen) => {
                     </button>
                 </div>
             </Transition>
-        </div>
-
-        <Task v-if="selectedTask.value?.id" :key="selectedTask.value.id" :task="selectedTask.value"
-            @changeStatus="handleChangeTaskStatus" @openComment="openTaskComment" :showPriorities="false"
-            :showEdit="false" :showDelete="false" :showCompletedStatus="false" />
-
-        <div v-else class="task alert">
-            <p class="text">Sua tarefa aparecerá aqui...</p>
         </div>
 
         <Teleport to="#modal">
@@ -159,6 +133,7 @@ watch(dropdownOpen, async (isOpen) => {
     max-width: 500px;
     color: var(--font-primary);
     width: 90%;
+    min-height: 25dvh;
 }
 
 .task-dropdown {
@@ -173,11 +148,15 @@ watch(dropdownOpen, async (isOpen) => {
     align-items: center;
     gap: 2rem;
     width: 100%;
-    padding: 1rem 1.6rem;
+    padding-right: 1.6rem;
     border: 1px solid var(--border-color);
     background-color: var(--bg-primary);
     border-radius: var(--radius);
     cursor: pointer;
+}
+
+.dropdown-header>:where(.task, .alert) {
+    border-color: transparent;
 }
 
 .dropdown-content {
@@ -187,17 +166,10 @@ watch(dropdownOpen, async (isOpen) => {
     border: 1px solid var(--border-color);
     background-color: var(--bg-secondary);
     border-radius: var(--radius);
-    max-height: 200px;
+    max-height: 150px;
     overflow-y: auto;
     z-index: 10;
-
-    &.down {
-        top: calc(100% + 0.5rem);
-    }
-
-    &.up {
-        bottom: calc(100% + 0.5rem);
-    }
+    top: calc(100% + 0.5rem);
 }
 
 .dropdown-item {
@@ -209,33 +181,12 @@ watch(dropdownOpen, async (isOpen) => {
     border-radius: 0;
 }
 
-.task {
-    margin-top: 1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 2rem;
-    flex-wrap: wrap;
-    border: 1px solid var(--border-color);
-    padding: 1.4rem var(--padding);
-    border-radius: var(--radius);
-    background-color: var(--bg-primary);
-    transition: box-shadow 0.3s ease;
-    width: 100%;
-}
-
-.task.alert {
-    border-style: dashed;
-    padding: 2.24rem var(--padding);
-}
-
 .alert {
-    border-radius: var(--radius);
     color: var(--font-primary-light);
     padding: var(--padding);
-    justify-content: center;
     cursor: default;
     opacity: .7;
+    padding: 2.32rem 2rem;
 }
 
 .task__content {

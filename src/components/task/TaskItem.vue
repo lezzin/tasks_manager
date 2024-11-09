@@ -46,7 +46,7 @@ const deleteTask = (task) => emit("delete", task);
                 <fa icon="check" />
             </button>
             <div class="task__information">
-                <p class="text">{{ props.task.name }}</p>
+                <p class="text truncate" style="--line-clamp: 1">{{ props.task.name }}</p>
                 <p class="task__information__bottom" v-if="props.showPriorities">
                     <span :class="['tag', getPriorityClass(props.task.priority)]">
                         <fa :icon="getPriorityIcon(props.task.priority)" />
@@ -63,8 +63,9 @@ const deleteTask = (task) => emit("delete", task);
                 </p>
             </div>
         </div>
-        <div class="task__action">
-            <button v-if="props.showComments && props.task.comment" class="btn btn--rounded btn--primary"
+        <div class="task__action"
+            v-if="(props.showComment && props.task.comment) || props.showEdit || props.showDelete">
+            <button v-if="props.showComment && props.task.comment" class="btn btn--rounded btn--primary"
                 title="Visualizar comentários da tarefa" @click="openTaskComment(props.task.comment)"
                 aria-label="Visualizar comentários da tarefa">
                 <fa icon="comment" />
@@ -93,6 +94,7 @@ const deleteTask = (task) => emit("delete", task);
     border-radius: var(--radius);
     background-color: var(--bg-primary);
     transition: box-shadow 0.3s ease;
+    text-align: left;
 
     .task__content {
         display: flex;
