@@ -6,17 +6,6 @@ import UIButton from '../ui/UIButton.vue';
 
 const { showToast } = useToast();
 
-const props = defineProps({
-    canShakeButton: {
-        type: Boolean,
-        required: true
-    },
-    warn: {
-        type: Function,
-        required: true
-    }
-});
-
 const TIME_CONSTANTS = {
     ONE_SECOND: 1000,
     WORK: { minutes: 24, seconds: 59 },
@@ -26,7 +15,6 @@ const TIME_CONSTANTS = {
     PAUSE_PER_CYCLE_IN_MINUTES: 5
 };
 
-const hasSelectedTask = ref(false);
 const timer = reactive({
     minutes: TIME_CONSTANTS.WORK.minutes,
     seconds: TIME_CONSTANTS.WORK.seconds,
@@ -38,12 +26,6 @@ const timer = reactive({
 let timerInterval;
 
 const startPomodoro = () => {
-    if (!hasSelectedTask.value) {
-        props.warn();
-        showToast("warning", "Selecione uma tarefa antes.");
-        return;
-    }
-
     if (timer.active && !timer.paused) return;
 
     timer.active = true;
@@ -134,16 +116,6 @@ const clearTimer = () => {
 const formatTime = (time) => {
     return time < 10 ? '0' + time : time;
 };
-
-const selectTask = (taskSelected) => {
-    hasSelectedTask.value = Boolean(taskSelected);
-};
-
-watch(hasSelectedTask, () => {
-    if (timer.active) {
-        pausePomodoro();
-    }
-});
 </script>
 
 <template>
@@ -174,7 +146,7 @@ watch(hasSelectedTask, () => {
             </UIButton>
         </div>
 
-        <PomodoroTasks @update="selectTask" :canShake="props.canShakeButton" />
+        <PomodoroTasks />
     </div>
 </template>
 

@@ -16,15 +16,6 @@ import Task from '../task/TaskItem.vue';
 import { useTopic } from '../../composables/useTopic';
 import UIButton from '../ui/UIButton.vue';
 
-const emit = defineEmits(["update"]);
-
-const props = defineProps({
-    canShake: {
-        type: Boolean,
-        required: true
-    }
-});
-
 const { changeStatus, getUserTasks } = useTask();
 const { getTopicInfo } = useTopic();
 const { showToast } = useToast();
@@ -34,9 +25,7 @@ const router = useRouter();
 const modal = useModal();
 
 const tasks = reactive({ data: [] });
-const dropdownOpen = ref(false);
-const dropdownRef = ref(null);
-const selectedTask = reactive({ value: null });
+const isDropdownOpen = ref(false);
 const selectedComment = ref("");
 
 const loadTasks = async () => {
@@ -61,10 +50,6 @@ const loadTasks = async () => {
     }
 };
 
-const toggleDropdown = () => {
-    dropdownOpen.value = !dropdownOpen.value;
-};
-
 const handleChangeTaskStatus = async (taskToUpdate) => {
     try {
         const newStatus = await changeStatus(taskToUpdate, user.uid);
@@ -76,11 +61,9 @@ const handleChangeTaskStatus = async (taskToUpdate) => {
     }
 };
 
-const selectTask = (task) => {
-    selectedTask.value = task;
-    dropdownOpen.value = false;
-    emit("update", task);
-};
+const toggleDropdown = () => {
+    isDropdownOpen.value = !isDropdownOpen.value;
+}
 
 const openTaskComment = (comment) => {
     selectedComment.value = marked(comment);
@@ -95,142 +78,57 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="select-wrapper" v-if="tasks.data.length > 0">
-        <div class="dropdown">
-            <UIButton :class="['dropdown__header', { shake: props.canShake }]" @click="toggleDropdown"
-                title="Abrir dropdown">
-                <Task v-if="selectedTask.value?.id" :key="selectedTask.value.id" :task="selectedTask.value"
-                    @changeStatus="handleChangeTaskStatus" :showPriorities="false" :showEdit="false" :showDelete="false"
-                    :showCompletedStatus="false" :showComment="false" @openComment="openTaskComment" />
-
-                <div v-else class="alert">
-                    <p>Selecione uma tarefa para começar!</p>
-                </div>
-
-                <fa :icon="dropdownOpen ? 'chevron-up' : 'chevron-down'" />
-            </UIButton>
-
-            <Transition>
-                <div v-if="dropdownOpen" ref="dropdownRef" class="dropdown__menu">
-                    <UIButton class="dropdown__item" @click="selectTask(null)" title="Selecionar nenhuma tarefa">
-                        ---
-                    </UIButton>
-                    <UIButton class="dropdown__item" v-for="task in tasks.data" :key="task.id" @click="selectTask(task)"
-                        title="Selecionar tarefa">
-                        <p>{{ task.name }}</p>
-                        <p class="text text--smallest text--muted">{{ task.topicName }}</p>
-                    </UIButton>
-                </div>
-            </Transition>
-        </div>
-
-        <Teleport to="#modal">
-            <Transition>
-                <CommentModal v-if="modal.show.value" @close="modal.hideModal" :comment="selectedComment"
-                    id="comment-modal" />
-            </Transition>
-        </Teleport>
-    </div>
-    <div v-else class="alert">
-        <p class="text text--icon">
+    <div class="pomodoro-tasks-wrapper">
+        <p class="text text--icon" v-if="tasks.data.length === 0">
             <fa icon="exclamation-circle" />
             <span> Crie uma nova tarefa para começar a utilizar o Pomodoro</span>
         </p>
+
+        <UIButton variant="outline-primary" @click="toggleDropdown" title="Exibir tarefas">
+            <fa :icon="isDropdownOpen ? 'eye-slash' : 'eye'" />
+            {{ isDropdownOpen ? 'Fechar' : 'Exibir' }} tarefas
+        </UIButton>
+
+        <Transition name="slide">
+            <div class="task-nav" v-if="tasks.data.length > 0 && isDropdownOpen">
+                <Task v-for="task in tasks.data" :key="task.id" :task="task" @changeStatus="handleChangeTaskStatus"
+                    :showPriorities="false" :showEdit="false" :showDelete="false" :showCompletedStatus="false"
+                    :showComment="true" @openComment="openTaskComment" variant="smaller" />
+            </div>
+        </Transition>
     </div>
+
+    <Teleport to="#modal">
+        <Transition>
+            <CommentModal v-if="modal.show.value" @close="modal.hideModal" :comment="selectedComment"
+                id="comment-modal" />
+        </Transition>
+    </Teleport>
 </template>
-
 <style scoped>
-.select-wrapper {
+.pomodoro-tasks-wrapper {
     display: flex;
     align-items: center;
     flex-direction: column;
-    max-width: 500px;
-    color: var(--font-primary);
-    width: 90%;
-    min-height: 25dvh;
+    gap: 1rem;
 }
 
-.dropdown {
-    position: relative;
-    font-size: 1.6rem;
-    width: 100%;
-}
-
-.dropdown__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 2rem;
-    width: 100%;
-    padding: 0 1.6rem 0 0;
-    border: 1px solid var(--border-color);
-    background-color: var(--bg-primary);
-    border-radius: var(--radius);
-}
-
-.dropdown__header>:first-child {
-    border-color: transparent;
-    padding: 1rem;
-    flex: 1;
-}
-
-.dropdown__menu {
-    position: absolute;
-    left: 0;
-    right: 0;
-    border: 1px solid var(--border-color);
-    background-color: var(--bg-secondary);
-    border-radius: var(--radius);
-    max-height: 150px;
+.task-nav {
+    display: grid;
+    gap: 0.6rem;
+    max-height: 160px;
     overflow-y: auto;
-    z-index: 10;
-    top: calc(100% + 0.5rem);
+    padding-inline: var(--padding);
 }
 
-.dropdown__item {
-    width: 100%;
-    padding: 1rem 1.6rem;
-    cursor: pointer;
-    background-color: inherit;
-    text-align: left;
-    border-radius: 0;
-    flex-direction: column;
-    align-items: flex-start;
+.slide-enter-active,
+.slide-leave-active {
+    transition: all var(--screen-transition) ease;
 }
 
-.alert {
-    color: var(--font-primary-light);
-    padding: var(--padding);
-    opacity: .7;
-    padding: 2.32rem 2rem;
-}
-
-.shake {
-    animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-    transform: translate3d(0, 0, 0);
-}
-
-@keyframes shake {
-
-    10%,
-    90% {
-        transform: translate3d(-1px, 0, 0);
-    }
-
-    20%,
-    80% {
-        transform: translate3d(2px, 0, 0);
-    }
-
-    30%,
-    50%,
-    70% {
-        transform: translate3d(-4px, 0, 0);
-    }
-
-    40%,
-    60% {
-        transform: translate3d(4px, 0, 0);
-    }
+.slide-enter-from,
+.slide-leave-to {
+    opacity: 0;
+    max-height: 0;
 }
 </style>

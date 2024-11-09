@@ -1,6 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router';
-import { defineProps, useAttrs } from 'vue';
+import { useAttrs } from 'vue';
 
 const props = defineProps({
     isLink: {
@@ -87,6 +87,11 @@ button {
 a:hover,
 button:hover {
     filter: brightness(90%);
+}
+
+button:disabled {
+    cursor: default;
+    opacity: .8;
 }
 
 .btn--block,

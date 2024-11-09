@@ -193,13 +193,13 @@ onMounted(() => {
                         </span>
 
                         <div class="task__navigation">
-                            <UIButton variant="outline-primary" @click="moveTask(task, 'prev')"
+                            <UIButton variant="outline-primary-small" @click="moveTask(task, 'prev')"
                                 :disabled="isFirstColumn(kanbanStatus)" :aria-disabled="isFirstColumn(kanbanStatus)"
                                 title="Mover tarefa para a coluna anterior">
                                 <fa icon="caret-left" />
                                 Anterior
                             </UIButton>
-                            <UIButton variant="outline-primary" @click="moveTask(task, 'next')"
+                            <UIButton variant="outline-primary-small" @click="moveTask(task, 'next')"
                                 :disabled="isLastColumn(kanbanStatus)" :aria-disabled="isLastColumn(kanbanStatus)"
                                 title="Mover tarefa para a próxima coluna">
                                 Próximo
@@ -342,11 +342,6 @@ onMounted(() => {
 
                         @media (width<=768px) {
                             display: flex;
-                        }
-
-                        .btn {
-                            font-size: 1.4rem;
-                            padding: 0.4rem 0.8rem;
                         }
                     }
                 }

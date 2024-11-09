@@ -89,7 +89,7 @@ const openTaskComment = (comment) => {
 <style scoped>
 .task-nav {
     display: grid;
-    gap: 0.6rem;
     padding-bottom: 5rem;
+    gap: 0.6rem;
 }
 </style>

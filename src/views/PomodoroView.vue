@@ -18,17 +18,6 @@ const goToHelp = () => {
     })
 }
 
-const canShakeButton = ref(false);
-let shakeTimeout;
-
-const warnUser = () => {
-    if (canShakeButton.value) return;
-
-    canShakeButton.value = true;
-    if (shakeTimeout) clearTimeout(shakeTimeout);
-    shakeTimeout = setTimeout(() => canShakeButton.value = false, 1500);
-}
-
 onMounted(() => {
     inject('showTopicNavBtn').value = false;
     loadingStore.hideLoader();
@@ -48,7 +37,7 @@ onMounted(() => {
                 </UIButton>
             </div>
 
-            <PomodoroTimer :canShakeButton="canShakeButton" :warn="warnUser" />
+            <PomodoroTimer />
         </div>
     </section>
 
