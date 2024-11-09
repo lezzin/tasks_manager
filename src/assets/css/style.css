@@ -29,6 +29,7 @@ body {
 
 a {
     color: inherit;
+    text-decoration: none;
 }
 
 select {
@@ -95,120 +96,41 @@ body {
 
 .text {
     font-size: 1.6rem;
+}
 
-    &.text--center {
-        text-align: center;
-    }
+.text--center {
+    text-align: center;
+}
 
-    &.text--small {
-        font-size: 1.2rem;
-    }
+.text--small {
+    font-size: 1.2rem;
+}
 
-    &.text--bold {
-        font-weight: 500;
-    }
+.text--bold {
+    font-weight: 500;
+}
 
-    &.text--icon {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+.text--icon {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 
-        i {
-            transform: translateY(.05rem);
-        }
-    }
-
-    &.text--smallest {
-        font-size: 1rem;
-    }
-
-    &.text--error {
-        font-size: 1.4rem;
-        color: var(--danger-color);
-    }
-
-    &.text--muted {
-        opacity: .8;
+    i {
+        transform: translateY(.05rem);
     }
 }
 
-.btn {
-    cursor: pointer;
-    background-color: transparent;
-    border-radius: var(--radius);
-    color: inherit;
-    font-size: 1.6rem;
-    border: none;
-    text-decoration: none;
-    transition: all .2s linear;
-    white-space: nowrap;
+.text--smallest {
+    font-size: 1rem;
+}
 
-    &:hover {
-        filter: brightness(90%);
-    }
+.text--error {
+    font-size: 1.4rem;
+    color: var(--danger-color);
+}
 
-    &.btn--icon svg {
-        margin-right: .5rem;
-    }
-
-    &.btn--block,
-    &.btn--block-small {
-        text-align: center;
-        display: block;
-        width: 100%;
-    }
-
-    &.btn--block-small {
-        padding: 0.4rem .8rem;
-    }
-
-    &.btn--block {
-        padding: .8rem 1.6rem;
-    }
-
-    &.btn--primary {
-        background-color: var(--details-color);
-        color: var(--font-secondary);
-    }
-
-    &.btn--outline-primary {
-        border: 1px solid var(--details-color);
-        background-color: var(--details-color-light-2);
-        color: var(--details-color);
-    }
-
-    &.btn--danger {
-        color: var(--font-secondary);
-        background-color: var(--danger-color);
-    }
-
-    &.btn--outline-danger {
-        border: 1px solid var(--danger-color);
-        background-color: var(--danger-color-light);
-        color: var(--danger-color);
-    }
-
-    &.btn--warning {
-        color: var(--font-primary-light);
-        background-color: var(--warning-color);
-    }
-
-    &.btn--only-icon,
-    &.btn--rounded {
-        display: grid;
-        place-items: center;
-        padding: 0;
-        height: 3.6rem;
-        aspect-ratio: 1;
-    }
-
-    &.btn--rounded {
-        border-radius: 50%;
-    }
-
-    &.btn--bordered {
-        border: 1px solid var(--border-color);
-    }
+.text--muted {
+    opacity: .8;
 }
 
 .divider {
