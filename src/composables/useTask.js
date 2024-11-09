@@ -30,43 +30,27 @@ const validateDeliveryDate = (date) => {
     }
 };
 
-const extractUniqueTasks = (userTopics) =>
-    Object.values(userTopics)
-        .filter(topic => topic.tasks?.length > 0)
-        .flatMap(topic => topic.tasks || []);
-
 const getUserTasks = async (userId) => {
     try {
         const docRef = doc(db, DOC_NAME, userId);
         const docSnap = await getDoc(docRef);
 
-        if (!docSnap.exists()) throwValidationError("Documento não encontrado.", "doc-not-found")
+        if (!docSnap.exists()) throwValidationError("Documento não encontrado.", "doc-not-found");
 
         const userData = docSnap.data();
-        if (!userData.topics || Object.keys(userData.topics).length === 0)
-            throwValidationError("Nenhum tópico encontrado.", "topic-not-found")
-
-        return extractUniqueTasks(userData.topics);
+        return userData.tasks ? { ...userData.tasks } : {};
     } catch (error) {
         console.error(error);
         throw error;
     }
 };
 
-const getTopicByName = async (name, userId) => {
+const updateTasks = async (userId, tasks) => {
     const docRef = doc(db, DOC_NAME, userId);
-    const docSnap = await getDoc(docRef);
-    const userData = docSnap.data();
-
-    return userData?.topics?.[name];
-}
-
-const updateTasks = async (userId, topicName, tasks) => {
-    const docRef = doc(db, DOC_NAME, userId);
-    await updateDoc(docRef, { [`topics.${topicName}.tasks`]: tasks });
+    await updateDoc(docRef, { tasks });
 };
 
-const addTask = async (topic, newName, comment, priority, deliveryDate, userId) => {
+const addTask = async (topicId, newName, comment, priority, deliveryDate, userId) => {
     validateTaskName(newName);
     validateDeliveryDate(deliveryDate);
 
@@ -79,11 +63,12 @@ const addTask = async (topic, newName, comment, priority, deliveryDate, userId) 
         comment: String(comment).trim() ?? "",
         delivery_date: deliveryDate,
         kanbanStatus: TASK_KANBAN_STATUSES.todo,
-        topic: { id: topic.id, name: topic.name },
+        topicId: topicId,
     };
 
-    const updatedTasks = [...topic.tasks, newTask];
-    await updateTasks(userId, topic.name, updatedTasks);
+    const allTasks = await getUserTasks(userId);
+    const updatedTasks = { ...allTasks, [newTask.id]: newTask };
+    await updateTasks(userId, updatedTasks);
 };
 
 const editTask = async (taskToUpdate, newName, newComment, newPriority, newDeliveryDate, userId) => {
@@ -98,14 +83,12 @@ const editTask = async (taskToUpdate, newName, newComment, newPriority, newDeliv
         comment: String(newComment).trim() ?? "",
     };
 
-    const userTasks = await getUserTasks(userId);
-    const updatedTasks = userTasks.map(task => task.id === taskToUpdate.id ? updatedTask : task);
-    await updateTasks(userId, taskToUpdate.topic.name, updatedTasks);
+    const allTasks = await getUserTasks(userId);
+    const updatedTasks = { ...allTasks, [updatedTask.id]: updatedTask };
+    await updateTasks(userId, updatedTasks);
 };
 
 const changeStatus = async (taskToUpdate, userId) => {
-    const { tasks } = await getTopicByName(taskToUpdate.topic.name, userId);
-
     const newStatus = !taskToUpdate.status;
     const updatedTask = {
         ...taskToUpdate,
@@ -113,8 +96,9 @@ const changeStatus = async (taskToUpdate, userId) => {
         kanbanStatus: newStatus ? TASK_KANBAN_STATUSES.completed : TASK_KANBAN_STATUSES.todo,
     };
 
-    const updatedTasks = tasks.map(task => task.id === taskToUpdate.id ? updatedTask : task);
-    await updateTasks(userId, taskToUpdate.topic.name, updatedTasks);
+    const allTasks = await getUserTasks(userId);
+    const updatedTasks = { ...allTasks, [updatedTask.id]: updatedTask };
+    await updateTasks(userId, updatedTasks);
 
     return newStatus;
 };
@@ -126,14 +110,18 @@ const changeKanbanStatus = async (taskToUpdate, newKanbanStatus, userId) => {
         status: (newKanbanStatus === TASK_KANBAN_STATUSES.completed),
     };
 
-    const userTasks = await getUserTasks(userId);
-    const updatedTasks = userTasks.map(task => task.id === taskToUpdate.id ? updatedTask : task);
-    await updateTasks(userId, taskToUpdate.topic.name, updatedTasks);
+    const allTasks = await getUserTasks(userId);
+    const updatedTasks = { ...allTasks, [updatedTask.id]: updatedTask };
+    await updateTasks(userId, updatedTasks);
 };
 
-const deleteTask = async (allTasks, taskToDelete, userId) => {
-    const updatedTasks = allTasks.filter(task => task.id !== taskToDelete.id);
-    await updateTasks(userId, taskToDelete.topic.name, updatedTasks);
+const deleteTask = async (taskToDelete, userId) => {
+    const allTasks = await getUserTasks(userId);
+
+    const { [taskToDelete.id]: _, ...remainingTasks } = allTasks;
+    await updateTasks(userId, remainingTasks);
+
+    console.log(remainingTasks);
 };
 
 export const useTask = () => {

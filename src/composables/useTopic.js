@@ -21,6 +21,13 @@ const validateTopicName = (name) => {
     if (name.length > TOPIC_MAX_LENGTH) throwValidationError(`Você atingiu o limite de caracteres! (${name.length} de ${TOPIC_MAX_LENGTH})`, "name");
 };
 
+const getTopicInfo = async (topicId, userId) => {
+    const docRef = doc(db, DOC_NAME, userId);
+    const userData = await getUserData(docRef);
+
+    return userData?.topics[topicId] || {};
+}
+
 const addTopic = async (name, userId) => {
     const formattedTopicName = filterField(name);
     validateTopicName(formattedTopicName);
@@ -28,16 +35,16 @@ const addTopic = async (name, userId) => {
     const docRef = doc(db, DOC_NAME, userId);
     const userData = await getUserData(docRef);
 
-    if (userData?.topics?.[formattedTopicName]) throwValidationError("Esse tópico já existe", "name");
+    const existingTopic = Object.values(userData?.topics || {}).find(topic => topic.name === formattedTopicName);
+    if (existingTopic) throwValidationError("Esse tópico já existe", "name");
 
     const uniqueId = Date.now().toString(26);
 
     await setDoc(docRef, {}, { merge: true });
     await updateDoc(docRef, {
-        [`topics.${formattedTopicName}`]: {
+        [`topics.${uniqueId}`]: {
             id: uniqueId,
             name: formattedTopicName,
-            tasks: [],
             created_at: currentTime(),
         },
     });
@@ -52,21 +59,44 @@ const editTopic = async (newName, oldName, userId) => {
     const docRef = doc(db, DOC_NAME, userId);
     const userData = await getUserData(docRef);
 
-    if (!userData?.topics?.[oldName]) throwValidationError("Tópico antigo não encontrado", "not-found");
+    const topicId = Object.keys(userData.topics).find(id => userData.topics[id].name === oldName);
+    if (!topicId) throwValidationError("Tópico antigo não encontrado", "not-found");
 
-    const updatedTopics = {
-        ...userData.topics,
-        [formattedTopicName]: {
-            ...userData.topics[oldName],
-            name: formattedTopicName,
-        },
-    };
-
-    delete updatedTopics[oldName];
-    await updateDoc(docRef, { topics: updatedTopics });
+    await updateDoc(docRef, {
+        [`topics.${topicId}.name`]: formattedTopicName,
+    });
 };
+
+const deleteTopic = async (topicId, userId) => {
+    const docRef = doc(db, DOC_NAME, userId);
+    const userData = await getUserData(docRef);
+
+    if (!userData || !userData.topics || !userData.topics[topicId]) {
+        showToast("danger", "Tópico não encontrado.");
+        return;
+    }
+
+    delete userData.topics[topicId];
+    await updateDoc(docRef, { topics: userData.topics });
+
+};
+
+const deleteAllTopics = async (userId) => {
+    const docRef = doc(db, DOC_NAME, userId);
+    const userData = await getUserData(docRef);
+
+    if (!userData || !userData.topics || Object.keys(userData.topics).length === 0) {
+        showToast("danger", "Nenhum tópico encontrado para excluir.");
+        return;
+    }
+
+    await updateDoc(docRef, { topics: {} });
+}
 
 export const useTopic = () => ({
     addTopic,
     editTopic,
+    deleteTopic,
+    deleteAllTopics,
+    getTopicInfo
 });
