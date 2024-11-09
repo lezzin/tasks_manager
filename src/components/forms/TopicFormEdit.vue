@@ -4,6 +4,7 @@ import { ref, watch } from 'vue';
 import { useToast } from '../../composables/useToast';
 import { useAuthStore } from '../../stores/authStore';
 import { useTopic } from '../../composables/useTopic';
+import UIButton from '../ui/UIButton.vue';
 
 const { showToast } = useToast();
 const { editTopic } = useTopic();
@@ -61,10 +62,10 @@ watch(() => props.topic, setTopicData, { immediate: true });
         <div class="modal__dialog">
             <div class="modal__header">
                 <h2 id="edit-topic-modal-title" class="modal__title">Editar tópico</h2>
-                <button class="btn" @click="closeEditTopicModal" title="Fechar modal"
-                    aria-label="Fechar edição de tópico">
+
+                <UIButton @click="closeEditTopicModal" title="Fechar modal">
                     <fa icon="times" />
-                </button>
+                </UIButton>
             </div>
 
             <form @submit.prevent="handleEditTopic" aria-describedby="edit-topic-instructions">
@@ -79,10 +80,9 @@ watch(() => props.topic, setTopicData, { immediate: true });
                     </p>
                 </div>
 
-                <button type="submit" class="btn btn--primary btn--block" title="Concluir edição do tópico"
-                    aria-label="Confirmar edição do tópico">
+                <UIButton type="submit" title="Confirmar edição do tópico" variant="primary">
                     <fa icon="check" /> Concluir edição
-                </button>
+                </UIButton>
             </form>
         </div>
     </aside>

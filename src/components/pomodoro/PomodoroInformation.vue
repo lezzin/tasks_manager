@@ -1,18 +1,11 @@
 <script setup>
-const props = defineProps({
-    warn: {
-        type: Function,
-        required: true
-    }
-})
+import UIButton from '../ui/UIButton.vue';
 
 const goToPomodoro = () => {
     window.scroll({
         top: 0,
         behavior: "smooth"
     })
-
-    props.warn();
 }
 </script>
 <template>
@@ -43,7 +36,9 @@ const goToPomodoro = () => {
                 completar as tarefas dentro de um tempo definido.
             </p>
 
-            <button class="btn btn--outline-primary" @click="goToPomodoro">Começar agora!</button>
+            <UIButton variant="outline-primary" @click="goToPomodoro" title="Iniciar o Pomodoro Timer">
+                Começar agora!
+            </UIButton>
         </article>
     </div>
 </template>

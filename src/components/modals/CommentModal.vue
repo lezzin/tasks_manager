@@ -1,4 +1,6 @@
 <script setup>
+import UIButton from '../ui/UIButton.vue';
+
 
 const emit = defineEmits(["close"]);
 
@@ -19,10 +21,10 @@ const closeShowingComment = () => {
         <div class="modal__dialog">
             <div class="modal__header">
                 <h2 id="comment-modal-title" class="modal__title">Comentários da tarefa</h2>
-                <button class="btn" @click="closeShowingComment" title="Fechar modal"
-                    aria-label="Fechar visualização de comentários">
+
+                <UIButton @click="closeShowingComment" title="Fechar modal">
                     <fa icon="times" />
-                </button>
+                </UIButton>
             </div>
 
             <div class="markdown-content markdown-content--normal" v-html="props.comment" aria-live="polite"

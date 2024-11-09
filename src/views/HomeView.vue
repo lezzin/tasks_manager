@@ -15,6 +15,7 @@ import TaskFormAdd from '../components/forms/TaskFormAdd.vue';
 import TopicFormAdd from '../components/forms/TopicFormAdd.vue';
 import TopicNavigation from '../components/topic/TopicNavigation.vue';
 import ImageResponsive from '../components/shared/ImageResponsive.vue';
+import UIButton from '../components/ui/UIButton.vue';
 
 const props = defineProps({
     db: {
@@ -79,6 +80,20 @@ watch(filterTask, (newValue) => {
     }
 });
 
+const loadTopicTasks = (topicId) => {
+    const docRef = doc(props.db, DOC_NAME, user.uid);
+
+    onSnapshot(docRef, (doc) => {
+        const userData = doc.data();
+        if (!userData || !userData.topics || !userData.tasks) {
+            defaultTasks.value = [];
+            return;
+        }
+
+        defaultTasks.value = Object.values(userData.tasks).filter(task => task.topicId === topicId);
+    });
+};
+
 const loadTopic = (id) => {
     selectedTopic.value = null;
 
@@ -87,23 +102,17 @@ const loadTopic = (id) => {
         return;
     }
 
-    if (!topics.data) {
-        if (router.currentRoute != "/") router.push("/");
-        return;
-    }
-
-    const topic = topics.data.find((topic) => topic.id == id);
+    const topic = topics.data.find(topic => topic.id === id);
 
     if (!topic) {
-        if (router.currentRoute != "/") router.push("/");
+        if (router.currentRoute !== "/") router.push("/");
         return;
     }
 
     selectedTopic.value = topic;
-    defaultTasks.value = topic.tasks || [];
-
+    loadTopicTasks(topic.id);
     document.title = PAGE_TITLES.home.topic(topic.name);
-}
+};
 
 const loadTopics = () => {
     const docRef = doc(props.db, DOC_NAME, user.uid);
@@ -121,15 +130,15 @@ const loadTopics = () => {
                 return;
             }
 
-            topics.data = Object.keys(userData.topics)
-                .map((topicName) => {
-                    const topic = userData.topics[topicName];
+            topics.data = Object.values(userData.topics)
+                .map((topic) => {
+                    const tasksLength = userData.tasks ? Object.values(userData.tasks).filter(task => task.topicId === topic.id).length : 0;
+
                     return {
                         id: topic.id,
                         name: topic.name,
-                        tasks: topic.tasks || [],
-                        tasks_length: topic.tasks?.length ?? 0,
                         created_at: topic.created_at,
+                        tasks_length: tasksLength
                     };
                 })
                 .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
@@ -148,7 +157,7 @@ const loadTopics = () => {
     );
 
     loadingStore.hideLoader();
-}
+};
 
 const closeTopicsMenu = () => {
     isMenuTopicsActive.value = false;
@@ -160,7 +169,6 @@ const openAddTaskModal = () => {
 }
 
 onMounted(() => {
-    isMenuTopicsActive.value = false;
     inject('showTopicNavBtn').value = true;
     loadTopics();
 });
@@ -178,11 +186,11 @@ provide("filterTask", filterTask);
     <div class="home-wrapper">
         <section :class="['container', defaultTasks.length > 0 && 'task-container']" v-if="selectedTopic">
             <div id="add-task-container">
-                <button @click="openAddTaskModal" title="Abrir modal de nova tarefa"
-                    class="btn btn--rounded btn--outline-primary" aria-haspopup="dialog" aria-controls="add-task-modal">
+                <UIButton @click="openAddTaskModal" title="Abrir modal de nova tarefa" aria-haspopup="dialog"
+                    aria-controls="add-task-modal" variant="outline-primary" isRounded>
                     <span class="sr-only">Adicionar nova tarefa</span>
                     <fa icon="plus" />
-                </button>
+                </UIButton>
             </div>
 
             <div v-if="defaultTasks.length > 0">
@@ -194,14 +202,16 @@ provide("filterTask", filterTask);
                                 <input type="text" @input="searchTaskByName" id="search-task"
                                     placeholder="Descrição da tarefa" v-model="searchTask" autocomplete="off"
                                     aria-describedby="search-task-help" />
+
                                 <span id="search-task-help" class="sr-only">
                                     Digite a descrição da tarefa para
                                     buscar
                                 </span>
-                                <button type="submit" class="btn" title="Pesquisar tarefa">
+
+                                <UIButton type="submit" title="Pesquisar tarefa">
                                     <fa icon="search" />
                                     <span class="sr-only">Pesquisar</span>
-                                </button>
+                                </UIButton>
                             </div>
                         </div>
                     </form>
@@ -241,17 +251,18 @@ provide("filterTask", filterTask);
 
     <Teleport to="#modal">
         <Transition>
-            <TaskFormAdd v-if="modal.show.value" @close="modal.hideModal" :topic="selectedTopic" id="add-task-modal" />
-        </Transition>
-
-        <Transition name="slide">
-            <nav class="home-aside" aria-label="Navegação de tópicos" v-if="isMenuTopicsActive">
-                <TopicFormAdd />
-                <span class="divider" role="separator" aria-hidden="true"></span>
-                <TopicNavigation :data="topics.data" @close="closeTopicsMenu" />
-            </nav>
+            <TaskFormAdd v-if="modal.show.value" @close="modal.hideModal" :topicId="selectedTopic.id"
+                id="add-task-modal" />
         </Transition>
     </Teleport>
+
+    <Transition name="slide">
+        <nav class="home-aside" aria-label="Navegação de tópicos" v-if="isMenuTopicsActive">
+            <TopicFormAdd />
+            <span class="divider" role="separator" aria-hidden="true"></span>
+            <TopicNavigation :data="topics.data" @close="closeTopicsMenu" />
+        </nav>
+    </Transition>
 </template>
 
 <style scoped>

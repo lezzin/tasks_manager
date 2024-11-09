@@ -9,6 +9,7 @@ import { useToast } from '../composables/useToast.js';
 import { useAuthStore } from '../stores/authStore.js';
 import { useLoadingStore } from '../stores/loadingStore.js';
 import ImageResponsive from '../components/shared/ImageResponsive.vue';
+import UIButton from '../components/ui/UIButton.vue';
 
 const { provider, auth } = defineProps(['provider', 'auth']);
 const { showToast } = useToast();
@@ -68,12 +69,12 @@ watchEffect(() => {
 
             <ImageResponsive small="login_sm.png" lg="login_lg.png" alt="Uma pessoa escrevendo em um caderno" />
 
-            <button class="btn btn--block" :title="loading ? 'Entrando...' : 'Entrar com o Google'" :disabled="loading"
+            <UIButton :title="loading ? 'Entrando...' : 'Entrar com o Google'" :disabled="loading"
                 aria-label="Entrar com o Google" aria-live="polite" aria-busy="loading">
                 <img src="/src/assets/img/google-logo.png" alt="Logo do Google" width="24" height="24">
                 <span v-if="loading">Carregando...</span>
                 <span v-else>Entrar com o Google</span>
-            </button>
+            </UIButton>
         </form>
     </div>
 </template>

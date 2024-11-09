@@ -49,7 +49,7 @@ const handleDeleteTask = async (taskToDelete) => {
     if (!confirm("Tem certeza que deseja excluir essa tarefa? Essa ação não poderá ser desfeita!")) return;
 
     try {
-        await deleteTask(props.tasks, taskToDelete, user.uid);
+        await deleteTask(taskToDelete, user.uid);
         showToast("success", "Tarefa excluída com sucesso!");
     } catch (error) {
         showToast("danger", "Erro ao excluir tarefa.");

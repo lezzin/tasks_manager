@@ -6,6 +6,7 @@ import { useRouter } from 'vue-router';
 
 import PomodoroTimer from '../components/pomodoro/PomodoroTimer.vue';
 import PomodoroInformation from '../components/pomodoro/PomodoroInformation.vue';
+import UIButton from '../components/ui/UIButton.vue';
 
 const loadingStore = useLoadingStore();
 const router = useRouter();
@@ -38,15 +39,13 @@ onMounted(() => {
     <section class="pomodoro-wrapper" id="s-pomodoro">
         <div class="container">
             <div class="pomodoro__absolute">
-                <button type="button" @click="() => router.back()" class="btn-back btn btn--outline-primary btn--icon "
-                    title="Voltar para a página anterior" aria-label="Voltar para a página anterior">
+                <UIButton @click="() => router.back()" variant="outline-primary" title="Voltar para a página anterior">
                     <fa icon="arrow-left" />
                     <span>Voltar</span>
-                </button>
-                <button type="button" class="btn btn--only-icon btn--outline-primary" title="Acessar ajuda"
-                    @click="goToHelp">
+                </UIButton>
+                <UIButton variant="outline-primary" isIcon title="Acessar ajuda" @click="goToHelp">
                     <fa icon="circle-question" />
-                </button>
+                </UIButton>
             </div>
 
             <PomodoroTimer :canShakeButton="canShakeButton" :warn="warnUser" />
@@ -54,7 +53,7 @@ onMounted(() => {
     </section>
 
     <section class="information-wrapper container" id="s-help">
-        <PomodoroInformation :warn="warnUser" :canShakeButton="canShakeButton" />
+        <PomodoroInformation />
     </section>
 </template>
 

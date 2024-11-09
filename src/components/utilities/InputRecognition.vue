@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useToast } from '../../composables/useToast.js';
+import UIButton from '../ui/UIButton.vue';
 
 const { showToast } = useToast();
 
@@ -89,10 +90,10 @@ const stopSpeechRecognition = () => {
             <input type="text" :id="inputId" :placeholder="placeholder" v-model="localValue"
                 @input="() => emit('update', localValue)" :aria-describedby="errorMessage"
                 :aria-invalid="!!errorMessage" />
-            <button v-if="enableVoiceRecognition" type="button" class="btn" title="Adicionar através de áudio"
-                @click="toggleSpeechRecognition">
+
+            <UIButton v-if="enableVoiceRecognition" title="Adicionar através de áudio" @click="toggleSpeechRecognition">
                 <fa :icon="isListening ? 'stop' : 'microphone'" />
-            </button>
+            </UIButton>
         </div>
         <p class="text text--error" v-if="errorMessage">{{ errorMessage }}</p>
     </div>

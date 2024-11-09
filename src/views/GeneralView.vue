@@ -16,9 +16,12 @@ import { useAuthStore } from '../stores/authStore.js';
 import { useLoadingStore } from '../stores/loadingStore.js';
 
 import ImageResponsive from '../components/shared/ImageResponsive.vue';
+import { useTopic } from '../composables/useTopic.js';
+import UIButton from '../components/ui/UIButton.vue';
 
 const { showToast } = useToast();
 const { getUserTasks } = useTask();
+const { getTopicInfo } = useTopic();
 const { user } = useAuthStore();
 const loadingStore = useLoadingStore();
 const router = useRouter();
@@ -79,7 +82,15 @@ const loadTasks = async () => {
     loadingStore.showLoader();
 
     try {
-        allUserTasks.value = await getUserTasks(user.uid);
+        const data = await getUserTasks(user.uid);
+        const userTasks = Object.values(data);
+
+        await Promise.all(userTasks.map(async (task) => {
+            const { name } = await getTopicInfo(task.topicId, user.uid);
+            task.topicName = name;
+        }));
+
+        allUserTasks.value = userTasks;
         updatePriorityCounter();
     } catch (error) {
         showToast("danger", `Erro ao resgatar tarefas. Tente novamente mais tarde.`);
@@ -98,19 +109,19 @@ onMounted(() => {
 <template>
     <div class="task-view container" v-if="allUserTasks.length > 0" ref="container">
         <header class="task-view__header" role="banner">
-            <h2 class="title">Visualize as suas tarefas de uma maneira geral</h2>
+            <h2 class="title" v-if="!isDownloading">Visualize as suas tarefas de uma maneira geral</h2>
 
             <div class="task-view__header-buttons" v-if="!isDownloading">
-                <button type="button" @click="downloadAsPDF" class="btn btn--primary btn--only-icon"
-                    title="Baixar em PDF" aria-label="Baixar todas as tarefas em PDF">
+                <UIButton type="button" @click="downloadAsPDF" variant="primary" isIcon
+                    title="Baixar todas as tarefas em PDF">
                     <fa icon="download" />
                     <span class="sr-only">Baixar tarefas</span>
-                </button>
-                <button @click="() => router.back()" class="btn btn--outline-primary btn--only-icon"
-                    title="Voltar para a página anterior" aria-label="Voltar para a página anterior">
+                </UIButton>
+                <UIButton @click="() => router.back()" variant="outline-primary" isIcon
+                    title="Voltar para a página anterior">
                     <fa icon="arrow-left" />
                     <span class="sr-only">Voltar</span>
-                </button>
+                </UIButton>
             </div>
         </header>
 
@@ -158,12 +169,12 @@ onMounted(() => {
                 'task',
                 task.status && TASK_PRIORITIES.completed,
                 { 'task--hovering': task.isHovering, 'task--focused': task.isFocused }
-            ]" v-for="task in allUserTasks" :key="task.id" role="listitem" :to="'/topic/' + task.topic.id"
-                title="Acessar tópico {{ task.topic.name }}"
+            ]" v-for="task in allUserTasks" :key="task.id" role="listitem" :to="'/topic/' + task.topicId"
+                title="Acessar tópico {{ task.topicName }}"
                 aria-label="Tarefa: {{ task.name }}, status: {{ task.status ? 'Concluída' : 'Pendente' }}, prioridade: {{ getPriorityText(task.priority) }}">
                 <div class="grid__item-header">
                     <p class="grid__item-title text text--small text--muted">
-                        {{ task.topic.name }}
+                        {{ task.topicName }}
                     </p>
                     <div class="grid__item-info">
                         <p class="grid__item-name text">{{ task.name }}</p>

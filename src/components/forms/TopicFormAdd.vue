@@ -4,6 +4,7 @@ import { ref, watch } from 'vue';
 import { useToast } from '../../composables/useToast';
 import { useTopic } from '../../composables/useTopic';
 import { useAuthStore } from '../../stores/authStore';
+import UIButton from '../ui/UIButton.vue';
 
 const nameError = ref("");
 const name = ref("");
@@ -40,12 +41,13 @@ watch(name, () => (nameError.value = ""));
                 <label for="new-topic" class="sr-only">Nome do novo tópico</label>
                 <input type="text" id="new-topic" placeholder="Adicionar novo tópico" v-model="name"
                     :aria-invalid="!!nameError" aria-describedby="topic-error" />
-                <button class="btn" title="Adicionar novo tópico" aria-label="Adicionar novo tópico">
+
+                <UIButton type="submit" title="Adicionar novo tópico">
                     <fa icon="plus" />
-                </button>
+                </UIButton>
             </div>
 
-            <p v-if="nameError" id="topic-error" class="text text--error" role="alert">
+            <p id="topic-error" class="text text--error" role="alert" v-if="nameError">
                 {{ nameError }}
             </p>
         </div>

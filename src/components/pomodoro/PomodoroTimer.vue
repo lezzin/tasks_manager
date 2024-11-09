@@ -2,6 +2,7 @@
 import PomodoroTasks from './PomodoroTasks.vue';
 import { reactive, ref, watch } from 'vue';
 import { useToast } from '../../composables/useToast';
+import UIButton from '../ui/UIButton.vue';
 
 const { showToast } = useToast();
 
@@ -156,21 +157,21 @@ watch(hasSelectedTask, () => {
         </span>
 
         <div class="pomodoro__buttons">
-            <button class="btn btn--primary btn--icon" @click="startPomodoro" v-if="!timer.active && !timer.paused">
+            <UIButton variant="primary" @click="startPomodoro" v-if="!timer.active && !timer.paused">
                 <fa icon="play" /> Iniciar
-            </button>
+            </UIButton>
 
-            <button class="btn btn--warning btn--icon" @click="pausePomodoro" v-if="timer.active && !timer.paused">
+            <UIButton variant="warning" @click="pausePomodoro" v-if="timer.active && !timer.paused">
                 <fa icon="pause" /> Pausar
-            </button>
+            </UIButton>
 
-            <button class="btn btn--primary btn--icon" @click="startPomodoro" v-if="timer.paused">
+            <UIButton variant="primary" @click="startPomodoro" v-if="timer.paused">
                 <fa icon="play" /> Continuar
-            </button>
+            </UIButton>
 
-            <button class="btn btn--danger btn--icon" @click="stopPomodoro" v-if="timer.active">
+            <UIButton variant="danger" @click="stopPomodoro" v-if="timer.active">
                 <fa icon="circle-stop" /> Parar
-            </button>
+            </UIButton>
         </div>
 
         <PomodoroTasks @update="selectTask" :canShake="props.canShakeButton" />

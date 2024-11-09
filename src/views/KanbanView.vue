@@ -11,6 +11,8 @@ import { useAuthStore } from '../stores/authStore.js';
 import { useLoadingStore } from '../stores/loadingStore.js';
 
 import ImageResponsive from '../components/shared/ImageResponsive.vue';
+import { useTopic } from '../composables/useTopic.js';
+import UIButton from '../components/ui/UIButton.vue';
 
 const props = defineProps(['db']);
 
@@ -25,6 +27,7 @@ const tasksLength = ref(0);
 
 const { showToast } = useToast();
 const { getUserTasks, changeKanbanStatus } = useTask();
+const { getTopicInfo } = useTopic();
 const { user } = useAuthStore();
 const loadingStore = useLoadingStore();
 const router = useRouter();
@@ -33,7 +36,14 @@ const loadTasks = async () => {
     loadingStore.showLoader();
 
     try {
-        const userTasks = await getUserTasks(user.uid);
+        const data = await getUserTasks(user.uid);
+        const userTasks = Object.values(data);
+
+        await Promise.all(userTasks.map(async (task) => {
+            const { name } = await getTopicInfo(task.topicId, user.uid);
+            task.topicName = name;
+        }));
+
         tasksLength.value = userTasks.length;
         organizeTasksByStatus(userTasks);
     } catch (error) {
@@ -142,11 +152,11 @@ onMounted(() => {
     <div class="kanban-wrapper container" v-if="tasksLength > 0">
         <header class="kanban-wrapper__header" role="banner">
             <h2 class="title truncate" style="--line-clamp: 1">Kanban das suas tarefas</h2>
-            <button @click="() => router.back()" class="btn btn--outline-primary btn--icon"
-                title="Voltar para a página anterior" aria-label="Voltar para a página anterior">
+            <UIButton @click="() => router.back()" variant="outline-primary" isIcon
+                title="Voltar para a página anterior">
                 <fa icon="arrow-left" />
                 <span class="sr-only">Voltar</span>
-            </button>
+            </UIButton>
         </header>
 
         <section class="kanban" aria-labelledby="kanban-board">
@@ -170,10 +180,10 @@ onMounted(() => {
                         @dragstart="handleDragEvents($event, 'start', task)" @dragend="handleDragEvents($event, 'end')"
                         role="listitem" :aria-labelledby="'task-' + task.id">
                         <p id="task-topic-{{ task.id }}" class="text text--small text--muted">
-                            {{ task.topic.name }}
+                            {{ task.topicName }}
                         </p>
 
-                        <RouterLink class="text text--bold truncate" :to="'/topic/' + task.topic.id"
+                        <RouterLink class="text text--bold truncate" :to="'/topic/' + task.topicId"
                             style="--line-clamp: 1" :aria-labelledby="'task-' + task.id">
                             <span :id="'task-' + task.id">{{ task.name }}</span>
                         </RouterLink>
@@ -185,18 +195,18 @@ onMounted(() => {
                         </span>
 
                         <div class="task__navigation">
-                            <button type="button" class="btn btn--outline-primary" @click="moveTask(task, 'prev')"
+                            <UIButton variant="outline-primary" @click="moveTask(task, 'prev')"
                                 :disabled="isFirstColumn(kanbanStatus)" :aria-disabled="isFirstColumn(kanbanStatus)"
-                                aria-label="Mover tarefa para a coluna anterior">
+                                title="Mover tarefa para a coluna anterior">
                                 <fa icon="caret-left" />
                                 Anterior
-                            </button>
-                            <button type="button" class="btn btn--outline-primary" @click="moveTask(task, 'next')"
+                            </UIButton>
+                            <UIButton variant="outline-primary" @click="moveTask(task, 'next')"
                                 :disabled="isLastColumn(kanbanStatus)" :aria-disabled="isLastColumn(kanbanStatus)"
-                                aria-label="Mover tarefa para a próxima coluna">
+                                title="Mover tarefa para a próxima coluna">
                                 Próximo
                                 <fa icon="caret-right" />
-                            </button>
+                            </UIButton>
                         </div>
                     </div>
                 </div>

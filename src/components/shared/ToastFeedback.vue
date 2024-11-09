@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, onBeforeUnmount } from 'vue';
 import { TOAST_TIMEOUT } from '../../utils/variables';
+import UIButton from '../ui/UIButton.vue';
 
 const props = defineProps({
     data: {
@@ -51,9 +52,10 @@ function closeToast() {
                 <p class="toast__title">{{ title }}</p>
                 <p class="toast__text">{{ props.data.text }}</p>
             </div>
-            <button class="btn" @click="closeToast" title="Fechar mensagem" aria-label="Fechar mensagem">
+
+            <UIButton @click="closeToast" title="Fechar mensagem">
                 <fa icon="times" />
-            </button>
+            </UIButton>
         </div>
     </div>
 </template>

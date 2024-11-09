@@ -9,6 +9,7 @@ import { useAuthStore } from '../../stores/authStore';
 import InputRecognition from '../utilities/InputRecognition.vue';
 import MarkdownEditor from '../utilities/MarkdownEditor.vue';
 import { useTask } from '../../composables/useTask';
+import UIButton from '../ui/UIButton.vue';
 
 const emit = defineEmits(["close"]);
 
@@ -86,10 +87,9 @@ watch(taskDate, () => (taskDateError.value = ""));
         <div class="modal__dialog">
             <div class="modal__header">
                 <h2 id="edit-task-title" class="modal__title">Editar tarefa</h2>
-                <button class="btn" @click="closeEditTaskModal" title="Fechar modal"
-                    aria-label="Fechar modal de edição de tarefa">
+                <UIButton @click="closeEditTaskModal" title="Fechar modal">
                     <fa icon="times" />
-                </button>
+                </UIButton>
             </div>
 
             <form @submit.prevent="handleEditTask">
@@ -118,10 +118,10 @@ watch(taskDate, () => (taskDateError.value = ""));
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn--primary btn--block" title="Concluir edição da tarefa"
-                    aria-label="Salvar edição da tarefa">
-                    <fa icon="check" /> Concluir edição
-                </button>
+                <UIButton type="submit" variant="primary" title="Concluir edição da tarefa">
+                    <fa icon="check" />
+                    Concluir edição
+                </UIButton>
             </form>
         </div>
     </aside>

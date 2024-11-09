@@ -13,6 +13,8 @@ import { useTask } from '../../composables/useTask';
 
 import CommentModal from '../modals/CommentModal.vue';
 import Task from '../task/TaskItem.vue';
+import { useTopic } from '../../composables/useTopic';
+import UIButton from '../ui/UIButton.vue';
 
 const emit = defineEmits(["update"]);
 
@@ -24,6 +26,7 @@ const props = defineProps({
 });
 
 const { changeStatus, getUserTasks } = useTask();
+const { getTopicInfo } = useTopic();
 const { showToast } = useToast();
 const { user } = useAuthStore();
 const loadingStore = useLoadingStore();
@@ -39,7 +42,15 @@ const selectedComment = ref("");
 const loadTasks = async () => {
     loadingStore.showLoader();
     try {
-        tasks.data = await getUserTasks(user.uid);
+        const data = await getUserTasks(user.uid);
+        const userTasks = Object.values(data);
+
+        await Promise.all(userTasks.map(async (task) => {
+            const { name } = await getTopicInfo(task.topicId, user.uid);
+            task.topicName = name;
+        }));
+
+        tasks.data = userTasks;
     } catch (error) {
         showToast("danger", error.message);
         if (error.code === "topic-not-found" || error.code === "doc-not-found") {
@@ -61,6 +72,7 @@ const handleChangeTaskStatus = async (taskToUpdate) => {
         taskToUpdate.kanbanStatus = newStatus ? TASK_KANBAN_STATUSES.completed : TASK_KANBAN_STATUSES.todo;
         showToast("success", "Status de conclusão alterado com sucesso.");
     } catch (error) {
+        console.error(error);
         showToast("danger", "Erro ao alterar status da tarefa.");
     }
 };
@@ -84,28 +96,31 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="task-wrapper" v-if="tasks.data.length > 0">
-        <div class="task-dropdown">
-            <button type="button" class="dropdown-header" @click="toggleDropdown" :class="{ shake: props.canShake }">
+    <div class="select-wrapper" v-if="tasks.data.length > 0">
+        <div class="dropdown">
+            <UIButton :class="['dropdown__header', { shake: props.canShake }]" @click="toggleDropdown"
+                title="Abrir dropdown">
                 <Task v-if="selectedTask.value?.id" :key="selectedTask.value.id" :task="selectedTask.value"
                     @changeStatus="handleChangeTaskStatus" :showPriorities="false" :showEdit="false" :showDelete="false"
-                    :showCompletedStatus="false" :showComment="false" />
+                    :showCompletedStatus="false" :showComment="false" @openComment="openTaskComment" />
 
-                <span v-else class="task alert">
-                    Selecione uma tarefa para começar!
-                </span>
+                <div v-else class="alert">
+                    <p>Selecione uma tarefa para começar!</p>
+                </div>
 
                 <fa :icon="dropdownOpen ? 'chevron-up' : 'chevron-down'" />
-            </button>
+            </UIButton>
 
             <Transition>
-                <div v-if="dropdownOpen" ref="dropdownRef" class="dropdown-content">
-                    <button type="button" class="btn dropdown-item" @click="selectTask(null)">---</button>
-                    <button type="button" class="btn dropdown-item" v-for="task in tasks.data" :key="task.id"
-                        @click="selectTask(task)">
+                <div v-if="dropdownOpen" ref="dropdownRef" class="dropdown__menu">
+                    <UIButton class="dropdown__item" @click="selectTask(null)" title="Selecionar nenhuma tarefa">
+                        ---
+                    </UIButton>
+                    <UIButton class="dropdown__item" v-for="task in tasks.data" :key="task.id" @click="selectTask(task)"
+                        title="Selecionar tarefa">
                         <p>{{ task.name }}</p>
-                        <p class="text text--smallest text--muted">{{ task.topic.name }}</p>
-                    </button>
+                        <p class="text text--smallest text--muted">{{ task.topicName }}</p>
+                    </UIButton>
                 </div>
             </Transition>
         </div>
@@ -126,7 +141,7 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.task-wrapper {
+.select-wrapper {
     display: flex;
     align-items: center;
     flex-direction: column;
@@ -136,30 +151,31 @@ onMounted(() => {
     min-height: 25dvh;
 }
 
-.task-dropdown {
+.dropdown {
     position: relative;
     font-size: 1.6rem;
     width: 100%;
 }
 
-.dropdown-header {
+.dropdown__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 2rem;
     width: 100%;
-    padding-right: 1.6rem;
+    padding: 0 1.6rem 0 0;
     border: 1px solid var(--border-color);
     background-color: var(--bg-primary);
     border-radius: var(--radius);
-    cursor: pointer;
 }
 
-.dropdown-header>:where(.task, .alert) {
+.dropdown__header>:first-child {
     border-color: transparent;
+    padding: 1rem;
+    flex: 1;
 }
 
-.dropdown-content {
+.dropdown__menu {
     position: absolute;
     left: 0;
     right: 0;
@@ -172,33 +188,22 @@ onMounted(() => {
     top: calc(100% + 0.5rem);
 }
 
-.dropdown-item {
+.dropdown__item {
     width: 100%;
     padding: 1rem 1.6rem;
     cursor: pointer;
     background-color: inherit;
     text-align: left;
     border-radius: 0;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 .alert {
     color: var(--font-primary-light);
     padding: var(--padding);
-    cursor: default;
     opacity: .7;
     padding: 2.32rem 2rem;
-}
-
-.task__content {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-
-    .task__information {
-        display: flex;
-        align-items: flex-start;
-        flex-direction: column;
-    }
 }
 
 .shake {

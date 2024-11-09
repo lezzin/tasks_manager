@@ -9,11 +9,12 @@ import MarkdownEditor from '../utilities/MarkdownEditor.vue';
 import { useToast } from '../../composables/useToast';
 import { useTask } from '../../composables/useTask';
 import { useAuthStore } from '../../stores/authStore';
+import UIButton from '../ui/UIButton.vue';
 
 const props = defineProps({
-    topic: {
-        type: Object,
-        required: false,
+    topicId: {
+        type: String,
+        default: "",
     }
 });
 
@@ -56,10 +57,12 @@ const updateTaskComment = (value) => {
 
 const handleAddTask = async () => {
     try {
-        await addTask(props.topic, taskName.value, taskComment.value, taskPriority.value, taskDate.value, user.uid);
+        await addTask(props.topicId, taskName.value, taskComment.value, taskPriority.value, taskDate.value, user.uid);
         closeAddingTask();
         showToast("success", "Tarefa adicionada com sucesso.")
     } catch (error) {
+        console.error(error);
+
         const errors = {
             "empty-name": () => (taskNameError.value = error.message),
             "invalid-date": () => (taskDateError.value = error.message),
@@ -77,10 +80,10 @@ watch(taskDate, () => (taskDateError.value = ""));
         <div class="modal__dialog">
             <div class="modal__header">
                 <h2 id="modal-add-task-title" class="modal__title">Adicionar tarefa</h2>
-                <button class="btn" @click="closeAddingTask" aria-label="Fechar modal de adicionar tarefa"
-                    title="Fechar modal">
+
+                <UIButton @click="closeAddingTask" title="Fechar modal">
                     <fa icon="times" />
-                </button>
+                </UIButton>
             </div>
 
             <form @submit.prevent="handleAddTask" aria-describedby="modal-add-task-title">
@@ -109,10 +112,10 @@ watch(taskDate, () => (taskDateError.value = ""));
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn--primary btn--block" title="Concluir adição da tarefa"
-                    aria-label="Adicionar tarefa">
+                <UIButton type="submit" variant="primary" title="Concluir adição da tarefa">
+                    <fa icon="check" />
                     Adicionar tarefa
-                </button>
+                </UIButton>
             </form>
         </div>
     </aside>

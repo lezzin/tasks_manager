@@ -14,6 +14,7 @@ import { useAuthStore } from './stores/authStore';
 
 import LoaderContainer from './components/shared/LoaderContainer.vue';
 import ToastFeedback from './components/shared/ToastFeedback.vue';
+import UIButton from './components/ui/UIButton.vue';
 
 const authStore = useAuthStore();
 const { toast, closeToast, showToast } = useToast();
@@ -82,10 +83,10 @@ const removeUser = async () => {
     <header class="header-wrapper">
         <div class="header container">
             <div class="header__logo">
-                <button class="btn btn--only-icon btn--primary" @click="toggleTopicsMenu" v-if="showTopicNavBtn"
+                <UIButton variant="primary" isIcon @click="toggleTopicsMenu" v-if="showTopicNavBtn"
                     title="Alternar menu de tópicos">
-                    <fa :icon="isMenuTopicsActive ? 'x' : 'bars'" />
-                </button>
+                    <fa :icon="isMenuTopicsActive ? 'times' : 'bars'" />
+                </UIButton>
 
                 <RouterLink to="/" title="Acessar página inicial" class="logo">
                     <img v-if="showTopicNavBtn" :src="baseUrl('logo_sm.svg')" alt="TaskFlow - logo do website"
@@ -95,7 +96,7 @@ const removeUser = async () => {
                 </RouterLink>
             </div>
 
-            <button class="account btn btn--bordered" @click.stop="toggleAccountDropdown" title="Abrir/fechar dropdown"
+            <UIButton class="account" @click.stop="toggleAccountDropdown" title="Abrir/fechar dropdown" isBordered
                 v-if="user">
                 <div class="account__details">
                     <p class="text text--small">Olá, {{ user.displayName }}</p>
@@ -108,16 +109,16 @@ const removeUser = async () => {
                 <span class="account__arrow">
                     <fa icon="caret-down" />
                 </span>
-            </button>
+            </UIButton>
 
             <div :class="['dropdown', isAccountDropdownActive && 'active']">
                 <div class="dropdown__menu">
-                    <button class="btn btn--outline-danger btn--icon" @click="logoutUser" title="Sair da minha conta">
+                    <UIButton variant="outline-danger" @click="logoutUser" title="Sair da minha conta">
                         <fa icon="right-from-bracket" /> Sair da conta
-                    </button>
-                    <button class="btn btn--danger btn--icon" @click="removeUser" title="Excluir minha conta">
+                    </UIButton>
+                    <UIButton variant="danger" @click="removeUser" title="Excluir minha conta">
                         <fa icon="trash" /> Excluir conta
-                    </button>
+                    </UIButton>
                 </div>
             </div>
 
