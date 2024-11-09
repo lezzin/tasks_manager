@@ -59,8 +59,6 @@ const handleEditTask = async () => {
         showToast("success", "Tarefa alterada com sucesso.");
         closeEditTaskModal();
     } catch (error) {
-        console.error(error);
-
         const errors = {
             "empty-name": () => (taskNameError.value = error.message),
             "invalid-date": () => (taskDateError.value = error.message),

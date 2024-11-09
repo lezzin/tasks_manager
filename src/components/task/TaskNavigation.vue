@@ -40,7 +40,6 @@ const handleChangeTaskStatus = async (taskToUpdate) => {
         filterTask.value = "all";
         searchTask.value = "";
     } catch (error) {
-        console.error(error);
         showToast("danger", "Erro ao alterar status da tarefa.");
     }
 };

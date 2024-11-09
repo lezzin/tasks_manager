@@ -47,7 +47,6 @@ const loadTasks = async () => {
         tasksLength.value = userTasks.length;
         organizeTasksByStatus(userTasks);
     } catch (error) {
-        console.error(error);
         showToast("danger", `Erro ao obter tarefas. Tente novamente mais tarde.`);
     } finally {
         loadingStore.hideLoader();
@@ -126,7 +125,6 @@ const updateTaskStatus = async (taskToUpdate, newKanbanStatus) => {
         taskToUpdate.kanban = newKanbanStatus;
         taskToUpdate.status = (newKanbanStatus === TASK_KANBAN_STATUSES.completed);
     } catch (error) {
-        console.error(error);
         showToast("danger", `Erro ao atualizar Kanban. Tente novamente mais tarde.`);
     }
 };

@@ -40,7 +40,6 @@ const getUserTasks = async (userId) => {
         const userData = docSnap.data();
         return userData.tasks ? { ...userData.tasks } : {};
     } catch (error) {
-        console.error(error);
         throw error;
     }
 };

@@ -72,7 +72,6 @@ const handleChangeTaskStatus = async (taskToUpdate) => {
         taskToUpdate.kanbanStatus = newStatus ? TASK_KANBAN_STATUSES.completed : TASK_KANBAN_STATUSES.todo;
         showToast("success", "Status de conclusão alterado com sucesso.");
     } catch (error) {
-        console.error(error);
         showToast("danger", "Erro ao alterar status da tarefa.");
     }
 };

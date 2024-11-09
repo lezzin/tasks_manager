@@ -26,6 +26,10 @@ const props = defineProps({
     variant: {
         type: String,
         default: ""
+    },
+    type: {
+        type: String,
+        default: "button"
     }
 });
 
@@ -52,7 +56,7 @@ const getClass = () => {
 </script>
 
 <template>
-    <button v-if="!props.isLink" :class="getClass()" :title="props.title" v-bind="attrs">
+    <button :type="props.type" v-if="!props.isLink" :class="getClass()" :title="props.title" v-bind="attrs">
         <slot></slot>
     </button>
 

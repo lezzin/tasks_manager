@@ -63,7 +63,6 @@ const startSpeechRecognition = () => {
     };
 
     recognition.value.onerror = () => {
-        console.error("Erro no reconhecimento de voz.");
         stopSpeechRecognition();
     };
 

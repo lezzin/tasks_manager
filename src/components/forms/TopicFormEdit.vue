@@ -44,7 +44,6 @@ const handleEditTopic = async () => {
         }
 
         showToast("danger", "Erro desconhecido. Tente novamente mais tarde.");
-        console.error(error);
     }
 };
 

@@ -151,7 +151,6 @@ const loadTopics = () => {
         },
         (error) => {
             if (!user.value) return;
-            console.error(error);
             showToast("danger", "Erro ao obter tópicos. Tente novamente mais tarde.");
         }
     );

@@ -61,8 +61,6 @@ const handleAddTask = async () => {
         closeAddingTask();
         showToast("success", "Tarefa adicionada com sucesso.")
     } catch (error) {
-        console.error(error);
-
         const errors = {
             "empty-name": () => (taskNameError.value = error.message),
             "invalid-date": () => (taskDateError.value = error.message),
