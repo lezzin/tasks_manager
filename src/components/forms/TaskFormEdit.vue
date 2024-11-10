@@ -10,7 +10,7 @@ import InputRecognition from '../utilities/InputRecognition.vue';
 import MarkdownEditor from '../utilities/MarkdownEditor.vue';
 import { useTask } from '../../composables/useTask';
 import UIButton from '../ui/UIButton.vue';
-import BaseModal from '../ui/BaseModal.vue';
+import UIModal from '../ui/UIModal.vue';
 
 const emit = defineEmits(["close"]);
 
@@ -82,7 +82,7 @@ watch(taskDate, () => (taskDateError.value = ""));
 </script>
 
 <template>
-    <BaseModal @close="closeEditTaskModal" titleId="edit-task-modal-title">
+    <UIModal @close="closeEditTaskModal" titleId="edit-task-modal-title">
         <template #title>Editar tarefa</template>
 
         <template #body>
@@ -118,5 +118,5 @@ watch(taskDate, () => (taskDateError.value = ""));
                 </UIButton>
             </form>
         </template>
-    </BaseModal>
+    </UIModal>
 </template>

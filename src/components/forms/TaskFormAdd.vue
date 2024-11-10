@@ -10,7 +10,7 @@ import { useToast } from '../../composables/useToast';
 import { useTask } from '../../composables/useTask';
 import { useAuthStore } from '../../stores/authStore';
 import UIButton from '../ui/UIButton.vue';
-import BaseModal from '../ui/BaseModal.vue';
+import UIModal from '../ui/UIModal.vue';
 
 const props = defineProps({
     topicId: {
@@ -75,7 +75,7 @@ watch(taskDate, () => (taskDateError.value = ""));
 </script>
 
 <template>
-    <BaseModal @close="closeAddingTask" titleId="add-task-modal-title">
+    <UIModal @close="closeAddingTask" titleId="add-task-modal-title">
         <template #title>Adicionar tarefa</template>
         <template #body>
             <form @submit.prevent="handleAddTask" aria-describedby="modal-add-task-title">
@@ -109,5 +109,5 @@ watch(taskDate, () => (taskDateError.value = ""));
                 </UIButton>
             </form>
         </template>
-    </BaseModal>
+    </UIModal>
 </template>

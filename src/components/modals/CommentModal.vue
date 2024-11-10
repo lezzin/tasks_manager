@@ -1,5 +1,5 @@
 <script setup>
-import BaseModal from '../ui/BaseModal.vue';
+import UIModal from '../ui/UIModal.vue';
 import UIButton from '../ui/UIButton.vue';
 
 
@@ -18,7 +18,7 @@ const closeShowingComment = () => {
 </script>
 
 <template>
-    <BaseModal @close="closeShowingComment" titleId="comment-modal-title">
+    <UIModal @close="closeShowingComment" titleId="comment-modal-title">
         <template #title>Comentários da tarefa</template>
 
         <template #body>
@@ -26,7 +26,7 @@ const closeShowingComment = () => {
                 aria-describedby="comment-modal-title" role="document">
             </div>
         </template>
-    </BaseModal>
+    </UIModal>
 </template>
 
 <style scoped>

@@ -5,7 +5,7 @@ import { useToast } from '../../composables/useToast';
 import { useAuthStore } from '../../stores/authStore';
 import { useTopic } from '../../composables/useTopic';
 import UIButton from '../ui/UIButton.vue';
-import BaseModal from '../ui/BaseModal.vue';
+import UIModal from '../ui/UIModal.vue';
 
 const { showToast } = useToast();
 const { editTopic } = useTopic();
@@ -58,7 +58,7 @@ watch(() => props.topic, setTopicData, { immediate: true });
 </script>
 
 <template>
-    <BaseModal titleId="edit-topic-modal-title" @close="closeEditTopicModal">
+    <UIModal titleId="edit-topic-modal-title" @close="closeEditTopicModal">
         <template #title>Editar tópico</template>
 
         <template #body>
@@ -79,5 +79,5 @@ watch(() => props.topic, setTopicData, { immediate: true });
                 </UIButton>
             </form>
         </template>
-    </BaseModal>
+    </UIModal>
 </template>
