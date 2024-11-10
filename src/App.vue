@@ -15,6 +15,7 @@ import { useAuthStore } from './stores/authStore';
 import LoaderContainer from './components/shared/LoaderContainer.vue';
 import ToastFeedback from './components/shared/ToastFeedback.vue';
 import UIButton from './components/ui/UIButton.vue';
+import UIDropdown from './components/ui/UIDropdown.vue';
 
 const authStore = useAuthStore();
 const { toast, closeToast, showToast } = useToast();
@@ -96,31 +97,32 @@ const removeUser = async () => {
                 </RouterLink>
             </div>
 
-            <UIButton class="account" @click.stop="toggleAccountDropdown" title="Abrir/fechar dropdown" isBordered
-                v-if="user">
-                <div class="account__details">
-                    <p class="text text--small">Olá, {{ user.displayName }}</p>
-                    <p class="text text--smallest">{{ user.email }}</p>
-                </div>
+            <UIDropdown :isActive="isAccountDropdownActive" @trigger="toggleAccountDropdown" v-if="user">
+                <template #trigger="{ trigger }">
+                    <UIButton isBordered class="account" title="Abrir/fechar dropdown" @click="trigger">
+                        <div class="account__details">
+                            <p class="text text--small">Olá, {{ user.displayName }}</p>
+                            <p class="text text--smallest">{{ user.email }}</p>
+                        </div>
 
-                <img class="account__avatar" :src="user.photoURL" alt="Foto de perfil do usuário" width="37" height="37"
-                    :title="`Logado como: ${user.email}`" />
+                        <img class="account__avatar" :src="user.photoURL" alt="Foto de perfil do usuário" width="37"
+                            height="37" :title="`Logado como: ${user.email}`" />
 
-                <span class="account__arrow">
-                    <fa icon="caret-down" />
-                </span>
-            </UIButton>
+                        <span class="account__arrow">
+                            <fa icon="caret-down" />
+                        </span>
+                    </UIButton>
+                </template>
 
-            <div :class="['dropdown', isAccountDropdownActive && 'active']">
-                <div class="dropdown__menu">
-                    <UIButton variant="outline-danger" @click="logoutUser" title="Sair da minha conta">
+                <template #menu>
+                    <UIButton isDropdown variant="outline-danger" @click="logoutUser" title="Sair da minha conta">
                         <fa icon="right-from-bracket" /> Sair da conta
                     </UIButton>
-                    <UIButton variant="danger" @click="removeUser" title="Excluir minha conta">
+                    <UIButton isDropdown variant="danger" @click="removeUser" title="Excluir minha conta">
                         <fa icon="trash" /> Excluir conta
                     </UIButton>
-                </div>
-            </div>
+                </template>
+            </UIDropdown>
 
             <ToastFeedback :data="toast" @close="closeToast" />
         </div>
@@ -130,3 +132,38 @@ const removeUser = async () => {
         <RouterView></RouterView>
     </main>
 </template>
+
+<style>
+.btn.account {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: 0.3rem 0.3rem 0.3rem 1rem;
+    cursor: pointer;
+    background-color: var(--bg-secondary);
+
+    .account__details {
+        text-align: right;
+
+        .text--small {
+            font-weight: 500;
+        }
+    }
+
+    @media(width <=768px) {
+        .account__details {
+            display: none;
+        }
+    }
+
+    .account__avatar {
+        border-radius: 50%;
+        border: 1px solid var(--border-color);
+    }
+
+    .account__arrow {
+        transform: translateY(-2px);
+        margin-inline: 0.5rem;
+    }
+}
+</style>

@@ -15,6 +15,10 @@ const props = defineProps({
         type: Boolean,
         default: false
     },
+    isDropdown: {
+        type: Boolean,
+        default: false
+    },
     isBordered: {
         type: Boolean,
         default: false
@@ -51,7 +55,8 @@ const getClass = () => {
     const rounded = props.isRounded ? 'btn--rounded' : '';
     const icon = props.isIcon ? 'btn--only-icon' : '';
     const bordered = props.isBordered ? 'btn--bordered' : '';
-    return `btn ${BUTTON_VARIANTS_CLASSES[props.variant] ?? ""} ${rounded} ${bordered} ${icon}`;
+    const dropdown = props.isDropdown ? 'btn--dropdown' : '';
+    return `btn ${BUTTON_VARIANTS_CLASSES[props.variant] ?? ""} ${rounded} ${bordered} ${icon} ${dropdown}`;
 };
 </script>
 
@@ -142,6 +147,12 @@ button:disabled {
 
 .btn--rounded {
     border-radius: 50%;
+}
+
+.btn--dropdown {
+    border: none;
+    border-radius: 0;
+    padding: 0.5rem 1rem;
 }
 
 .btn--bordered {
