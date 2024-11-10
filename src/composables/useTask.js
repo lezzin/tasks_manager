@@ -119,8 +119,6 @@ const deleteTask = async (taskToDelete, userId) => {
 
     const { [taskToDelete.id]: _, ...remainingTasks } = allTasks;
     await updateTasks(userId, remainingTasks);
-
-    console.log(remainingTasks);
 };
 
 export const useTask = () => {

@@ -43,6 +43,7 @@ const BUTTON_VARIANTS_CLASSES = {
     "primary": "btn--primary",
     "outline-primary": "btn--outline-primary",
     "outline-primary-small": "btn--outline-primary btn--small",
+    "outline-primary-smallest": "btn--outline-primary btn--smallest",
 
     "warning": "btn--warning",
 
@@ -91,7 +92,7 @@ button {
 
 a:hover,
 button:hover {
-    filter: brightness(90%);
+    opacity: .8;
 }
 
 button:disabled {
@@ -105,8 +106,13 @@ button:disabled {
     width: 100%;
 }
 
+.btn--smallest,
 .btn--small {
     padding: 0.4rem .8rem;
+}
+
+.btn--smallest {
+    font-size: var(--fs-small);
 }
 
 .btn--primary {
@@ -153,6 +159,7 @@ button:disabled {
     border: none;
     border-radius: 0;
     padding: 0.5rem 1rem;
+    white-space: wrap;
 }
 
 .btn--bordered {

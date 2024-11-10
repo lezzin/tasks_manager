@@ -1,7 +1,5 @@
 <script setup>
 import UIModal from '../ui/UIModal.vue';
-import UIButton from '../ui/UIButton.vue';
-
 
 const emit = defineEmits(["close"]);
 
@@ -33,6 +31,10 @@ const closeShowingComment = () => {
 .markdown-content {
     overflow-y: auto;
     padding: var(--padding);
+}
+
+.markdown-content a {
     word-break: break-all;
+    padding: var(--padding);
 }
 </style>

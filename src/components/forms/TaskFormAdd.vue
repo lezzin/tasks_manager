@@ -1,15 +1,15 @@
 <script setup>
 import { TASK_PRIORITIES } from '../../utils/variables';
-
-import { inject, ref, watch } from 'vue';
-
-import InputRecognition from '../utilities/InputRecognition.vue';
-import MarkdownEditor from '../utilities/MarkdownEditor.vue';
-
+import { inject, onMounted, reactive, ref, watch } from 'vue';
+import { useGemini } from '../../composables/useGemini';
 import { useToast } from '../../composables/useToast';
 import { useTask } from '../../composables/useTask';
 import { useAuthStore } from '../../stores/authStore';
+
 import UIButton from '../ui/UIButton.vue';
+import InputRecognition from '../utilities/InputRecognition.vue';
+import MarkdownEditor from '../utilities/MarkdownEditor.vue';
+import UIDropdown from '../ui/UIDropdown.vue';
 import UIModal from '../ui/UIModal.vue';
 
 const props = defineProps({
@@ -22,11 +22,16 @@ const props = defineProps({
 const emit = defineEmits(["close"]);
 
 const { user } = useAuthStore();
+const { suggestTask } = useGemini();
 const { showToast } = useToast();
-const { addTask } = useTask();
+const { addTask, getUserTasks } = useTask();
 
 const filterTask = inject("filterTask");
 const searchTask = inject("searchTask");
+
+const suggestedTask = reactive({ data: null });
+const isGeminiDropdownActive = ref(false);
+const isRequestingGemini = ref(false);
 
 const taskName = ref("");
 const taskNameError = ref("");
@@ -40,10 +45,8 @@ const closeAddingTask = () => {
     taskDate.value = "";
     taskComment.value = "";
     taskPriority.value = TASK_PRIORITIES.low;
-
     filterTask.value = "all";
     searchTask.value = "";
-
     emit("close");
 };
 
@@ -60,18 +63,51 @@ const handleAddTask = async () => {
     try {
         await addTask(props.topicId, taskName.value, taskComment.value, taskPriority.value, taskDate.value, user.uid);
         closeAddingTask();
-        showToast("success", "Tarefa adicionada com sucesso.")
+        showToast("success", "Tarefa adicionada com sucesso.");
     } catch (error) {
         const errors = {
             "empty-name": () => (taskNameError.value = error.message),
             "invalid-date": () => (taskDateError.value = error.message),
-        }
+        };
 
         errors[error.code] ? errors[error.code]() : showToast("danger", "Erro desconhecido. Tente novamente mais tarde.");
     }
 };
 
+const toggleGeminiDropdown = () => {
+    isGeminiDropdownActive.value = !isGeminiDropdownActive.value;
+};
+
+const requestSuggestion = async () => {
+    isRequestingGemini.value = true;
+
+    try {
+        const allTasks = await getUserTasks(user.uid);
+        const selectedTopicTasks = Object.values(allTasks).filter(task => task.topicId === props.topicId);
+
+        const suggestionResponse = await suggestTask(selectedTopicTasks, user.uid);
+
+        if (suggestionResponse.error) {
+            showToast("danger", suggestionResponse.error);
+            return;
+        }
+
+        suggestedTask.data = suggestionResponse;
+        taskName.value = suggestedTask.data.task;
+        taskComment.value = suggestedTask.data.details;
+    } catch (error) {
+        console.error(error);
+        showToast("danger", `Erro ao obter sugestão de tarefa.`);
+    } finally {
+        isRequestingGemini.value = false;
+    }
+};
+
 watch(taskDate, () => (taskDateError.value = ""));
+
+const addSubtaskToTaskName = (subtask) => {
+    taskName.value = subtask;
+};
 </script>
 
 <template>
@@ -79,9 +115,55 @@ watch(taskDate, () => (taskDateError.value = ""));
         <template #title>Adicionar tarefa</template>
         <template #body>
             <form @submit.prevent="handleAddTask" aria-describedby="modal-add-task-title">
-                <InputRecognition label="Nome da tarefa" placeholder="Adicionar tarefa..." v-model:modelValue="taskName"
-                    :errorMessage="taskNameError" enableVoiceRecognition inputId="add-task-name"
-                    @update="updateTaskName" />
+                <div class="add-input">
+                    <InputRecognition label="Nome da tarefa" placeholder="Adicionar tarefa..."
+                        v-model:modelValue="taskName" :errorMessage="taskNameError" enableVoiceRecognition
+                        inputId="add-task-name" @update="updateTaskName" />
+
+                    <UIButton v-if="!suggestedTask.data" variant="outline-primary-smallest" @click="requestSuggestion"
+                        :disabled="isRequestingGemini" title="Pedir uma sugestão">
+                        <img src="/src/assets/img/gemini-logo.png" width="18" height="18" alt="Logo do Gemini">
+                        <span>{{ isRequestingGemini ? "Criando sugestão..." : "Pedir sugestão à IA" }}</span>
+                    </UIButton>
+                    <UIDropdown v-else :isActive="isGeminiDropdownActive" @trigger="toggleGeminiDropdown">
+                        <template #trigger="{ trigger }">
+                            <UIButton variant="outline-primary-smallest" @click="trigger"
+                                :title="isGeminiDropdownActive ? 'Esconder' : 'Visualizar'">
+                                <img src="/src/assets/img/gemini-logo.png" width="18" height="18" alt="Logo do Gemini">
+                                <span>{{ isGeminiDropdownActive ? 'Esconder' : 'Visualizar' }} detalhes da
+                                    sugestão</span>
+                            </UIButton>
+                        </template>
+
+                        <template #menu>
+                            <div class="gemini__feedback text text--small">
+                                <div class="feedback">
+                                    <p class="text text--small" v-if="suggestedTask.data?.usageRemaining">
+                                        Você tem
+                                        <span class="text--bold">{{ suggestedTask.data?.usageRemaining }}</span>
+                                        usos restantes.
+                                    </p>
+                                </div>
+
+                                <div class="feedback">
+                                    <h4>Justificativa: </h4>
+                                    <p class="text text--small">{{ suggestedTask.data.justification }}</p>
+                                </div>
+
+                                <div v-if="suggestedTask.data?.subtasks?.length > 0" class="feedback">
+                                    <h4>Subtarefas sugeridas: </h4>
+
+                                    <div class="gemini__suggestions">
+                                        <button type="button" v-for="(subtask, index) in suggestedTask.data.subtasks"
+                                            :key="index" isDropdown @click="addSubtaskToTaskName(subtask)">
+                                            {{ subtask }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </UIDropdown>
+                </div>
 
                 <div :class="['form-group', taskDateError ? 'input-error' : '']">
                     <label class="text" for="add-task-date">Data de entrega (opcional)</label>
@@ -104,10 +186,60 @@ watch(taskDate, () => (taskDateError.value = ""));
                     </div>
                 </div>
 
-                <UIButton type="submit" variant="primary" title="Concluir adição da tarefa">
+                <UIButton type="submit" variant="primary" title="Concluir adição da tarefa"
+                    :disabled="isRequestingGemini">
                     <fa icon="check" /> Adicionar tarefa
                 </UIButton>
             </form>
         </template>
     </UIModal>
 </template>
+
+<style scoped>
+.add-input {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.add-input .dropdown {
+    width: 100%;
+}
+
+.gemini__toggler {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.gemini__feedback {
+    display: grid;
+    gap: 1.5rem;
+    padding: 1rem;
+}
+
+.feedback {
+    display: grid;
+    gap: 0.5rem;
+
+    h4 {
+        font-weight: 600;
+    }
+}
+
+.gemini__suggestions button {
+    text-align: left;
+    padding: 0.4rem .8rem;
+    padding: 0.5rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--details-color);
+    transition: color var(--screen-transition) ease;
+
+    &:hover {
+        color: var(--details-color-dark);
+    }
+}
+</style>

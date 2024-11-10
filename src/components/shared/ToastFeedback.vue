@@ -78,6 +78,7 @@ function closeToast() {
     transform: translateX(10%);
     pointer-events: none;
     transition: all var(--screen-transition) ease-in-out;
+    z-index: 999;
 
     &.toast--active {
         transform: translateX(0);

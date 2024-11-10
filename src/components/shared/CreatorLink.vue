@@ -11,6 +11,7 @@
 }
 
 a {
+    display: initial;
     text-decoration: underline;
 }
 </style>

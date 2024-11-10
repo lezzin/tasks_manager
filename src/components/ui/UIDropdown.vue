@@ -26,7 +26,7 @@ const toggleDropdown = () => {
     </div>
 </template>
 
-<style scoped>
+<style>
 .dropdown {
     position: relative;
 
@@ -36,13 +36,14 @@ const toggleDropdown = () => {
         right: 0;
         box-shadow: var(--shadow-sm);
         border: 1px solid var(--border-color);
-        border-top: none;
         display: grid;
-        border-radius: 0 0 var(--radius) var(--radius);
+        border-radius: var(--radius);
         overflow: hidden;
         background-color: var(--bg-primary);
         transform-origin: top right;
+        margin-top: .5rem;
         margin-right: .5rem;
+        z-index: 990;
     }
 }
 

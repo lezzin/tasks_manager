@@ -26,4 +26,5 @@
     --shadow-md: 0 0.5rem 1rem #00000026;
     --shadow-sm: 0 0.125rem 0.25rem #00000013;
     --font-family: 'Public Sans', sans-serif;
+    --fs-small: 1.2rem;
 }

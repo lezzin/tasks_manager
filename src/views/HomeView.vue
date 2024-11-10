@@ -55,16 +55,9 @@ const filteredTasks = computed(() => {
     }
 
     return tasks.sort((taskA, taskB) => {
-        const priorityA = taskA.priority;
-        const priorityB = taskB.priority;
-        const statusA = taskA.status;
-        const statusB = taskB.status;
-
-        if (statusA !== statusB) {
-            return statusA ? -1 : 1;
-        }
-
-        return priorityB - priorityA;
+        if (taskA.status !== taskB.status) return taskA.status ? -1 : 1;
+        if (taskA.priority !== taskB.priority) return taskB.priority - taskA.priority;
+        return taskA.name.localeCompare(taskB.name);
     });
 });
 
@@ -285,7 +278,7 @@ provide("filterTask", filterTask);
     max-width: calc(1080px - var(--padding));
     width: calc(100% - var(--padding));
     bottom: calc(var(--padding) * 2);
-    z-index: 99;
+    z-index: 980;
     display: flex;
     justify-content: flex-end;
 
@@ -316,7 +309,7 @@ provide("filterTask", filterTask);
     position: fixed;
     width: 30vw;
     inset: 10vh 0 0;
-    z-index: 999;
+    z-index: 980;
 
     @media (width <=768px) {
         width: 100vw;

@@ -11,6 +11,9 @@ html,
 body {
     font-family: var(--font-family);
     font-size: 62.5%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
 ::-webkit-scrollbar-track {
@@ -103,7 +106,7 @@ body {
 }
 
 .text--small {
-    font-size: 1.2rem;
+    font-size: var(--fs-small);
 }
 
 .text--bold {
@@ -159,7 +162,7 @@ body {
     border-bottom: 1px solid var(--border-color);
     position: fixed;
     inset: 0 0 auto;
-    z-index: 100;
+    z-index: 10;
 
     ~main {
         margin-top: 10vh;
@@ -231,6 +234,8 @@ form {
     }
 
     .form-group {
+        width: 100%;
+
         label {
             display: block;
             margin-bottom: .5rem;
@@ -250,7 +255,7 @@ form {
         }
 
         input {
-            padding-right: 3.3rem;
+            padding-right: 3.6rem;
             border-radius: var(--group-radius);
         }
 

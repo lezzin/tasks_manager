@@ -41,7 +41,7 @@ const closeModal = () => emit('close');
     inset: 0;
     display: grid;
     place-items: center;
-    z-index: 999;
+    z-index: 990;
 }
 
 .modal__dialog {
@@ -50,7 +50,6 @@ const closeModal = () => emit('close');
     box-shadow: var(--shadow-md);
     width: 95%;
     max-width: 500px;
-    transform: scale(0.99);
     transition: transform var(--screen-transition) ease-in-out;
     overflow: hidden;
     display: grid;
