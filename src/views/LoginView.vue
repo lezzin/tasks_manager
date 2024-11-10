@@ -52,7 +52,7 @@ onMounted(() => {
     }
 
     document.title = PAGE_TITLES.login;
-    route.meta.showTopicNavBtn = false;
+    inject('showTopicNavBtn').value = false;
     loadingStore.hideLoader();
 });
 
