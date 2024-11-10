@@ -1,4 +1,5 @@
 <script setup>
+import BaseModal from '../ui/BaseModal.vue';
 import UIButton from '../ui/UIButton.vue';
 
 
@@ -17,21 +18,15 @@ const closeShowingComment = () => {
 </script>
 
 <template>
-    <aside class="modal" role="dialog" aria-modal="true" aria-labelledby="comment-modal-title">
-        <div class="modal__dialog">
-            <div class="modal__header">
-                <h2 id="comment-modal-title" class="modal__title">Comentários da tarefa</h2>
+    <BaseModal @close="closeShowingComment" titleId="comment-modal-title">
+        <template #title>Comentários da tarefa</template>
 
-                <UIButton @click="closeShowingComment" title="Fechar modal">
-                    <fa icon="times" />
-                </UIButton>
-            </div>
-
+        <template #body>
             <div class="markdown-content markdown-content--normal" v-html="props.comment" aria-live="polite"
                 aria-describedby="comment-modal-title" role="document">
             </div>
-        </div>
-    </aside>
+        </template>
+    </BaseModal>
 </template>
 
 <style scoped>

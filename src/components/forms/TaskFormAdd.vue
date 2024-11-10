@@ -10,6 +10,7 @@ import { useToast } from '../../composables/useToast';
 import { useTask } from '../../composables/useTask';
 import { useAuthStore } from '../../stores/authStore';
 import UIButton from '../ui/UIButton.vue';
+import BaseModal from '../ui/BaseModal.vue';
 
 const props = defineProps({
     topicId: {
@@ -74,16 +75,9 @@ watch(taskDate, () => (taskDateError.value = ""));
 </script>
 
 <template>
-    <aside class="modal" aria-labelledby="modal-add-task-title" role="dialog" aria-modal="true">
-        <div class="modal__dialog">
-            <div class="modal__header">
-                <h2 id="modal-add-task-title" class="modal__title">Adicionar tarefa</h2>
-
-                <UIButton @click="closeAddingTask" title="Fechar modal">
-                    <fa icon="times" />
-                </UIButton>
-            </div>
-
+    <BaseModal @close="closeAddingTask" titleId="add-task-modal-title">
+        <template #title>Adicionar tarefa</template>
+        <template #body>
             <form @submit.prevent="handleAddTask" aria-describedby="modal-add-task-title">
                 <InputRecognition label="Nome da tarefa" placeholder="Adicionar tarefa..." v-model:modelValue="taskName"
                     :errorMessage="taskNameError" enableVoiceRecognition inputId="add-task-name"
@@ -111,10 +105,9 @@ watch(taskDate, () => (taskDateError.value = ""));
                 </div>
 
                 <UIButton type="submit" variant="primary" title="Concluir adição da tarefa">
-                    <fa icon="check" />
-                    Adicionar tarefa
+                    <fa icon="check" /> Adicionar tarefa
                 </UIButton>
             </form>
-        </div>
-    </aside>
+        </template>
+    </BaseModal>
 </template>

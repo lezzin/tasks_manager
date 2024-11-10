@@ -10,6 +10,7 @@ import InputRecognition from '../utilities/InputRecognition.vue';
 import MarkdownEditor from '../utilities/MarkdownEditor.vue';
 import { useTask } from '../../composables/useTask';
 import UIButton from '../ui/UIButton.vue';
+import BaseModal from '../ui/BaseModal.vue';
 
 const emit = defineEmits(["close"]);
 
@@ -81,15 +82,10 @@ watch(taskDate, () => (taskDateError.value = ""));
 </script>
 
 <template>
-    <aside class="modal" role="dialog" aria-modal="true" aria-labelledby="edit-task-title">
-        <div class="modal__dialog">
-            <div class="modal__header">
-                <h2 id="edit-task-title" class="modal__title">Editar tarefa</h2>
-                <UIButton @click="closeEditTaskModal" title="Fechar modal">
-                    <fa icon="times" />
-                </UIButton>
-            </div>
+    <BaseModal @close="closeEditTaskModal" titleId="edit-task-modal-title">
+        <template #title>Editar tarefa</template>
 
+        <template #body>
             <form @submit.prevent="handleEditTask">
                 <InputRecognition label="Nome da tarefa" placeholder="Editar tarefa..." v-model:modelValue="taskName"
                     :errorMessage="taskNameError" enableVoiceRecognition inputId="edit-task-name"
@@ -121,6 +117,6 @@ watch(taskDate, () => (taskDateError.value = ""));
                     Concluir edição
                 </UIButton>
             </form>
-        </div>
-    </aside>
+        </template>
+    </BaseModal>
 </template>

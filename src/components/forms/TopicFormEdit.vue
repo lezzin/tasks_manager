@@ -5,6 +5,7 @@ import { useToast } from '../../composables/useToast';
 import { useAuthStore } from '../../stores/authStore';
 import { useTopic } from '../../composables/useTopic';
 import UIButton from '../ui/UIButton.vue';
+import BaseModal from '../ui/BaseModal.vue';
 
 const { showToast } = useToast();
 const { editTopic } = useTopic();
@@ -57,16 +58,10 @@ watch(() => props.topic, setTopicData, { immediate: true });
 </script>
 
 <template>
-    <aside class="modal" role="dialog" aria-modal="true" aria-labelledby="edit-topic-modal-title">
-        <div class="modal__dialog">
-            <div class="modal__header">
-                <h2 id="edit-topic-modal-title" class="modal__title">Editar tópico</h2>
+    <BaseModal titleId="edit-topic-modal-title" @close="closeEditTopicModal">
+        <template #title>Editar tópico</template>
 
-                <UIButton @click="closeEditTopicModal" title="Fechar modal">
-                    <fa icon="times" />
-                </UIButton>
-            </div>
-
+        <template #body>
             <form @submit.prevent="handleEditTopic" aria-describedby="edit-topic-instructions">
                 <p id="edit-topic-instructions" class="sr-only">Modifique o nome do tópico e confirme a edição.</p>
 
@@ -83,6 +78,6 @@ watch(() => props.topic, setTopicData, { immediate: true });
                     <fa icon="check" /> Concluir edição
                 </UIButton>
             </form>
-        </div>
-    </aside>
+        </template>
+    </BaseModal>
 </template>
