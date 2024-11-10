@@ -50,6 +50,7 @@ onMounted(() => {
     if (user) {
         router.push('/');
     }
+
     document.title = PAGE_TITLES.login;
     route.meta.showTopicNavBtn = false;
     loadingStore.hideLoader();
@@ -69,7 +70,7 @@ watchEffect(() => {
 
             <ImageResponsive small="login_sm.png" lg="login_lg.png" alt="Uma pessoa escrevendo em um caderno" />
 
-            <UIButton :title="loading ? 'Entrando...' : 'Entrar com o Google'" :disabled="loading"
+            <UIButton type="submit" :title="loading ? 'Entrando...' : 'Entrar com o Google'" :disabled="loading"
                 aria-label="Entrar com o Google" aria-live="polite" aria-busy="loading">
                 <img src="/src/assets/img/google-logo.png" alt="Logo do Google" width="24" height="24">
                 <span v-if="loading">Carregando...</span>
