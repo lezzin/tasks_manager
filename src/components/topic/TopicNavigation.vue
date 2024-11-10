@@ -13,6 +13,7 @@ import { useModal } from '../../composables/useModal';
 import TopicFormEdit from '../forms/TopicFormEdit.vue';
 import UIButton from '../ui/UIButton.vue';
 import { useTopic } from '../../composables/useTopic';
+import CreatorLink from '../shared/CreatorLink.vue';
 
 const emit = defineEmits(['close']);
 
@@ -120,6 +121,8 @@ const handleDeleteAllTopics = async () => {
                 Excluir todos os tópicos
             </UIButton>
         </div>
+
+        <CreatorLink />
     </div>
 
     <p class="text text--center" v-else>Nenhum tópico cadastrado</p>
@@ -203,6 +206,7 @@ const handleDeleteAllTopics = async () => {
     align-items: center;
     flex-wrap: wrap;
     gap: 0.6rem;
+    margin-bottom: 1rem;
 }
 
 .footer__buttons>* {

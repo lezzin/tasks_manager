@@ -339,6 +339,10 @@ onMounted(() => {
                 }
             }
         }
+
+        ~* {
+            margin-top: auto;
+        }
     }
 }
 </style>

@@ -1,15 +1,17 @@
 <script setup>
 import { PAGE_TITLES } from '../utils/variables.js';
 
-import { ref, watchEffect, onMounted } from 'vue';
+import { ref, watchEffect, onMounted, inject } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { signInWithPopup } from 'firebase/auth';
 
 import { useToast } from '../composables/useToast.js';
 import { useAuthStore } from '../stores/authStore.js';
 import { useLoadingStore } from '../stores/loadingStore.js';
+
 import ImageResponsive from '../components/shared/ImageResponsive.vue';
 import UIButton from '../components/ui/UIButton.vue';
+import CreatorLink from '../components/shared/CreatorLink.vue';
 
 const { provider, auth } = defineProps(['provider', 'auth']);
 const { showToast } = useToast();
@@ -76,6 +78,8 @@ watchEffect(() => {
                 <span v-if="loading">Carregando...</span>
                 <span v-else>Entrar com o Google</span>
             </UIButton>
+
+            <CreatorLink />
         </form>
     </div>
 </template>
