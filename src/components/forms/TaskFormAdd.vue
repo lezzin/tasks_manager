@@ -16,13 +16,13 @@ const props = defineProps({
     topicId: {
         type: String,
         default: "",
-    }
+    },
 });
 
 const emit = defineEmits(["close"]);
 
 const { user } = useAuthStore();
-const { suggestTask } = useGemini();
+const { suggestTask, getUsageCount } = useGemini();
 const { showToast } = useToast();
 const { addTask, getUserTasks } = useTask();
 
@@ -30,6 +30,7 @@ const filterTask = inject("filterTask");
 const searchTask = inject("searchTask");
 
 const suggestedTask = reactive({ data: null });
+const usageRemaining = ref(null);
 const isGeminiDropdownActive = ref(false);
 const isRequestingGemini = ref(false);
 
@@ -69,7 +70,6 @@ const handleAddTask = async () => {
             "empty-name": () => (taskNameError.value = error.message),
             "invalid-date": () => (taskDateError.value = error.message),
         };
-
         errors[error.code] ? errors[error.code]() : showToast("danger", "Erro desconhecido. Tente novamente mais tarde.");
     }
 };
@@ -80,6 +80,7 @@ const toggleGeminiDropdown = () => {
 
 const requestSuggestion = async () => {
     isRequestingGemini.value = true;
+    taskNameError.value = "";
 
     try {
         const allTasks = await getUserTasks(user.uid);
@@ -92,6 +93,7 @@ const requestSuggestion = async () => {
             return;
         }
 
+        usageRemaining.value = await getUsageCount(user.uid);
         suggestedTask.data = suggestionResponse;
         taskName.value = suggestedTask.data.task;
         taskComment.value = suggestedTask.data.details;
@@ -103,11 +105,15 @@ const requestSuggestion = async () => {
     }
 };
 
-watch(taskDate, () => (taskDateError.value = ""));
+onMounted(async () => {
+    usageRemaining.value = await getUsageCount(user.uid);
+});
 
 const addSubtaskToTaskName = (subtask) => {
     taskName.value = subtask;
 };
+
+watch(taskDate, () => (taskDateError.value = ""));
 </script>
 
 <template>
@@ -122,26 +128,30 @@ const addSubtaskToTaskName = (subtask) => {
 
                     <UIButton v-if="!suggestedTask.data" variant="outline-primary-smallest" @click="requestSuggestion"
                         :disabled="isRequestingGemini" title="Pedir uma sugestão">
-                        <img src="/src/assets/img/gemini-logo.png" width="18" height="18" alt="Logo do Gemini">
-                        <span>{{ isRequestingGemini ? "Criando sugestão..." : "Pedir sugestão à IA" }}</span>
+                        <img src="/src/assets/img/gemini-logo.png" width="18" height="18" alt="Logo do Gemini" />
+                        <span>
+                            {{ isRequestingGemini ? "Criando sugestão..." : `Pedir sugestão à IA ${usageRemaining ?
+                                `(${usageRemaining} restantes)` : ''}` }}
+                        </span>
                     </UIButton>
+
                     <UIDropdown v-else :isActive="isGeminiDropdownActive" @trigger="toggleGeminiDropdown">
                         <template #trigger="{ trigger }">
                             <UIButton variant="outline-primary-smallest" @click="trigger"
                                 :title="isGeminiDropdownActive ? 'Esconder' : 'Visualizar'">
-                                <img src="/src/assets/img/gemini-logo.png" width="18" height="18" alt="Logo do Gemini">
-                                <span>{{ isGeminiDropdownActive ? 'Esconder' : 'Visualizar' }} detalhes da
-                                    sugestão</span>
+                                <img src="/src/assets/img/gemini-logo.png" width="18" height="18"
+                                    alt="Logo do Gemini" />
+                                <span>
+                                    {{ isGeminiDropdownActive ? 'Esconder' : 'Visualizar' }} detalhes da sugestão
+                                </span>
                             </UIButton>
                         </template>
 
                         <template #menu>
                             <div class="gemini__feedback text text--small">
                                 <div class="feedback">
-                                    <p class="text text--small" v-if="suggestedTask.data?.usageRemaining">
-                                        Você tem
-                                        <span class="text--bold">{{ suggestedTask.data?.usageRemaining }}</span>
-                                        usos restantes.
+                                    <p class="text text--small" v-if="usageRemaining">
+                                        Você tem <span class="text--bold">{{ usageRemaining }}</span> usos restantes.
                                     </p>
                                 </div>
 
@@ -152,10 +162,9 @@ const addSubtaskToTaskName = (subtask) => {
 
                                 <div v-if="suggestedTask.data?.subtasks?.length > 0" class="feedback">
                                     <h4>Subtarefas sugeridas: </h4>
-
                                     <div class="gemini__suggestions">
                                         <button type="button" v-for="(subtask, index) in suggestedTask.data.subtasks"
-                                            :key="index" isDropdown @click="addSubtaskToTaskName(subtask)">
+                                            :key="index" @click="addSubtaskToTaskName(subtask)">
                                             {{ subtask }}
                                         </button>
                                     </div>
@@ -195,6 +204,7 @@ const addSubtaskToTaskName = (subtask) => {
     </UIModal>
 </template>
 
+
 <style scoped>
 .add-input {
     display: flex;
@@ -217,6 +227,10 @@ const addSubtaskToTaskName = (subtask) => {
     display: grid;
     gap: 1.5rem;
     padding: 1rem;
+
+    .dropdown__menu {
+        width: 100%;
+    }
 }
 
 .feedback {
@@ -228,18 +242,22 @@ const addSubtaskToTaskName = (subtask) => {
     }
 }
 
-.gemini__suggestions button {
-    text-align: left;
-    padding: 0.4rem .8rem;
-    padding: 0.5rem;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    color: var(--details-color);
-    transition: color var(--screen-transition) ease;
+.gemini__suggestions {
+    display: grid;
 
-    &:hover {
-        color: var(--details-color-dark);
+    button {
+        text-align: left;
+        padding: 0.4rem .8rem;
+        padding: 0.5rem;
+        border: none;
+        cursor: pointer;
+        background: transparent;
+        color: var(--details-color);
+        transition: color var(--screen-transition) ease;
+
+        &:hover {
+            color: var(--details-color-dark);
+        }
     }
 }
 </style>
