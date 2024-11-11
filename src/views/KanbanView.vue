@@ -27,8 +27,7 @@ const activeColumn = ref(null);
 const tasksLength = ref(0);
 
 const { showToast } = useToast();
-const { getUserTasks, changeKanbanStatus } = useTask();
-const { getTopicInfo } = useTopic();
+const { getUserTasksWithTopic, changeKanbanStatus } = useTask();
 const { user } = useAuthStore();
 const loadingStore = useLoadingStore();
 const sidebarStore = useSidebarStore();
@@ -38,14 +37,7 @@ const loadTasks = async () => {
     loadingStore.showLoader();
 
     try {
-        const data = await getUserTasks(user.uid);
-        const userTasks = Object.values(data);
-
-        await Promise.all(userTasks.map(async (task) => {
-            const { name } = await getTopicInfo(task.topicId, user.uid);
-            task.topicName = name;
-        }));
-
+        const userTasks = await getUserTasksWithTopic(user.uid);
         tasksLength.value = userTasks.length;
         organizeTasksByStatus(userTasks);
     } catch (error) {

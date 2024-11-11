@@ -10,6 +10,7 @@ import { useLoadingStore } from '../stores/loadingStore';
 import { useSidebarStore } from '../stores/sidebarStore';
 import { useModal } from '../composables/useModal';
 import { useToast } from '../composables/useToast';
+import { useTopic } from '../composables/useTopic';
 
 import TaskNavigation from '../components/task/TaskNavigation.vue';
 import TaskFormAdd from '../components/forms/TaskFormAdd.vue';
@@ -26,10 +27,12 @@ const props = defineProps({
 });
 
 const selectedTopic = ref(null);
+const aside = ref(null);
 const defaultTasks = ref([]);
 
 const modal = useModal();
 const { showToast } = useToast();
+const { getTopicInfo } = useTopic();
 const { user } = useAuthStore();
 const loadingStore = useLoadingStore();
 const sidebarStore = useSidebarStore();
@@ -87,15 +90,13 @@ const loadTopicTasks = (topicId) => {
     });
 };
 
-const loadTopic = (id) => {
-    selectedTopic.value = null;
-
+const loadTopic = async (id) => {
     if (!id) {
         document.title = PAGE_TITLES.home.default;
         return;
     }
 
-    const topic = topics.data.find(topic => topic.id === id);
+    const topic = await getTopicInfo(id, user.uid);
 
     if (!topic) {
         if (router.currentRoute !== "/") router.push("/");
@@ -111,37 +112,36 @@ const loadTopics = () => {
     const docRef = doc(props.db, PRINCIPAL_DOC_NAME, user.uid);
     loadingStore.showLoader();
 
-    onSnapshot(
-        docRef,
-        (doc) => {
-            const userData = doc.data();
-            const topicsExists = userData && userData.topics && Object.keys(userData.topics).length > 0;
+    onSnapshot(docRef, (doc) => {
+        const userData = doc.data();
+        const topicsExists = userData && userData.topics && Object.keys(userData.topics).length > 0;
 
-            if (!topicsExists) {
-                sidebarStore.setSidebarActive(true);
-                topics.data = null;
-                return;
-            }
+        if (!topicsExists) {
+            sidebarStore.setSidebarActive(true);
+            topics.data = null;
+            return;
+        }
 
-            topics.data = Object.values(userData.topics)
-                .map((topic) => {
-                    const tasksLength = userData.tasks ? Object.values(userData.tasks).filter(task => task.topicId === topic.id).length : 0;
+        topics.data = Object.values(userData.topics)
+            .map((topic) => {
+                const tasksLength = userData.tasks ? Object.values(userData.tasks).filter(task => task.topicId === topic.id).length : 0;
 
-                    return {
-                        id: topic.id,
-                        name: topic.name,
-                        created_at: topic.created_at,
-                        tasks_length: tasksLength
-                    };
-                })
-                .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+                return {
+                    id: topic.id,
+                    name: topic.name,
+                    created_at: topic.created_at,
+                    tasks_length: tasksLength
+                };
+            })
+            .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
-            if (route.params.id) {
-                loadTopic(route.params.id);
-            } else {
-                document.title = PAGE_TITLES.home.default;
-            }
-        },
+        if (!route.params.id) {
+            document.title = PAGE_TITLES.home.default;
+            return;
+        }
+
+        loadTopic(route.params.id);
+    },
         (error) => {
             if (!user.value) return;
             showToast("danger", "Erro ao obter tópicos. Tente novamente mais tarde.");
@@ -245,7 +245,7 @@ provide("selectedTopic", selectedTopic);
     </Teleport>
 
     <Transition name="slide">
-        <nav class="home-aside" aria-label="Navegação de tópicos" v-if="sidebarStore.isTopicSidebarActive">
+        <nav class="home-aside" aria-label="Navegação de tópicos" v-if="sidebarStore.isTopicSidebarActive" ref="aside">
             <TopicFormAdd />
             <span class="divider" role="separator" aria-hidden="true"></span>
             <TopicNavigation :data="topics.data" @close="sidebarStore.closeSidebar" />

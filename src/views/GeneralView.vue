@@ -17,12 +17,10 @@ import { useLoadingStore } from '../stores/loadingStore.js';
 import { useSidebarStore } from '../stores/sidebarStore.js';
 
 import ImageResponsive from '../components/shared/ImageResponsive.vue';
-import { useTopic } from '../composables/useTopic.js';
 import UIButton from '../components/ui/UIButton.vue';
 
 const { showToast } = useToast();
-const { getUserTasks } = useTask();
-const { getTopicInfo } = useTopic();
+const { getUserTasksWithTopic } = useTask();
 const { user } = useAuthStore();
 const sidebarStore = useSidebarStore();
 const loadingStore = useLoadingStore();
@@ -83,15 +81,7 @@ const loadTasks = async () => {
     loadingStore.showLoader();
 
     try {
-        const data = await getUserTasks(user.uid);
-        const userTasks = Object.values(data);
-
-        await Promise.all(userTasks.map(async (task) => {
-            const { name } = await getTopicInfo(task.topicId, user.uid);
-            task.topicName = name;
-        }));
-
-        allUserTasks.value = userTasks;
+        allUserTasks.value = await getUserTasksWithTopic(user.uid)
         updatePriorityCounter();
     } catch (error) {
         showToast("danger", `Erro ao resgatar tarefas. Tente novamente mais tarde.`);

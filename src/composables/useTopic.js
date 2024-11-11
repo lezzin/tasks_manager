@@ -1,8 +1,11 @@
+import { PRINCIPAL_DOC_NAME, TOPIC_MAX_LENGTH, TOPIC_MIN_LENGTH } from '../utils/variables';
 import { currentTime } from '../utils/dateUtils';
 import { filterField } from '../utils/stringUtils';
-import { DOC_NAME, TOPIC_MAX_LENGTH, TOPIC_MIN_LENGTH } from '../utils/variables';
 import { db } from '../libs/firebase';
+
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+
+import { useTask } from './useTask';
 
 const getUserData = async (docRef) => {
     const docSnap = await getDoc(docRef);
@@ -22,7 +25,7 @@ const validateTopicName = (name) => {
 };
 
 const getTopicInfo = async (topicId, userId) => {
-    const docRef = doc(db, DOC_NAME, userId);
+    const docRef = doc(db, PRINCIPAL_DOC_NAME, userId);
     const userData = await getUserData(docRef);
 
     return userData?.topics[topicId] || {};
@@ -32,7 +35,7 @@ const addTopic = async (name, userId) => {
     const formattedTopicName = filterField(name);
     validateTopicName(formattedTopicName);
 
-    const docRef = doc(db, DOC_NAME, userId);
+    const docRef = doc(db, PRINCIPAL_DOC_NAME, userId);
     const userData = await getUserData(docRef);
 
     const existingTopic = Object.values(userData?.topics || {}).find(topic => topic.name === formattedTopicName);
@@ -56,7 +59,7 @@ const editTopic = async (newName, oldName, userId) => {
 
     if (formattedTopicName === oldName) throwValidationError("Nome igual ao antigo.", "same-name");
 
-    const docRef = doc(db, DOC_NAME, userId);
+    const docRef = doc(db, PRINCIPAL_DOC_NAME, userId);
     const userData = await getUserData(docRef);
 
     const topicId = Object.keys(userData.topics).find(id => userData.topics[id].name === oldName);
@@ -68,30 +71,34 @@ const editTopic = async (newName, oldName, userId) => {
 };
 
 const deleteTopic = async (topicId, userId) => {
-    const docRef = doc(db, DOC_NAME, userId);
+    const docRef = doc(db, PRINCIPAL_DOC_NAME, userId);
     const userData = await getUserData(docRef);
 
-    if (!userData || !userData.topics || !userData.topics[topicId]) {
-        showToast("danger", "Tópico não encontrado.");
-        return;
-    }
+    if (!userData || !userData.topics || !userData.topics[topicId])
+        throwValidationError("Tópico não encontrado.", "not-found");
+
+    const { getUserTasks } = useTask();
+    const tasks = await getUserTasks(userId);
+
+    const updatedTasks = Object.values(tasks).filter(task => task.topicId !== topicId);
 
     delete userData.topics[topicId];
-    await updateDoc(docRef, { topics: userData.topics });
 
+    await updateDoc(docRef, {
+        topics: userData.topics,
+        tasks: updatedTasks.reduce((acc, task) => ({ ...acc, [task.id]: task }), {})
+    });
 };
 
 const deleteAllTopics = async (userId) => {
-    const docRef = doc(db, DOC_NAME, userId);
+    const docRef = doc(db, PRINCIPAL_DOC_NAME, userId);
     const userData = await getUserData(docRef);
 
-    if (!userData || !userData.topics || Object.keys(userData.topics).length === 0) {
-        showToast("danger", "Nenhum tópico encontrado para excluir.");
-        return;
-    }
+    if (!userData || !userData.topics || Object.keys(userData.topics).length === 0)
+        throwValidationError("Nenhum tópico encontrado para excluir.", "not-found");
 
-    await updateDoc(docRef, { topics: {} });
-}
+    await updateDoc(docRef, { topics: {}, tasks: {} });
+};
 
 export const useTopic = () => ({
     addTopic,

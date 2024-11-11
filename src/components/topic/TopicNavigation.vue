@@ -49,7 +49,7 @@ const handleDeleteTopic = async (topicId) => {
         selectedTopic.value = null;
         if (router.currentRoute.value.fullPath !== '/') router.push("/");
     } catch (error) {
-        showToast("danger", "Erro ao excluir tarefa.");
+        showToast("danger", error?.message ?? "Erro desconhecido. Tente novamente mais tarde.");
     };
 }
 
@@ -61,7 +61,8 @@ const handleDeleteAllTopics = async () => {
         showToast("success", "Todos os tópicos foram excluídos com sucesso.");
         selectedTopic.value = null;
     } catch (error) {
-        showToast("danger", "Erro ao excluir tarefa.");
+        console.error(error);
+        showToast("danger", error?.message ?? "Erro desconhecido. Tente novamente mais tarde.");
     };
 }
 </script>

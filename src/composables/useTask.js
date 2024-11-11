@@ -5,6 +5,10 @@ import { db } from "../libs/firebase";
 
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 
+import { useTopic } from "./useTopic";
+
+const { getTopicInfo } = useTopic();
+
 const throwValidationError = (message, code) => {
     const error = new Error(message);
     error.code = code;
@@ -47,6 +51,18 @@ const getUserTasks = async (userId) => {
 const getUserTasksByTopic = async (topicId, userId) => {
     const tasks = await getUserTasks(userId);
     return Object.values(tasks).filter(task => task.topicId === topicId)
+};
+
+const getUserTasksWithTopic = async (userId) => {
+    const data = await getUserTasks(userId);
+    const userTasks = Object.values(data);
+
+    await Promise.all(userTasks.map(async (task) => {
+        const { name } = await getTopicInfo(task.topicId, userId);
+        task.topicName = name;
+    }));
+
+    return userTasks;
 };
 
 const updateTasks = async (userId, tasks) => {
@@ -134,6 +150,7 @@ export const useTask = () => {
         deleteTask,
         addTask,
         editTask,
-        getUserTasksByTopic
+        getUserTasksByTopic,
+        getUserTasksWithTopic
     };
 };

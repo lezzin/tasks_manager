@@ -11,13 +11,11 @@ import { useToast } from '../../composables/useToast';
 import { useModal } from '../../composables/useModal';
 import { useTask } from '../../composables/useTask';
 
-import CommentModal from '../task/CommentModal';
+import CommentModal from '../task/CommentModal.vue';
 import Task from '../task/TaskItem.vue';
-import { useTopic } from '../../composables/useTopic';
 import UIButton from '../ui/UIButton.vue';
 
-const { changeStatus, getUserTasks } = useTask();
-const { getTopicInfo } = useTopic();
+const { changeStatus, getUserTasksWithTopic } = useTask();
 const { showToast } = useToast();
 const { user } = useAuthStore();
 const loadingStore = useLoadingStore();
@@ -31,15 +29,7 @@ const selectedComment = ref("");
 const loadTasks = async () => {
     loadingStore.showLoader();
     try {
-        const data = await getUserTasks(user.uid);
-        const userTasks = Object.values(data);
-
-        await Promise.all(userTasks.map(async (task) => {
-            const { name } = await getTopicInfo(task.topicId, user.uid);
-            task.topicName = name;
-        }));
-
-        tasks.data = userTasks;
+        tasks.data = await getUserTasksWithTopic(user.uid);
     } catch (error) {
         showToast("danger", error.message);
         if (error.code === "topic-not-found" || error.code === "doc-not-found") {
@@ -111,13 +101,15 @@ onMounted(() => {
     align-items: center;
     flex-direction: column;
     gap: 1rem;
+    width: 90%;
+    max-width: 500px;
 }
 
 .task-nav {
     display: grid;
     gap: 0.6rem;
     max-height: 160px;
-    overflow-y: auto;
+    width: 100%;
     padding-inline: var(--padding);
 }
 

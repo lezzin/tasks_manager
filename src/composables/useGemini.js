@@ -22,7 +22,7 @@ const parseResponse = (response) => {
         return JSON.parse(sanitizedResponse);
     } catch (error) {
         console.error("Erro ao parsear a resposta:", error);
-        return { error: "Erro ao processar a resposta da IA" };
+        return { error: "Erro ao processar a resposta. Tente novamente." };
     }
 };
 
