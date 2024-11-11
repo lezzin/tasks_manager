@@ -7,8 +7,6 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 import { useTopic } from "./useTopic";
 
-const { getTopicInfo } = useTopic();
-
 const throwValidationError = (message, code) => {
     const error = new Error(message);
     error.code = code;
@@ -56,6 +54,7 @@ const getUserTasksByTopic = async (topicId, userId) => {
 const getUserTasksWithTopic = async (userId) => {
     const data = await getUserTasks(userId);
     const userTasks = Object.values(data);
+    const { getTopicInfo } = useTopic();
 
     await Promise.all(userTasks.map(async (task) => {
         const { name } = await getTopicInfo(task.topicId, userId);
