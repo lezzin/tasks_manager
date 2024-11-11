@@ -1,11 +1,14 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { doc, getDoc, setDoc, updateDoc, increment } from "firebase/firestore";
+import { AI_USAGE_DOC_NAME } from "../utils/variables";
 import { getPriorityText } from "../utils/priorityUtils";
 import { db } from "../libs/firebase";
 
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { doc, getDoc, setDoc, updateDoc, increment } from "firebase/firestore";
+
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-const usageLimit = 10;
+
+const USAGE_LIMIT = 10;
 
 const sanitizeJSON = (response) => {
     const jsonStart = response.indexOf('{');
@@ -54,12 +57,12 @@ Abaixo está a lista das tarefas anteriores para contexto:
 ${taskDetails}`;
 
 const getUsageCount = async (uid) => {
-    const userDocRef = doc(db, "ai_usage", uid);
+    const userDocRef = doc(db, AI_USAGE_DOC_NAME, uid);
     const userDoc = await getDoc(userDocRef);
 
     if (!userDoc.exists()) {
         await setDoc(userDocRef, { count: 0, lastUsed: new Date().toISOString().split('T')[0] });
-        return usageLimit;
+        return USAGE_LIMIT;
     }
 
     const { count, lastUsed } = userDoc.data();
@@ -67,17 +70,17 @@ const getUsageCount = async (uid) => {
 
     if (lastUsed !== today) {
         await setDoc(userDocRef, { count: 0, lastUsed: today });
-        return usageLimit;
+        return USAGE_LIMIT;
     }
 
-    return usageLimit - count;
+    return USAGE_LIMIT - count;
 };
 
 const checkUsageLimit = async (uid) => {
     const remaining = await getUsageCount(uid);
     if (remaining <= 0) throw new Error("Limite de uso atingido.");
 
-    await updateDoc(doc(db, "ai_usage", uid), { count: increment(1) });
+    await updateDoc(doc(db, AI_USAGE_DOC_NAME, uid), { count: increment(1) });
 };
 
 const suggestTask = async (tasks, userId) => {
@@ -92,10 +95,17 @@ const suggestTask = async (tasks, userId) => {
         const prompt = createPrompt(taskDetails);
 
         const result = await model.generateContent(prompt);
-        return parseResponse(result.response.text());
+        const parsedResponse = parseResponse(result.response.text());
+
+        if (!parsedResponse.error) {
+            await updateDoc(doc(db, AI_USAGE_DOC_NAME, userId), { count: increment(1) });
+        }
+
+        return parsedResponse;
     } catch (error) {
         return { error: error.message };
     }
 };
+
 
 export const useGemini = () => ({ suggestTask, getUsageCount });

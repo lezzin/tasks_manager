@@ -1,6 +1,8 @@
 <script setup>
 import { TASK_PRIORITIES } from '../../utils/variables';
-import { inject, onMounted, reactive, ref, watch } from 'vue';
+
+import { computed, inject, onMounted, reactive, ref, watch } from 'vue';
+
 import { useGemini } from '../../composables/useGemini';
 import { useToast } from '../../composables/useToast';
 import { useTask } from '../../composables/useTask';
@@ -105,13 +107,22 @@ const requestSuggestion = async () => {
     }
 };
 
+const addSubtaskToTaskName = (subtask) => {
+    taskName.value = subtask;
+};
+
+const buttonHtml = computed(() => {
+    const usageCount = (geminiSuggestedTask.usageRemaining > 0) ? `${geminiSuggestedTask.usageRemaining} restantes` : 'limite atingido';
+
+    return isRequestingGemini.value ?
+        "Criando sugestão..." :
+        `Pedir sugestão à IA (${usageCount})`
+});
+
 onMounted(async () => {
     geminiSuggestedTask.usageRemaining = await getUsageCount(user.uid);
 });
 
-const addSubtaskToTaskName = (subtask) => {
-    taskName.value = subtask;
-};
 
 watch(taskDate, () => (taskDateError.value = ""));
 </script>
@@ -128,14 +139,10 @@ watch(taskDate, () => (taskDateError.value = ""));
 
                     <UIButton v-if="!geminiSuggestedTask.data" variant="outline-primary-smallest"
                         @click="requestSuggestion"
-                        :disabled="(geminiSuggestedTask.usageRemaining && geminiSuggestedTask.usageRemaining === 0) || isRequestingGemini"
+                        :disabled="geminiSuggestedTask.usageRemaining === 0 || isRequestingGemini"
                         title="Pedir uma sugestão">
                         <img src="/src/assets/img/gemini-logo.png" width="18" height="18" alt="Logo do Gemini" />
-                        <span>
-                            {{ isRequestingGemini ? "Criando sugestão..." : `Pedir sugestão à IA
-                            ${geminiSuggestedTask.usageRemaining ?
-                                    `(${geminiSuggestedTask.usageRemaining} restantes)` : ''}` }}
-                        </span>
+                        <span> {{ buttonHtml }} </span>
                     </UIButton>
 
                     <UIDropdown v-else :isActive="isGeminiDropdownActive" @trigger="toggleGeminiDropdown">

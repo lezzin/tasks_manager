@@ -1,4 +1,4 @@
-import { DOC_NAME, TASK_KANBAN_STATUSES } from "../utils/variables";
+import { PRINCIPAL_DOC_NAME, TASK_KANBAN_STATUSES } from "../utils/variables";
 import { filterField } from "../utils/stringUtils";
 import { currentTime } from "../utils/dateUtils";
 import { db } from "../libs/firebase";
@@ -32,7 +32,7 @@ const validateDeliveryDate = (date) => {
 
 const getUserTasks = async (userId) => {
     try {
-        const docRef = doc(db, DOC_NAME, userId);
+        const docRef = doc(db, PRINCIPAL_DOC_NAME, userId);
         const docSnap = await getDoc(docRef);
 
         if (!docSnap.exists()) throwValidationError("Documento não encontrado.", "doc-not-found");
@@ -50,7 +50,7 @@ const getUserTasksByTopic = async (topicId, userId) => {
 };
 
 const updateTasks = async (userId, tasks) => {
-    const docRef = doc(db, DOC_NAME, userId);
+    const docRef = doc(db, PRINCIPAL_DOC_NAME, userId);
     await updateDoc(docRef, { tasks });
 };
 

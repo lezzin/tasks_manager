@@ -1,5 +1,5 @@
 <script setup>
-import { DOC_NAME, PAGE_TITLES, TASK_PRIORITIES } from '../utils/variables';
+import { PRINCIPAL_DOC_NAME, PAGE_TITLES, TASK_PRIORITIES } from '../utils/variables';
 
 import { onMounted, provide, reactive, ref, computed, watch, markRaw } from 'vue';
 import { doc, onSnapshot } from 'firebase/firestore';
@@ -74,7 +74,7 @@ watch(filterTask, (newValue) => {
 });
 
 const loadTopicTasks = (topicId) => {
-    const docRef = doc(props.db, DOC_NAME, user.uid);
+    const docRef = doc(props.db, PRINCIPAL_DOC_NAME, user.uid);
 
     onSnapshot(docRef, (doc) => {
         const userData = doc.data();
@@ -108,7 +108,7 @@ const loadTopic = (id) => {
 };
 
 const loadTopics = () => {
-    const docRef = doc(props.db, DOC_NAME, user.uid);
+    const docRef = doc(props.db, PRINCIPAL_DOC_NAME, user.uid);
     loadingStore.showLoader();
 
     onSnapshot(

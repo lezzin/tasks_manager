@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { auth, db } from '../libs/firebase.js';
 import { deleteUser, onAuthStateChanged, signOut } from 'firebase/auth';
-import { DOC_NAME } from '../utils/variables.js';
+import { PRINCIPAL_DOC_NAME } from '../utils/variables.js';
 import { deleteDoc, doc } from 'firebase/firestore';
 
 export const useAuthStore = defineStore('auth', () => {
@@ -25,7 +25,7 @@ export const useAuthStore = defineStore('auth', () => {
     const deleteAccount = async () => {
         if (!user.value || !confirm("Deseja realmente excluir esse usuário?")) return;
 
-        const docRef = doc(db, DOC_NAME, user.value.uid);
+        const docRef = doc(db, PRINCIPAL_DOC_NAME, user.value.uid);
 
         try {
             await deleteDoc(docRef);

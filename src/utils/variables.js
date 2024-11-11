@@ -1,4 +1,6 @@
-const DOC_NAME = "tasks";
+const PRINCIPAL_DOC_NAME = "tasks";
+const AI_USAGE_DOC_NAME = "ai_usage";
+
 const PROJECT_TITLE = "TaskFlow";
 
 const PAGE_TITLES = {
@@ -36,7 +38,8 @@ export {
     TASK_PRIORITIES,
     TOAST_TIMEOUT,
     PAGE_TITLES,
-    DOC_NAME,
+    PRINCIPAL_DOC_NAME,
+    AI_USAGE_DOC_NAME,
     TOPIC_MAX_LENGTH,
     TOPIC_MIN_LENGTH
 };

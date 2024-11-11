@@ -31,7 +31,6 @@ const router = useRouter();
 const props = defineProps(['db']);
 
 const isDownloading = ref(false);
-const showTopicNavBtn = inject('showTopicNavBtn');
 const allUserTasks = ref([]);
 const container = ref(null);
 const priorityCount = reactive({
