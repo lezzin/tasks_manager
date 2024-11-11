@@ -48,7 +48,7 @@ const removeUser = async () => {
     if (!confirm("Deseja realmente excluir esse usuário?")) return;
 
     try {
-        await deleteAccount(auth.currentUser);
+        await deleteAccount();
         router.push("/login");
         isAccountDropdownActive.value = false;
     } catch ({ code, message }) {

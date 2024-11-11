@@ -2,10 +2,18 @@
 import { onMounted } from 'vue';
 import { useLoadingStore } from '../stores/loadingStore.js';
 import ImageResponsive from '../components/shared/ImageResponsive.vue';
+import { useAuthStore } from '../stores/authStore.js';
+import { useSidebarStore } from '../stores/sidebarStore.js';
 
 const loadingStore = useLoadingStore();
+const sidebarStore = useSidebarStore();
+const { user } = useAuthStore();
 
 onMounted(() => {
+    if (!user) {
+        sidebarStore.setShowSidebarToggler(false);
+    }
+
     loadingStore.hideLoader();
 })
 </script>

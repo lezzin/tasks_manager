@@ -23,8 +23,6 @@ export const useAuthStore = defineStore('auth', () => {
     };
 
     const deleteAccount = async () => {
-        if (!user.value || !confirm("Deseja realmente excluir esse usuário?")) return;
-
         const docRef = doc(db, PRINCIPAL_DOC_NAME, user.value.uid);
 
         try {
