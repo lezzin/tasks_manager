@@ -9,11 +9,13 @@ import { storeToRefs } from 'pinia';
 import { useToast } from '../../composables/useToast';
 import { useAuthStore } from '../../stores/authStore';
 import { useSidebarStore } from '../../stores/sidebarStore';
+import { useLoadingStore } from '../../stores/loadingStore';
 
 import UIButton from '../ui/UIButton.vue';
 import UIDropdown from '../ui/UIDropdown.vue';
 
 const authStore = useAuthStore();
+const loadingStore = useLoadingStore();
 const { logout, deleteAccount } = authStore;
 const { user } = storeToRefs(authStore);
 const { showToast } = useToast();
@@ -28,6 +30,8 @@ const toggleAccountDropdown = () => {
 };
 
 const logoutUser = async () => {
+    loadingStore.showLoader();
+
     try {
         await logout(auth);
         router.push("/login");
@@ -41,11 +45,15 @@ const logoutUser = async () => {
         };
 
         showToast("danger", errors[code] ?? `Erro ao sair: ${message}`);
+    } finally {
+        loadingStore.hideLoader();
     }
 };
 
 const removeUser = async () => {
     if (!confirm("Deseja realmente excluir esse usuário?")) return;
+
+    loadingStore.showLoader();
 
     try {
         await deleteAccount();
@@ -60,6 +68,8 @@ const removeUser = async () => {
         };
 
         showToast("danger", errors[code] ?? message);
+    } finally {
+        loadingStore.hideLoader();
     }
 };
 </script>
