@@ -9,6 +9,7 @@ import { useToast } from '../composables/useToast.js';
 import { useTask } from '../composables/useTask.js';
 import { useAuthStore } from '../stores/authStore.js';
 import { useLoadingStore } from '../stores/loadingStore.js';
+import { useSidebarStore } from '../stores/sidebarStore.js';
 
 import ImageResponsive from '../components/shared/ImageResponsive.vue';
 import { useTopic } from '../composables/useTopic.js';
@@ -30,6 +31,7 @@ const { getUserTasks, changeKanbanStatus } = useTask();
 const { getTopicInfo } = useTopic();
 const { user } = useAuthStore();
 const loadingStore = useLoadingStore();
+const sidebarStore = useSidebarStore();
 const router = useRouter();
 
 const loadTasks = async () => {
@@ -141,7 +143,7 @@ const getStatusLabel = (status) => {
 
 onMounted(() => {
     document.title = PAGE_TITLES.kanban;
-    inject('showTopicNavBtn').value = false;
+    sidebarStore.setShowSidebarToggler(false);
     loadTasks();
 });
 </script>

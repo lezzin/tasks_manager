@@ -1,7 +1,8 @@
 <script setup>
 import { useLoadingStore } from '../stores/loadingStore';
+import { useSidebarStore } from '../stores/sidebarStore';
 
-import { inject, onMounted, ref } from 'vue';
+import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 import PomodoroTimer from '../components/pomodoro/PomodoroTimer.vue';
@@ -9,6 +10,7 @@ import PomodoroInformation from '../components/pomodoro/PomodoroInformation.vue'
 import UIButton from '../components/ui/UIButton.vue';
 
 const loadingStore = useLoadingStore();
+const sidebarStore = useSidebarStore();
 const router = useRouter();
 
 const goToHelp = () => {
@@ -19,7 +21,7 @@ const goToHelp = () => {
 }
 
 onMounted(() => {
-    inject('showTopicNavBtn').value = false;
+    sidebarStore.setShowSidebarToggler(false);
     loadingStore.hideLoader();
 });
 </script>

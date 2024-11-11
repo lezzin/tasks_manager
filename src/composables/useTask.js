@@ -44,6 +44,11 @@ const getUserTasks = async (userId) => {
     }
 };
 
+const getUserTasksByTopic = async (topicId, userId) => {
+    const tasks = await getUserTasks(userId);
+    return Object.values(tasks).filter(task => task.topicId === topicId)
+};
+
 const updateTasks = async (userId, tasks) => {
     const docRef = doc(db, DOC_NAME, userId);
     await updateDoc(docRef, { tasks });
@@ -129,5 +134,6 @@ export const useTask = () => {
         deleteTask,
         addTask,
         editTask,
+        getUserTasksByTopic
     };
 };

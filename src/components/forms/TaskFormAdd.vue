@@ -24,13 +24,15 @@ const emit = defineEmits(["close"]);
 const { user } = useAuthStore();
 const { suggestTask, getUsageCount } = useGemini();
 const { showToast } = useToast();
-const { addTask, getUserTasks } = useTask();
+const { addTask, getUserTasksByTopic } = useTask();
 
 const filterTask = inject("filterTask");
 const searchTask = inject("searchTask");
 
-const suggestedTask = reactive({ data: null });
-const usageRemaining = ref(null);
+const geminiSuggestedTask = reactive({
+    data: null,
+    usageRemaining: null
+});
 const isGeminiDropdownActive = ref(false);
 const isRequestingGemini = ref(false);
 
@@ -83,9 +85,7 @@ const requestSuggestion = async () => {
     taskNameError.value = "";
 
     try {
-        const allTasks = await getUserTasks(user.uid);
-        const selectedTopicTasks = Object.values(allTasks).filter(task => task.topicId === props.topicId);
-
+        const selectedTopicTasks = await getUserTasksByTopic(props.topicId, user.uid);
         const suggestionResponse = await suggestTask(selectedTopicTasks, user.uid);
 
         if (suggestionResponse.error) {
@@ -93,10 +93,10 @@ const requestSuggestion = async () => {
             return;
         }
 
-        usageRemaining.value = await getUsageCount(user.uid);
-        suggestedTask.data = suggestionResponse;
-        taskName.value = suggestedTask.data.task;
-        taskComment.value = suggestedTask.data.details;
+        geminiSuggestedTask.usageRemaining = await getUsageCount(user.uid);
+        geminiSuggestedTask.data = suggestionResponse;
+        taskName.value = geminiSuggestedTask.data.task;
+        taskComment.value = geminiSuggestedTask.data.details;
     } catch (error) {
         console.error(error);
         showToast("danger", `Erro ao obter sugestão de tarefa.`);
@@ -106,7 +106,7 @@ const requestSuggestion = async () => {
 };
 
 onMounted(async () => {
-    usageRemaining.value = await getUsageCount(user.uid);
+    geminiSuggestedTask.usageRemaining = await getUsageCount(user.uid);
 });
 
 const addSubtaskToTaskName = (subtask) => {
@@ -126,12 +126,15 @@ watch(taskDate, () => (taskDateError.value = ""));
                         v-model:modelValue="taskName" :errorMessage="taskNameError" enableVoiceRecognition
                         inputId="add-task-name" @update="updateTaskName" />
 
-                    <UIButton v-if="!suggestedTask.data" variant="outline-primary-smallest" @click="requestSuggestion"
-                        :disabled="isRequestingGemini" title="Pedir uma sugestão">
+                    <UIButton v-if="!geminiSuggestedTask.data" variant="outline-primary-smallest"
+                        @click="requestSuggestion"
+                        :disabled="(geminiSuggestedTask.usageRemaining && geminiSuggestedTask.usageRemaining === 0) || isRequestingGemini"
+                        title="Pedir uma sugestão">
                         <img src="/src/assets/img/gemini-logo.png" width="18" height="18" alt="Logo do Gemini" />
                         <span>
-                            {{ isRequestingGemini ? "Criando sugestão..." : `Pedir sugestão à IA ${usageRemaining ?
-                                `(${usageRemaining} restantes)` : ''}` }}
+                            {{ isRequestingGemini ? "Criando sugestão..." : `Pedir sugestão à IA
+                            ${geminiSuggestedTask.usageRemaining ?
+                                    `(${geminiSuggestedTask.usageRemaining} restantes)` : ''}` }}
                         </span>
                     </UIButton>
 
@@ -150,21 +153,23 @@ watch(taskDate, () => (taskDateError.value = ""));
                         <template #menu>
                             <div class="gemini__feedback text text--small">
                                 <div class="feedback">
-                                    <p class="text text--small" v-if="usageRemaining">
-                                        Você tem <span class="text--bold">{{ usageRemaining }}</span> usos restantes.
+                                    <p class="text text--small" v-if="geminiSuggestedTask.usageRemaining">
+                                        Você tem <span class="text--bold">{{ geminiSuggestedTask.usageRemaining
+                                            }}</span> usos restantes.
                                     </p>
                                 </div>
 
                                 <div class="feedback">
                                     <h4>Justificativa: </h4>
-                                    <p class="text text--small">{{ suggestedTask.data.justification }}</p>
+                                    <p class="text text--small">{{ geminiSuggestedTask.data.justification }}</p>
                                 </div>
 
-                                <div v-if="suggestedTask.data?.subtasks?.length > 0" class="feedback">
+                                <div v-if="geminiSuggestedTask.data?.subtasks?.length > 0" class="feedback">
                                     <h4>Subtarefas sugeridas: </h4>
                                     <div class="gemini__suggestions">
-                                        <button type="button" v-for="(subtask, index) in suggestedTask.data.subtasks"
-                                            :key="index" @click="addSubtaskToTaskName(subtask)">
+                                        <button type="button"
+                                            v-for="(subtask, index) in geminiSuggestedTask.data.subtasks" :key="index"
+                                            @click="addSubtaskToTaskName(subtask)">
                                             {{ subtask }}
                                         </button>
                                     </div>

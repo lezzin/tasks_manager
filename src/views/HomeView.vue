@@ -1,12 +1,13 @@
 <script setup>
 import { DOC_NAME, PAGE_TITLES, TASK_PRIORITIES } from '../utils/variables';
 
-import { inject, onMounted, provide, reactive, ref, computed, watch, markRaw } from 'vue';
+import { onMounted, provide, reactive, ref, computed, watch, markRaw } from 'vue';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { useRoute, useRouter } from 'vue-router';
 
 import { useAuthStore } from '../stores/authStore';
 import { useLoadingStore } from '../stores/loadingStore';
+import { useSidebarStore } from '../stores/sidebarStore';
 import { useModal } from '../composables/useModal';
 import { useToast } from '../composables/useToast';
 
@@ -24,8 +25,6 @@ const props = defineProps({
     }
 });
 
-const isMenuTopicsActive = inject('isMenuTopicsActive');
-
 const selectedTopic = ref(null);
 const defaultTasks = ref([]);
 
@@ -33,6 +32,7 @@ const modal = useModal();
 const { showToast } = useToast();
 const { user } = useAuthStore();
 const loadingStore = useLoadingStore();
+const sidebarStore = useSidebarStore();
 
 const topics = reactive({ data: [] });
 const route = useRoute();
@@ -118,8 +118,8 @@ const loadTopics = () => {
             const topicsExists = userData && userData.topics && Object.keys(userData.topics).length > 0;
 
             if (!topicsExists) {
+                sidebarStore.setSidebarActive(true);
                 topics.data = null;
-                isMenuTopicsActive.value = true;
                 return;
             }
 
@@ -151,17 +151,13 @@ const loadTopics = () => {
     loadingStore.hideLoader();
 };
 
-const closeTopicsMenu = () => {
-    isMenuTopicsActive.value = false;
-}
-
 const openAddTaskModal = () => {
     modal.component.value = markRaw(TaskFormAdd);
     modal.showModal();
 }
 
 onMounted(() => {
-    inject('showTopicNavBtn').value = true;
+    sidebarStore.setShowSidebarToggler(true);
     loadTopics();
 });
 
@@ -169,9 +165,9 @@ watch(() => route.params.id, (newId) => {
     loadTopic(newId);
 });
 
-provide("selectedTopic", selectedTopic);
-provide("searchTask", searchTask);
 provide("filterTask", filterTask);
+provide("searchTask", searchTask);
+provide("selectedTopic", selectedTopic);
 </script>
 
 <template>
@@ -249,10 +245,10 @@ provide("filterTask", filterTask);
     </Teleport>
 
     <Transition name="slide">
-        <nav class="home-aside" aria-label="Navegação de tópicos" v-if="isMenuTopicsActive">
+        <nav class="home-aside" aria-label="Navegação de tópicos" v-if="sidebarStore.isTopicSidebarActive">
             <TopicFormAdd />
             <span class="divider" role="separator" aria-hidden="true"></span>
-            <TopicNavigation :data="topics.data" @close="closeTopicsMenu" />
+            <TopicNavigation :data="topics.data" @close="sidebarStore.closeSidebar" />
         </nav>
     </Transition>
 </template>

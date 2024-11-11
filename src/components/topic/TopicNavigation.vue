@@ -1,8 +1,4 @@
 <script setup>
-import { DOC_NAME } from '../../utils/variables';
-import { db } from '../../libs/firebase';
-
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { RouterLink, useRouter } from 'vue-router';
 import { inject, markRaw, ref } from 'vue';
 
@@ -68,7 +64,6 @@ const handleDeleteAllTopics = async () => {
         showToast("danger", "Erro ao excluir tarefa.");
     };
 }
-
 </script>
 
 <template>

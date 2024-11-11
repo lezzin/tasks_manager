@@ -1,15 +1,20 @@
 import { defineStore } from 'pinia';
+import { ref } from 'vue';
 
-export const useLoadingStore = defineStore('app', {
-    state: () => ({
-        isLoading: true
-    }),
-    actions: {
-        showLoader() {
-            this.isLoading = true;
-        },
-        hideLoader() {
-            this.isLoading = false;
-        }
+export const useLoadingStore = defineStore('loading', () => {
+    const isLoading = ref(true);
+
+    const showLoader = () => {
+        isLoading.value = true;
+    }
+
+    const hideLoader = () => {
+        isLoading.value = false;
+    }
+
+    return {
+        isLoading,
+        showLoader,
+        hideLoader
     }
 });

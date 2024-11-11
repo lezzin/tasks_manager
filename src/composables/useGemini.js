@@ -7,9 +7,16 @@ const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 const usageLimit = 10;
 
+const sanitizeJSON = (response) => {
+    const jsonStart = response.indexOf('{');
+    const jsonEnd = response.lastIndexOf('}');
+    return jsonStart >= 0 && jsonEnd >= 0 ? response.slice(jsonStart, jsonEnd + 1) : response;
+};
+
 const parseResponse = (response) => {
     try {
-        return JSON.parse(response.replace(/```json|```/g, ''));
+        const sanitizedResponse = sanitizeJSON(response.replace(/```json|```/g, ''));
+        return JSON.parse(sanitizedResponse);
     } catch (error) {
         console.error("Erro ao parsear a resposta:", error);
         return { error: "Erro ao processar a resposta da IA" };

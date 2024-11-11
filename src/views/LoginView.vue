@@ -1,13 +1,14 @@
 <script setup>
 import { PAGE_TITLES } from '../utils/variables.js';
 
-import { ref, watchEffect, onMounted, inject } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { ref, watchEffect, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { signInWithPopup } from 'firebase/auth';
 
 import { useToast } from '../composables/useToast.js';
 import { useAuthStore } from '../stores/authStore.js';
 import { useLoadingStore } from '../stores/loadingStore.js';
+import { useSidebarStore } from '../stores/sidebarStore.js';
 
 import ImageResponsive from '../components/shared/ImageResponsive.vue';
 import UIButton from '../components/ui/UIButton.vue';
@@ -19,7 +20,7 @@ const { user } = useAuthStore();
 const loadingStore = useLoadingStore();
 
 const router = useRouter();
-const route = useRoute();
+const { setShowSidebarToggler } = useSidebarStore();
 
 const loading = ref(false);
 
@@ -54,7 +55,7 @@ onMounted(() => {
     }
 
     document.title = PAGE_TITLES.login;
-    inject('showTopicNavBtn').value = false;
+    setShowSidebarToggler(false);
     loadingStore.hideLoader();
 });
 

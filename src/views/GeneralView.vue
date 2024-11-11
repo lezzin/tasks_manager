@@ -14,6 +14,7 @@ import { useToast } from '../composables/useToast.js';
 import { useTask } from '../composables/useTask.js';
 import { useAuthStore } from '../stores/authStore.js';
 import { useLoadingStore } from '../stores/loadingStore.js';
+import { useSidebarStore } from '../stores/sidebarStore.js';
 
 import ImageResponsive from '../components/shared/ImageResponsive.vue';
 import { useTopic } from '../composables/useTopic.js';
@@ -23,6 +24,7 @@ const { showToast } = useToast();
 const { getUserTasks } = useTask();
 const { getTopicInfo } = useTopic();
 const { user } = useAuthStore();
+const sidebarStore = useSidebarStore();
 const loadingStore = useLoadingStore();
 const router = useRouter();
 
@@ -101,7 +103,7 @@ const loadTasks = async () => {
 
 onMounted(() => {
     document.title = PAGE_TITLES.general;
-    showTopicNavBtn.value = false;
+    sidebarStore.setShowSidebarToggler(false);
     loadTasks();
 });
 </script>

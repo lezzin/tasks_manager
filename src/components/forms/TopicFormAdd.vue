@@ -1,14 +1,16 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, watchEffect } from 'vue';
 
 import { useToast } from '../../composables/useToast';
 import { useTopic } from '../../composables/useTopic';
 import { useAuthStore } from '../../stores/authStore';
 import UIButton from '../ui/UIButton.vue';
+import { useSidebarStore } from '../../stores/sidebarStore';
 
 const nameError = ref("");
 const name = ref("");
 
+const sidebarStore = useSidebarStore();
 const { user } = useAuthStore();
 const { addTopic } = useTopic();
 const { showToast } = useToast();
@@ -29,6 +31,13 @@ const handleAddTopic = async () => {
 };
 
 watch(name, () => (nameError.value = ""));
+
+watchEffect(() => {
+    if (!sidebarStore.isTopicSidebarActive) {
+        nameError.value = "";
+        name.value = "";
+    }
+});
 </script>
 
 <template>

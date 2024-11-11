@@ -8,7 +8,7 @@ import { marked } from 'marked';
 import { inject, markRaw, ref } from 'vue';
 
 import TaskFormEdit from '../forms/TaskFormEdit.vue';
-import CommentModal from '../modals/CommentModal.vue';
+import CommentModal from './CommentModal.vue';
 import TaskItem from './TaskItem.vue';
 
 const { user } = useAuthStore();
