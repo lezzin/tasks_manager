@@ -1,4 +1,4 @@
-const PRINCIPAL_DOC_NAME = "tasks";
+const PRINCIPAL_DOC_NAME = "users";
 const AI_USAGE_DOC_NAME = "ai_usage";
 
 const PROJECT_TITLE = "TaskFlow";
