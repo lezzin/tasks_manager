@@ -26,7 +26,7 @@ const TOAST_ICONS = {
 
 const title = computed(() => TOAST_TITLES[props.data.type]);
 const iconClass = computed(() => TOAST_ICONS[props.data.type]);
-const toastClass = computed(() => `toast ${props.data.show && 'toast--active'} toast--${props.data.type}`);
+const toastClass = computed(() => `toast toast--${props.data.type}`);
 
 let timeoutId;
 
@@ -42,22 +42,25 @@ function closeToast() {
 </script>
 
 <template>
-    <div :class="toastClass" role="alert" aria-live="assertive" aria-atomic="true" tabindex="0">
-        <div class="toast__banner" aria-hidden="true"></div>
-        <div class="toast__content">
-            <div class="toast__icon">
-                <fa :icon="iconClass" />
-            </div>
-            <div>
-                <p class="toast__title">{{ title }}</p>
-                <p class="toast__text">{{ props.data.text }}</p>
-            </div>
+    <Transition name="toast">
+        <div :class="toastClass" role="alert" aria-live="assertive" aria-atomic="true" tabindex="0"
+            v-if="props.data.show">
+            <div class="toast__banner" aria-hidden="true"></div>
+            <div class="toast__content">
+                <div class="toast__icon">
+                    <fa :icon="iconClass" />
+                </div>
+                <div>
+                    <p class="toast__title">{{ title }}</p>
+                    <p class="toast__text">{{ props.data.text }}</p>
+                </div>
 
-            <UIButton @click="closeToast" title="Fechar mensagem">
-                <fa icon="times" />
-            </UIButton>
+                <UIButton @click="closeToast" title="Fechar mensagem">
+                    <fa icon="times" />
+                </UIButton>
+            </div>
         </div>
-    </div>
+    </Transition>
 </template>
 
 <style scoped>
@@ -66,7 +69,7 @@ function closeToast() {
 
     position: absolute;
     top: 2rem;
-    right: 0;
+    right: 2rem;
     display: grid;
     grid-template-columns: 1.5rem 1fr;
     border: 1px solid var(--border-color);
@@ -74,72 +77,66 @@ function closeToast() {
     background-color: var(--bg-primary);
     border-radius: var(--radius);
     overflow: hidden;
-    opacity: 0;
-    transform: translateX(10%);
-    pointer-events: none;
     transition: all var(--screen-transition) ease-in-out;
     z-index: 999;
+}
 
-    &.toast--active {
-        transform: translateX(0);
-        opacity: 1;
-        pointer-events: all;
-    }
+.toast--warning {
+    --__toast-bg: var(--warning-color);
+}
 
-    &.toast--warning {
-        --__toast-bg: var(--warning-color);
-    }
+.toast--success {
+    --__toast-bg: var(--details-color);
+}
 
-    &.toast--success {
-        --__toast-bg: var(--details-color);
-    }
+.toast--danger {
+    --__toast-bg: var(--danger-color);
+}
 
-    &.toast--danger {
-        --__toast-bg: var(--danger-color);
-    }
+.toast__banner,
+.toast__icon {
+    background: var(--__toast-bg);
+}
 
-    .toast__banner,
-    .toast__icon {
-        background: var(--__toast-bg);
-    }
+.toast__icon {
+    font-size: 1.6rem;
+}
 
-    .toast__icon {
-        font-size: 1.6rem;
-    }
+.toast__content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+    padding: 1rem 1.5rem;
+}
 
-    .toast__content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 2rem;
-        padding: 1rem 1.5rem;
+.toast__icon {
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    color: var(--bg-primary);
+}
 
-        .toast__icon {
-            display: grid;
-            place-items: center;
-            width: 2.4rem;
-            aspect-ratio: 1;
-            border-radius: 50%;
-            color: var(--bg-primary);
-        }
+.toast__title {
+    font-size: 1.6rem;
+    font-weight: 600;
+}
 
-        .toast__title {
-            font-size: 1.6rem;
-            font-weight: 600;
-        }
+.toast__text {
+    font-size: 1.4rem;
+}
 
-        .toast__text {
-            font-size: 1.4rem;
-        }
+.toast-enter-active,
+.toast-leave-active {
+    transition: all var(--screen-transition) ease;
+}
 
-        .btn {
-            align-self: flex-start;
-            margin-left: 1rem;
-
-            i {
-                font-size: 1.4rem;
-            }
-        }
-    }
+.toast-enter-from,
+.toast-leave-to {
+    opacity: 0;
+    transform: translateX(1rem);
+    pointer-events: none;
 }
 </style>

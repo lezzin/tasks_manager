@@ -124,13 +124,16 @@ const removeUser = async () => {
                 </template>
             </UIDropdown>
 
-            <ToastFeedback :data="toast" @close="closeToast" />
         </div>
     </header>
 
     <main>
         <RouterView></RouterView>
     </main>
+
+    <Teleport to="#toast">
+        <ToastFeedback :data="toast" @close="closeToast" />
+    </Teleport>
 </template>
 
 <style>
