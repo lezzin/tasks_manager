@@ -144,11 +144,6 @@ body {
     height: 1px;
 }
 
-.toast .btn i,
-.modal .btn i {
-    font-size: 1.8rem;
-}
-
 .container {
     max-width: 1080px;
     width: calc(100% - var(--padding));
