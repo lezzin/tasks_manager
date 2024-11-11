@@ -26,15 +26,24 @@ const buildTaskDetails = (tasks) =>
     )).join("\n");
 
 const createPrompt = (taskDetails) => `
-Dada a lista de tarefas anteriores abaixo, sugira uma nova tarefa relacionada que seja relevante para o contexto atual. 
-A sugestão deve considerar o tópico, status e prioridade das tarefas anteriores. 
-Responda no formato JSON com os seguintes campos:
-- "task": Nome da nova tarefa sugerida
-- "subtasks": Lista de tarefas relacionadas
-- "justification": Justificativa breve
-- "details": Detalhes da tarefa (Markdown)
+Com base na lista de tarefas anteriores abaixo, sugira uma nova tarefa que seja relevante para o contexto atual. Considere o tópico, status, nome e prioridade das tarefas ao fazer a sugestão. 
+O resultado deve ser um JSON estruturado com os campos especificados, e cada campo deve conter informações detalhadas e relevantes.
 
-Tarefas anteriores:
+Responda no formato JSON com os seguintes campos:
+- "task": Nome claro e direto da nova tarefa sugerida
+- "subtasks": Uma lista de no máximo três subtarefas alternativas relacionadas à tarefa principal
+- "justification": Justificativa objetiva de por que esta tarefa foi sugerida, baseada nas tarefas e padrões anteriores
+- "details": Descrição detalhada da tarefa em Markdown, incluindo subtarefas, se aplicável, ou links úteis caso existam
+
+Exemplo de resposta JSON:
+{
+    "task": "Organizar Reunião de Equipe",
+    "subtasks": ["Agendar horário", "Convidar participantes", "Preparar agenda"],
+    "justification": "Com base nas tarefas anteriores relacionadas ao planejamento de eventos, sugerimos organizar uma reunião de equipe para alinhar o andamento dos projetos."
+    "details": "Conversar com cada um dos participantes através do Whatsapp e enviar o link de convite (https://link.com)"
+}
+
+Abaixo está a lista das tarefas anteriores para contexto:
 ${taskDetails}`;
 
 const getUsageCount = async (uid) => {
@@ -65,6 +74,10 @@ const checkUsageLimit = async (uid) => {
 };
 
 const suggestTask = async (tasks, userId) => {
+    if (tasks.length < 2) {
+        return { error: "Insira ao menos 2 tarefas." };
+    }
+
     try {
         await checkUsageLimit(userId);
 
