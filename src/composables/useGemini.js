@@ -18,8 +18,8 @@ const sanitizeJSON = (response) => {
 
 const parseResponse = (response) => {
     try {
-        const sanitizedResponse = sanitizeJSON(response.replace(/```json|```/g, ''));
-        return JSON.parse(sanitizedResponse);
+        const sanitizedResponse = JSON.parse(sanitizeJSON(response.replace(/```json|```/g, '')));
+        return sanitizedResponse;
     } catch (error) {
         console.error("Erro ao parsear a resposta:", error);
         return { error: "Erro ao processar a resposta. Tente novamente." };
