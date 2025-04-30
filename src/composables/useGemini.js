@@ -11,14 +11,14 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 const USAGE_LIMIT = 10;
 
 const sanitizeJSON = (response) => {
-    const jsonStart = response.indexOf('{');
-    const jsonEnd = response.lastIndexOf('}');
+    const jsonStart = response.indexOf("{");
+    const jsonEnd = response.lastIndexOf("}");
     return jsonStart >= 0 && jsonEnd >= 0 ? response.slice(jsonStart, jsonEnd + 1) : response;
 };
 
 const parseResponse = (response) => {
     try {
-        const sanitizedResponse = JSON.parse(sanitizeJSON(response.replace(/```json|```/g, '')));
+        const sanitizedResponse = JSON.parse(sanitizeJSON(response.replace(/```json|```/g, "")));
         return sanitizedResponse;
     } catch (error) {
         console.error("Erro ao parsear a resposta:", error);
@@ -27,16 +27,19 @@ const parseResponse = (response) => {
 };
 
 const buildTaskDetails = (tasks) =>
-    tasks.map(({ name, created_at, topicName, status, priority }, index) => (
-        `Tarefa ${index + 1}: ${name} 
+    tasks
+        .map(
+            ({ name, created_at, topicName, status, priority }, index) =>
+                `Tarefa ${index + 1}: ${name}
         Criada em: ${created_at}
         Tópico: ${topicName ?? "Não especificado"}
         Status: ${status ? "Concluída" : "Não concluída"}
         Prioridade: ${getPriorityText(priority)}\n`
-    )).join("\n");
+        )
+        .join("\n");
 
 const createPrompt = (taskDetails) => `
-Com base na lista de tarefas anteriores abaixo, sugira uma nova tarefa que seja relevante para o contexto atual. Considere o tópico, status, nome e prioridade das tarefas ao fazer a sugestão. 
+Com base na lista de tarefas anteriores abaixo, sugira uma nova tarefa que seja relevante para o contexto atual. Considere o tópico, status, nome e prioridade das tarefas ao fazer a sugestão.
 O resultado deve ser um JSON estruturado com os campos especificados, e cada campo deve conter informações detalhadas e relevantes.
 
 Responda no formato JSON com os seguintes campos:
@@ -61,12 +64,12 @@ const getUsageCount = async (uid) => {
     const userDoc = await getDoc(userDocRef);
 
     if (!userDoc.exists()) {
-        await setDoc(userDocRef, { count: 0, lastUsed: new Date().toISOString().split('T')[0] });
+        await setDoc(userDocRef, { count: 0, lastUsed: new Date().toISOString().split("T")[0] });
         return USAGE_LIMIT;
     }
 
     const { count, lastUsed } = userDoc.data();
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split("T")[0];
 
     if (lastUsed !== today) {
         await setDoc(userDocRef, { count: 0, lastUsed: today });
@@ -106,6 +109,5 @@ const suggestTask = async (tasks, userId) => {
         return { error: error.message };
     }
 };
-
 
 export const useGemini = () => ({ suggestTask, getUsageCount });

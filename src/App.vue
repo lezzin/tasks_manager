@@ -1,11 +1,11 @@
 <script setup>
-import { RouterView } from 'vue-router';
+import { RouterView } from "vue-router";
 
-import { useToast } from './composables/useToast';
+import { useToast } from "./composables/useToast";
 
-import LoaderContainer from './components/shared/LoaderContainer.vue';
-import ToastFeedback from './components/shared/ToastFeedback.vue';
-import MyHeader from './components/layout/MyHeader.vue';
+import LoaderContainer from "./components/shared/LoaderContainer.vue";
+import ToastFeedback from "./components/shared/ToastFeedback.vue";
+import MyHeader from "./components/layout/MyHeader.vue";
 
 const { toast, closeToast } = useToast();
 </script>
@@ -28,7 +28,7 @@ const { toast, closeToast } = useToast();
 .btn.account {
     display: flex;
     align-items: center;
-    gap: .5rem;
+    gap: 0.5rem;
     padding: 0.3rem 0.3rem 0.3rem 1rem;
     cursor: pointer;
     background-color: var(--bg-secondary);
@@ -41,7 +41,7 @@ const { toast, closeToast } = useToast();
         }
     }
 
-    @media(width <=768px) {
+    @media (width <=768px) {
         .account__details {
             display: none;
         }

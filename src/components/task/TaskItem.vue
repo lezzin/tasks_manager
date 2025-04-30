@@ -1,9 +1,9 @@
 <script setup>
-import { getPriorityClass, getPriorityIcon, getPriorityText } from '../../utils/priorityUtils';
-import { formatDate } from '../../utils/dateUtils';
+import { getPriorityClass, getPriorityIcon, getPriorityText } from "../../utils/priorityUtils";
+import { formatDate } from "../../utils/dateUtils";
 
-import UIButton from '../ui/UIButton.vue';
-import { useAttrs } from 'vue';
+import UIButton from "../ui/UIButton.vue";
+import { useAttrs } from "vue";
 
 const emit = defineEmits(["changeStatus", "openComment", "edit", "delete"]);
 
@@ -12,32 +12,32 @@ const attrs = useAttrs();
 const props = defineProps({
     task: {
         type: Object,
-        default: null
+        default: null,
     },
     showPriorities: {
         type: Boolean,
-        default: true
+        default: true,
     },
     showEdit: {
         type: Boolean,
-        default: true
+        default: true,
     },
     showDelete: {
         type: Boolean,
-        default: true
+        default: true,
     },
     showComments: {
         type: Boolean,
-        default: true
+        default: true,
     },
     showCompletedStatus: {
         type: Boolean,
-        default: true
+        default: true,
     },
     variant: {
         type: String,
-        default: "normal"
-    }
+        default: "normal",
+    },
 });
 
 const changeTaskStatus = (task) => emit("changeStatus", task);
@@ -47,7 +47,10 @@ const deleteTask = (task) => emit("delete", task);
 </script>
 
 <template>
-    <div :class="['task', props.variant, { 'completed': task.status && showCompletedStatus }]" v-bind="attrs">
+    <div
+        :class="['task', props.variant, { completed: task.status && showCompletedStatus }]"
+        v-bind="attrs"
+    >
         <div class="task__information">
             <p :class="`text-${props.variant} truncate`" style="--line-clamp: 1">
                 {{ props.task.name }}
@@ -62,28 +65,50 @@ const deleteTask = (task) => emit("delete", task);
                     <fa icon="clock" />
                     Criado em: {{ props.task.created_at }}
                 </span>
-                <span class="text text--icon text--small text--muted" v-if="props.task.delivery_date">
+                <span
+                    class="text text--icon text--small text--muted"
+                    v-if="props.task.delivery_date"
+                >
                     <fa icon="bell" />
                     Entrega para: {{ formatDate(props.task.delivery_date) }}
                 </span>
             </p>
         </div>
         <div class="task__action">
-            <UIButton :variant="props.task.status ? 'primary' : 'outline-primary'" isRounded
+            <UIButton
+                :variant="props.task.status ? 'primary' : 'outline-primary'"
+                isRounded
                 :title="`Marcar tarefa como ${props.task.status ? 'não concluída' : 'concluída'}`"
-                @click.stop="changeTaskStatus(props.task)">
+                @click.stop="changeTaskStatus(props.task)"
+            >
                 <fa icon="check" />
             </UIButton>
-            <UIButton isBordered isRounded title="Visualizar comentários da tarefa"
-                @click.stop="openTaskComment(props.task.comment)" v-if="props.showComments && props.task.comment">
+            <UIButton
+                isBordered
+                isRounded
+                title="Visualizar comentários da tarefa"
+                @click.stop="openTaskComment(props.task.comment)"
+                v-if="props.showComments && props.task.comment"
+            >
                 <fa icon="comment" />
             </UIButton>
-            <UIButton isBordered isRounded title="Editar tarefa" @click.stop="openEditTaskModal(props.task)"
-                aria-label="Editar tarefa" v-if="props.showEdit">
+            <UIButton
+                isBordered
+                isRounded
+                title="Editar tarefa"
+                @click.stop="openEditTaskModal(props.task)"
+                aria-label="Editar tarefa"
+                v-if="props.showEdit"
+            >
                 <fa icon="pen" />
             </UIButton>
-            <UIButton variant="danger" isRounded title="Excluir tarefa" @click="deleteTask(props.task)"
-                v-if="props.showDelete">
+            <UIButton
+                variant="danger"
+                isRounded
+                title="Excluir tarefa"
+                @click="deleteTask(props.task)"
+                v-if="props.showDelete"
+            >
                 <fa icon="trash" />
             </UIButton>
         </div>

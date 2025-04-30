@@ -1,18 +1,18 @@
 <script setup>
-import { TASK_PRIORITIES } from '../../utils/variables';
+import { TASK_PRIORITIES } from "../../utils/variables";
 
-import { computed, inject, onMounted, reactive, ref, watch } from 'vue';
+import { computed, inject, onMounted, reactive, ref, watch } from "vue";
 
-import { useGemini } from '../../composables/useGemini';
-import { useToast } from '../../composables/useToast';
-import { useTask } from '../../composables/useTask';
-import { useAuthStore } from '../../stores/authStore';
+import { useGemini } from "../../composables/useGemini";
+import { useToast } from "../../composables/useToast";
+import { useTask } from "../../composables/useTask";
+import { useAuthStore } from "../../stores/authStore";
 
-import UIButton from '../ui/UIButton.vue';
-import InputRecognition from '../utilities/InputRecognition.vue';
-import MarkdownEditor from '../utilities/MarkdownEditor.vue';
-import UIDropdown from '../ui/UIDropdown.vue';
-import UIModal from '../ui/UIModal.vue';
+import UIButton from "../ui/UIButton.vue";
+import InputRecognition from "../utilities/InputRecognition.vue";
+import MarkdownEditor from "../utilities/MarkdownEditor.vue";
+import UIDropdown from "../ui/UIDropdown.vue";
+import UIModal from "../ui/UIModal.vue";
 
 const props = defineProps({
     topicId: {
@@ -33,7 +33,7 @@ const searchTask = inject("searchTask");
 
 const geminiSuggestedTask = reactive({
     data: null,
-    usageRemaining: null
+    usageRemaining: null,
 });
 const isGeminiDropdownActive = ref(false);
 const isRequestingGemini = ref(false);
@@ -66,7 +66,14 @@ const updateTaskComment = (value) => {
 
 const handleAddTask = async () => {
     try {
-        await addTask(props.topicId, taskName.value, taskComment.value, taskPriority.value, taskDate.value, user.uid);
+        await addTask(
+            props.topicId,
+            taskName.value,
+            taskComment.value,
+            taskPriority.value,
+            taskDate.value,
+            user.uid
+        );
         closeAddingTask();
         showToast("success", "Tarefa adicionada com sucesso.");
     } catch (error) {
@@ -74,7 +81,9 @@ const handleAddTask = async () => {
             "empty-name": () => (taskNameError.value = error.message),
             "invalid-date": () => (taskDateError.value = error.message),
         };
-        errors[error.code] ? errors[error.code]() : showToast("danger", "Erro desconhecido. Tente novamente mais tarde.");
+        errors[error.code]
+            ? errors[error.code]()
+            : showToast("danger", "Erro desconhecido. Tente novamente mais tarde.");
     }
 };
 
@@ -112,17 +121,17 @@ const addSubtaskToTaskName = (subtask) => {
 };
 
 const buttonHtml = computed(() => {
-    const usageCount = (geminiSuggestedTask.usageRemaining > 0) ? `${geminiSuggestedTask.usageRemaining} restantes` : 'limite atingido';
+    const usageCount =
+        geminiSuggestedTask.usageRemaining > 0
+            ? `${geminiSuggestedTask.usageRemaining} restantes`
+            : "limite atingido";
 
-    return isRequestingGemini.value ?
-        "Criando sugestão..." :
-        `Pedir sugestão à IA (${usageCount})`
+    return isRequestingGemini.value ? "Criando sugestão..." : `Pedir sugestão à IA (${usageCount})`;
 });
 
 onMounted(async () => {
     geminiSuggestedTask.usageRemaining = await getUsageCount(user.uid);
 });
-
 
 watch(taskDate, () => (taskDateError.value = ""));
 </script>
@@ -133,26 +142,54 @@ watch(taskDate, () => (taskDateError.value = ""));
         <template #body>
             <form @submit.prevent="handleAddTask" aria-describedby="modal-add-task-title">
                 <div class="add-input">
-                    <InputRecognition label="Nome da tarefa" placeholder="Adicionar tarefa..."
-                        v-model:modelValue="taskName" :errorMessage="taskNameError" enableVoiceRecognition
-                        inputId="add-task-name" @update="updateTaskName" />
+                    <InputRecognition
+                        label="Nome da tarefa"
+                        placeholder="Adicionar tarefa..."
+                        v-model:modelValue="taskName"
+                        :errorMessage="taskNameError"
+                        enableVoiceRecognition
+                        inputId="add-task-name"
+                        @update="updateTaskName"
+                    />
 
-                    <UIButton v-if="!geminiSuggestedTask.data" variant="outline-primary-smallest"
+                    <UIButton
+                        v-if="!geminiSuggestedTask.data"
+                        variant="outline-primary-smallest"
                         @click="requestSuggestion"
                         :disabled="geminiSuggestedTask.usageRemaining === 0 || isRequestingGemini"
-                        title="Pedir uma sugestão">
-                        <img src="/src/assets/img/gemini-logo.png" width="18" height="18" alt="Logo do Gemini" />
+                        title="Pedir uma sugestão"
+                    >
+                        <img
+                            src="/src/assets/img/gemini-logo.png"
+                            width="18"
+                            height="18"
+                            alt="Logo do Gemini"
+                        />
                         <span> {{ buttonHtml }} </span>
                     </UIButton>
 
-                    <UIDropdown v-else :isActive="isGeminiDropdownActive" @trigger="toggleGeminiDropdown">
+                    <UIDropdown
+                        v-else
+                        :isActive="isGeminiDropdownActive"
+                        @trigger="toggleGeminiDropdown"
+                    >
                         <template #trigger="{ trigger }">
-                            <UIButton variant="outline-primary-smallest" @click="trigger"
-                                :title="isGeminiDropdownActive ? 'Esconder' : 'Visualizar'">
-                                <img src="/src/assets/img/gemini-logo.png" width="18" height="18"
-                                    alt="Logo do Gemini" />
+                            <UIButton
+                                variant="outline-primary-smallest"
+                                @click="trigger"
+                                :title="isGeminiDropdownActive ? 'Esconder' : 'Visualizar'"
+                            >
+                                <img
+                                    src="/src/assets/img/gemini-logo.png"
+                                    width="18"
+                                    height="18"
+                                    alt="Logo do Gemini"
+                                />
                                 <span>
-                                    {{ isGeminiDropdownActive ? 'Esconder' : 'Visualizar' }} detalhes da sugestão
+                                    {{
+                                        isGeminiDropdownActive ? "Esconder" : "Visualizar"
+                                    }}
+                                    detalhes da sugestão
                                 </span>
                             </UIButton>
                         </template>
@@ -160,23 +197,38 @@ watch(taskDate, () => (taskDateError.value = ""));
                         <template #menu>
                             <div class="gemini__feedback text text--small">
                                 <div class="feedback">
-                                    <p class="text text--small" v-if="geminiSuggestedTask.usageRemaining">
-                                        Você tem <span class="text--bold">{{ geminiSuggestedTask.usageRemaining
-                                            }}</span> usos restantes.
+                                    <p
+                                        class="text text--small"
+                                        v-if="geminiSuggestedTask.usageRemaining"
+                                    >
+                                        Você tem
+                                        <span class="text--bold">{{
+                                            geminiSuggestedTask.usageRemaining
+                                        }}</span>
+                                        usos restantes.
                                     </p>
                                 </div>
 
                                 <div class="feedback">
-                                    <h4>Justificativa: </h4>
-                                    <p class="text text--small">{{ geminiSuggestedTask.data.justification }}</p>
+                                    <h4>Justificativa:</h4>
+                                    <p class="text text--small">
+                                        {{ geminiSuggestedTask.data.justification }}
+                                    </p>
                                 </div>
 
-                                <div v-if="geminiSuggestedTask.data?.subtasks?.length > 0" class="feedback">
-                                    <h4>Subtarefas sugeridas: </h4>
+                                <div
+                                    v-if="geminiSuggestedTask.data?.subtasks?.length > 0"
+                                    class="feedback"
+                                >
+                                    <h4>Subtarefas sugeridas:</h4>
                                     <div class="gemini__suggestions">
-                                        <button type="button"
-                                            v-for="(subtask, index) in geminiSuggestedTask.data.subtasks" :key="index"
-                                            @click="addSubtaskToTaskName(subtask)">
+                                        <button
+                                            type="button"
+                                            v-for="(subtask, index) in geminiSuggestedTask.data
+                                                .subtasks"
+                                            :key="index"
+                                            @click="addSubtaskToTaskName(subtask)"
+                                        >
                                             {{ subtask }}
                                         </button>
                                     </div>
@@ -188,18 +240,32 @@ watch(taskDate, () => (taskDateError.value = ""));
 
                 <div :class="['form-group', taskDateError ? 'input-error' : '']">
                     <label class="text" for="add-task-date">Data de entrega (opcional)</label>
-                    <input type="date" v-model="taskDate" id="add-task-date" aria-describedby="add-task-date-help" />
-                    <small id="add-task-date-help" class="sr-only">Selecione uma data, se houver.</small>
+                    <input
+                        type="date"
+                        v-model="taskDate"
+                        id="add-task-date"
+                        aria-describedby="add-task-date-help"
+                    />
+                    <small id="add-task-date-help" class="sr-only"
+                        >Selecione uma data, se houver.</small
+                    >
                     <p class="text text--error" v-if="taskDateError">{{ taskDateError }}</p>
                 </div>
 
-                <MarkdownEditor label="Comentários (opcional)" v-model:modelValue="taskComment"
-                    @update="updateTaskComment" />
+                <MarkdownEditor
+                    label="Comentários (opcional)"
+                    v-model:modelValue="taskComment"
+                    @update="updateTaskComment"
+                />
 
                 <div class="form-group">
                     <label class="text" for="edit-task-priority">Prioridade</label>
                     <div class="select">
-                        <select id="edit-task-priority" v-model="taskPriority" aria-label="Selecionar prioridade">
+                        <select
+                            id="edit-task-priority"
+                            v-model="taskPriority"
+                            aria-label="Selecionar prioridade"
+                        >
                             <option value="1">Baixa</option>
                             <option value="2">Média</option>
                             <option value="3">Alta</option>
@@ -207,15 +273,18 @@ watch(taskDate, () => (taskDateError.value = ""));
                     </div>
                 </div>
 
-                <UIButton type="submit" variant="primary" title="Concluir adição da tarefa"
-                    :disabled="isRequestingGemini">
+                <UIButton
+                    type="submit"
+                    variant="primary"
+                    title="Concluir adição da tarefa"
+                    :disabled="isRequestingGemini"
+                >
                     <fa icon="check" /> Adicionar tarefa
                 </UIButton>
             </form>
         </template>
     </UIModal>
 </template>
-
 
 <style scoped>
 .add-input {
@@ -259,7 +328,7 @@ watch(taskDate, () => (taskDateError.value = ""));
 
     button {
         text-align: left;
-        padding: 0.4rem .8rem;
+        padding: 0.4rem 0.8rem;
         padding: 0.5rem;
         border: none;
         cursor: pointer;

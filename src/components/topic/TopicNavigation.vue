@@ -1,17 +1,17 @@
 <script setup>
-import { RouterLink, useRouter } from 'vue-router';
-import { inject, markRaw, ref } from 'vue';
+import { RouterLink, useRouter } from "vue-router";
+import { inject, markRaw, ref } from "vue";
 
-import { useAuthStore } from '../../stores/authStore';
-import { useToast } from '../../composables/useToast';
-import { useModal } from '../../composables/useModal';
+import { useAuthStore } from "../../stores/authStore";
+import { useToast } from "../../composables/useToast";
+import { useModal } from "../../composables/useModal";
 
-import TopicFormEdit from '../forms/TopicFormEdit.vue';
-import UIButton from '../ui/UIButton.vue';
-import { useTopic } from '../../composables/useTopic';
-import CreatorLink from '../shared/CreatorLink.vue';
+import TopicFormEdit from "../forms/TopicFormEdit.vue";
+import UIButton from "../ui/UIButton.vue";
+import { useTopic } from "../../composables/useTopic";
+import CreatorLink from "../shared/CreatorLink.vue";
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(["close"]);
 
 const { user } = useAuthStore();
 const { deleteTopic, deleteAllTopics } = useTopic();
@@ -23,9 +23,9 @@ const props = defineProps({
     data: {
         type: Array,
         default() {
-            return []
-        }
-    }
+            return [];
+        },
+    },
 });
 
 const selectedTopic = inject("selectedTopic");
@@ -38,23 +38,29 @@ const openEditTopicModal = (topicName) => {
     editingTopic.value = topicName;
     modal.component.value = markRaw(TopicFormEdit);
     modal.showModal();
-}
+};
 
 const handleDeleteTopic = async (topicId) => {
-    if (!confirm("Tem certeza que deseja excluir esse tópico? Essa ação não poderá ser desfeita!")) return;
+    if (!confirm("Tem certeza que deseja excluir esse tópico? Essa ação não poderá ser desfeita!"))
+        return;
 
     try {
         await deleteTopic(topicId, user.uid);
         showToast("success", "Tópico excluído com sucesso.");
         selectedTopic.value = null;
-        if (router.currentRoute.value.fullPath !== '/') router.push("/");
+        if (router.currentRoute.value.fullPath !== "/") router.push("/");
     } catch (error) {
         showToast("danger", error?.message ?? "Erro desconhecido. Tente novamente mais tarde.");
-    };
-}
+    }
+};
 
 const handleDeleteAllTopics = async () => {
-    if (!confirm("Tem certeza que deseja excluir TODOS os seus tópicos? Essa ação não poderá ser desfeita!")) return;
+    if (
+        !confirm(
+            "Tem certeza que deseja excluir TODOS os seus tópicos? Essa ação não poderá ser desfeita!"
+        )
+    )
+        return;
 
     try {
         await deleteAllTopics(user.uid);
@@ -63,26 +69,44 @@ const handleDeleteAllTopics = async () => {
     } catch (error) {
         console.error(error);
         showToast("danger", error?.message ?? "Erro desconhecido. Tente novamente mais tarde.");
-    };
-}
+    }
+};
 </script>
 
 <template>
     <div v-if="props.data?.length">
         <h2 class="subtitle">Seus tópicos</h2>
         <div class="topics-nav">
-            <div class="topic" v-for="topic in props.data" :key="topic.id"
-                :class="{ active: selectedTopic && topic.name === selectedTopic.name }">
-                <RouterLink @click="closeTopicsMenu" :to="'/topic/' + topic.id" class="topic__link btn" role="button"
-                    :title="'Acessar tópico ' + topic.name" aria-label="Acessar tópico">
+            <div
+                class="topic"
+                v-for="topic in props.data"
+                :key="topic.id"
+                :class="{ active: selectedTopic && topic.name === selectedTopic.name }"
+            >
+                <RouterLink
+                    @click="closeTopicsMenu"
+                    :to="'/topic/' + topic.id"
+                    class="topic__link btn"
+                    role="button"
+                    :title="'Acessar tópico ' + topic.name"
+                    aria-label="Acessar tópico"
+                >
                     <p class="text text--bold">{{ topic.name }}</p>
                     <p class="text text--small text--muted">
-                        {{ `${topic.tasks_length} ${topic.tasks_length === 1 ? 'tarefa' : 'tarefas'}` }}
+                        {{
+                            `${topic.tasks_length} ${
+                                topic.tasks_length === 1 ? "tarefa" : "tarefas"
+                            }`
+                        }}
                     </p>
                 </RouterLink>
 
                 <div class="topic__actions">
-                    <UIButton isRounded title="Editar tópico" @click="openEditTopicModal(topic.name)">
+                    <UIButton
+                        isRounded
+                        title="Editar tópico"
+                        @click="openEditTopicModal(topic.name)"
+                    >
                         <fa icon="pen" />
                     </UIButton>
                     <UIButton isRounded title="Excluir tópico" @click="handleDeleteTopic(topic.id)">
@@ -102,17 +126,31 @@ const handleDeleteAllTopics = async () => {
                 Acessar Kanban
             </UIButton>
 
-            <UIButton title="Acessar Pomodoro" isLink to="/pomodoro" variant="outline-primary-small">
+            <UIButton
+                title="Acessar Pomodoro"
+                isLink
+                to="/pomodoro"
+                variant="outline-primary-small"
+            >
                 <fa icon="clock" />
                 Acessar Pomodoro
             </UIButton>
 
-            <UIButton title="Visualização geral" isLink to="/general" variant="outline-primary-small">
+            <UIButton
+                title="Visualização geral"
+                isLink
+                to="/general"
+                variant="outline-primary-small"
+            >
                 <fa icon="eye" />
                 Visão geral das tarefas
             </UIButton>
 
-            <UIButton title="Excluir todos os tópicos" variant="outline-danger-small" @click="handleDeleteAllTopics">
+            <UIButton
+                title="Excluir todos os tópicos"
+                variant="outline-danger-small"
+                @click="handleDeleteAllTopics"
+            >
                 <fa icon="trash" />
                 Excluir todos os tópicos
             </UIButton>
@@ -205,7 +243,7 @@ const handleDeleteAllTopics = async () => {
     margin-bottom: 1rem;
 }
 
-.footer__buttons>* {
+.footer__buttons > * {
     flex: 1;
     width: fit-content;
 }

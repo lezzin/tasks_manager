@@ -1,68 +1,76 @@
 <script setup>
-import { RouterLink } from 'vue-router';
-import { useAttrs } from 'vue';
+import { RouterLink } from "vue-router";
+import { useAttrs } from "vue";
 
 const props = defineProps({
     isLink: {
         type: Boolean,
-        default: false
+        default: false,
     },
     isIcon: {
         type: Boolean,
-        default: false
+        default: false,
     },
     isRounded: {
         type: Boolean,
-        default: false
+        default: false,
     },
     isDropdown: {
         type: Boolean,
-        default: false
+        default: false,
     },
     isBordered: {
         type: Boolean,
-        default: false
+        default: false,
     },
     to: {
         type: String,
-        default: ""
+        default: "",
     },
     variant: {
         type: String,
-        default: ""
+        default: "",
     },
     type: {
         type: String,
-        default: "button"
-    }
+        default: "button",
+    },
 });
 
 const attrs = useAttrs();
 
 const BUTTON_VARIANTS_CLASSES = {
-    "primary": "btn--primary",
+    primary: "btn--primary",
     "outline-primary": "btn--outline-primary",
     "outline-primary-small": "btn--outline-primary btn--small",
     "outline-primary-smallest": "btn--outline-primary btn--smallest",
 
-    "warning": "btn--warning",
+    warning: "btn--warning",
 
-    "danger": "btn--danger",
+    danger: "btn--danger",
     "outline-danger": "btn--outline-danger",
-    "outline-danger-small": "btn--outline-danger btn--small"
+    "outline-danger-small": "btn--outline-danger btn--small",
 };
 
 const getClass = () => {
-    const rounded = props.isRounded ? 'btn--rounded' : '';
-    const icon = props.isIcon ? 'btn--only-icon' : '';
-    const bordered = props.isBordered ? 'btn--bordered' : '';
-    const dropdown = props.isDropdown ? 'btn--dropdown' : '';
-    return `btn ${BUTTON_VARIANTS_CLASSES[props.variant] ?? ""} ${rounded} ${bordered} ${icon} ${dropdown}`;
+    const rounded = props.isRounded ? "btn--rounded" : "";
+    const icon = props.isIcon ? "btn--only-icon" : "";
+    const bordered = props.isBordered ? "btn--bordered" : "";
+    const dropdown = props.isDropdown ? "btn--dropdown" : "";
+    return `btn ${
+        BUTTON_VARIANTS_CLASSES[props.variant] ?? ""
+    } ${rounded} ${bordered} ${icon} ${dropdown}`;
 };
 </script>
 
 <template>
-    <button :type="props.type" v-if="!props.isLink" :class="getClass()" :title="props.title" v-bind="attrs">
+    <button
+        :type="props.type"
+        v-if="!props.isLink"
+        :class="getClass()"
+        :title="props.title"
+        v-bind="attrs"
+    >
         <slot></slot>
     </button>
 
@@ -85,19 +93,19 @@ button {
     color: inherit;
     font-size: 1.6rem;
     background-color: transparent;
-    padding: .8rem 1.6rem;
-    transition: all .2s linear;
+    padding: 0.8rem 1.6rem;
+    transition: all 0.2s linear;
     white-space: nowrap;
 }
 
 a:hover,
 button:hover {
-    opacity: .8;
+    opacity: 0.8;
 }
 
 button:disabled {
-    cursor: default;
-    opacity: .8;
+    cursor: not-allowed;
+    opacity: 0.8;
 }
 
 .btn--block,
@@ -108,7 +116,7 @@ button:disabled {
 
 .btn--smallest,
 .btn--small {
-    padding: 0.4rem .8rem;
+    padding: 0.4rem 0.8rem;
 }
 
 .btn--smallest {

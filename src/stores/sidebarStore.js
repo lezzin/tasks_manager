@@ -1,7 +1,7 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { defineStore } from "pinia";
+import { ref } from "vue";
 
-export const useSidebarStore = defineStore('sidebar', () => {
+export const useSidebarStore = defineStore("sidebar", () => {
     const isTopicSidebarActive = ref(false);
     const canShowSidebarToggler = ref(true);
 
@@ -27,6 +27,6 @@ export const useSidebarStore = defineStore('sidebar', () => {
         setShowSidebarToggler,
         setSidebarActive,
         isTopicSidebarActive,
-        canShowSidebarToggler
+        canShowSidebarToggler,
     };
 });

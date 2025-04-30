@@ -1,8 +1,15 @@
 <script setup>
-import PomodoroTasks from './PomodoroTasks.vue';
-import { reactive, ref, watch } from 'vue';
-import { useToast } from '../../composables/useToast';
-import UIButton from '../ui/UIButton.vue';
+import { reactive } from "vue";
+
+import { useToast } from "../../composables/useToast";
+import { addZeroToTime } from "../../utils/dateUtils";
+
+import UIButton from "../ui/UIButton.vue";
+import PomodoroTasks from "./PomodoroTasks.vue";
+
+const props = defineProps({
+    hasTasks: { type: Boolean },
+});
 
 const { showToast } = useToast();
 
@@ -12,7 +19,7 @@ const TIME_CONSTANTS = {
     SHORT_BREAK: { minutes: 5, seconds: 0 },
     LONG_BREAK: { minutes: 15, seconds: 0 },
     CYCLES_BEFORE_LONG_BREAK: 4,
-    PAUSE_PER_CYCLE_IN_MINUTES: 5
+    PAUSE_PER_CYCLE_IN_MINUTES: 5,
 };
 
 const timer = reactive({
@@ -21,7 +28,7 @@ const timer = reactive({
     active: false,
     paused: false,
     cycleCount: 1,
-    onBreak: false
+    onBreak: false,
 });
 let timerInterval;
 
@@ -112,24 +119,26 @@ const clearTimer = () => {
     timer.active = false;
     timer.paused = false;
 };
-
-const formatTime = (time) => {
-    return time < 10 ? '0' + time : time;
-};
 </script>
 
 <template>
     <div class="pomodoro">
         <div class="pomodoro__cycle-info">
-            Ciclo: {{ timer.cycleCount }} | {{ timer.onBreak ? 'Intervalo' : 'Trabalho' }}
+            Ciclo: {{ timer.cycleCount }} |
+            {{ timer.onBreak ? "Intervalo" : "Trabalho" }}
         </div>
 
         <span class="pomodoro__timer">
-            {{ formatTime(timer.minutes) }}:{{ formatTime(timer.seconds) }}
+            {{ addZeroToTime(timer.minutes) }}:{{ addZeroToTime(timer.seconds) }}
         </span>
 
         <div class="pomodoro__buttons">
-            <UIButton variant="primary" @click="startPomodoro" v-if="!timer.active && !timer.paused">
+            <UIButton
+                variant="primary"
+                @click="startPomodoro"
+                v-if="!timer.active && !timer.paused"
+                :disabled="!hasTasks"
+            >
                 <fa icon="play" /> Iniciar
             </UIButton>
 
@@ -146,7 +155,7 @@ const formatTime = (time) => {
             </UIButton>
         </div>
 
-        <PomodoroTasks />
+        <PomodoroTasks :hasTasks="hasTasks" />
     </div>
 </template>
 
@@ -178,9 +187,9 @@ const formatTime = (time) => {
     text-transform: uppercase;
     font-weight: 500;
     font-size: 1.8rem;
-    padding: .8rem 2rem;
+    padding: 0.8rem 2rem;
     margin-bottom: 5rem;
-    box-shadow: 0 .5rem 1rem rgb(0 0 0 / 15%);
+    box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 15%);
 }
 
 .pomodoro__cycle-info {

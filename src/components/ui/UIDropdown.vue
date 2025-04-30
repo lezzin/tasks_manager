@@ -1,12 +1,12 @@
 <script setup>
-import { ref } from 'vue';
+import { ref } from "vue";
 
 const emit = defineEmits(["trigger"]);
 const props = defineProps({
     isActive: {
         type: Boolean,
-        required: true
-    }
+        required: true,
+    },
 });
 
 const toggleDropdown = () => emit("trigger");
@@ -44,8 +44,8 @@ const dropdown = ref(null);
     overflow: hidden;
     background-color: var(--bg-primary);
     transform-origin: top right;
-    margin-top: .5rem;
-    margin-right: .5rem;
+    margin-top: 0.5rem;
+    margin-right: 0.5rem;
     z-index: 990;
 }
 

@@ -1,28 +1,34 @@
 <script setup>
-import { PAGE_TITLES, TASK_KANBAN_STATUSES } from '../../utils/variables';
+import { PAGE_TITLES, TASK_KANBAN_STATUSES } from "../../utils/variables";
 
-import { onMounted, reactive, ref, markRaw } from 'vue';
-import { useRouter } from 'vue-router';
-import { marked } from 'marked';
+import { onMounted, reactive, ref, markRaw, onBeforeUnmount } from "vue";
+import { useRouter } from "vue-router";
+import { marked } from "marked";
 
-import { useAuthStore } from '../../stores/authStore';
-import { useLoadingStore } from '../../stores/loadingStore';
-import { useToast } from '../../composables/useToast';
-import { useModal } from '../../composables/useModal';
-import { useTask } from '../../composables/useTask';
+import { useAuthStore } from "../../stores/authStore";
+import { useLoadingStore } from "../../stores/loadingStore";
+import { useToast } from "../../composables/useToast";
+import { useModal } from "../../composables/useModal";
+import { useTask } from "../../composables/useTask";
 
-import CommentModal from '../task/CommentModal.vue';
-import Task from '../task/TaskItem.vue';
-import UIButton from '../ui/UIButton.vue';
+import CommentModal from "../task/CommentModal.vue";
+import UIButton from "../ui/UIButton.vue";
+import Task from "../task/TaskItem.vue";
 
-const { changeStatus, getUserTasksWithTopic } = useTask();
+const props = defineProps({
+    hasTasks: { type: Boolean },
+});
+
 const { showToast } = useToast();
 const { user } = useAuthStore();
 const loadingStore = useLoadingStore();
+
 const router = useRouter();
 const modal = useModal();
+const { getUserTasksWithTopic, changeStatus } = useTask();
 
 const tasks = reactive({ data: [] });
+
 const isDropdownOpen = ref(false);
 const selectedComment = ref("");
 
@@ -44,7 +50,9 @@ const handleChangeTaskStatus = async (taskToUpdate) => {
     try {
         const newStatus = await changeStatus(taskToUpdate, user.uid);
         taskToUpdate.status = newStatus;
-        taskToUpdate.kanbanStatus = newStatus ? TASK_KANBAN_STATUSES.completed : TASK_KANBAN_STATUSES.todo;
+        taskToUpdate.kanbanStatus = newStatus
+            ? TASK_KANBAN_STATUSES.completed
+            : TASK_KANBAN_STATUSES.todo;
         showToast("success", "Status de conclusão alterado com sucesso.");
     } catch (error) {
         showToast("danger", "Erro ao alterar status da tarefa.");
@@ -53,7 +61,7 @@ const handleChangeTaskStatus = async (taskToUpdate) => {
 
 const toggleDropdown = () => {
     isDropdownOpen.value = !isDropdownOpen.value;
-}
+};
 
 const openTaskComment = (comment) => {
     selectedComment.value = marked(comment);
@@ -68,32 +76,46 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="pomodoro-tasks-wrapper">
-        <p class="text text--icon" v-if="tasks.data.length === 0">
-            <fa icon="exclamation-circle" />
-            <span> Crie uma nova tarefa para começar a utilizar o Pomodoro</span>
-        </p>
+    <p class="text text--icon" v-if="!hasTasks">
+        <fa icon="exclamation-circle" />
+        <span> Crie uma nova tarefa para começar a utilizar o Pomodoro da melhor maneira.</span>
+    </p>
 
+    <div class="pomodoro-tasks-wrapper" v-else>
         <UIButton variant="outline-primary" @click="toggleDropdown" title="Exibir tarefas">
             <fa :icon="isDropdownOpen ? 'eye-slash' : 'eye'" />
-            {{ isDropdownOpen ? 'Fechar' : 'Exibir' }} tarefas
+            {{ isDropdownOpen ? "Fechar" : "Exibir" }} tarefas
         </UIButton>
 
         <Transition name="slide">
-            <div class="task-nav" v-if="tasks.data.length > 0 && isDropdownOpen">
-                <Task v-for="task in tasks.data" :key="task.id" :task="task" @changeStatus="handleChangeTaskStatus"
-                    :showPriorities="false" :showEdit="false" :showDelete="false" :showCompletedStatus="false"
-                    :showComment="true" @openComment="openTaskComment" variant="smaller" />
+            <div class="task-nav" v-if="isDropdownOpen">
+                <Task
+                    v-for="task in tasks.data"
+                    :key="task.id"
+                    :task="task"
+                    @changeStatus="handleChangeTaskStatus"
+                    :showPriorities="false"
+                    :showEdit="false"
+                    :showDelete="false"
+                    :showCompletedStatus="false"
+                    :showComment="true"
+                    @openComment="openTaskComment"
+                    variant="smaller"
+                />
             </div>
         </Transition>
-    </div>
 
-    <Teleport to="#modal">
-        <Transition>
-            <CommentModal v-if="modal.show.value" @close="modal.hideModal" :comment="selectedComment"
-                id="comment-modal" />
-        </Transition>
-    </Teleport>
+        <Teleport to="#modal">
+            <Transition>
+                <CommentModal
+                    v-if="modal.show.value"
+                    @close="modal.hideModal"
+                    :comment="selectedComment"
+                    id="comment-modal"
+                />
+            </Transition>
+        </Teleport>
+    </div>
 </template>
 <style scoped>
 .pomodoro-tasks-wrapper {
@@ -109,6 +131,7 @@ onMounted(() => {
     display: grid;
     gap: 0.6rem;
     max-height: 160px;
+    overflow-y: auto;
     width: 100%;
     padding-inline: var(--padding);
 }

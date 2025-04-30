@@ -1,21 +1,21 @@
 <script setup>
-import { PAGE_TITLES, TASK_KANBAN_STATUSES } from '../utils/variables.js';
-import { getPriorityClass, getPriorityText, getPriorityIcon } from '../utils/priorityUtils.js';
+import { PAGE_TITLES, TASK_KANBAN_STATUSES } from "../utils/variables.js";
+import { getPriorityClass, getPriorityText, getPriorityIcon } from "../utils/priorityUtils.js";
 
-import { ref, reactive, onMounted, inject } from 'vue';
-import { RouterLink, useRouter } from 'vue-router';
+import { ref, reactive, onMounted, inject } from "vue";
+import { RouterLink, useRouter } from "vue-router";
 
-import { useToast } from '../composables/useToast.js';
-import { useTask } from '../composables/useTask.js';
-import { useAuthStore } from '../stores/authStore.js';
-import { useLoadingStore } from '../stores/loadingStore.js';
-import { useSidebarStore } from '../stores/sidebarStore.js';
+import { useToast } from "../composables/useToast.js";
+import { useTask } from "../composables/useTask.js";
+import { useAuthStore } from "../stores/authStore.js";
+import { useLoadingStore } from "../stores/loadingStore.js";
+import { useSidebarStore } from "../stores/sidebarStore.js";
 
-import ImageResponsive from '../components/shared/ImageResponsive.vue';
-import { useTopic } from '../composables/useTopic.js';
-import UIButton from '../components/ui/UIButton.vue';
+import ImageResponsive from "../components/shared/ImageResponsive.vue";
+import { useTopic } from "../composables/useTopic.js";
+import UIButton from "../components/ui/UIButton.vue";
 
-const props = defineProps(['db']);
+const props = defineProps(["db"]);
 
 const tasks = reactive({
     todo: [],
@@ -48,9 +48,13 @@ const loadTasks = async () => {
 };
 
 const organizeTasksByStatus = (userTasks) => {
-    tasks.todo = userTasks.filter((task) => task.kanbanStatus === TASK_KANBAN_STATUSES.todo || !task.kanbanStatus);
+    tasks.todo = userTasks.filter(
+        (task) => task.kanbanStatus === TASK_KANBAN_STATUSES.todo || !task.kanbanStatus
+    );
     tasks.doing = userTasks.filter((task) => task.kanbanStatus === TASK_KANBAN_STATUSES.doing);
-    tasks.completed = userTasks.filter((task) => task.kanbanStatus === TASK_KANBAN_STATUSES.completed);
+    tasks.completed = userTasks.filter(
+        (task) => task.kanbanStatus === TASK_KANBAN_STATUSES.completed
+    );
 };
 
 const handleDragEvents = (event, action, task = null) => {
@@ -92,16 +96,19 @@ const moveTask = (task, direction) => {
 const getNewColumn = (currentColumn, direction) => {
     const columns = ["todo", "doing", "completed"];
     const currentIndex = columns.indexOf(currentColumn);
-    return direction === "prev" && currentIndex > 0 ? columns[currentIndex - 1] :
-        direction === "next" && currentIndex < columns.length - 1 ? columns[currentIndex + 1] : null;
+    return direction === "prev" && currentIndex > 0
+        ? columns[currentIndex - 1]
+        : direction === "next" && currentIndex < columns.length - 1
+        ? columns[currentIndex + 1]
+        : null;
 };
 
 const isFirstColumn = (kanbanStatus) => {
-    return kanbanStatus === 'todo';
+    return kanbanStatus === "todo";
 };
 
 const isLastColumn = (kanbanStatus) => {
-    return kanbanStatus === 'completed';
+    return kanbanStatus === "completed";
 };
 
 const changeTaskColumn = (task, newColumn) => {
@@ -117,7 +124,7 @@ const updateTaskStatus = async (taskToUpdate, newKanbanStatus) => {
     try {
         changeKanbanStatus(taskToUpdate, newKanbanStatus, user.uid);
         taskToUpdate.kanban = newKanbanStatus;
-        taskToUpdate.status = (newKanbanStatus === TASK_KANBAN_STATUSES.completed);
+        taskToUpdate.status = newKanbanStatus === TASK_KANBAN_STATUSES.completed;
     } catch (error) {
         showToast("danger", `Erro ao atualizar Kanban. Tente novamente mais tarde.`);
     }
@@ -127,11 +134,11 @@ const getStatusLabel = (status) => {
     const statuses = {
         todo: "Para fazer",
         doing: "Em andamento",
-        completed: "Concluído"
-    }
+        completed: "Concluído",
+    };
 
     return statuses[status];
-}
+};
 
 onMounted(() => {
     document.title = PAGE_TITLES.kanban;
@@ -144,8 +151,12 @@ onMounted(() => {
     <div class="kanban-wrapper container" v-if="tasksLength > 0">
         <header class="kanban-wrapper__header" role="banner">
             <h2 class="title truncate" style="--line-clamp: 1">Kanban das suas tarefas</h2>
-            <UIButton @click="() => router.back()" variant="outline-primary" isIcon
-                title="Voltar para a página anterior">
+            <UIButton
+                @click="() => router.back()"
+                variant="outline-primary"
+                isIcon
+                title="Voltar para a página anterior"
+            >
                 <fa icon="arrow-left" />
                 <span class="sr-only">Voltar</span>
             </UIButton>
@@ -154,48 +165,81 @@ onMounted(() => {
         <section class="kanban" aria-labelledby="kanban-board">
             <h2 id="kanban-board" class="sr-only">Quadro Kanban de tarefas</h2>
 
-            <div class="kanban__column" v-for="kanbanStatus in ['todo', 'doing', 'completed']" :key="kanbanStatus"
-                :class="{ 'drag-over': activeColumn === kanbanStatus }" @drop="onDrop(kanbanStatus)"
-                @dragover="onDragOver" @dragenter="event => onDragEnter(event, kanbanStatus)"
-                :data-status="kanbanStatus" role="region" :aria-label="getStatusLabel(kanbanStatus)">
+            <div
+                class="kanban__column"
+                v-for="kanbanStatus in ['todo', 'doing', 'completed']"
+                :key="kanbanStatus"
+                :class="{ 'drag-over': activeColumn === kanbanStatus }"
+                @drop="onDrop(kanbanStatus)"
+                @dragover="onDragOver"
+                @dragenter="(event) => onDragEnter(event, kanbanStatus)"
+                :data-status="kanbanStatus"
+                role="region"
+                :aria-label="getStatusLabel(kanbanStatus)"
+            >
                 <h3 class="subtitle">
                     {{ getStatusLabel(kanbanStatus) }}
                 </h3>
 
                 <div class="kanban__tasks" role="list">
-                    <div class="task task--empty" v-if="tasks[kanbanStatus].length === 0" aria-hidden="true">
+                    <div
+                        class="task task--empty"
+                        v-if="tasks[kanbanStatus].length === 0"
+                        aria-hidden="true"
+                    >
                         <fa icon="box-open" />
                         <p class="text text--bold">Nenhuma tarefa na coluna</p>
                     </div>
-                    <div v-else v-for="task in tasks[kanbanStatus]" :key="task.id"
-                        :class="['task', task.status && 'completed']" draggable="true"
-                        @dragstart="handleDragEvents($event, 'start', task)" @dragend="handleDragEvents($event, 'end')"
-                        role="listitem" :aria-labelledby="'task-' + task.id">
+                    <div
+                        v-else
+                        v-for="task in tasks[kanbanStatus]"
+                        :key="task.id"
+                        :class="['task', task.status && 'completed']"
+                        draggable="true"
+                        @dragstart="handleDragEvents($event, 'start', task)"
+                        @dragend="handleDragEvents($event, 'end')"
+                        role="listitem"
+                        :aria-labelledby="'task-' + task.id"
+                    >
                         <p id="task-topic-{{ task.id }}" class="text text--small text--muted">
                             {{ task.topicName }}
                         </p>
 
-                        <RouterLink class="text text--bold truncate" :to="'/topic/' + task.topicId"
-                            style="--line-clamp: 1" :aria-labelledby="'task-' + task.id">
+                        <RouterLink
+                            class="text text--bold truncate"
+                            :to="'/topic/' + task.topicId"
+                            style="--line-clamp: 1"
+                            :aria-labelledby="'task-' + task.id"
+                        >
                             <span :id="'task-' + task.id">{{ task.name }}</span>
                         </RouterLink>
 
-                        <span :class="['tag', getPriorityClass(task.priority)]"
-                            :aria-label="getPriorityText(task.priority)">
+                        <span
+                            :class="['tag', getPriorityClass(task.priority)]"
+                            :aria-label="getPriorityText(task.priority)"
+                        >
                             <fa :icon="getPriorityIcon(task.priority)" />
                             {{ getPriorityText(task.priority) }}
                         </span>
 
                         <div class="task__navigation">
-                            <UIButton variant="outline-primary-small" @click="moveTask(task, 'prev')"
-                                :disabled="isFirstColumn(kanbanStatus)" :aria-disabled="isFirstColumn(kanbanStatus)"
-                                title="Mover tarefa para a coluna anterior">
+                            <UIButton
+                                variant="outline-primary-small"
+                                @click="moveTask(task, 'prev')"
+                                :disabled="isFirstColumn(kanbanStatus)"
+                                :aria-disabled="isFirstColumn(kanbanStatus)"
+                                title="Mover tarefa para a coluna anterior"
+                            >
                                 <fa icon="caret-left" />
                                 Anterior
                             </UIButton>
-                            <UIButton variant="outline-primary-small" @click="moveTask(task, 'next')"
-                                :disabled="isLastColumn(kanbanStatus)" :aria-disabled="isLastColumn(kanbanStatus)"
-                                title="Mover tarefa para a próxima coluna">
+                            <UIButton
+                                variant="outline-primary-small"
+                                @click="moveTask(task, 'next')"
+                                :disabled="isLastColumn(kanbanStatus)"
+                                :aria-disabled="isLastColumn(kanbanStatus)"
+                                title="Mover tarefa para a próxima coluna"
+                            >
                                 Próximo
                                 <fa icon="caret-right" />
                             </UIButton>
@@ -207,8 +251,11 @@ onMounted(() => {
     </div>
     <div class="container" v-else>
         <RouterLink to="/" title="Voltar para o início">
-            <ImageResponsive small="task_empty_sm.png" lg="task_empty_lg.png"
-                alt="Frase tarefas vazias e uma imagem de uma caixa vazia" />
+            <ImageResponsive
+                small="task_empty_sm.png"
+                lg="task_empty_lg.png"
+                alt="Frase tarefas vazias e uma imagem de uma caixa vazia"
+            />
         </RouterLink>
     </div>
 </template>
@@ -259,11 +306,11 @@ onMounted(() => {
             border: 1px dashed transparent;
             min-height: 70dvh;
 
-            &.drag-over>.subtitle {
+            &.drag-over > .subtitle {
                 border-bottom-color: var(--details-color);
             }
 
-            >.subtitle {
+            > .subtitle {
                 border-bottom: 3px solid transparent;
                 margin-bottom: 0.6rem;
                 position: sticky;
@@ -301,7 +348,7 @@ onMounted(() => {
 
                     &.dragging {
                         border-style: dashed;
-                        opacity: .6;
+                        opacity: 0.6;
                     }
 
                     &:not(.task--empty) {

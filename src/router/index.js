@@ -18,7 +18,7 @@ const getCurrentUser = () => {
 const routes = [
     {
         path: "/login",
-        component: () => import('../views/LoginView.vue'),
+        component: () => import("../views/LoginView.vue"),
         props: {
             provider: provider,
             auth: auth,
@@ -29,7 +29,7 @@ const routes = [
     },
     {
         path: "/",
-        component: () => import('../views/HomeView.vue'),
+        component: () => import("../views/HomeView.vue"),
         props: { db: db },
         meta: {
             requiresAuth: true,
@@ -37,7 +37,7 @@ const routes = [
     },
     {
         path: "/topic/:id",
-        component: () => import('../views/HomeView.vue'),
+        component: () => import("../views/HomeView.vue"),
         props: { db: db },
         meta: {
             requiresAuth: true,
@@ -45,7 +45,7 @@ const routes = [
     },
     {
         path: "/general",
-        component: () => import('../views/GeneralView.vue'),
+        component: () => import("../views/GeneralView.vue"),
         props: {
             db: db,
         },
@@ -55,7 +55,7 @@ const routes = [
     },
     {
         path: "/kanban",
-        component: () => import('../views/KanbanView.vue'),
+        component: () => import("../views/KanbanView.vue"),
         props: {
             db: db,
         },
@@ -65,14 +65,14 @@ const routes = [
     },
     {
         path: "/pomodoro",
-        component: () => import('../views/PomodoroView.vue'),
+        component: () => import("../views/PomodoroView.vue"),
         meta: {
             requiresAuth: true,
         },
     },
     {
         path: "/:pathMatch(.*)*",
-        component: () => import('../views/NotFoundView.vue'),
+        component: () => import("../views/NotFoundView.vue"),
         meta: {
             requiresAuth: false,
         },
@@ -85,7 +85,7 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-    const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+    const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
     const currentUser = await getCurrentUser();
 
     if (requiresAuth && !currentUser) {

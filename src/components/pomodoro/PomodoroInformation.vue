@@ -1,21 +1,22 @@
 <script setup>
-import UIButton from '../ui/UIButton.vue';
+import UIButton from "../ui/UIButton.vue";
 
 const goToPomodoro = () => {
     window.scroll({
         top: 0,
-        behavior: "smooth"
-    })
-}
+        behavior: "smooth",
+    });
+};
 </script>
 <template>
     <div class="information">
         <article class="information-block">
             <h2 class="title">O que é o método Pomodoro?</h2>
             <p class="text">
-                O método Pomodoro é uma técnica de gerenciamento de tempo desenvolvida para melhorar a
-                produtividade. Criado pelo italiano Francesco Cirillo nos anos 1980, ele se baseia em dividir o
-                tempo de trabalho em ciclos curtos e focados, seguidos de intervalos de descanso.
+                O método Pomodoro é uma técnica de gerenciamento de tempo desenvolvida para melhorar
+                a produtividade. Criado pelo italiano Francesco Cirillo nos anos 1980, ele se baseia
+                em dividir o tempo de trabalho em ciclos curtos e focados, seguidos de intervalos de
+                descanso.
             </p>
         </article>
 
@@ -27,16 +28,21 @@ const goToPomodoro = () => {
                 <li>Ajuste um timer para 25 minutos (esse período é chamado de "Pomodoro").</li>
                 <li>Trabalhe na tarefa até o timer tocar, sem interrupções.</li>
                 <li>Após os 25 minutos, faça uma pausa curta de 5 minutos.</li>
-                <li>Após completar quatro pomodoros, faça uma pausa mais longa, de 15 a 30 minutos.</li>
+                <li>
+                    Após completar quatro pomodoros, faça uma pausa mais longa, de 15 a 30 minutos.
+                </li>
             </ol>
 
             <p class="text">
-                Esse método ajuda a manter o foco e reduzir a procrastinação, criando uma sensação de urgência
-                para
-                completar as tarefas dentro de um tempo definido.
+                Esse método ajuda a manter o foco e reduzir a procrastinação, criando uma sensação
+                de urgência para completar as tarefas dentro de um tempo definido.
             </p>
 
-            <UIButton variant="outline-primary" @click="goToPomodoro" title="Iniciar o Pomodoro Timer">
+            <UIButton
+                variant="outline-primary"
+                @click="goToPomodoro"
+                title="Iniciar o Pomodoro Timer"
+            >
                 Começar agora!
             </UIButton>
         </article>

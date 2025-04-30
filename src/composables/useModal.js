@@ -7,7 +7,7 @@ export const useModal = () => {
     return {
         component,
         show,
-        showModal: () => show.value = true,
-        hideModal: () => show.value = false,
-    }
-}
+        showModal: () => (show.value = true),
+        hideModal: () => (show.value = false),
+    };
+};

@@ -1,11 +1,11 @@
 <script setup>
-import { ref, watch, watchEffect } from 'vue';
+import { ref, watch, watchEffect } from "vue";
 
-import { useToast } from '../../composables/useToast';
-import { useTopic } from '../../composables/useTopic';
-import { useAuthStore } from '../../stores/authStore';
-import UIButton from '../ui/UIButton.vue';
-import { useSidebarStore } from '../../stores/sidebarStore';
+import { useToast } from "../../composables/useToast";
+import { useTopic } from "../../composables/useTopic";
+import { useAuthStore } from "../../stores/authStore";
+import UIButton from "../ui/UIButton.vue";
+import { useSidebarStore } from "../../stores/sidebarStore";
 
 const nameError = ref("");
 const name = ref("");
@@ -47,8 +47,14 @@ watchEffect(() => {
         <div class="form-group">
             <div :class="['input-group', nameError ? 'input-error' : '']">
                 <label for="new-topic" class="sr-only">Nome do novo tópico</label>
-                <input type="text" id="new-topic" placeholder="Adicionar novo tópico" v-model="name"
-                    :aria-invalid="!!nameError" aria-describedby="topic-error" />
+                <input
+                    type="text"
+                    id="new-topic"
+                    placeholder="Adicionar novo tópico"
+                    v-model="name"
+                    :aria-invalid="!!nameError"
+                    aria-describedby="topic-error"
+                />
 
                 <UIButton type="submit" title="Adicionar novo tópico">
                     <fa icon="plus" />
@@ -68,6 +74,6 @@ watchEffect(() => {
 }
 
 input {
-    box-shadow: 0 .5rem 1rem var(--details-color-light);
+    box-shadow: 0 0.5rem 1rem var(--details-color-light);
 }
 </style>

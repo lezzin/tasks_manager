@@ -1,21 +1,27 @@
 <script setup>
-import UIButton from './UIButton.vue';
+import UIButton from "./UIButton.vue";
 
 const emit = defineEmits(["close"]);
 
 const props = defineProps({
     titleId: {
         type: String,
-        default: 'modal-title'
-    }
+        default: "modal-title",
+    },
 });
 
-const closeModal = () => emit('close');
+const closeModal = () => emit("close");
 </script>
 
 <template>
     <Transition name="modal">
-        <aside class="modal" role="dialog" aria-modal="true" :aria-labelledby="titleId" @click.self="closeModal">
+        <aside
+            class="modal"
+            role="dialog"
+            aria-modal="true"
+            :aria-labelledby="titleId"
+            @click.self="closeModal"
+        >
             <div class="modal__dialog">
                 <div class="modal__header">
                     <h2 :id="titleId" class="modal__title">

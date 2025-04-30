@@ -1,18 +1,18 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import { auth, db } from '../libs/firebase.js';
-import { deleteUser, onAuthStateChanged, signOut } from 'firebase/auth';
-import { PRINCIPAL_DOC_NAME } from '../utils/variables.js';
-import { deleteDoc, doc } from 'firebase/firestore';
+import { defineStore } from "pinia";
+import { ref } from "vue";
+import { auth, db } from "../libs/firebase.js";
+import { deleteUser, onAuthStateChanged, signOut } from "firebase/auth";
+import { PRINCIPAL_DOC_NAME } from "../utils/variables.js";
+import { deleteDoc, doc } from "firebase/firestore";
 
-export const useAuthStore = defineStore('auth', () => {
+export const useAuthStore = defineStore("auth", () => {
     const user = ref(auth.currentUser);
 
     const initAuthListener = () => {
         onAuthStateChanged(auth, (currentUser) => {
             user.value = currentUser;
         });
-    }
+    };
 
     const logout = async () => {
         try {
@@ -38,6 +38,6 @@ export const useAuthStore = defineStore('auth', () => {
     return {
         user,
         logout,
-        deleteAccount
+        deleteAccount,
     };
 });

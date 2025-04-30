@@ -1,45 +1,48 @@
 <script setup>
-import { ref, watch } from 'vue';
-import { useToast } from '../../composables/useToast.js';
-import UIButton from '../ui/UIButton.vue';
+import { ref, watch } from "vue";
+import { useToast } from "../../composables/useToast.js";
+import UIButton from "../ui/UIButton.vue";
 
 const { showToast } = useToast();
 
 const props = defineProps({
     inputId: {
         type: String,
-        required: true
+        required: true,
     },
     label: {
         type: String,
-        required: true
+        required: true,
     },
     placeholder: {
         type: String,
-        default: 'Adicionar...'
+        default: "Adicionar...",
     },
     modelValue: {
         type: String,
-        default: ''
+        default: "",
     },
     errorMessage: {
         type: String,
-        default: ''
+        default: "",
     },
     enableVoiceRecognition: {
         type: Boolean,
-        default: false
-    }
+        default: false,
+    },
 });
 
-const emit = defineEmits(['update']);
+const emit = defineEmits(["update"]);
 const localValue = ref(props.modelValue);
 const isListening = ref(false);
 const recognition = ref(null);
 
-watch(() => props.modelValue, (newValue) => {
-    localValue.value = newValue;
-});
+watch(
+    () => props.modelValue,
+    (newValue) => {
+        localValue.value = newValue;
+    }
+);
 
 const toggleSpeechRecognition = () => {
     isListening.value ? stopSpeechRecognition() : startSpeechRecognition();
@@ -86,11 +89,21 @@ const stopSpeechRecognition = () => {
     <div class="form-group">
         <label class="text" :for="inputId">{{ label }}</label>
         <div :class="['input-group', 'input-group-btn', errorMessage ? 'input-error' : '']">
-            <input type="text" :id="inputId" :placeholder="placeholder" v-model="localValue"
-                @input="() => emit('update', localValue)" :aria-describedby="errorMessage"
-                :aria-invalid="!!errorMessage" />
+            <input
+                type="text"
+                :id="inputId"
+                :placeholder="placeholder"
+                v-model="localValue"
+                @input="() => emit('update', localValue)"
+                :aria-describedby="errorMessage"
+                :aria-invalid="!!errorMessage"
+            />
 
-            <UIButton v-if="enableVoiceRecognition" title="Adicionar através de áudio" @click="toggleSpeechRecognition">
+            <UIButton
+                v-if="enableVoiceRecognition"
+                title="Adicionar através de áudio"
+                @click="toggleSpeechRecognition"
+            >
                 <fa :icon="isListening ? 'stop' : 'microphone'" />
             </UIButton>
         </div>

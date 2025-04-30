@@ -1,28 +1,33 @@
 <script setup>
-import { useLoadingStore } from '../stores/loadingStore';
-import { useSidebarStore } from '../stores/sidebarStore';
+import { useLoadingStore } from "../stores/loadingStore";
+import { useSidebarStore } from "../stores/sidebarStore";
+import { useTask } from "../composables/useTask";
 
-import { onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
 
-import PomodoroTimer from '../components/pomodoro/PomodoroTimer.vue';
-import PomodoroInformation from '../components/pomodoro/PomodoroInformation.vue';
-import UIButton from '../components/ui/UIButton.vue';
+import PomodoroTimer from "../components/pomodoro/PomodoroTimer.vue";
+import PomodoroInformation from "../components/pomodoro/PomodoroInformation.vue";
+import UIButton from "../components/ui/UIButton.vue";
 
+const { checkUserTasks } = useTask();
 const loadingStore = useLoadingStore();
 const sidebarStore = useSidebarStore();
 const router = useRouter();
 
+const hasAnyTask = ref(false);
+
 const goToHelp = () => {
     window.scroll({
         top: document.querySelector("#s-help").getBoundingClientRect().top + window.scrollY,
-        behavior: "smooth"
-    })
-}
+        behavior: "smooth",
+    });
+};
 
-onMounted(() => {
+onMounted(async () => {
     sidebarStore.setShowSidebarToggler(false);
     loadingStore.hideLoader();
+    hasAnyTask.value = await checkUserTasks();
 });
 </script>
 
@@ -30,16 +35,21 @@ onMounted(() => {
     <section class="pomodoro-wrapper" id="s-pomodoro">
         <div class="container">
             <div class="pomodoro__absolute">
-                <UIButton @click="() => router.back()" variant="outline-primary" title="Voltar para a página anterior">
+                <UIButton
+                    @click="() => router.back()"
+                    variant="outline-primary"
+                    title="Voltar para a página anterior"
+                >
                     <fa icon="arrow-left" />
                     <span>Voltar</span>
                 </UIButton>
+
                 <UIButton variant="outline-primary" isIcon title="Acessar ajuda" @click="goToHelp">
                     <fa icon="circle-question" />
                 </UIButton>
             </div>
 
-            <PomodoroTimer />
+            <PomodoroTimer :hasTasks="hasAnyTask" />
         </div>
     </section>
 
@@ -52,7 +62,11 @@ onMounted(() => {
 .pomodoro-wrapper {
     color: var(--details-color);
     background: var(--details-color-light);
-    background: -webkit-linear-gradient(to right, var(--details-color-light-2), var(--details-color-light));
+    background: -webkit-linear-gradient(
+        to right,
+        var(--details-color-light-2),
+        var(--details-color-light)
+    );
     background: linear-gradient(to right, var(--details-color-light-2), var(--details-color-light));
 }
 

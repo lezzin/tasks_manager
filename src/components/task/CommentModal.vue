@@ -1,18 +1,18 @@
 <script setup>
-import UIModal from '../ui/UIModal.vue';
+import UIModal from "../ui/UIModal.vue";
 
 const emit = defineEmits(["close"]);
 
 const props = defineProps({
     comment: {
         type: String,
-        required: false
-    }
-})
+        required: false,
+    },
+});
 
 const closeShowingComment = () => {
     emit("close");
-}
+};
 </script>
 
 <template>
@@ -20,9 +20,13 @@ const closeShowingComment = () => {
         <template #title>Comentários da tarefa</template>
 
         <template #body>
-            <div class="markdown-content markdown-content--normal" v-html="props.comment" aria-live="polite"
-                aria-describedby="comment-modal-title" role="document">
-            </div>
+            <div
+                class="markdown-content markdown-content--normal"
+                v-html="props.comment"
+                aria-live="polite"
+                aria-describedby="comment-modal-title"
+                role="document"
+            ></div>
         </template>
     </UIModal>
 </template>

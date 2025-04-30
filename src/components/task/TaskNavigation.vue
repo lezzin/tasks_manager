@@ -1,15 +1,15 @@
 <script setup>
-import { useToast } from '../../composables/useToast';
-import { useTask } from '../../composables/useTask';
-import { useAuthStore } from '../../stores/authStore';
-import { useModal } from '../../composables/useModal';
+import { useToast } from "../../composables/useToast";
+import { useTask } from "../../composables/useTask";
+import { useAuthStore } from "../../stores/authStore";
+import { useModal } from "../../composables/useModal";
 
-import { marked } from 'marked';
-import { inject, markRaw, ref } from 'vue';
+import { marked } from "marked";
+import { inject, markRaw, ref } from "vue";
 
-import TaskFormEdit from '../forms/TaskFormEdit.vue';
-import CommentModal from './CommentModal.vue';
-import TaskItem from './TaskItem.vue';
+import TaskFormEdit from "../forms/TaskFormEdit.vue";
+import CommentModal from "./CommentModal.vue";
+import TaskItem from "./TaskItem.vue";
 
 const { user } = useAuthStore();
 const { changeStatus, deleteTask } = useTask();
@@ -19,12 +19,12 @@ const modal = useModal();
 const props = defineProps({
     topic: {
         type: String,
-        required: true
+        required: true,
     },
     tasks: {
         type: Object,
-        required: true
-    }
+        required: true,
+    },
 });
 
 const editingTask = ref(null);
@@ -45,7 +45,8 @@ const handleChangeTaskStatus = async (taskToUpdate) => {
 };
 
 const handleDeleteTask = async (taskToDelete) => {
-    if (!confirm("Tem certeza que deseja excluir essa tarefa? Essa ação não poderá ser desfeita!")) return;
+    if (!confirm("Tem certeza que deseja excluir essa tarefa? Essa ação não poderá ser desfeita!"))
+        return;
 
     try {
         await deleteTask(taskToDelete, user.uid);
@@ -70,8 +71,15 @@ const openTaskComment = (comment) => {
 
 <template>
     <div class="task-nav">
-        <TaskItem v-for="task in props.tasks" :key="task.id" :task="task" @changeStatus="handleChangeTaskStatus"
-            @edit="openEditTaskModal" @openComment="openTaskComment" @delete="handleDeleteTask" />
+        <TaskItem
+            v-for="task in props.tasks"
+            :key="task.id"
+            :task="task"
+            @changeStatus="handleChangeTaskStatus"
+            @edit="openEditTaskModal"
+            @openComment="openTaskComment"
+            @delete="handleDeleteTask"
+        />
 
         <p class="text text--center" v-if="props.tasks.length === 0">
             Nenhuma tarefa para esse filtro
@@ -80,8 +88,12 @@ const openTaskComment = (comment) => {
 
     <Teleport to="#modal">
         <Transition>
-            <component :is="modal.component.value" v-if="modal.show.value" @close="modal.hideModal"
-                v-bind="{ topic: props.topic, task: editingTask, comment: selectedComment }" />
+            <component
+                :is="modal.component.value"
+                v-if="modal.show.value"
+                @close="modal.hideModal"
+                v-bind="{ topic: props.topic, task: editingTask, comment: selectedComment }"
+            />
         </Transition>
     </Teleport>
 </template>

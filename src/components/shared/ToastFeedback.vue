@@ -1,7 +1,7 @@
 <script setup>
-import { computed, onMounted, onBeforeUnmount } from 'vue';
-import { TOAST_TIMEOUT } from '../../utils/variables';
-import UIButton from '../ui/UIButton.vue';
+import { computed, onMounted, onBeforeUnmount } from "vue";
+import { TOAST_TIMEOUT } from "../../utils/variables";
+import UIButton from "../ui/UIButton.vue";
 
 const props = defineProps({
     data: {
@@ -10,7 +10,7 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(["close"]);
 
 const TOAST_TITLES = {
     danger: "Oops!",
@@ -43,8 +43,14 @@ function closeToast() {
 
 <template>
     <Transition name="toast">
-        <div :class="toastClass" role="alert" aria-live="assertive" aria-atomic="true" tabindex="0"
-            v-if="props.data.show">
+        <div
+            :class="toastClass"
+            role="alert"
+            aria-live="assertive"
+            aria-atomic="true"
+            tabindex="0"
+            v-if="props.data.show"
+        >
             <div class="toast__banner" aria-hidden="true"></div>
             <div class="toast__content">
                 <div class="toast__icon">

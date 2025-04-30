@@ -1,34 +1,34 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
-import '@toast-ui/editor/dist/toastui-editor.css';
-import { Editor } from '@toast-ui/editor';
+import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import "@toast-ui/editor/dist/toastui-editor.css";
+import { Editor } from "@toast-ui/editor";
 
 const props = defineProps({
     label: {
         type: String,
-        required: true
+        required: true,
     },
     modelValue: {
         type: String,
-        default: ''
+        default: "",
     },
     errorMessage: {
         type: String,
-        default: ''
+        default: "",
     },
     placeholder: {
         type: String,
-        default: 'Digite aqui o comentário...'
-    }
+        default: "Digite aqui o comentário...",
+    },
 });
 
-const emit = defineEmits(['update']);
+const emit = defineEmits(["update"]);
 const editorContainer = ref(null);
 let editorInstance = null;
 
 const updateContent = () => {
     if (editorInstance) {
-        emit('update', editorInstance.getMarkdown());
+        emit("update", editorInstance.getMarkdown());
     }
 };
 
@@ -36,13 +36,13 @@ onMounted(() => {
     if (!editorInstance) {
         editorInstance = new Editor({
             el: editorContainer.value,
-            initialEditType: 'markdown',
-            previewStyle: 'vertical',
-            height: '400px',
+            initialEditType: "markdown",
+            previewStyle: "vertical",
+            height: "400px",
             initialValue: props.modelValue,
             placeholder: props.placeholder,
             events: {
-                change: updateContent
+                change: updateContent,
             },
         });
     }
@@ -55,11 +55,14 @@ onBeforeUnmount(() => {
     }
 });
 
-watch(() => props.modelValue, (newValue) => {
-    if (editorInstance && newValue !== editorInstance.getMarkdown()) {
-        editorInstance.setMarkdown(newValue);
+watch(
+    () => props.modelValue,
+    (newValue) => {
+        if (editorInstance && newValue !== editorInstance.getMarkdown()) {
+            editorInstance.setMarkdown(newValue);
+        }
     }
-});
+);
 </script>
 
 <template>

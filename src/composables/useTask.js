@@ -1,11 +1,17 @@
-import { PRINCIPAL_DOC_NAME, TASK_KANBAN_STATUSES } from "../utils/variables";
-import { filterField } from "../utils/stringUtils";
-import { currentTime } from "../utils/dateUtils";
+import { ref, onBeforeUnmount } from "vue";
+import { doc, getDoc, updateDoc, onSnapshot } from "firebase/firestore";
+
 import { db } from "../libs/firebase";
 
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { useAuthStore } from "../stores/authStore";
+import { PRINCIPAL_DOC_NAME, TASK_KANBAN_STATUSES } from "../utils/variables";
+
+import { filterField } from "../utils/stringUtils";
+import { currentTime } from "../utils/dateUtils";
 
 import { useTopic } from "./useTopic";
+
+const { user } = useAuthStore();
 
 const throwValidationError = (message, code) => {
     const error = new Error(message);
@@ -32,6 +38,28 @@ const validateDeliveryDate = (date) => {
     }
 };
 
+const checkUserTasks = async () => {
+    let hasAnyTask = false;
+
+    try {
+        const docRef = doc(db, PRINCIPAL_DOC_NAME, user.uid);
+        const docSnap = await getDoc(docRef);
+
+        if (!docSnap.exists()) {
+            hasAnyTask = false;
+            return hasAnyTask;
+        }
+
+        const userData = docSnap.data();
+        hasAnyTask = userData.tasks && Object.entries(userData.tasks).length > 0;
+    } catch (error) {
+        console.error("Error fetching user tasks:", error);
+        hasAnyTask = false;
+    }
+
+    return hasAnyTask;
+};
+
 const getUserTasks = async (userId) => {
     try {
         const docRef = doc(db, PRINCIPAL_DOC_NAME, userId);
@@ -48,7 +76,7 @@ const getUserTasks = async (userId) => {
 
 const getUserTasksByTopic = async (topicId, userId) => {
     const tasks = await getUserTasks(userId);
-    return Object.values(tasks).filter(task => task.topicId === topicId)
+    return Object.values(tasks).filter((task) => task.topicId === topicId);
 };
 
 const getUserTasksWithTopic = async (userId) => {
@@ -56,10 +84,12 @@ const getUserTasksWithTopic = async (userId) => {
     const userTasks = Object.values(data);
     const { getTopicInfo } = useTopic();
 
-    await Promise.all(userTasks.map(async (task) => {
-        const { name } = await getTopicInfo(task.topicId, userId);
-        task.topicName = name;
-    }));
+    await Promise.all(
+        userTasks.map(async (task) => {
+            const { name } = await getTopicInfo(task.topicId, userId);
+            task.topicName = name;
+        })
+    );
 
     return userTasks;
 };
@@ -90,7 +120,14 @@ const addTask = async (topicId, newName, comment, priority, deliveryDate, userId
     await updateTasks(userId, updatedTasks);
 };
 
-const editTask = async (taskToUpdate, newName, newComment, newPriority, newDeliveryDate, userId) => {
+const editTask = async (
+    taskToUpdate,
+    newName,
+    newComment,
+    newPriority,
+    newDeliveryDate,
+    userId
+) => {
     validateTaskName(newName);
     validateDeliveryDate(newDeliveryDate);
 
@@ -126,7 +163,7 @@ const changeKanbanStatus = async (taskToUpdate, newKanbanStatus, userId) => {
     const updatedTask = {
         ...taskToUpdate,
         kanbanStatus: newKanbanStatus,
-        status: (newKanbanStatus === TASK_KANBAN_STATUSES.completed),
+        status: newKanbanStatus === TASK_KANBAN_STATUSES.completed,
     };
 
     const allTasks = await getUserTasks(userId);
@@ -150,6 +187,7 @@ export const useTask = () => {
         addTask,
         editTask,
         getUserTasksByTopic,
-        getUserTasksWithTopic
+        getUserTasksWithTopic,
+        checkUserTasks,
     };
 };

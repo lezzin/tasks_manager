@@ -4,7 +4,7 @@ const options = {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-    hour12: false
+    hour12: false,
 };
 
 export function currentTime() {
@@ -16,4 +16,8 @@ export function formatDate(date) {
 
     const [year, month, day] = date.split("-");
     return `${day}/${month}/${year}`;
+}
+
+export function addZeroToTime(time) {
+    return time < 10 ? "0" + time : time;
 }
