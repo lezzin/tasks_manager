@@ -1,5 +1,4 @@
-import { ref, onBeforeUnmount } from "vue";
-import { doc, getDoc, updateDoc, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 import { db } from "../libs/firebase";
 
